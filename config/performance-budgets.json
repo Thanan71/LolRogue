@@ -1,11 +1,11 @@
 {
-  "version": 9,
+  "version": 10,
   "bundle": {
     "totalJavaScriptGzipBytes": 700000,
     "largestJavaScriptRawBytes": 560000,
     "initialJavaScriptGzipBytes": 225000,
     "authRouteJavaScriptGzipBytes": 230000,
-    "deployableAssetBytes": 8000000
+    "deployableAssetBytes": 8050000
   },
   "headroom": {
     "totalJavaScriptMinimumRatio": 0.1

@@ -1,8 +1,8 @@
 # ADM — Administration fiable et exploitable
 
-**Statut : planifié, non implémenté.** 7 sprints, **36 tâches** (`ADM-01` à `ADM-36`). Cible : `src/pages/AdminPage.tsx`, `src/pages/admin/useAdminData.ts` et panneaux existants, vues/RPC PostgreSQL, `docs/administration.md`. [Retour au TODO](../../TODO.md) · [Architecture](architecture-maintenance.md).
+**Statut : ADM-S1 implémenté ; ADM-S2 à S7 restent planifiés.** 7 sprints, **36 tâches** (`ADM-01` à `ADM-36`). Cible : `src/pages/AdminPage.tsx`, `src/pages/admin/useAdminData.ts` et panneaux existants, vues/RPC PostgreSQL, `docs/administration.md`. [Retour au TODO](../../TODO.md) · [Architecture](architecture-maintenance.md).
 
-## État observé et frontières
+## État initial et frontières
 
 - `AdminDashboardPanel.tsx` affiche `active_today` mais transforme une valeur manquante en **0** ; vérifier l'existence/actualisation SQL avant de conclure qu'aucun joueur n'est actif.
 - `useAdminData.ts` limite la liste des joueurs à **100**, les runs au paramètre courant (100 par défaut) et les logs/rapports à un nombre fixe ; la limite effective du service peut aussi plafonner les réponses. **Un tableau chargé n'est pas un total global**, et son export n'est pas un export exhaustif.
@@ -14,97 +14,99 @@
 
 ## ADM-S1 — Fiabilité des données et définitions (P1 ; ADM-01..06)
 
+**Implémenté dans l'application 0.2.7.** [Contrat des quinze métriques](../admin-metrics.md) et [validation](../admin-s1-validation-2026-10-17.md). Les preuves locales, la CI et l'application distante de la migration restent distinctes. Les refunds internes sont testés ; le parcours public TREE-07 reste à réaliser.
+
 ### ADM-01 — Corriger « joueurs actifs aujourd'hui »
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Examiner la définition de `active_today` dans les vues SQL, l'actualisation et la lecture `admin_stats` ; distinguer métrique absente, valeur nulle et zéro légitime.
-  - [ ] Choisir activité vérifiable (dernière activité ou action validée) avec fenêtre UTC/date métier explicite, déduplication de comptes et exclusion bots/tests si applicable.
-  - [ ] Définir ce qui constitue une activité quotidienne, la fenêtre UTC et la différence valeur absente/0.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Afficher « indisponible »/« données insuffisantes » à la place de `0` en cas de clé absente/erreur ; documenter le calcul.
-  - [ ] Ajouter test SQL + test composant pour aucun actif, actif réel, métrique absente, erreur et fuseau.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester utilisateur actif, métrique absente, journée vide, erreur SQL et fuseau.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Examiner la définition de `active_today` dans les vues SQL, l'actualisation et la lecture `admin_stats` ; distinguer métrique absente, valeur nulle et zéro légitime.
+  - [x] Choisir activité vérifiable (dernière activité ou action validée) avec fenêtre UTC/date métier explicite, déduplication de comptes et exclusion bots/tests si applicable.
+  - [x] Définir ce qui constitue une activité quotidienne, la fenêtre UTC et la différence valeur absente/0.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Afficher « indisponible »/« données insuffisantes » à la place de `0` en cas de clé absente/erreur ; documenter le calcul.
+  - [x] Ajouter test SQL + test composant pour aucun actif, actif réel, métrique absente, erreur et fuseau.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester utilisateur actif, métrique absente, journée vide, erreur SQL et fuseau.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-02 — Distinguer Candies en circulation/gagnés/dépensés
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Définir clairement *gagnés à vie*, *dépensés*, *remboursés* et *solde en circulation*, avec conservation des montants ; distinguer la maîtrise des Candies.
-  - [ ] Auditer tables de progression, achats et ledger actuellement disponibles ; si nécessaire ajouter une migration **append-only** avec événements atomiques/idempotents (pas d'inférence fragile depuis le solde).
-  - [ ] Spécifier un ledger Candies avec earned/spent/refunded/balance et réconciliation, distinct des Éclats.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Réconcilier par compte les soldes avant/après, refunds `TREE-07`, anciennes récompenses et cas historique non renseigné ; exposer valeur inconnue quand non calculable.
-  - [ ] Tester achat répété, deux écritures concurrentes, reward retry, run rejetée, RLS et migration de comptes existants.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester dépenses concurrentes, refund, run rejetée, historique sans ledger et RLS.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Définir clairement *gagnés à vie*, *dépensés*, *remboursés* et *solde en circulation*, avec conservation des montants ; distinguer la maîtrise des Candies.
+  - [x] Auditer tables de progression, achats et ledger actuellement disponibles ; si nécessaire ajouter une migration **append-only** avec événements atomiques/idempotents (pas d'inférence fragile depuis le solde).
+  - [x] Spécifier un ledger Candies avec earned/spent/refunded/balance et réconciliation, distinct des Éclats.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Réconcilier par compte les soldes avant/après, refunds `TREE-07`, anciennes récompenses et cas historique non renseigné ; exposer valeur inconnue quand non calculable.
+  - [x] Tester achat répété, deux écritures concurrentes, reward retry, run rejetée, RLS et migration de comptes existants.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester dépenses concurrentes, refund, run rejetée, historique sans ledger et RLS.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-03 — Définir le dictionnaire des indicateurs
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Pour chaque carte, écrire formule, source, période, timezone, population incluse/exclue, filtre `verified` et stratégie d'agrégation.
-  - [ ] Garder les mesures « runs » / « attempts » / « Daily » / « comptes » distinctes ; pas de comparaisons trompeuses.
-  - [ ] Documenter numérateur/dénominateur, date, source SQL, filtre et population de chaque KPI.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Associer contract test à chaque clef de `admin_stats` et documentation visible dans un tooltip admin.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester toutes les clés métriques attendues, unité, valeur null et fenêtres de dates.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Pour chaque carte, écrire formule, source, période, timezone, population incluse/exclue, filtre `verified` et stratégie d'agrégation.
+  - [x] Garder les mesures « runs » / « attempts » / « Daily » / « comptes » distinctes ; pas de comparaisons trompeuses.
+  - [x] Documenter numérateur/dénominateur, date, source SQL, filtre et population de chaque KPI.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Associer contract test à chaque clef de `admin_stats` et documentation visible dans un tooltip admin.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester toutes les clés métriques attendues, unité, valeur null et fenêtres de dates.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-04 — Distinguer totaux réels et lignes affichées
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Utiliser requêtes `count: exact`/agrégats serveur pour total joueurs/runs/victoires ; ne jamais sommer les 100/1000 premières lignes.
-  - [ ] Indiquer nombre affiché, total correspondant aux filtres, chargement/erreur et période ; éviter statistiques calculées depuis un échantillon tronqué.
-  - [ ] Définir counts exacts serveur et taille de page indépendants pour runs, joueurs et logs.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Tester 0, 101, 1001 lignes, pages vides, filtre changé et incohérence de count.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester 0/100/101/1000/1001 enregistrements et changement de filtre.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Utiliser requêtes `count: exact`/agrégats serveur pour total joueurs/runs/victoires ; ne jamais sommer les 100/1000 premières lignes.
+  - [x] Indiquer nombre affiché, total correspondant aux filtres, chargement/erreur et période ; éviter statistiques calculées depuis un échantillon tronqué.
+  - [x] Définir counts exacts serveur et taille de page indépendants pour runs, joueurs et logs.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Tester 0, 101, 1001 lignes, pages vides, filtre changé et incohérence de count.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester 0/100/101/1000/1001 enregistrements et changement de filtre.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-05 — Vérifier les accès aux nouvelles métriques
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Tester toutes les nouvelles vues et RPC en `anon`, `authenticated` non-admin, admin et service role dans un environnement isolé.
-  - [ ] Garder `security_invoker`/RLS réels, aucune fuite de PII, désactivation du write client sur les colonnes admin.
-  - [ ] Établir matrice d'autorisations anon, connecté normal, admin, service-role sur nouvelles vues.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Ne pas élargir les privilèges existants simplement pour satisfaire le dashboard.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester accès refusé sans fuite, accès autorisé, RPC usurpée et rôle révoqué.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Tester toutes les nouvelles vues et RPC en `anon`, `authenticated` non-admin, admin et service role dans un environnement isolé.
+  - [x] Garder `security_invoker`/RLS réels, aucune fuite de PII, désactivation du write client sur les colonnes admin.
+  - [x] Établir matrice d'autorisations anon, connecté normal, admin, service-role sur nouvelles vues.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Ne pas élargir les privilèges existants simplement pour satisfaire le dashboard.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester accès refusé sans fuite, accès autorisé, RPC usurpée et rôle révoqué.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-06 — États de chargement et erreurs fiables
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Vérifier états indépendants stats/joueurs/runs/logs/authority/modération ; aucune panne d'une section ne doit faire disparaître les autres.
-  - [ ] Ajouter retry par onglet, données périmées indiquées, annulation des requêtes obsolètes, état vide et messages FR/EN.
-  - [ ] Définir états idle/loading/stale/error/empty par section et invalidation des réponses obsolètes.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Tester déconnexion, session expirée, réseau hors ligne et course entre deux recherches.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester déconnexion pendant chargement, deux filtres successifs, timeout et retry.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Vérifier états indépendants stats/joueurs/runs/logs/authority/modération ; aucune panne d'une section ne doit faire disparaître les autres.
+  - [x] Ajouter retry par onglet, données périmées indiquées, annulation des requêtes obsolètes, état vide et messages FR/EN.
+  - [x] Définir états idle/loading/stale/error/empty par section et invalidation des réponses obsolètes.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Tester déconnexion, session expirée, réseau hors ligne et course entre deux recherches.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester déconnexion pendant chargement, deux filtres successifs, timeout et retry.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 **Gate ADM-S1 :** les chiffres affichés ont une définition et une source testées ; clé absente ≠ zéro ; aucune fuite RLS.
 
 ## ADM-S2 — Fiches joueurs et historiques de runs (P1/P2 ; ADM-07..11)

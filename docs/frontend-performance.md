@@ -1,6 +1,6 @@
 # Performance frontend
 
-Dernière mesure bundle : **7 octobre 2026**, Node 24, build Vite de production local.
+Dernière campagne bundle : **17 octobre 2026**, Node 24, build Vite de production local.
 
 ## Référence avant P2-PERF-01
 
@@ -269,3 +269,18 @@ Avec la même marge obligatoire de **10 %**, le maximum effectif devient
 Les plafonds initial/Auth, par chunk, d'assets et de Web Vitals, ainsi que les
 seuils de couverture, restent inchangés. La séparation des modules, les ports
 explicites et les protections asynchrones sont conservés.
+
+## ADM-S1 — définitions et fiabilité des données
+
+Le premier build ajoute 15 297 octets d'assets déployables par rapport au même
+build du parent `53f63629`, et atteint 8 009 358 octets. Le plafond de
+8 000 000 octets est dépassé de 9 358 octets. Les définitions bilingues, états
+indépendants et protections contre les réponses obsolètes restent dans leurs
+modules habituels.
+
+Conformément à l'autorisation utilisateur de préserver la qualité du code, le
+budget v10 porte uniquement les assets déployables à **8 050 000 octets**
+(+0,625 %). Le plafond JavaScript global de 700 000 octets, sa marge obligatoire
+de 10 %, les budgets initial/Auth, par chunk et de Web Vitals restent inchangés.
+Les mesures finales comparées au parent sont consignées dans la
+[validation ADM-S1](admin-s1-validation-2026-10-17.md).

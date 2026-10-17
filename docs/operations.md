@@ -9,6 +9,9 @@ Ce document est le point d'entrée opérationnel. Les procédures détaillées s
 - `docs/release-and-support.md` pour environnements, rotation, release, smoke test,
   export et suppression de compte ;
 - `docs/administration.md` pour promouvoir ou révoquer un administrateur.
+- `docs/admin-metrics.md` pour le contrat des métriques et la migration Candies
+  `20261017042727` requise par l'application 0.2.7. Sa validation locale ne vaut
+  pas application distante ; les règles de cible et de déploiement restent identiques.
 - `docs/generated-artifacts.md` pour régénérer et vérifier les artefacts sans
   supprimer les versions historiques ;
 - `docs/css-maintenance.md` et `docs/dependency-audit.md` pour les contrôles de
