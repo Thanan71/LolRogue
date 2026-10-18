@@ -86,11 +86,7 @@ export function compareMigrationManifests(expected, applied) {
 export function assertDeployableMigrationHistory(expected, applied) {
   const { unknown, orderDivergent } = compareMigrationManifests(expected, applied);
   const prefix = expected.slice(0, applied.length);
-  if (
-    unknown.length > 0 ||
-    orderDivergent ||
-    JSON.stringify(prefix) !== JSON.stringify(applied)
-  ) {
+  if (unknown.length > 0 || orderDivergent || JSON.stringify(prefix) !== JSON.stringify(applied)) {
     throw new Error(
       'Remote migrations do not form a known prefix of the candidate. ' +
         'Investigate migration drift manually; automatic repair is forbidden.',
