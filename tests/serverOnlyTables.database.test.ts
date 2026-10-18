@@ -7,6 +7,7 @@ import type { Database } from '@/types/database';
 type TableAccess = {
   name: keyof Database['public']['Tables'];
   exposure: 'client-data-api' | 'server-only';
+  apiPolicy?: 'deny-all';
   reason: string;
 };
 const manifest = JSON.parse(
@@ -59,6 +60,10 @@ describe('public table boundary manifest', () => {
       expect(entry.name).toMatch(/^[a-z_][a-z0-9_]*$/);
       expect(['client-data-api', 'server-only']).toContain(entry.exposure);
       expect(entry.reason.length).toBeGreaterThan(30);
+      if (entry.apiPolicy !== undefined) {
+        expect(entry.exposure).toBe('server-only');
+        expect(entry.apiPolicy).toBe('deny-all');
+      }
     }
     expect(internalTables.map((entry) => entry.name)).toEqual([
       'champion_economy_catalog',
@@ -135,6 +140,7 @@ describeDatabase('server-only table live privilege boundary', () => {
         publicGrants: number;
         clientGrants: number;
         unsafePolicies: number;
+        policies: number;
         serviceRead: boolean;
       }>(`
       SELECT json_build_object(
@@ -152,6 +158,7 @@ describeDatabase('server-only table live privilege boundary', () => {
           WHERE has_table_privilege(clients.role_name, relation.oid, 'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER,MAINTAIN')
             OR has_any_column_privilege(clients.role_name, relation.oid, 'SELECT,INSERT,UPDATE,REFERENCES')
         ),
+        'policies', (SELECT count(*) FROM pg_policy WHERE polrelid = relation.oid),
         'unsafePolicies', (
           SELECT count(*) FROM pg_policy AS policy
           WHERE policy.polrelid = relation.oid AND (
@@ -170,6 +177,7 @@ describeDatabase('server-only table live privilege boundary', () => {
         publicGrants: 0,
         clientGrants: 0,
         unsafePolicies: 0,
+        policies: entry.apiPolicy === 'deny-all' ? 1 : 0,
         serviceRead: true,
       });
     },
