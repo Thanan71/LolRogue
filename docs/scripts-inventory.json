@@ -25403,7 +25403,7 @@
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 56,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(workflow).toContain('npm run check:db');",
@@ -25446,7 +25446,7 @@
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 56,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(workflow).toContain('npm run check:db');",
@@ -28250,7 +28250,7 @@
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 57,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(workflow).toContain('npm run database -- stop');",
@@ -28258,10 +28258,10 @@
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 60,
+          "line": 65,
           "kind": "npm-run",
           "source": "test",
-          "excerpt": "expect(section).toContain('npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes');",
+          "excerpt": "'npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes',",
           "classification": "active"
         },
         {
@@ -29215,7 +29215,7 @@
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 57,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(workflow).toContain('npm run database -- stop');",
@@ -29223,10 +29223,10 @@
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 60,
+          "line": 65,
           "kind": "npm-run",
           "source": "test",
-          "excerpt": "expect(section).toContain('npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes');",
+          "excerpt": "'npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes',",
           "classification": "active"
         },
         {
@@ -29285,7 +29285,7 @@
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 56,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(workflow).toContain('npm run check:db');",
