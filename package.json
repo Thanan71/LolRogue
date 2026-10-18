@@ -49,7 +49,7 @@
     "scripts:inventory:check": "node scripts/generate-scripts-inventory.mjs --check"
   },
   "dependencies": {
-    "@supabase/supabase-js": "2.117.2",
+    "@supabase/supabase-js": "2.117.3",
     "@tailwindcss/postcss": "^4.2.2",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "2.0.0",
