@@ -163,6 +163,15 @@ describeDatabase('bounded administrative technical diagnostics', () => {
     expect((await query('logs', { ...period, operation: 'select' })).data.total).toBe(0);
     expect((await query('logs', { from: '2024-03-01', to: '2024-03-01' })).data.total).toBe(0);
   });
+  it.each(['requestPasswordReset', 'updatePassword'])(
+    'accepts the exact safe authentication method %s from the real SQL projection',
+    async (method) => {
+      const fixture = seedDiagnosticLogs(player, { method });
+      const result = await query('logs', { ...period, correlationId: fixture.sessionId });
+      expect(result.data.rows).toHaveLength(1);
+      expect(result.data.rows[0].method).toBe(method);
+    },
+  );
   it('sanitizes legacy metadata at read-time and never projects sensitive details, identities or stack traces', async () => {
     const fixture = seedDiagnosticLogs(player, {
       unsafe: true,

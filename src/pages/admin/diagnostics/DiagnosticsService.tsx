@@ -70,7 +70,7 @@ export function DiagnosticsService({ diagnostics }: { diagnostics: AdminDiagnost
                   copy.verified,
                   copy.rejected,
                   copy.expired,
-                  copy.pendingBacklog,
+                  copy.nonterminalAttempts,
                   copy.sealLatency,
                   copy.sealSli,
                 ].map((label) => (

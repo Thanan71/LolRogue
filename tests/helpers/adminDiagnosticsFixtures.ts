@@ -9,6 +9,7 @@ export function seedDiagnosticLogs(
     date?: string;
     sessionId?: string;
     attemptId?: string;
+    method?: string;
     unsafe?: boolean;
   } = {},
 ) {
@@ -23,7 +24,7 @@ export function seedDiagnosticLogs(
   });
   explorerSql(`INSERT INTO public.logs(id,created_at,level,repository,method,operation,user_id,player_id,session_id,details,error_message,error_stack,table_name,duration_ms)
    SELECT unnest(ARRAY[${ids.map(diagnosticSqlText).join(',')}]::uuid[]),${diagnosticSqlText(date)}::timestamptz,'error',
-   ${diagnosticSqlText(options.unsafe ? 'person@example.test' : 'SupabaseRunRepository')},'save','insert','${account.userId}','${account.playerId}',
+   ${diagnosticSqlText(options.unsafe ? 'person@example.test' : 'SupabaseRunRepository')},${diagnosticSqlText(options.method ?? 'save')},'insert','${account.userId}','${account.playerId}',
    '${sessionId}',${diagnosticSqlText(details)}::jsonb,'Bearer secret-access-marker 192.0.2.99 sensitive-command-marker','secret-stack-marker','run_attempts',123.45;`);
   return { ids, sessionId };
 }

@@ -58,6 +58,7 @@ const french = {
   sloHelp:
     'Le délai commence au scellement serveur et comprend le parcours de finalisation ; il ne mesure pas la vitesse de calcul du vérificateur. Cible : 99 % en 120 secondes, objectif évalué sur 30 jours. La sélection peut couvrir une autre période.',
   pendingBacklog: 'Tentatives scellées en attente',
+  nonterminalAttempts: 'Tentatives non terminales',
   availability: 'Disponibilité des requêtes',
   requestErrorRate: 'Taux d’erreur des requêtes',
   technical: 'Erreur technique à investiguer',
@@ -193,6 +194,7 @@ const english: DiagnosticsCopy = {
   sloHelp:
     'The delay starts at server sealing and includes the finalization journey; it does not measure verifier computation speed. Target: 99% within 120 seconds, evaluated over 30 days. Your selection may cover a different period.',
   pendingBacklog: 'Sealed attempts still pending',
+  nonterminalAttempts: 'Nonterminal attempts',
   availability: 'Request availability',
   requestErrorRate: 'Request error rate',
   technical: 'Technical error to investigate',

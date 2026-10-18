@@ -8,6 +8,7 @@ import {
   renderHook,
   screen,
   waitFor,
+  within,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getAdminDiagnosticsCopy } from '@/i18n/adminDiagnostics';
@@ -27,6 +28,7 @@ import {
   diagnosticsAggregate,
   diagnosticsAttempt,
   diagnosticsLog,
+  diagnosticsMetrics,
   diagnosticsResponse,
   DIAGNOSTICS_TEST_UUID,
 } from './helpers/adminDiagnosticsUiFixtures';
@@ -333,6 +335,44 @@ describe('diagnostics interface', () => {
     expect(screen.getByText(copy.unknown)).toBeVisible();
     expect(screen.queryByText(copy.stable)).not.toBeInTheDocument();
     expect(screen.getByText(copy.sloHelp)).toBeVisible();
+  });
+  it('distinguishes nonterminal bucket attempts from the aged sealed backlog', async () => {
+    mocks.read.mockImplementation((request: DiagnosticsRequest) => {
+      if (request.section !== 'service') return response(request);
+      const result = diagnosticsResponse({
+        section: 'service',
+        filters: {
+          from: request.filters.from,
+          to: request.filters.to,
+          engineVersion: null,
+          gameplayRulesetVersion: null,
+          granularity: 'day',
+        },
+      });
+      result.data.buckets[0] = {
+        ...result.data.buckets[0],
+        ...diagnosticsMetrics({ started: 1, pending: 1 }),
+        hasSignal: true,
+      };
+      result.data.summary = diagnosticsMetrics({ started: 1, pending: 1 });
+      result.data.pendingBacklog = 0;
+      return result;
+    });
+    render(<AdminDiagnosticsWorkspace tab="authority" />);
+    const table = await screen.findByRole('table', { name: copy.serviceTable });
+    const headers = within(table).getAllByRole('columnheader');
+    const pendingColumn = headers.findIndex(
+      (header) => header.textContent === copy.nonterminalAttempts,
+    );
+    expect(pendingColumn).toBeGreaterThanOrEqual(0);
+    expect(
+      within(table).queryByRole('columnheader', { name: copy.pendingBacklog }),
+    ).not.toBeInTheDocument();
+    const firstBucket = within(table).getAllByRole('row')[1];
+    expect(within(firstBucket).getAllByRole('cell')[pendingColumn]).toHaveTextContent(/^1$/);
+    const backlogCard = screen.getByText(copy.pendingBacklog).closest('div');
+    expect(backlogCard).not.toBeNull();
+    expect(within(backlogCard!).getByText('0', { exact: true })).toBeVisible();
   });
   it('renders technical rejection investigation with a runbook and keeps repeated reads quiet', async () => {
     mocks.read.mockImplementation((request: DiagnosticsRequest) =>

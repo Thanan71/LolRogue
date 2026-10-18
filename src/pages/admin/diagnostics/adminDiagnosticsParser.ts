@@ -92,6 +92,7 @@ type ValidRequest<S extends DiagnosticsSection = DiagnosticsSection> = Required<
 
 function metadata(value: unknown): string {
   const result = diagnosticsText(value, 100);
+  if (result === 'requestPasswordReset' || result === 'updatePassword') return result;
   return /^[A-Za-z][A-Za-z0-9_.]{0,99}$/.test(result) &&
     !/(password|token|secret|credential|authorization|cookie|eyJ)/i.test(result)
     ? result

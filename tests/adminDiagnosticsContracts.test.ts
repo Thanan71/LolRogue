@@ -167,6 +167,17 @@ describe('strict server diagnostics contracts', () => {
     ])
       reject(request, diagnosticsResponse(request, { ...data, rows: [row] }));
   });
+  it.each(['requestPasswordReset', 'updatePassword'])(
+    'accepts the exact public authentication method label %s without exposing a credential',
+    (method) => {
+      const request = diagnosticsRequest('logs');
+      const response = diagnosticsResponse(request, {
+        total: 1,
+        rows: [diagnosticsLog({ method })],
+      });
+      expect(parseAdminDiagnostics(response, request).data.rows[0]?.method).toBe(method);
+    },
+  );
   it.each(['details', 'errorStack', 'userId', 'playerId', 'payload'])(
     'rejects private log field %s even on an otherwise valid response',
     (key) => {
