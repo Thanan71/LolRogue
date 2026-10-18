@@ -1,6 +1,6 @@
 # ADM — Administration fiable et exploitable
 
-**Statut : ADM-S1 à S3 implémentés ; ADM-S4 implémenté hors ADM-20, en attente de TREE-10 ; ADM-S5 implémenté ; ADM-S6 et S7 restent planifiés.** 7 sprints, **36 tâches** (`ADM-01` à `ADM-36`). Cible : `src/pages/AdminPage.tsx`, `src/pages/admin/useAdminData.ts` et panneaux existants, vues/RPC PostgreSQL, `docs/administration.md`. [Retour au TODO](../../TODO.md) · [Architecture](architecture-maintenance.md).
+**Statut : ADM-S1 à S3 implémentés ; ADM-S4 implémenté hors ADM-20, en attente de TREE-10 ; ADM-S5 et ADM-S6 implémentés ; ADM-S7 reste planifié.** 7 sprints, **36 tâches** (`ADM-01` à `ADM-36`). Cible : `src/pages/AdminPage.tsx`, `src/pages/admin/useAdminData.ts` et panneaux existants, vues/RPC PostgreSQL, `docs/administration.md`. [Retour au TODO](../../TODO.md) · [Architecture](architecture-maintenance.md).
 
 ## État initial et frontières
 
@@ -425,75 +425,77 @@ fusion et déploiement restent distincts de cette clôture code.
 ## ADM-S6 — Surveillance technique et diagnostics (P2 ; ADM-27..31)
 
 ### ADM-27 — Explorer les logs utiles
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Ajouter recherche/filtres d'opération, niveau, période, correlation ID et curseur serveur ; pas de recherche uniquement dans un échantillon chargé.
-  - [ ] Définir filtres serveur exacts pour opérations, sévérité, plage, corrélation et page.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Garder diagnostic DB **OFF par défaut**, opt-in, sanitisé et rétention existante de 14 jours.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester log hors page, logging OFF, date limite et absence de permission.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Ajouter recherche/filtres d'opération, niveau, période, correlation ID et curseur serveur ; pas de recherche uniquement dans un échantillon chargé.
+  - [x] Définir filtres serveur exacts pour opérations, sévérité, plage, corrélation et page.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Garder diagnostic DB **OFF par défaut**, opt-in, sanitisé et rétention existante de 14 jours.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester log hors page, logging OFF, date limite et absence de permission.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-28 — Rejets authority exploitables
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Réutiliser `AdminAuthorityPanel`/`authority_attempt_aggregates`, statut started/verified/rejected/expired, code de rejet, versions et période.
-  - [ ] Distinguer rejected/expired/pending/verified et erreur technique sans conclure à un abus joueur.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Mettre en évidence les erreurs serveur, les tentatives invalides et les incidents d'infrastructure sans accuser automatiquement le joueur.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester moteur unsupported, échec RPC, code absent et fenêtre d'agrégation vide.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Réutiliser `AdminAuthorityPanel`/`authority_attempt_aggregates`, statut started/verified/rejected/expired, code de rejet, versions et période.
+  - [x] Distinguer rejected/expired/pending/verified et erreur technique sans conclure à un abus joueur.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Mettre en évidence les erreurs serveur, les tentatives invalides et les incidents d'infrastructure sans accuser automatiquement le joueur.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester moteur unsupported, échec RPC, code absent et fenêtre d'agrégation vide.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-29 — Indicateurs de service
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Définir taux d'erreur, latences et disponibilité des flux de sauvegarde/vérification selon télémétrie réellement existante.
-  - [ ] Choisir des SLI réellement instrumentés plutôt que déduire disponibilité d'une courbe vide.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Relier les objectifs aux runbooks/`docs/observability.md` ; rendre les trous de données visibles.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester service sans signal, latence extrême, périodes manquantes et granularité.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Définir taux d'erreur, latences et disponibilité des flux de sauvegarde/vérification selon télémétrie réellement existante.
+  - [x] Choisir des SLI réellement instrumentés plutôt que déduire disponibilité d'une courbe vide.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Relier les objectifs aux runbooks/`docs/observability.md` ; rendre les trous de données visibles.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester service sans signal, latence extrême, périodes manquantes et granularité.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-30 — Corrélations de diagnostic
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Lier des événements d'une même tentative avec identifiants de corrélation et contrôle des permissions.
-  - [ ] Spécifier correlation IDs et minimisation des informations dans chaque log/requête.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Ne jamais exposer JWT, secrets, adresse IP brute ou contenu de commande sensible aux exports non nécessaires.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester jeton/secret absent, changement de session et accès transverse refusé.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Lier des événements d'une même tentative avec identifiants de corrélation et contrôle des permissions.
+  - [x] Spécifier correlation IDs et minimisation des informations dans chaque log/requête.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Ne jamais exposer JWT, secrets, adresse IP brute ou contenu de commande sensible aux exports non nécessaires.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester jeton/secret absent, changement de session et accès transverse refusé.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-31 — Alertes et incidents
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Réutiliser seuils `AUTHORITY_REJECTION_ALERT_POLICY`, anti-bruit, périodes et niveau de sévérité.
-  - [ ] Définir déclencheur, fenêtre, silence/retour normal et priorité depuis la politique authority existante.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Tester détection, suppression d'alerte redondante et lien vers procédure de remédiation ; ne pas promettre de notification en temps réel sans service opérationnel.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester pic de rejets, faux positif, alerte répétée et retour à l'état stable.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Réutiliser seuils `AUTHORITY_REJECTION_ALERT_POLICY`, anti-bruit, périodes et niveau de sévérité.
+  - [x] Définir déclencheur, fenêtre, silence/retour normal et priorité depuis la politique authority existante.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Tester détection, suppression d'alerte redondante et lien vers procédure de remédiation ; ne pas promettre de notification en temps réel sans service opérationnel.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester pic de rejets, faux positif, alerte répétée et retour à l'état stable.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 **Gate ADM-S6 :** une panne est diagnostiquable sans surveillance indiscriminée ni fausse précision statistique.
+
+**Clôture code ADM-S6 — 18 octobre 2026 :** ADM-27 à 31 implémentés dans 0.2.12. [Contrat](../admin-diagnostics.md) et [preuves](../admin-s6-validation-2026-10-18.md). Migration `20261018100541`, application distante et déploiement distincts ; logging DB toujours OFF par défaut, aucune notification automatique.
 
 ## ADM-S7 — UI, architecture et preuves (P2 ; ADM-32..36)
 

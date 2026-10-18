@@ -85,7 +85,7 @@ describe('documentation maintenue', () => {
     expect(operations).toContain('SLO de vérification authority');
     expect(operations).toContain('99 % sur une fenêtre glissante de 30 jours');
     expect(operations).toContain('120 secondes');
-    expect(operations).toContain('fenêtre glissante de **15 minutes**');
+    expect(operations).toContain('**15 minutes UTC closes précédentes**');
     expect(incidents).toContain('Ne jamais y copier commandes, payload, journal');
 
     expect(backup).toContain('RPO 24 h');

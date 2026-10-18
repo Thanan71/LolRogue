@@ -2,6 +2,27 @@
 
 Dernière campagne bundle : **18 octobre 2026**, Node 24, build Vite de production local.
 
+## ADM-S6 — surveillance technique
+
+Le parent indépendant `4abb2b28` est reconstruit avec cache npm vide et postinstall
+complet : JS gzip **681 459** octets, initial **226 498**, Auth **231 297** et
+assets **8 213 091**. La fermeture Auth comporte 10 entrées sans module admin.
+
+Le premier build mesuré ajoute environ 12 ko gzip au total et charge le module
+Diagnostics séparément (environ 14 ko gzip). Les mesures définitives et la preuve
+sur clone indépendant du SHA livré figurent dans la PR, avec la
+[validation ADM-S6](admin-s6-validation-2026-10-18.md).
+
+Le candidat de maintenance indépendant `f812673f` mesure **693 857** octets JS
+gzip, **226 818** initiaux, **231 621** pour Auth et **8 253 163** d’assets.
+Le module Diagnostic représente **14 235** octets gzip. La marge JS est de
+**11,04 %**, sans module admin dans les 10 entrées de la fermeture Auth.
+
+Le budget v14 passe de 770 000 à **780 000 octets JS gzip** et de 8 250 000 à
+**8 300 000 octets d’assets**. La marge minimale de 10 %, les limites initial/Auth,
+les plafonds de chunks et les objectifs Web Vitals restent identiques. Aucun
+asset ni dépendance n’est ajouté ; les contrôles d’isolation restent actifs.
+
 ## ADM-S5 — modération auditée
 
 Le clone parent indépendant `c1181954` mesure 671 518 octets de JavaScript gzip.

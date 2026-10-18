@@ -79,7 +79,7 @@ sans minimum de 20 observations ; ce minimum concerne les ratios navigateur.
 Le backlog encore ouvert reste visible même si son seal précède les 30 jours.
 
 Les alertes authority existantes de `/admin` restent définies dans
-`docs/operations.md` : fenêtre de 15 min par moteur/ruleset, code inconnu, 3 rejets
+`docs/operations.md` : quinze minutes UTC closes par moteur/ruleset, code inconnu, 3 rejets
 avec le même code, ou >= 20 % de rejets dès 5 attempts. Utiliser
 `docs/incident-runbooks.md#rejets-authority-anormaux` pour l'investigation.
 
@@ -108,14 +108,25 @@ ne lit ni ne clone le body et ignore le transport des logs pour éviter une bouc
 | Compteurs et nombre d'échantillons perdus | 15 tranches minute ; purge à chaque écriture/lecture ; max. 1 024 séries ; mémoire effacée au rechargement/à la fermeture | code de l'onglet ; export console du build diagnostic |
 | Rapport SLO serveur | résultat calculé sur 30 jours, aucune copie persistée par le rapport | connexion PostgreSQL opérateur autorisée |
 | Données source authority | politique gameplay existante : vie du compte, suppression avec le compte | frontières authority et RLS existantes |
-| Événements client nettoyés | max. 200 en mémoire, 20/type/min ; buffer d'envoi max. 100, deux retries ; logs DB purgés après 14 jours | session pour l'envoi ; administrateurs via RLS et vues Admin pour la lecture |
+| Événements client nettoyés | max. 200 en mémoire, 20/type/min ; buffer d'envoi max. 100, deux retries ; logs DB exclus de la lecture après 14 jours et purgés par le job existant | session pour l'envoi ; administrateurs via projection minimale `admin_diagnostics` |
 | Export manuel de diagnostic/SLO | au plus 14 jours, suppression manuelle par l'opérateur ; joindre seulement les agrégats utiles à un incident | espace opérateur privé, accès limité aux intervenants |
 
-Les événements client existants acceptent `runId` et `commandId` nettoyés pour la
-corrélation. Ces identifiants restent absents des nouveaux compteurs. Aucun email,
+Les événements client acceptent `runId`, `commandId` nettoyés et un `attemptId` UUID
+optionnel pour la corrélation ; un lien serveur exige le même propriétaire.
+Ces identifiants restent absents des compteurs. Aucun email,
 nom, token, contenu de commande ou état de run n'est accepté. La politique source
 est décrite dans `docs/legal-and-privacy.md` ; une fenêtre d'analyse de 30 jours
 n'est pas une purge des données de gameplay.
+
+L’espace admin [ADM-S6](admin-diagnostics.md) ajoute des indicateurs calculés
+depuis les tentatives existantes, sur la période et les versions choisies. Il
+publie seal → terminal et le backlog, avec des tranches sans signal explicites.
+Disponibilité HTTP, taux d’erreur et latence des requêtes restent non instrumentés
+globalement. Le p95 seal → terminal n’est pas le p95 start → verified du rapport
+opérateur : ce dernier inclut la durée de jeu. L’opt-in de logs reste désactivé
+par défaut, sans nouveau transport ni notification. Le changement d’identité
+efface les buffers, corrélations et mesures locales, et invalide les transitions
+asynchrones de la session précédente ; un refresh du même compte les conserve.
 
 `tests/technicalMetrics.test.ts` vérifie burst sans échantillonnage, dénominateur
 client, versions historiques, minimisation, capacité, expiration et transparence

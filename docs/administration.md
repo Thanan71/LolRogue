@@ -4,7 +4,7 @@ Le panneau `/admin` présente les statistiques, joueurs, runs et logs. La garde
 React améliore l'expérience, mais l'autorisation réelle est imposée par PostgreSQL
 avec RLS et `is_current_user_admin()`.
 
-L'application 0.2.11 expose quinze indicateurs avec leur définition FR/EN et des
+L'application 0.2.12 expose quinze indicateurs avec leur définition FR/EN et des
 totaux serveur distincts des lignes affichées. Le [contrat des métriques](admin-metrics.md)
 précise les connexions du jour UTC, le registre Candies, les valeurs inconnues,
 les droits et les limites des exports. La migration
@@ -114,8 +114,9 @@ révocation est urgente.
   RLS et vues admin en droits appelant en dépendent, mais jamais par `anon`.
 - Les vues `admin_stats` et `admin_player_stats` s'exécutent avec les permissions
   de l'appelant et filtrent par la fonction admin.
-- Les politiques des runs, joueurs, maîtrises et logs n'accordent la lecture
-  globale qu'aux admins.
+- Les politiques des runs, joueurs et maîtrises n'accordent la lecture globale
+  qu'aux admins. Les logs ne sont plus lisibles directement depuis le navigateur :
+  `admin_diagnostics` vérifie le rôle courant et renvoie une projection minimale.
 - Les clients n'insèrent jamais directement dans `logs`; la RPC attribue chaque
   ligne à la session. Les diagnostics expirent après 14 jours et disparaissent
   immédiatement avec le compte concerné.
@@ -125,6 +126,8 @@ révocation est urgente.
 - Chaque ressource admin expose chargement, erreur et retry indépendamment.
   L’espace de modération est chargé à la demande. Une erreur de relecture garde
   les anciennes données identifiées comme périmées et interdit les décisions.
+  Logs et Authority partagent aussi un espace chargé à la demande ; une lecture
+  refusée efface toutes ses ressources et ses incidents locaux.
 - Le rang personnel provient exclusivement de `get_my_leaderboard_rank()` : le client
   ne télécharge jamais le leaderboard complet pour le recalculer.
 - Les migrations de durcissement doivent être appliquées avant d'activer le
@@ -166,6 +169,21 @@ avec le même JWT. Un refus de lecture `42501` ou un reçu d’action
 `admin_access_denied` purge toutes les ressources de modération. L’audit des
 refus d’action authentifiés est conservé par un reçu structuré, sans exception
 qui annulerait simultanément sa trace.
+
+## Surveillance technique
+
+Le [contrat ADM-S6](admin-diagnostics.md) couvre la pagination des journaux et
+tentatives, les indicateurs de vérification, les corrélations et le suivi
+d’incidents. Il requiert la migration `20261018100541` avant le client 0.2.12.
+La fenêtre d’alertes correspond aux quinze minutes UTC closes précédentes ;
+les filtres de la liste et ceux des indicateurs restent explicitement distincts.
+L’absence de logs facultatifs ou d’échantillons serveur ne prouve pas une absence
+de panne. Aucun envoi de diagnostics ni notification n’est activé implicitement.
+
+Les labels exposés viennent d’un catalogue fermé ; les textes libres et les
+données de jeu sont masqués. Les liens de tentative exigent le même propriétaire
+que le log. Le retrait du rôle admin est testé avec une vraie session navigateur
+et le même JWT dans les [preuves S6](admin-s6-validation-2026-10-18.md).
 
 ## Intervention courante
 

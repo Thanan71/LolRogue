@@ -130,6 +130,13 @@ les trois nouvelles RPC et l’unique cron quotidien selon
 [le runbook de rétention](backup-and-restore.md). Le code et les tests locaux
 ne prouvent ni migration distante, ni action de modération en production.
 
+Pour ADM-S6, appliquer `20261018100541_admin_technical_diagnostics.sql` avant le
+client 0.2.12. La lecture directe de `logs` est révoquée ; utiliser le nouveau RPC
+et vérifier l’admin réel, la pagination et les données sans signal selon
+[le contrat de diagnostic](admin-diagnostics.md). Ne pas remettre un ancien
+panneau lisant les logs bruts lors d’un rollback : le candidat compatible inclut
+le client RPC et doit être validé séparément d’un déploiement connu comme sain.
+
 - ouvrir directement `/auth` et vérifier l'absence de 404 ;
 - créer une session ou entrer en invité ;
 - démarrer une run connectée et vérifier la présence d'un `run_attempt` possédé par
@@ -298,17 +305,20 @@ de **99 % sur une fenêtre glissante de 30 jours**. Une attempt `finished` depui
 de **5 minutes** est un backlog anormal à traiter, même si aucun rejet n'est encore
 visible.
 
-L'alerte courte utilise une fenêtre glissante de **15 minutes**, séparée par
+L’alerte courte utilise les **15 minutes UTC closes précédentes**, séparées par
 `engine_version` et `gameplay_ruleset_version`. Elle se déclenche sur l'un des cas :
 
 - tout `rejection_code` inconnu ;
 - au moins 3 rejets portant le même code ;
 - au moins 20 % de rejets dès 5 attempts observés.
 
-L'onglet **Authority** de `/admin` expose les agrégats et les 20 derniers rejets. La
-requête runbook équivalente est `public.authority_recent_rejections`. Ces sorties
-contiennent seulement `attempt_id`, versions, date et code ; une alerte externe ne
-doit jamais inclure commandes, payload, journal, identité ou état joueur.
+L’onglet **Authority** de `/admin` expose une liste paginée de tentatives et une
+fenêtre d’alertes indépendante de ses filtres de dates/statut/code. Les versions
+restent partagées. `public.authority_recent_rejections` reste une vue opérateur
+compatible, limitée à ses 20 derniers rejets, pas la source de cette nouvelle
+liste complète. Les projections excluent commandes, payload, journal et identité.
+Le suivi local déduplique les observations et ne marque pas un rétablissement sur
+une fenêtre vide, insuffisante ou tronquée. Aucune notification n’est activée.
 
 Le rapport canonique en lecture seule est `scripts/sql/technical-slo.sql`, à
 exécuter depuis une connexion PostgreSQL opérateur à la cible. Il inclut au
@@ -354,6 +364,11 @@ jour à 03:17 UTC ; une soumission déclenche aussi une purge opportuniste. Les 
 d'un compte sont supprimés avec celui-ci. Les valeurs sensibles sont filtrées
 côté client puis à nouveau côté serveur, mais il faut toujours éviter d'y envoyer
 un secret, mot de passe, token ou donnée personnelle.
+
+ADM-S6 masque aussi les textes libres hérités à la lecture et exclut les logs
+expirés même si le cron est en retard. La mention « collecte désactivée » décrit
+le build courant, pas tous les clients. Les buffers et corrélations sont purgés
+au changement d’identité ; les batches sont liés à leur session d’origine.
 
 Pour un incident :
 
