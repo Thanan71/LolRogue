@@ -7,7 +7,7 @@ Workflow : [`.github/workflows/database-deployment.yml`](../.github/workflows/da
 | Branche GitHub | Projet Supabase | Référence | Environnement GitHub |
 | --- | --- | --- | --- |
 | `dev` | LolRogueDev | `misdmtpfcbxbhheacehm` | `supabase-dev` |
-| `main` | LolRogue | `mmpvmclqdgfnpfgcqnyu` | `supabase-production` |
+| `main` | LolRogue | `mmpvmclqdgfnpfgcqnyu` | `main` |
 
 Le workflow est exécuté sur **chaque push** vers ces branches, ou manuellement avec `workflow_dispatch` depuis la branche désirée. Il ne s'exécute **jamais sur une PR** avec des secrets distants. Aucun filtre de chemins n'est appliqué : si un commit de migration est dépassé par un commit applicatif avant son checkout, le nouveau commit doit reprendre les migrations en attente.
 
@@ -18,7 +18,9 @@ Au début de chaque job, le SHA du checkout doit correspondre exactement au SHA 
 Dans **Settings → Environments**, créer deux environnements GitHub :
 
 - `supabase-dev` : autoriser uniquement la branche `dev`.
-- `supabase-production` : autoriser uniquement `main`, **activer la protection par approbation** pour la production.
+- `main` : autoriser uniquement la branche `main`.
+
+Ces noms doivent correspondre exactement aux champs `environment` du workflow. Le projet Supabase de production reste LolRogue ; `main` est ici le nom de l'environnement GitHub.
 
 Ajouter **dans chacun** les secrets d'environnement suivants (valeurs distinctes adaptées au projet) :
 
@@ -27,7 +29,7 @@ Ajouter **dans chacun** les secrets d'environnement suivants (valeurs distinctes
 
 Ne pas stocker les mots de passe dans le dépôt ni dans des variables `VITE_*`. L'absence de secrets fait échouer le job avant le rattachement distant. Ne pas définir ces deux noms au niveau dépôt ou organisation : GitHub peut utiliser ces valeurs si un secret d'environnement manque. Les références de projets (publiques) sont fixées dans le workflow et comparées à `scripts/lib/environment-config.mjs`.
 
-**Important :** la définition des environnements, de leurs secrets et des approbations GitHub est une étape manuelle, à réaliser avant d'activer les déploiements automatiques. En particulier, créer un environnement sans reviewers ne suffit pas à protéger la production.
+La définition des environnements, de leurs secrets et des restrictions de branche doit précéder le premier déploiement. Des reviewers peuvent être ajoutés à l'environnement `main` si une approbation humaine est souhaitée : le job attendra alors cette approbation avant d'utiliser les secrets.
 
 ## Étapes des jobs
 
@@ -48,6 +50,6 @@ La concurrence est sérialisée pour une même branche (`cancel-in-progress: fal
 - **Branche ou SHA incorrect** : relancer depuis le dernier commit de `dev` ou `main`, sans modifier manuellement la référence cible.
 - **Historique distant divergent** : examiner `supabase_migrations.schema_migrations` et les fichiers versionnés. Ne pas utiliser `migration repair` automatiquement.
 - **Erreur SQL pendant `db push`** : conserver le journal, vérifier l'état effectif de la base, créer si nécessaire une nouvelle migration corrective et relancer. Les migrations ne sont pas automatiquement annulées.
-- **Mise en production à risque** : effectuer une sauvegarde fiable et confirmer la compatibilité ascendante du schéma avant d'approuver le job `supabase-production`.
+- **Mise en production à risque** : effectuer une sauvegarde fiable et confirmer la compatibilité ascendante du schéma avant de publier sur `main` ou d'approuver son job si des reviewers sont configurés.
 
 Ces jobs ne remplacent pas la CI générale, les sauvegardes ni le contrôle manuel de l'ordre de publication des modifications applicatives incompatibles. Ils ne doivent pas être utilisés comme mécanisme de restauration ou de rollback destructif.

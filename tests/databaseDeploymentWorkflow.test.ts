@@ -50,7 +50,7 @@ describe('branch-isolated Supabase database deployment', () => {
     const configuration = parseDocument(workflow).toJS();
     for (const [branch, environment] of [
       ['dev', 'supabase-dev'],
-      ['main', 'supabase-production'],
+      ['main', 'main'],
     ] as const) {
       const declaredTarget = environmentSource
         .split(`${branch}: Object.freeze({`)[1]

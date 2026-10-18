@@ -121,12 +121,12 @@ jobs:
         run: npm run database -- migrations check --linked --project-ref "$EXPECTED_PROJECT_REF"
 
   deploy-main:
-    name: Deploy migrations to supabase-production
+    name: Deploy migrations to production (main environment)
     needs: validate-migrations
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    environment: supabase-production
+    environment: main
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
