@@ -1,9 +1,4 @@
 import { getAuthorityGameplayVersionLabel } from '@/game/authority/versionRegistry';
-import type {
-  VerifiedFieldAugmentCohort,
-  VerifiedFieldCalibrationCohort,
-  VerifiedFieldChampionCohort,
-} from '@/game/balance/fieldCalibrationComparison';
 import { fr } from '@/i18n/fr';
 import type {
   AuthorityAttemptAggregate,
@@ -17,7 +12,6 @@ import {
   formatAdminPercent,
 } from '../adminPageUtils';
 import { AdminErrorNotice } from './AdminErrorNotice';
-import { AdminFieldCalibrationPanel } from './AdminFieldCalibrationPanel';
 import { AdminSectionFeedback } from './AdminSectionFeedback';
 import type { AdminAuthorityRejection } from './useAdminData';
 import type { AdminSectionFeedback as Feedback } from './useAdminSection';
@@ -26,9 +20,6 @@ interface AdminAuthorityPanelProps {
   aggregates: AuthorityAttemptAggregate[];
   signals: AuthorityRejectionSignal[];
   rejections: AdminAuthorityRejection[];
-  fieldCohorts: readonly VerifiedFieldCalibrationCohort[];
-  fieldChampionCohorts: readonly VerifiedFieldChampionCohort[];
-  fieldAugmentCohorts: readonly VerifiedFieldAugmentCohort[];
   loading: boolean;
   error: string | null;
   onRefresh: () => void;
@@ -39,9 +30,6 @@ export function AdminAuthorityPanel({
   aggregates,
   signals,
   rejections,
-  fieldCohorts,
-  fieldChampionCohorts,
-  fieldAugmentCohorts,
   loading,
   error,
   onRefresh,
@@ -174,12 +162,6 @@ export function AdminAuthorityPanel({
             </table>
             {rejections.length === 0 && <div className="no-data">{fr.admin.noRejections}</div>}
           </div>
-
-          <AdminFieldCalibrationPanel
-            fieldCohorts={fieldCohorts}
-            championCohorts={fieldChampionCohorts}
-            augmentCohorts={fieldAugmentCohorts}
-          />
         </>
       )}
     </section>

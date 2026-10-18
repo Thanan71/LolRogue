@@ -1,0 +1,117 @@
+.admin-balance {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.admin-balance__heading,
+.admin-balance__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.admin-balance__filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--space-3);
+  margin-block: var(--space-3);
+}
+
+.admin-balance__field {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.admin-balance__field input,
+.admin-balance__field select,
+.admin-balance__context {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 44px;
+}
+
+.admin-balance__panel,
+.admin-balance__provenance {
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.admin-balance__note,
+.admin-balance__metadata {
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.admin-balance__scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  margin-block: var(--space-3);
+}
+
+.admin-balance__scroll:focus-visible,
+.field-calibration [role="region"]:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.admin-balance__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-balance__table th,
+.admin-balance__table td {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: top;
+  min-width: 8rem;
+}
+
+.admin-balance__table caption {
+  text-align: left;
+  font-weight: 600;
+  padding-block: var(--space-3);
+}
+
+.admin-balance__table small,
+.admin-balance__rate {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.admin-balance code,
+.admin-balance__facts dd {
+  overflow-wrap: anywhere;
+}
+
+.admin-balance__facts > div {
+  min-width: 0;
+}
+
+.admin-balance__provenance + .admin-balance__provenance {
+  margin-top: var(--space-3);
+}
+
+@media (max-width: 600px) {
+  .admin-balance__panel,
+  .admin-balance__provenance {
+    padding: var(--space-3);
+  }
+
+  .admin-balance__heading,
+  .admin-balance__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

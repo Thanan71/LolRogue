@@ -483,6 +483,35 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 15,
+    version: '0.2.10',
+    publishedOn: '2026-10-18',
+    title: {
+      'fr-FR': 'Un espace dédié à l’équilibrage',
+      'en-US': 'A dedicated balance workspace',
+    },
+    entries: [
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'L’administration sépare désormais l’équilibrage du suivi technique. Les comparaisons terrain et les analyses des champions et builds précisent leurs versions, leurs compositions, leurs effectifs et les limites des données disponibles.',
+          'en-US':
+            'Administration now separates balance analysis from technical monitoring. Field comparisons and champion and build analyses show their versions, team compositions, sample sizes and available data limits.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Les règles et les flags sont consultables en lecture seule. Les mesures non collectées et les statistiques des arbres encore indisponibles sont signalées explicitement.',
+          'en-US':
+            'Rules and flags can be inspected read-only. Metrics that are not collected and tree statistics that are not yet available are explicitly identified.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {

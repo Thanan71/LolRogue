@@ -1,3 +1,4 @@
+import { lazy, Suspense, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/config/routes';
 import { fr } from '@/i18n/fr';
@@ -18,6 +19,8 @@ import { useAdminData } from './admin/useAdminData';
 import { formatAdminDate, formatAdminNumber, getLogLevelClass } from './adminPageUtils';
 import '@/styles/admin.css';
 import '@/styles/admin-analytics.css';
+
+const AdminBalanceWorkspace = lazy(() => import('./admin/balance/AdminBalanceWorkspace'));
 
 const LOG_LEVEL_LABELS: Readonly<Record<string, string>> = {
   error: fr.admin.error,
@@ -45,9 +48,6 @@ export function AdminPage() {
     authorityAggregates,
     authoritySignals,
     authorityRejections,
-    fieldCohorts,
-    fieldChampionCohorts,
-    fieldAugmentCohorts,
     logs,
     statsLoading,
     authorityLoading,
@@ -66,6 +66,11 @@ export function AdminPage() {
     fetchModerationReports,
     invalidateDailyScore,
   } = useAdminData(isAdmin);
+  const [balanceVisited, setBalanceVisited] = useState(false);
+  const selectTab = (tab: Parameters<typeof setActiveTab>[0]) => {
+    if (tab === 'balance') setBalanceVisited(true);
+    setActiveTab(tab);
+  };
   const playersExplorer = useAdminPlayersExplorer();
   const runExplorer = useAdminRunExplorer();
   const analytics = useAdminAnalytics(activeTab === 'analytics');
@@ -97,7 +102,7 @@ export function AdminPage() {
         </p>
       </div>
 
-      <AdminTabList activeTab={activeTab} onSelect={setActiveTab} />
+      <AdminTabList activeTab={activeTab} onSelect={selectTab} />
 
       <div className="admin-content">
         {activeTab === 'dashboard' && (
@@ -105,7 +110,7 @@ export function AdminPage() {
             loading={statsLoading}
             state={sections.stats}
             stats={stats}
-            onSelectTab={setActiveTab}
+            onSelectTab={selectTab}
             onRefresh={fetchStats}
             error={errors.stats}
           />
@@ -229,9 +234,6 @@ export function AdminPage() {
             aggregates={authorityAggregates}
             signals={authoritySignals}
             rejections={authorityRejections}
-            fieldCohorts={fieldCohorts}
-            fieldChampionCohorts={fieldChampionCohorts}
-            fieldAugmentCohorts={fieldAugmentCohorts}
             loading={authorityLoading}
             error={errors.authority}
             onRefresh={() => void fetchAuthorityObservability()}
@@ -251,6 +253,14 @@ export function AdminPage() {
         {activeTab === 'runs' && <AdminRunsPanel explorer={runExplorer} />}
 
         {activeTab === 'analytics' && <AdminAnalyticsPanel analytics={analytics} />}
+
+        <div hidden={activeTab !== 'balance'}>
+          {balanceVisited && (
+            <Suspense fallback={<p role="status">{fr.common.loading}</p>}>
+              <AdminBalanceWorkspace active={activeTab === 'balance'} />
+            </Suspense>
+          )}
+        </div>
 
         {activeTab === 'moderation' && (
           <AdminModerationPanel

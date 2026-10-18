@@ -294,6 +294,7 @@ export const en = {
     welcome: 'Welcome',
     dashboard: 'Dashboard',
     analytics: 'Time analytics',
+    balance: 'Balance',
     logs: 'Logs',
     players: 'Players',
     runs: 'Runs',

@@ -1,6 +1,6 @@
 # Performance frontend
 
-Dernière campagne bundle : **17 octobre 2026**, Node 24, build Vite de production local.
+Dernière campagne bundle : **18 octobre 2026**, Node 24, build Vite de production local.
 
 ## Référence avant P2-PERF-01
 
@@ -299,3 +299,28 @@ Les 10 % de marge, plafonds par chunk, couverture et Web Vitals restent bloquant
 L’isolation Auth continue d’exclure les écrans admin, Database et données champions.
 Les mesures finales et preuves figurent dans la
 [validation ADM-S2](admin-s2-validation-2026-10-17.md).
+
+## ADM-S4 — espace d’équilibrage différé
+
+Le parent `ee3cf5b2` est construit dans un clone indépendant, sans alternates ni
+configuration privée, sous Node 24 après `npm ci` avec un cache initialement vide.
+Il mesure 656 280 octets de JavaScript gzip, 226 465 pour l’initial, 231 275 pour
+Auth et 8 121 484 octets d’assets. Le premier build ADM-S4 mesure respectivement
+671 270, 226 499, 231 305 et 8 174 038 octets. Sa marge globale de 8,05 % échoue
+au minimum de 10 % ; les assets dépassent aussi leur ancien plafond.
+
+Conformément à l’autorisation utilisateur de préserver la qualité du code, le
+budget **v12** porte uniquement le total JS à **750 000 octets** (+2,74 %) et les
+assets à **8 200 000 octets** (+0,61 %). La marge minimale de **10 %**, les plafonds
+initial/Auth, les plafonds individuels existants et les Web Vitals restent
+bloquants. L’espace est importé à la première visite et les lectures sont annulées
+lorsqu’il est masqué ; les filtres restent conservés pour le retour à l’onglet.
+
+La séparation des imports fait apparaître le catalogue traduit sous le nom
+`championContent`, tandis que `content` conserve ses résolveurs. Le nouveau chunk
+reçoit le même plafond individuel de **135 000 octets gzip**, en plus du contrôle
+existant de `content`, afin de continuer à contrôler les données réellement
+lourdes. Il ne s’agit pas d’un relèvement de leur budget individuel.
+
+Les mesures finales et leurs limites figurent dans la
+[validation ADM-S4](admin-s4-validation-2026-10-18.md).

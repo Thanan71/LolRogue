@@ -2083,6 +2083,9 @@ export type Database = {
       admin_analytics_funnel: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
       admin_analytics_retention: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
       admin_analytics_series: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
+      admin_balance_builds: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
+      admin_balance_champions: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
+      admin_balance_config: { Args: Record<PropertyKey, never>; Returns: Json };
       admin_export_runs: {
         Args: { p_filters?: Json; p_max_rows?: number; p_population?: string; p_snapshot?: string };
         Returns: Json;

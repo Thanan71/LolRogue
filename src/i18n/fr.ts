@@ -297,6 +297,7 @@ const french = {
     welcome: 'Bienvenue',
     dashboard: 'Tableau de bord',
     analytics: 'Analyses temporelles',
+    balance: 'Équilibrage',
     logs: 'Journaux',
     players: 'Joueurs',
     runs: 'Parties',

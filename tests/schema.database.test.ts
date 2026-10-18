@@ -234,6 +234,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20261017042727_admin_metrics_candy_ledger.sql',
       '../supabase/migrations/20261017055016_admin_player_run_explorer.sql',
       '../supabase/migrations/20261017070341_admin_temporal_analytics.sql',
+      '../supabase/migrations/20261018073001_admin_balance_workspace.sql',
     ]);
   });
 

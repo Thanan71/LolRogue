@@ -1,6 +1,6 @@
 # ADM — Administration fiable et exploitable
 
-**Statut : ADM-S1 et ADM-S2 implémentés ; ADM-S3 à S7 restent planifiés.** 7 sprints, **36 tâches** (`ADM-01` à `ADM-36`). Cible : `src/pages/AdminPage.tsx`, `src/pages/admin/useAdminData.ts` et panneaux existants, vues/RPC PostgreSQL, `docs/administration.md`. [Retour au TODO](../../TODO.md) · [Architecture](architecture-maintenance.md).
+**Statut : ADM-S1 à S3 implémentés ; ADM-S4 implémenté hors ADM-20, en attente de TREE-10 ; ADM-S5 à S7 restent planifiés.** 7 sprints, **36 tâches** (`ADM-01` à `ADM-36`). Cible : `src/pages/AdminPage.tsx`, `src/pages/admin/useAdminData.ts` et panneaux existants, vues/RPC PostgreSQL, `docs/administration.md`. [Retour au TODO](../../TODO.md) · [Architecture](architecture-maintenance.md).
 
 ## État initial et frontières
 
@@ -274,47 +274,49 @@ fusion et déploiement restent distincts de cette clôture code.
 
 ## ADM-S4 — Équilibrage séparé de l'exploitation (P2 ; ADM-17..21)
 
+**Application 0.2.10 : ADM-17, 18, 19 et 21 implémentés.** [Contrat des populations et limites](../admin-balance.md) · [validation](../admin-s4-validation-2026-10-18.md). **ADM-20 reste ouvert : TREE-10 ne fournit pas encore sa source commune.** Son panneau affiche cette dépendance ; aucun achat/reset ni indicateur d’arbre n’est inventé. Les picks utilisent tous les départs ; les performances finales ont une population distincte et les métriques non collectées restent indisponibles.
+
 ### ADM-17 — Espace « Équilibrage »
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Séparer écrans d'équilibrage et monitoring technique, tout en réutilisant `AdminFieldCalibrationPanel` et métriques existantes.
-  - [ ] Lister panneaux et séries FieldCalibration déjà disponibles, leurs responsables et données sources.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Lier baseline de cohorte, version, seed, profil et date ; n'exposer que résultats vérifiables.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester liens vers baseline, version, seed, état chargé et absence de doublon d'onglet.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Séparer écrans d'équilibrage et monitoring technique, tout en réutilisant `AdminFieldCalibrationPanel` et métriques existantes.
+  - [x] Lister panneaux et séries FieldCalibration déjà disponibles, leurs responsables et données sources.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Lier baseline de cohorte, version, seed, profil et date ; n'exposer que résultats vérifiables.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester liens vers baseline, version, seed, état chargé et absence de doublon d'onglet.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-18 — Performance par champion
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Afficher pick-rate, survivabilité, DPS/heal/CC réellement supportés, win-rate et incertitudes par difficulté/version.
-  - [ ] Définir les indicateurs champion mesurables, avec population comparable et version d'autorité.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Permettre comparaison des champions **à composition et version comparables** ; pas de classement sur 2 runs.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester pick-rate avec un champion absent, compositions mixtes et petites cohortes.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Afficher pick-rate, survivabilité, DPS/heal/CC réellement supportés, win-rate et incertitudes par difficulté/version.
+  - [x] Définir les indicateurs champion mesurables, avec population comparable et version d'autorité.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Permettre comparaison des champions **à composition et version comparables** ; pas de classement sur 2 runs.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester pick-rate avec un champion absent, compositions mixtes et petites cohortes.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-19 — Builds, items, runes et augments
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Explorer combinaisons et effets majeurs avec métriques de fréquence et performance ; éviter biais d'exposition des items.
-  - [ ] Définir identité de build item/rune/augment et biais de disponibilité par run.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Renvoyer vers `P2-BAL-01` pour validation humaine des conclusions.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester build partiel, objet non trouvé, données manquantes et échantillon trop faible.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Explorer combinaisons et effets majeurs avec métriques de fréquence et performance ; éviter biais d'exposition des items.
+  - [x] Définir identité de build item/rune/augment et biais de disponibilité par run.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Renvoyer vers `P2-BAL-01` pour validation humaine des conclusions.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester build partiel, objet non trouvé, données manquantes et échantillon trop faible.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-20 — Arbres Candies et spécialisations
 - [ ] **Définir les données, permissions et comportements attendus.**
@@ -331,18 +333,18 @@ fusion et déploiement restent distincts de cette clôture code.
   - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-21 — Politique de calibration et flags
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Afficher statut des versions et flags avec autorisation **lecture** par défaut ; aucune mutation de règles d'authority depuis le navigateur.
-  - [ ] Définir les états lisibles des flags/version et réserver toute écriture aux procédures autorisées.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Traçabilité décision tuning, protocole A/B éventuel et rollback côté procédures de déploiement, pas bypass RLS.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester URL d'administration forgée, flag absent et tentative de mutation directe.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Afficher statut des versions et flags avec autorisation **lecture** par défaut ; aucune mutation de règles d'authority depuis le navigateur.
+  - [x] Définir les états lisibles des flags/version et réserver toute écriture aux procédures autorisées.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Traçabilité décision tuning, protocole A/B éventuel et rollback côté procédures de déploiement, pas bypass RLS.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester URL d'administration forgée, flag absent et tentative de mutation directe.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 **Gate ADM-S4 :** analyses balisées par version, N et preuve ; aucune édition silencieuse des paramètres de production.
 
 ## ADM-S5 — Modération auditée (P1/P2 ; ADM-22..26)
