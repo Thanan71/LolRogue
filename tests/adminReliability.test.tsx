@@ -1,20 +1,10 @@
 // @vitest-environment jsdom
 import { readdirSync, readFileSync } from 'node:fs';
 import type { Session, User } from '@supabase/supabase-js';
-import {
-  act,
-  cleanup,
-  fireEvent,
-  render,
-  renderHook,
-  screen,
-  waitFor,
-  within,
-} from '@testing-library/react';
+import { act, cleanup, render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fr } from '@/i18n/fr';
 import { AdminDashboardPanel } from '@/pages/admin/AdminDashboardPanel';
-import { AdminModerationPanel } from '@/pages/admin/AdminModerationPanel';
 import { AdminTableCount } from '@/pages/admin/AdminSectionFeedback';
 import {
   ADMIN_METRIC_KEYS,
@@ -29,16 +19,12 @@ import { useAuthStore } from '@/stores/authStore';
 const mocks = vi.hoisted(() => ({
   stats: vi.fn(),
   logs: vi.fn(),
-  moderation: vi.fn(),
-  rpc: vi.fn(),
 }));
 vi.mock('@/pages/admin/adminTableQueries', () => ({
   fetchAdminLogsPage: mocks.logs,
-  fetchAdminModerationPage: mocks.moderation,
 }));
 vi.mock('@/services/supabaseClient', () => ({
   supabase: {
-    rpc: mocks.rpc,
     from: (table: string) => ({
       select: vi.fn().mockReturnThis(),
       gte: vi.fn().mockReturnThis(),
@@ -74,8 +60,7 @@ beforeEach(() => {
   mocks.stats
     .mockReset()
     .mockResolvedValue({ data: [{ stat_name: 'total_players', stat_value: '10' }], error: null });
-  for (const load of [mocks.logs, mocks.moderation])
-    load.mockReset().mockResolvedValue({ rows: [], total: 0 });
+  mocks.logs.mockReset().mockResolvedValue({ rows: [], total: 0 });
   useAuthStore.setState({
     ...accountA,
     isAdmin: true,
@@ -219,144 +204,19 @@ describe('admin metric definitions and values', () => {
 });
 
 describe('independent admin resources', () => {
-  it('settles a stalled invalidation, marks the outcome unknown, and requires a read before another write', async () => {
-    const pending = deferred<{ error: null }>();
-    let signal: AbortSignal | undefined;
-    mocks.rpc.mockReturnValue({
-      abortSignal: (value: AbortSignal) => {
-        signal = value;
-        return pending.promise;
-      },
-    });
-    mocks.moderation.mockResolvedValue({
-      rows: [
-        {
-          id: 'report-1',
-          dailyRunId: 'daily-1',
-          reason: 'A complete moderation reason',
-          createdAt: '2026-10-17T04:00:00Z',
-          dailyDate: '2026-10-17',
-          score: 100,
-        },
-      ],
-      total: 1,
-    });
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
-    function Panel() {
-      const data = useAdminData(true);
-      return (
-        <AdminModerationPanel
-          reports={data.moderationReports}
-          loading={data.moderationLoading}
-          state={data.sections.moderation}
-          total={data.moderationTotal}
-          error={data.errors.moderation}
-          onRetry={data.fetchModerationReports}
-          onInvalidate={data.invalidateDailyScore}
-        />
-      );
-    }
-    render(<Panel />);
-    const invalidate = await screen.findByRole('button', {
-      name: fr.admin.invalidateScore,
-    });
-    await waitFor(() => expect(invalidate).toBeEnabled());
-    vi.useFakeTimers();
-    fireEvent.click(invalidate);
-    expect(screen.getByRole('button', { name: fr.admin.invalidating })).toBeDisabled();
-    await act(async () => vi.advanceTimersByTime(ADMIN_REQUEST_TIMEOUT_MS));
-    expect(signal?.aborted).toBe(true);
-    expect(screen.queryByRole('button', { name: fr.admin.invalidating })).not.toBeInTheDocument();
-    expect(screen.getByRole('alert')).toHaveTextContent(fr.admin.moderationResultUnknown);
-    expect(screen.getByRole('button', { name: fr.admin.invalidateScore })).toBeDisabled();
-    expect(mocks.rpc).toHaveBeenCalledTimes(1);
-    await act(async () => pending.resolve({ error: null }));
-    expect(mocks.moderation).toHaveBeenCalledTimes(1);
-    vi.useRealTimers();
-    fireEvent.click(screen.getByRole('button', { name: fr.admin.retry }));
-    await waitFor(() => expect(screen.queryByRole('alert')).not.toBeInTheDocument());
-    await waitFor(() =>
-      expect(screen.getByRole('button', { name: fr.admin.invalidateScore })).toBeEnabled(),
-    );
-    expect(mocks.rpc).toHaveBeenCalledTimes(1);
-  });
-
-  it('aborts a pending invalidation and suppresses its result after logout', async () => {
-    const pending = deferred<{ error: null }>();
-    let signal: AbortSignal | undefined;
-    mocks.rpc.mockReturnValue({
-      abortSignal: (value: AbortSignal) => {
-        signal = value;
-        return pending.promise;
-      },
-    });
-    const { result } = renderHook(() => useAdminData(useAuthStore((state) => state.isAdmin)));
-    let request!: Promise<boolean>;
-    act(() => {
-      request = result.current.invalidateDailyScore('daily-1', 'Complete moderation reason');
-    });
-    act(() => useAuthStore.setState({ isAdmin: false, user: null, session: null }));
-    await act(async () => {
-      expect(await request).toBe(false);
-    });
-    expect(signal?.aborted).toBe(true);
-    expect(result.current.errors.moderation).toBeNull();
-    await act(async () => pending.resolve({ error: null }));
-    expect(result.current.moderationReports).toEqual([]);
-  });
-
-  it('refreshes moderation after confirmed success and keeps the write locked until the read settles', async () => {
-    mocks.rpc.mockReturnValue({ abortSignal: () => Promise.resolve({ error: null }) });
-    const { result } = renderHook(() => useAdminData(true));
-    await waitFor(() => expect(result.current.sections.moderation.hasData).toBe(true));
-    const reload = deferred<{ rows: []; total: number }>();
-    mocks.moderation.mockReturnValueOnce(reload.promise);
-    let request!: Promise<boolean>;
-    act(() => {
-      request = result.current.invalidateDailyScore('daily-1', 'Complete moderation reason');
-    });
-    await waitFor(() => expect(mocks.moderation).toHaveBeenCalledTimes(2));
-    await act(async () => {
-      expect(await result.current.invalidateDailyScore('daily-1', 'Another complete reason')).toBe(
-        false,
-      );
-      reload.resolve({ rows: [], total: 0 });
-      expect(await request).toBe(true);
-    });
-    expect(mocks.moderation).toHaveBeenCalledTimes(2);
-    expect(mocks.rpc).toHaveBeenCalledTimes(1);
-  });
-
-  it('does not claim a transport failure proves that the invalidation was rolled back', async () => {
-    mocks.rpc.mockReturnValue({
-      abortSignal: () => Promise.resolve({ error: { code: '', message: 'Failed to fetch' } }),
-    });
-    const { result } = renderHook(() => useAdminData(true));
-    await waitFor(() => expect(result.current.sections.moderation.hasData).toBe(true));
-    await act(async () =>
-      expect(
-        await result.current.invalidateDailyScore('daily-1', 'Complete moderation reason'),
-      ).toBe(false),
-    );
-    expect(result.current.errors.moderation).toBe(fr.admin.moderationResultUnknown);
-    expect(mocks.moderation).toHaveBeenCalledTimes(1);
-    expect(mocks.rpc).toHaveBeenCalledTimes(1);
-  });
   it('finishes ready sections while stats are pending and logs fail, then retries only logs', async () => {
     const pending = deferred<{ data: []; error: null }>();
     mocks.stats.mockReturnValueOnce(pending.promise);
     mocks.logs.mockRejectedValueOnce(new Error('private SQL error'));
     const { result } = renderHook(() => useAdminData(true));
-    await waitFor(() => expect(result.current.sections.moderation.hasData).toBe(true));
+    await waitFor(() => expect(result.current.sections.authority.hasData).toBe(true));
     expect(result.current.statsLoading).toBe(true);
-    expect(result.current.moderationLoading).toBe(false);
-    expect(result.current.moderationTotal).toBe(0);
+    expect(result.current.authorityLoading).toBe(false);
     await waitFor(() => expect(result.current.errors.logs).toBe(fr.admin.requestFailed));
     await act(async () => {
       await result.current.fetchLogs();
     });
     expect(result.current.errors.logs).toBeNull();
-    expect(mocks.moderation).toHaveBeenCalledTimes(1);
     expect(mocks.stats).toHaveBeenCalledTimes(1);
     await act(async () => pending.resolve({ data: [], error: null }));
   });
@@ -513,8 +373,7 @@ describe('independent admin resources', () => {
       pending.resolve({ data: [{ stat_name: 'total_players', stat_value: '999' }], error: null }),
     );
     expect(result.current.stats).toEqual({});
-    expect(result.current.moderationReports).toEqual([]);
-    expect(result.current.moderationTotal).toBeNull();
+    expect(result.current.authorityAggregates).toEqual([]);
     expect(result.current.sections.stats.status).toBe('idle');
   });
 

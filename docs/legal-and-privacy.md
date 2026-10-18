@@ -1,6 +1,6 @@
 # Légal et confidentialité
 
-Version produit : 8 octobre 2026. Région préparée : France et Union européenne.
+Version produit : 18 octobre 2026. Région préparée : France et Union européenne.
 Ce document décrit le produit actuel ; il ne constitue pas un avis juridique.
 
 ## Statut de diffusion
@@ -33,7 +33,8 @@ Sources à revalider avant chaque release :
 | Économie de roster | solde d'Éclats, transactions, achats et grants, période du bonus | propriété permanente et intégrité des récompenses | propriétaire/opérateurs ; agrégats maintenance sans identifiants | vie du compte, suppression avec le compte |
 | Daily public | alias/pseudonyme, rang, score, vagues, niveau, versions | classement comparable | public | 13 mois maximum |
 | Global public | alias/pseudonyme, avatar facultatif, niveau, victoires et taux | classement global | public tant que non opt-out | vie du compte ou opt-out |
-| Modération | score signalé, auteur, motif, décision | intégrité du classement | modérateurs | ouverts jusqu'à décision ; traités 24 mois |
+| Modération | score signalé, auteur, motif assaini, décision | intégrité du classement | modérateurs | ouverts jusqu'à décision ; traités 365 jours après revue, puis purge quotidienne |
+| Audit de modération | acteur administratif, cible, action, justification assainie et date | justifier les décisions et empêcher leur répétition | administrateurs via projection minimale | décisions 365 jours, rejets 30 jours, puis purge quotidienne |
 | Diagnostic | opération, durée, erreur nettoyée | disponibilité et sécurité | utilisateur concerné/opérateurs | 14 jours maximum |
 | Support incident | références minimales du dossier, statut serveur, décision et audit d'un éventuel geste | assistance et prévention du double crédit | support/opérateurs habilités, canal privé requis | 90 jours après clôture, sauf exception motivée et datée |
 | Performance | Web Vitals et métadonnées techniques de navigation collectées par Vercel Speed Insights | mesurer et améliorer les performances | Vercel / exploitant | selon la configuration et les conditions Vercel en vigueur |
@@ -44,10 +45,14 @@ Sources à revalider avant chaque release :
 | Invité | réglages, tutoriels, progression et run locale | fonctionnement hors compte | appareil uniquement | jusqu'à effacement du navigateur |
 
 La vue Daily applique directement la fenêtre de 13 mois. La migration versionnée
-`20260809180000_automate_social_retention.sql` planifie le job PostgreSQL mensuel
+`20260809180000_automate_social_retention.sql` a créé le job PostgreSQL
 `lolrogue-purge-expired-social-data`, exécuté par `postgres`, qui appelle la fonction
-privée de maintenance afin de supprimer les signalements traités depuis plus de
-24 mois. La façade publique reste réservée au `service_role` pour une intervention
+privée de maintenance. La migration `20261018082740_admin_audited_moderation.sql`
+replanifie ce même job quotidiennement à 04:43 UTC : signalements traités et
+décisions expirent après 365 jours ; rejets et compteurs après 30 jours. Les
+données sont supprimées physiquement lors de la purge quotidienne suivante.
+Les anciens signalements ouverts ne sont pas exclus de la file. La façade
+publique reste réservée au `service_role` pour une intervention
 contrôlée. Le purgeur de logs existant conserve au maximum 14 jours.
 
 Cette description est celle du schéma du dépôt. **Validation live requise** :

@@ -512,6 +512,35 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 16,
+    version: '0.2.11',
+    publishedOn: '2026-10-18',
+    title: {
+      'fr-FR': 'Une modération plus sûre et traçable',
+      'en-US': 'Safer, traceable moderation',
+    },
+    entries: [
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'La modération des scores quotidiens dispose d’une file paginée avec filtres, statuts et historique des décisions. Les anciens signalements ouverts restent accessibles.',
+          'en-US':
+            'Daily moderation now has a paginated queue with filters, statuses and decision history. Older open reports remain accessible.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Chaque décision exige une cible confirmée et un motif, vérifie les droits côté serveur et conserve une trace. Les réessais ne répètent pas la décision et les runs originales restent conservées.',
+          'en-US':
+            'Every decision requires a confirmed target and reason, checks permissions on the server and leaves an audit record. Retries do not repeat the decision, and original runs are preserved.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {

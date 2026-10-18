@@ -4,6 +4,7 @@ import { adminAnalyticsContent } from '@/i18n/adminAnalytics';
 import { getAdminBalanceCopy } from '@/i18n/adminBalance';
 import { adminExportContent } from '@/i18n/adminExportContent';
 import { getAdminFieldCalibrationCopy } from '@/i18n/adminFieldCalibration';
+import { getAdminModerationCopy } from '@/i18n/adminModeration';
 import { authRecoveryContent } from '@/i18n/authRecoveryContent';
 import { championContent } from '@/i18n/championContent';
 import { getChampionEconomyContent } from '@/i18n/championEconomyContent';
@@ -33,6 +34,10 @@ const catalogs = {
   adminBalance: {
     'fr-FR': getAdminBalanceCopy('fr-FR'),
     'en-US': getAdminBalanceCopy('en-US'),
+  },
+  adminModeration: {
+    'fr-FR': getAdminModerationCopy('fr-FR'),
+    'en-US': getAdminModerationCopy('en-US'),
   },
   adminExport: adminExportContent,
   authRecovery: authRecoveryContent,
@@ -75,6 +80,7 @@ const catalogs = {
 const catalogModules = {
   'adminAnalytics.ts': 'adminAnalytics',
   'adminBalance.ts': 'adminBalance',
+  'adminModeration.ts': 'adminModeration',
   'adminExplorer.ts': 'main',
   'adminRunExplorer.ts': 'main',
   'adminExportContent.ts': 'adminExport',
@@ -133,6 +139,7 @@ const intentionallyIdenticalPaths: Readonly<
   adminExport: ['$.biomes.jungle'],
   // Shared standalone terms, the established product term Runs and the UTC standard.
   adminBalance: ['$.mode', '$.champion', '$.runes', '$.augments', '$.active', '$.runs', '$.utc'],
+  adminModeration: ['$.action', '$.page', '$.utc'],
   authRecovery: [],
   adminFieldCalibration: [
     '$.biome.base',
@@ -218,6 +225,7 @@ const intentionallyIdenticalFunctionPaths: Readonly<
 > = {
   adminAnalytics: [],
   adminBalance: [],
+  adminModeration: [],
   adminExport: [],
   authRecovery: [],
   adminFieldCalibration: [],

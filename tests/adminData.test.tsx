@@ -11,7 +11,6 @@ import { getAdminFieldCalibrationCopy } from '@/i18n/adminFieldCalibration';
 import { AdminAuthorityPanel } from '@/pages/admin/AdminAuthorityPanel';
 import { AdminErrorNotice } from '@/pages/admin/AdminErrorNotice';
 import { AdminFieldCalibrationPanel } from '@/pages/admin/AdminFieldCalibrationPanel';
-import { AdminModerationPanel } from '@/pages/admin/AdminModerationPanel';
 import { AdminTabList } from '@/pages/admin/AdminTabList';
 import { loadAllAdminSections } from '@/pages/admin/useAdminData';
 
@@ -219,35 +218,5 @@ describe('admin data feedback', () => {
       biomes_completed: 'biomes completed',
       gold_balance: 'gold balance',
     });
-  });
-
-  it('requires confirmation before sending one bounded score invalidation', async () => {
-    const invalidate = vi.fn().mockResolvedValue(true);
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
-    render(
-      <AdminModerationPanel
-        reports={[
-          {
-            id: 'report-1',
-            dailyRunId: 'daily-1',
-            reason: 'Le replay ne correspond pas au score publié.',
-            createdAt: '2026-08-09T10:00:00.000Z',
-            dailyDate: '2026-08-09',
-            score: 12_345,
-          },
-        ]}
-        loading={false}
-        error={null}
-        onRetry={vi.fn()}
-        onInvalidate={invalidate}
-      />,
-    );
-
-    const reason = screen.getByRole('textbox', { name: 'Motif d’invalidation' });
-    fireEvent.change(reason, { target: { value: 'Score manipulé confirmé après revue' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Invalider le score' }));
-
-    expect(window.confirm).toHaveBeenCalledOnce();
-    expect(invalidate).toHaveBeenCalledWith('daily-1', 'Score manipulé confirmé après revue');
   });
 });

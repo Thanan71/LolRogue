@@ -2102,6 +2102,34 @@ export type Database = {
         Args: { p_cursor?: Json; p_page_size?: number; p_run_id: string; p_snapshot?: string };
         Returns: Json;
       };
+      admin_moderation_decide: {
+        Args: {
+          p_action: string;
+          p_confirmed_daily_date: string;
+          p_confirmed_daily_run_id: string;
+          p_reason: string;
+          p_report_id: string;
+          p_request_id: string;
+          p_scope: string;
+        };
+        Returns: Json;
+      };
+      admin_moderation_history: {
+        Args: { p_cursor?: Json; p_daily_run_id: string; p_limit?: number; p_snapshot?: string };
+        Returns: Json;
+      };
+      admin_moderation_queue: {
+        Args: {
+          p_cursor?: Json;
+          p_daily_run_id?: string;
+          p_from?: string;
+          p_limit?: number;
+          p_snapshot?: string;
+          p_status?: string;
+          p_to?: string;
+        };
+        Returns: Json;
+      };
       admin_search_attempts: {
         Args: { p_cursor?: Json; p_filters?: Json; p_page_size?: number; p_snapshot?: string };
         Returns: Json;

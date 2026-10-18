@@ -8,7 +8,7 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const describeLive = supabaseUrl && anonKey && serviceRoleKey ? describe : describe.skip;
 
 describeLive('legal privacy live contract', () => {
-  it('keeps open and recent reports while purging only reviewed reports older than 24 months', async () => {
+  it('keeps open and recent reports while purging only reviewed reports older than 365 days', async () => {
     const anonymous = createClient<Database>(supabaseUrl!, anonKey!, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
@@ -70,7 +70,7 @@ describeLive('legal privacy live contract', () => {
           reporter_user_id: userId,
           reason: 'Signalement traité récemment à conserver',
           status: 'actioned',
-          reviewed_at: monthsAgo(23),
+          reviewed_at: monthsAgo(11),
           reviewed_by: userId,
         },
         {
@@ -79,7 +79,7 @@ describeLive('legal privacy live contract', () => {
           reporter_user_id: userId,
           reason: 'Signalement traité arrivé à échéance',
           status: 'dismissed',
-          reviewed_at: monthsAgo(25),
+          reviewed_at: monthsAgo(13),
           reviewed_by: userId,
         },
       ]);

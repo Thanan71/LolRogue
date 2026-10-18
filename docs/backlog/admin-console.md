@@ -1,6 +1,6 @@
 # ADM — Administration fiable et exploitable
 
-**Statut : ADM-S1 à S3 implémentés ; ADM-S4 implémenté hors ADM-20, en attente de TREE-10 ; ADM-S5 à S7 restent planifiés.** 7 sprints, **36 tâches** (`ADM-01` à `ADM-36`). Cible : `src/pages/AdminPage.tsx`, `src/pages/admin/useAdminData.ts` et panneaux existants, vues/RPC PostgreSQL, `docs/administration.md`. [Retour au TODO](../../TODO.md) · [Architecture](architecture-maintenance.md).
+**Statut : ADM-S1 à S3 implémentés ; ADM-S4 implémenté hors ADM-20, en attente de TREE-10 ; ADM-S5 implémenté ; ADM-S6 et S7 restent planifiés.** 7 sprints, **36 tâches** (`ADM-01` à `ADM-36`). Cible : `src/pages/AdminPage.tsx`, `src/pages/admin/useAdminData.ts` et panneaux existants, vues/RPC PostgreSQL, `docs/administration.md`. [Retour au TODO](../../TODO.md) · [Architecture](architecture-maintenance.md).
 
 ## État initial et frontières
 
@@ -350,75 +350,77 @@ fusion et déploiement restent distincts de cette clôture code.
 ## ADM-S5 — Modération auditée (P1/P2 ; ADM-22..26)
 
 ### ADM-22 — File de modération complète
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Étendre `AdminModerationPanel` et `daily_score_reports` : pagination réelle, motifs, date, statut et historique.
-  - [ ] Formaliser statuts open/resolved/dismissed, motifs et ordre stable de la file de modération.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Séparer signalements en attente, traités et rejetés ; ne pas masquer anciens dossiers sans justification.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester dossier ancien, 101e signalement, double rapport et file vide.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Étendre `AdminModerationPanel` et `daily_score_reports` : pagination réelle, motifs, date, statut et historique.
+  - [x] Formaliser statuts open/resolved/dismissed, motifs et ordre stable de la file de modération.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Séparer signalements en attente, traités et rejetés ; ne pas masquer anciens dossiers sans justification.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester dossier ancien, 101e signalement, double rapport et file vide.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-23 — Flux d'action sûr
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Confirmer motif, portée, conséquences et action définitive avant `invalidate_daily_score`.
-  - [ ] Définir confirmation de l'identifiant cible, motif, portée et conséquence d'une invalidation.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Tester refus d'accès, action concurrente, réessai, doublon, déjà invalidé, score d'une autre période.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester clic double, score déjà annulé, délai réseau et statut concurrent.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Confirmer motif, portée, conséquences et action définitive avant l’invalidation (ancien `invalidate_daily_score` remplacé par `admin_moderation_decide`).
+  - [x] Définir confirmation de l'identifiant cible, motif, portée et conséquence d'une invalidation.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Tester refus d'accès, action concurrente, réessai, doublon, déjà invalidé, score d'une autre période.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester clic double, score déjà annulé, délai réseau et statut concurrent.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-24 — Traçabilité des décisions
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Définir audit append-only de `qui/quand/quoi/pourquoi`, action idempotente et intégrité des preuves.
-  - [ ] Définir événement d'audit immuable lié à acteur, action, cible, motif et date.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Ne jamais réécrire une run autoritaire ou son résultat historique pour masquer un incident.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester rollback DB, auteur absent, altération de log et conservation de la run originale.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Définir audit append-only de `qui/quand/quoi/pourquoi`, action idempotente et intégrité des preuves.
+  - [x] Définir événement d'audit immuable lié à acteur, action, cible, motif et date.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Ne jamais réécrire une run autoritaire ou son résultat historique pour masquer un incident.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester rollback DB, auteur absent, altération de log et conservation de la run originale.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-25 — Permissions et séparation des rôles
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Contrôler permissions admin réelles dans PostgreSQL ; tout ajout éventuel de rôle supérieur `dev` suit une initiative **distincte** et une migration auditable.
-  - [ ] Documenter permissions serveur admin/dev futur sans auto-promotion, role claim client ou second canal parallèle.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Prévoir droits lecture versus action de modération sans auto-promotion client ; tests `anon`/joueur/admin.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester anon, joueur normal, admin retiré et tentative de mise à jour is_admin.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Contrôler permissions admin réelles dans PostgreSQL ; tout ajout éventuel de rôle supérieur `dev` suit une initiative **distincte** et une migration auditable.
+  - [x] Documenter permissions serveur admin/dev futur sans auto-promotion, role claim client ou second canal parallèle.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Prévoir droits lecture versus action de modération sans auto-promotion client ; tests `anon`/joueur/admin.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester anon, joueur normal, admin retiré et tentative de mise à jour is_admin.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-26 — Anti-abus et limites
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Limiter les opérations sensibles et auditer rejet/abus, sans exposer de données privées inutiles.
-  - [ ] Fixer règles de limitation, secrets masqués et délai de conservation par type d'événement.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Réviser la politique de conservation, RGPD et suppression effective des journaux concernés.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester requêtes répétées, rejet correct, suppression et absence de données privées dans l'export.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Limiter les opérations sensibles et auditer rejet/abus, sans exposer de données privées inutiles.
+  - [x] Fixer règles de limitation, secrets masqués et délai de conservation par type d'événement.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Réviser la politique de conservation, RGPD et suppression effective des journaux concernés.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester requêtes répétées, rejet correct, suppression et absence de données privées dans l'export.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 **Gate ADM-S5 :** chaque action a une justification, une trace et une vérification d'autorisation serveur.
+
+**Clôture code ADM-S5 — 18 octobre 2026 :** ADM-22 à 26 implémentés. [Contrat](../admin-moderation.md) et [preuves](../admin-s5-validation-2026-10-18.md). Migration `20261018082740`, fusion et opérations distantes distinctes ; aucun rôle supérieur `dev` ni action de production ajouté.
 
 ## ADM-S6 — Surveillance technique et diagnostics (P2 ; ADM-27..31)
 

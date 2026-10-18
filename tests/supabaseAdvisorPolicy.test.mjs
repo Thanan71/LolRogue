@@ -77,7 +77,7 @@ describe('Supabase advisor policy', () => {
     ).toEqual(
       [
         ...tables.tables
-          .filter((entry) => entry.exposure === 'server-only')
+          .filter((entry) => entry.exposure === 'server-only' && entry.apiPolicy !== 'deny-all')
           .map((entry) => ({ schema: tables.schema, name: entry.name })),
         { schema: 'private', name: 'admin_analytics_coverage' },
       ].sort((a, b) => a.name.localeCompare(b.name)),

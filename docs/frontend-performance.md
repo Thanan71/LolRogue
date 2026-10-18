@@ -2,6 +2,21 @@
 
 Dernière campagne bundle : **18 octobre 2026**, Node 24, build Vite de production local.
 
+## ADM-S5 — modération auditée
+
+Le clone parent indépendant `c1181954` mesure 671 518 octets de JavaScript gzip.
+Le dernier build local ADM-S5 mesure 681 459 octets, soit **+9 941**. L’espace de
+modération de 10 670 octets gzip est chargé à la demande ; le retrait de l’ancien
+panel et de son canal de données réduit le chunk Admin principal. La route Auth
+conserve ses 10 entrées sans module admin et mesure 231 297 octets, comme
+le parent. Les assets passent de 8 174 955 à 8 213 021 octets.
+
+Le budget v13 passe de 750 000 à **770 000 octets JS gzip** et de 8 200 000 à
+**8 250 000 octets d’assets**. Les 10 % de marge minimale, les plafonds
+initial/Auth, les plafonds de chunks existants et les Web Vitals sont conservés.
+Les mesures finales, la comparaison à cache vide et les limites des preuves
+figurent dans la [validation ADM-S5](admin-s5-validation-2026-10-18.md).
+
 ## Référence avant P2-PERF-01
 
 Le plafond global choisi à cette étape était **398 000 octets gzip**. La

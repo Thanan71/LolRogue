@@ -29,6 +29,10 @@ export const legalEn = {
     dailyPublic: 'Public daily leaderboard',
     diagnosticLogs: 'Technical logs',
     reviewedReports: 'Reviewed reports',
+    moderationDecisions: 'Moderation decisions',
+    moderationRejections: 'Moderation rejections and limits',
+    purgeAfter: (count: number) =>
+      `${count.toLocaleString('en-US')} days, then removal at the next daily purge`,
     accountData: 'Account data',
     guestData: 'Guest data',
     maximum: 'maximum',

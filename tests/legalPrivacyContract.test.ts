@@ -38,7 +38,9 @@ describe('legal and privacy contract', () => {
 
   it('enforces the public Daily and reviewed-report retention periods', () => {
     expect(PRIVACY_RETENTION.publicDailyLeaderboardMonths).toBe(13);
-    expect(PRIVACY_RETENTION.reviewedModerationReportMonths).toBe(24);
+    expect(PRIVACY_RETENTION.reviewedModerationReportDays).toBe(365);
+    expect(PRIVACY_RETENTION.moderationDecisionDays).toBe(365);
+    expect(PRIVACY_RETENTION.moderationRejectionDays).toBe(30);
     expect(migration).toContain("daily.completed_at >= NOW() - INTERVAL '13 months'");
     expect(migration).toContain("reviewed_at < NOW() - INTERVAL '24 months'");
     expect(migration).toContain('CREATE FUNCTION public.purge_expired_social_data()');

@@ -74,13 +74,15 @@
     },
     {
       "name": "daily_score_invalidation_audit",
-      "exposure": "client-data-api",
-      "reason": "Lecture administrative sous RLS ; écriture par la RPC de modération auditée."
+      "exposure": "server-only",
+      "reason": "Journal historique archivé après import dans l’audit canonique privé ; aucune lecture ni écriture directe des rôles navigateur.",
+      "apiPolicy": "deny-all"
     },
     {
       "name": "daily_score_reports",
-      "exposure": "client-data-api",
-      "reason": "Signalement lié au compte et lecture administrative sous RLS."
+      "exposure": "server-only",
+      "reason": "File privée ADM-S5 lue et modifiée uniquement via les RPC gardées ; aucun grant navigateur direct, attribution et limites serveur.",
+      "apiPolicy": "deny-all"
     },
     {
       "name": "enhancement_node_catalog",

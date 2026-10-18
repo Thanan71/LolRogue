@@ -122,6 +122,14 @@ API, police ou origine d'image doit être ajoutée explicitement à la CSP.
 
 ## Vérifications après déploiement
 
+Pour la modération ADM-S5, appliquer la migration
+`20261018082740_admin_audited_moderation.sql` avec son client correspondant.
+L’ancien RPC navigateur d’invalidation est révoqué. Vérifier les permissions,
+les trois nouvelles RPC et l’unique cron quotidien selon
+[le contrat de modération](admin-moderation.md) et
+[le runbook de rétention](backup-and-restore.md). Le code et les tests locaux
+ne prouvent ni migration distante, ni action de modération en production.
+
 - ouvrir directement `/auth` et vérifier l'absence de 404 ;
 - créer une session ou entrer en invité ;
 - démarrer une run connectée et vérifier la présence d'un `run_attempt` possédé par
