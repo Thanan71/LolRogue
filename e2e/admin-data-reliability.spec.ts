@@ -1,4 +1,7 @@
 import { expect, type Page, type TestInfo, test } from '@playwright/test';
+import { getAdminDiagnosticsCopy } from '../src/i18n/adminDiagnostics';
+import { validateDiagnosticsFilters } from '../src/pages/admin/diagnostics/adminDiagnosticsValidation';
+import { diagnosticsLog, diagnosticsResponse } from '../tests/helpers/adminDiagnosticsUiFixtures';
 
 async function captureAdminPage(page: Page, testInfo: TestInfo, name: string) {
   await page.evaluate(async () => {
@@ -72,7 +75,7 @@ async function backend(page: Page, emptyPlayers = false) {
   await page.route('**/rest/v1/**', async (route) => {
     const table = new URL(route.request().url()).pathname.split('/').at(-1) ?? '';
     state.reads.set(table, (state.reads.get(table) ?? 0) + 1);
-    if ((table === 'admin_stats' && state.statsFail) || (table === 'logs' && state.logsFail)) {
+    if (table === 'admin_stats' && state.statsFail) {
       await route.fulfill({
         status: 500,
         json: { code: 'XX000', message: 'Simulated unavailable source' },
@@ -116,22 +119,27 @@ async function backend(page: Page, emptyPlayers = false) {
       });
       return;
     }
-    if (table === 'logs') {
+    if (table === 'admin_diagnostics') {
+      const input = route.request().postDataJSON() as Record<string, unknown>;
+      expect(input.p_section).toBe('logs');
+      const filters = validateDiagnosticsFilters('logs', input.p_filters);
+      if (state.logsFail) {
+        await route.fulfill({
+          status: 500,
+          json: { code: 'XX000', message: 'Simulated unavailable source' },
+        });
+        return;
+      }
+      const snapshotAt = `${filters.to}T12:15:30.123456Z`;
       await route.fulfill({
-        json: [
+        json: diagnosticsResponse(
+          { section: 'logs', filters },
           {
-            id: 'log-1',
-            created_at: '2026-10-17T04:00:00Z',
-            level: 'info',
-            repository: 'admin-ui-fixture',
-            method: 'read',
-            operation: 'select',
-            duration_ms: 0,
-            error_message: null,
-            error_stack: null,
+            rows: [diagnosticsLog({ createdAt: `${filters.to}T12:10:00.123456Z` })],
+            total: 1,
           },
-        ],
-        headers: { 'access-control-expose-headers': 'content-range', 'content-range': '0-0/1' },
+          snapshotAt,
+        ),
       });
       return;
     }
@@ -170,10 +178,14 @@ test('admin sections recover independently and distinguish absent metrics, exact
 
   await page.getByRole('tab', { name: /Journaux/ }).click();
   const logs = page.getByRole('tabpanel', { name: /Journaux/ });
-  await expect(logs.getByRole('alert')).toContainText('La requête d’administration a échoué.');
+  const diagnosticsCopy = getAdminDiagnosticsCopy('fr-FR');
+  await expect(logs.getByRole('alert')).toContainText(diagnosticsCopy.failed);
   api.logsFail = false;
-  await logs.getByRole('button', { name: 'Réessayer', exact: true }).click();
-  await expect(logs.getByRole('cell', { name: 'admin-ui-fixture', exact: true })).toBeVisible();
+  await logs.getByRole('button', { name: diagnosticsCopy.retry, exact: true }).click();
+  await expect(logs.getByRole('cell', { name: /RunAttemptService/ })).toBeVisible();
+  await expect(logs.getByRole('table')).toContainText('sealRunAttempt');
+  expect(api.reads.get('admin_diagnostics')).toBe(2);
+  expect(api.reads.has('logs')).toBe(false);
   expect(api.reads.get('admin_search_players')).toBe(1);
   expect(api.reads.get('admin_stats')).toBe(1);
 
