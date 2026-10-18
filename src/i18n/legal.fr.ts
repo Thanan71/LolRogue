@@ -29,6 +29,10 @@ export const legalFr = {
     dailyPublic: 'Classement quotidien public',
     diagnosticLogs: 'Journaux techniques',
     reviewedReports: 'Signalements traités',
+    moderationDecisions: 'Décisions de modération',
+    moderationRejections: 'Rejets et limites de modération',
+    purgeAfter: (count: number) =>
+      `${count.toLocaleString('fr-FR')} jours, puis suppression lors de la prochaine purge quotidienne`,
     accountData: 'Données de compte',
     guestData: 'Données invitées',
     maximum: 'maximum',

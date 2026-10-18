@@ -152,21 +152,26 @@ FROM private.social_retention_metrics;
 ```
 
 Le premier contrôle doit retourner exactement une ligne active, planifiée avec
-`43 4 1 * *`, la commande `SELECT private.purge_expired_social_data()` et
+`43 4 * * *`, la commande `SELECT private.purge_expired_social_data()` et
 `username = 'postgres'`. L'absence initiale de métrique est normale tant qu'aucune
-purge n'a réussi. Sur le projet temporaire uniquement, insérer les trois cas
-synthétiques du test de rétention puis exécuter deux fois :
+purge n'a réussi. Sur le projet temporaire uniquement, insérer les cas
+synthétiques de rétention des tests de modération puis exécuter deux fois :
 
 ```sql
 SELECT private.purge_expired_social_data();
 ```
 
-Le premier résultat doit compter uniquement les signalements traités depuis plus de
-24 mois ; le second doit valoir zéro. La métrique doit ensuite montrer deux passages
+Le premier résultat compte les suppressions physiques : signalements traités et
+décisions de plus de 365 jours, rejets et compteurs de plus de 30 jours. Les
+signalements ouverts restent conservés. Le second résultat doit valoir zéro.
+La neutralisation des motifs expirés sur le marqueur d’exclusion Daily ne compte
+pas comme une suppression de ligne. La métrique doit montrer deux passages
 supplémentaires et le nombre de suppressions correspondant. Si le job est absent ou
 différent, ne pas le recréer manuellement : vérifier que la migration
-`20260809180000_automate_social_retention.sql` est appliquée, la rejouer via le
-processus de migration, puis reprendre ces contrôles.
+`20260809180000_automate_social_retention.sql`, puis
+`20261018082740_admin_audited_moderation.sql`, sont appliquées via le processus de
+migration, puis reprendre ces contrôles. La validation locale ne prouve pas
+l’exécution du job distant.
 
 ## Restauration de production
 
