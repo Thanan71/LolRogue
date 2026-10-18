@@ -24,7 +24,9 @@ describe('branch-isolated Supabase database deployment', () => {
     expect(workflow).toContain('  push:');
     expect(workflow).toContain('      - dev\n      - main');
     expect(workflow).not.toContain('  pull_request:');
-    expect(workflow).toContain("if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main'");
+    expect(workflow).toContain(
+      "if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main'",
+    );
     expect(workflow).toContain('cancel-in-progress: false');
     expect(workflow).toContain('test "$(git rev-parse HEAD)" = "$GITHUB_SHA"');
   });
@@ -38,7 +40,9 @@ describe('branch-isolated Supabase database deployment', () => {
         .split(`${branch}: Object.freeze({`)[1]
         ?.match(/projectRef: '([a-z0-9]+)'/)?.[1];
       expect(declaredTarget).toBeTruthy();
-      const section = workflow.split(`  deploy-${branch}:`)[1]?.split(/\n  deploy-(?:dev|main):/)[0];
+      const section = workflow
+        .split(`  deploy-${branch}:`)[1]
+        ?.split(/\n  deploy-(?:dev|main):/)[0];
       expect(section).toBeTruthy();
       expect(section).toContain(`environment: ${environment}`);
       expect(section).toContain(`EXPECTED_BRANCH: ${branch}`);
@@ -57,11 +61,15 @@ describe('branch-isolated Supabase database deployment', () => {
     expect(workflow).toContain('npm run database -- stop');
     for (const branch of ['dev', 'main']) {
       const section = workflow.split(`  deploy-${branch}:`)[1];
-      expect(section).toContain('npm run database -- link --project-ref "$EXPECTED_PROJECT_REF" --yes');
+      expect(section).toContain(
+        'npm run database -- link --project-ref "$EXPECTED_PROJECT_REF" --yes',
+      );
       const guard = section.indexOf('check-database-deploy-plan.mjs');
       const preview = section.indexOf('migrate --project-ref "$EXPECTED_PROJECT_REF" --preview');
       const apply = section.indexOf('migrate --project-ref "$EXPECTED_PROJECT_REF" --yes');
-      const verify = section.indexOf('migrations check --linked --project-ref "$EXPECTED_PROJECT_REF"');
+      const verify = section.indexOf(
+        'migrations check --linked --project-ref "$EXPECTED_PROJECT_REF"',
+      );
       expect(guard).toBeGreaterThanOrEqual(0);
       expect(preview).toBeGreaterThan(guard);
       expect(apply).toBeGreaterThan(preview);
