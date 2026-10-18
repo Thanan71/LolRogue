@@ -5,6 +5,16 @@
   "requiredFiles": ["tests/repositoryIntegration.database.test.ts"],
   "skipAllowlist": [
     {
+      "file": "tests/adminBalance.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only in generic unit runs without disposable loopback Supabase credentials; DB_TEST_REQUIRED fails instead of skipping."
+    },
+    {
+      "file": "tests/adminBalancePrivileges.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only in generic unit runs without disposable loopback Supabase credentials; DB_TEST_REQUIRED fails instead of skipping."
+    },
+    {
       "file": "tests/technicalSlo.database.test.ts",
       "expression": "const describeDatabase = process.env.SUPABASE_DB_URL ? describe : describe.skip;",
       "reason": "Skip only in the generic unit suite without a PostgreSQL URL; DB_TEST_REQUIRED fails when missing."

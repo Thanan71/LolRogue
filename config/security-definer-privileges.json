@@ -2,6 +2,11 @@
   "version": 1,
   "functions": [
     {
+      "signature": "private.admin_balance(text, jsonb, timestamp with time zone)",
+      "roles": ["authenticated"],
+      "justification": "Read bounded descriptive verified balance cohorts and live rule states only after a live registered database administrator check; no personal identities or authority mutations."
+    },
+    {
       "signature": "private.admin_analytics(text, jsonb, timestamp with time zone)",
       "roles": ["authenticated"],
       "justification": "Return only bounded retained-data analytics aggregates after a live registered administrator check; never expose personal identities or authority payloads."
