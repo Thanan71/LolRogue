@@ -4,10 +4,7 @@ import {
   parseSupabaseMigrationList,
   readWorkspaceMigrationVersions,
 } from './lib/migration-manifest.mjs';
-import {
-  createDatabaseReadScope,
-  parseDatabaseScopeArguments,
-} from './lib/remote-operation.mjs';
+import { createDatabaseReadScope, parseDatabaseScopeArguments } from './lib/remote-operation.mjs';
 
 // Only reads the history of the linked, branch-approved Supabase project.
 // Mutation is performed separately by the guarded database CLI.
