@@ -379,7 +379,9 @@ export function createDatabaseReadScope(options, context = {}) {
         process.stderr.write(
           `[database] ${target.branch} -> ${target.projectName} (${target.projectRef})\n`,
         );
-        args = ['--linked', '--project-ref', target.projectRef];
+        // The wrapper consumed the explicit project reference and verified it
+        // against the linked project above; the native CLI uses that link.
+        args = ['--linked'];
       } else assertLocalDatabaseEnvironment(env, root);
       return args;
     },

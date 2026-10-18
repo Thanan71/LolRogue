@@ -742,8 +742,8 @@ describe('canonical operations without retired npm dependencies', () => {
         'db',
         'push',
         '--linked',
-        '--project-ref',
-        projectRef,
+        // The wrapper validates the explicit project reference first.
+        // The native CLI then uses the approved linked project.
         '--yes',
       ]);
       const edge = await createCommandPlan(
@@ -798,8 +798,8 @@ describe('canonical operations without retired npm dependencies', () => {
       'db',
       'push',
       '--linked',
-      '--project-ref',
-      'misdmtpfcbxbhheacehm',
+      // The wrapper validates the explicit project reference first.
+      // The native CLI then uses the approved linked project.
       '--dry-run',
     ]);
     expect(

@@ -60,8 +60,6 @@ export function buildDatabasePlan(command, options, context) {
         'db',
         'push',
         '--linked',
-        '--project-ref',
-        options['project-ref'],
         ...(options.preview ? ['--dry-run'] : ['--yes']),
       ]),
     ];
