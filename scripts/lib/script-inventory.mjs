@@ -298,7 +298,7 @@ function metadata(name, command, descriptor) {
     ];
   if (name === 'edge:deploy')
     effects = [
-      'Bundles authority locally, then deploys verify-run to the explicitly selected or linked Supabase project',
+      'Bundles authority locally, then deploys all local Edge Functions to the approved branch-linked Supabase project',
     ];
   if (name === 'backend:deploy')
     effects = [

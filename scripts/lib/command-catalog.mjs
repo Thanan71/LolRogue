@@ -584,7 +584,7 @@ export const commandCatalog = [
     'release',
     'edge deploy',
     ['edge:deploy'],
-    'Build and deploy verify-run to the effective branch target; requires --yes.',
+    'Build authority bundles and deploy all local Edge Functions to the effective branch target; requires --yes.',
     { kind: 'edge-deploy' },
     {
       risk: 'remote',

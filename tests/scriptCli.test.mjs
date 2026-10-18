@@ -750,13 +750,17 @@ describe('canonical operations without retired npm dependencies', () => {
         parseCommand(['release', 'edge', 'deploy', '--project-ref', projectRef]),
         targetContext,
       );
+      expect(edge.slice(0, 2).map((step) => path.relative(root, step.args[0]))).toEqual([
+        'scripts/check-authority-registry.mjs',
+        'scripts/build-authority-bundle.mjs',
+      ]);
       expect(edge.at(-1).args).toEqual([
         'functions',
         'deploy',
-        'verify-run',
         '--project-ref',
         projectRef,
         '--yes',
+        '--use-api',
       ]);
     },
   );

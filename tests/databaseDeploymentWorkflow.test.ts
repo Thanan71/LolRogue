@@ -75,25 +75,56 @@ describe('branch-isolated Supabase database deployment', () => {
     }
   });
 
-  it('validates locally and refuses drift before applying remotely', () => {
-    expect(workflow).toContain('npm run check:db');
-    expect(workflow).toContain('npm run database -- stop');
-    for (const branch of ['dev', 'main']) {
-      const section = workflow.split(`  deploy-${branch}:`)[1];
-      expect(section).toContain(
+  it('requires a valid authority bundle before starting local Supabase or releasing either target', () => {
+    const configuration = parseDocument(workflow).toJS();
+    const validation = configuration.jobs['validate-migrations'];
+    const runs = validation.steps.map((step: { run?: string }) => step.run?.trim());
+    const install = runs.indexOf('npm ci');
+    const bundle = runs.indexOf('npm run release -- edge bundle');
+    const start = runs.indexOf('npm run database -- start');
+    const databaseCheck = runs.indexOf('npm run check:db');
+    const stop = runs.indexOf('npm run database -- stop');
+
+    expect(install).toBeGreaterThanOrEqual(0);
+    expect(bundle).toBeGreaterThan(install);
+    expect(start).toBeGreaterThan(bundle);
+    expect(databaseCheck).toBeGreaterThan(start);
+    expect(stop).toBeGreaterThan(databaseCheck);
+    expect(validation['continue-on-error']).not.toBe(true);
+    expect(validation.steps[bundle]['continue-on-error']).not.toBe(true);
+    for (const branch of ['dev', 'main'])
+      expect(configuration.jobs[`deploy-${branch}`].needs).toBe('validate-migrations');
+  });
+
+  it.each(['dev', 'main'])(
+    'verifies %s migrations before deploying all Edge Functions to the same approved target',
+    (branch) => {
+      const configuration = parseDocument(workflow).toJS();
+      const job = configuration.jobs[`deploy-${branch}`];
+      const runs = job.steps.map((step: { run?: string }) => step.run?.trim());
+      const phases = [
+        'npm ci',
         'npm run database -- link --project-ref "$EXPECTED_PROJECT_REF" --yes',
-      );
-      const guard = section.indexOf('check-database-deploy-plan.mjs');
-      const preview = section.indexOf('migrate --project-ref "$EXPECTED_PROJECT_REF" --preview');
-      const apply = section.indexOf('migrate --project-ref "$EXPECTED_PROJECT_REF" --yes');
-      const verify = section.indexOf(
-        'migrations check --linked --project-ref "$EXPECTED_PROJECT_REF"',
-      );
-      expect(guard).toBeGreaterThanOrEqual(0);
-      expect(preview).toBeGreaterThan(guard);
-      expect(apply).toBeGreaterThan(preview);
-      expect(verify).toBeGreaterThan(apply);
-    }
+        'node scripts/check-database-deploy-plan.mjs --linked --project-ref "$EXPECTED_PROJECT_REF"',
+        'npm run database -- migrate --project-ref "$EXPECTED_PROJECT_REF" --preview',
+        'npm run database -- migrate --project-ref "$EXPECTED_PROJECT_REF" --yes',
+        'npm run database -- migrations check --linked --project-ref "$EXPECTED_PROJECT_REF"',
+        'npm run release -- edge deploy --project-ref "$EXPECTED_PROJECT_REF" --yes',
+      ].map((command) => runs.indexOf(command));
+
+      expect(phases).not.toContain(-1);
+      for (let index = 1; index < phases.length; index++)
+        expect(phases[index]).toBeGreaterThan(phases[index - 1]);
+      expect(job['continue-on-error']).not.toBe(true);
+      for (const index of phases.slice(1))
+        expect(job.steps[index]['continue-on-error']).not.toBe(true);
+      expect(
+        runs.filter((run: string | undefined) => run?.includes('release -- edge deploy')),
+      ).toHaveLength(1);
+    },
+  );
+
+  it('does not bypass migration history or use database URL overrides for deployments', () => {
     expect(workflow).not.toContain('--include-all');
     expect(workflow).not.toContain('--include-seed');
     expect(workflow).not.toContain('SUPABASE_DB_URL');
