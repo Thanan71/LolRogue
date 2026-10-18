@@ -379,7 +379,9 @@ export function createDatabaseReadScope(options, context = {}) {
         process.stderr.write(
           `[database] ${target.branch} -> ${target.projectName} (${target.projectRef})\n`,
         );
-        args = ['--linked', '--project-ref', target.projectRef];
+        // Project identity was verified against the link above; migration list
+        // only accepts --linked (the CLI has no --project-ref option here).
+        args = ['--linked'];
       } else assertLocalDatabaseEnvironment(env, root);
       return args;
     },
