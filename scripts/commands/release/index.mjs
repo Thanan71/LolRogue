@@ -50,8 +50,9 @@ export function buildReleasePlan(command, options, context) {
             toolCommand(context.root, 'supabase', [
               'functions',
               remoteTarget ? 'deploy' : 'serve',
-              'verify-run',
-              ...(remoteTarget ? ['--project-ref', remoteTarget.projectRef, '--yes'] : []),
+              ...(remoteTarget
+                ? ['--project-ref', remoteTarget.projectRef, '--yes', '--use-api']
+                : ['verify-run']),
             ]),
           ]),
     ];

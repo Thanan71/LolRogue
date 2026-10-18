@@ -1,6 +1,14 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -32,6 +40,47 @@ function context(branch = 'dev', linked = resolveDeploymentTarget(branch)?.proje
     readBranch: () => branch,
     readLinkedRef: () => linked,
   };
+}
+
+function edgeDeploymentFixture(bundleExitCode) {
+  const sourceRoot = context().root;
+  const root = mkdtempSync(path.join(os.tmpdir(), 'lolrogue-edge-deploy-'));
+  directories.push(root);
+  for (const directory of ['config', 'scripts', 'node_modules/.bin', 'node_modules/supabase'])
+    mkdirSync(path.join(root, directory), { recursive: true });
+  copyFileSync(
+    path.join(sourceRoot, 'config/authority-versions.json'),
+    path.join(root, 'config/authority-versions.json'),
+  );
+  const version = JSON.parse(readFileSync(path.join(sourceRoot, 'package.json'), 'utf8'))
+    .devDependencies.supabase;
+  writeFileSync(
+    path.join(root, 'package.json'),
+    JSON.stringify({ type: 'module', devDependencies: { supabase: version } }),
+  );
+  writeFileSync(path.join(root, 'node_modules/supabase/package.json'), JSON.stringify({ version }));
+  const events = path.join(root, 'events');
+  const record = (event) =>
+    `import { appendFileSync } from 'node:fs'; appendFileSync(${JSON.stringify(events)}, ${JSON.stringify(`${event}\n`)});`;
+  writeFileSync(path.join(root, 'scripts/check-authority-registry.mjs'), record('registry'));
+  writeFileSync(
+    path.join(root, 'scripts/build-authority-bundle.mjs'),
+    `${record('bundle')} process.exit(${bundleExitCode});`,
+  );
+  const stub = path.join(root, 'scripts/supabase-stub.mjs');
+  writeFileSync(stub, record('deploy'));
+  writeFileSync(
+    path.join(
+      root,
+      'node_modules/.bin',
+      process.platform === 'win32' ? 'supabase.cmd' : 'supabase',
+    ),
+    process.platform === 'win32'
+      ? `@"${process.execPath}" "${stub}" %*\r\n`
+      : `#!${process.execPath}\nimport ${JSON.stringify(stub)};\n`,
+    { mode: 0o755 },
+  );
+  return { root, events };
 }
 
 describe('approved remote operation boundary', () => {
@@ -333,6 +382,83 @@ describe('database URL boundary', () => {
 });
 
 describe('remote plan concurrency and read-only preview', () => {
+  it.each([
+    {
+      branch: 'feature/review',
+      ref: projectRef,
+      linkedRef: projectRef,
+      code: 'CLI_DEPLOYMENT_BRANCH',
+    },
+    {
+      branch: 'dev',
+      ref: productionRef,
+      linkedRef: projectRef,
+      code: 'CLI_DEPLOYMENT_TARGET',
+    },
+    {
+      branch: 'dev',
+      ref: projectRef,
+      linkedRef: productionRef,
+      code: 'CLI_LINK_MISMATCH',
+    },
+  ])(
+    'blocks all Edge Functions deployment for an invalid target before executing any step: $code',
+    async ({ branch, ref, linkedRef, code }) => {
+      const execute = vi.fn(async () => 0);
+      const errors = [];
+      const status = await runCli(['release', 'edge', 'deploy', '--project-ref', ref, '--yes'], {
+        ...context(branch, linkedRef),
+        execute,
+        stderr: { write: (text) => errors.push(text) },
+      });
+
+      expect(status).toBe(1);
+      expect(JSON.parse(errors.join('')).error.code).toBe(code);
+      expect(execute).not.toHaveBeenCalled();
+    },
+  );
+
+  it('never invokes the functions deploy subprocess when authority bundling fails', async () => {
+    const fixture = edgeDeploymentFixture(42);
+    const errors = [];
+    const status = await runCli(
+      ['release', 'edge', 'deploy', '--project-ref', projectRef, '--yes'],
+      {
+        ...context(),
+        root: fixture.root,
+        stderr: { write: (text) => errors.push(text) },
+      },
+    );
+
+    expect(status).toBe(42);
+    expect(readFileSync(fixture.events, 'utf8')).toBe('registry\nbundle\n');
+    expect(JSON.parse(errors.join('')).error.exitCode).toBe(42);
+  });
+
+  it('rechecks the linked project after bundling before invoking functions deploy', async () => {
+    const fixture = edgeDeploymentFixture(0);
+    const readLinkedRef = vi
+      .fn()
+      .mockReturnValueOnce(projectRef)
+      .mockReturnValueOnce(projectRef)
+      .mockReturnValueOnce(projectRef)
+      .mockReturnValue(productionRef);
+    const errors = [];
+    const status = await runCli(
+      ['release', 'edge', 'deploy', '--project-ref', projectRef, '--yes'],
+      {
+        ...context(),
+        root: fixture.root,
+        readLinkedRef,
+        stderr: { write: (text) => errors.push(text) },
+      },
+    );
+
+    expect(status).toBe(1);
+    expect(readFileSync(fixture.events, 'utf8')).toBe('registry\nbundle\n');
+    expect(JSON.parse(errors.join('')).error.code).toBe('CLI_LINK_MISMATCH');
+  });
+
   it.each([
     ['database', 'start'],
     ['database', 'stop'],

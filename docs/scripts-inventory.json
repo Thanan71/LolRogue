@@ -25436,7 +25436,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 59,
+          "line": 62,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:db",
@@ -25455,15 +25455,15 @@
           "line": 36,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "1. `validate-migrations` vérifie le SHA, installe le lockfile et exécute sur Supabase local `npm run check:db` (reset **local uniquement**, RLS, schéma, types et tests).",
+          "excerpt": "1. `validate-migrations` vérifie le SHA et installe le lockfile. `npm run release -- edge bundle` construit et valide les bundles Edge avant de démarrer Supabase local et d'exécuter `npm run check:db` (reset **local uniq",
           "classification": "active"
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 79,
+          "line": 85,
           "kind": "npm-run",
           "source": "test",
-          "excerpt": "expect(workflow).toContain('npm run check:db');",
+          "excerpt": "const databaseCheck = runs.indexOf('npm run check:db');",
           "classification": "active"
         }
       ],
@@ -25479,7 +25479,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 59,
+          "line": 62,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:db",
@@ -25498,15 +25498,15 @@
           "line": 36,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "1. `validate-migrations` vérifie le SHA, installe le lockfile et exécute sur Supabase local `npm run check:db` (reset **local uniquement**, RLS, schéma, types et tests).",
+          "excerpt": "1. `validate-migrations` vérifie le SHA et installe le lockfile. `npm run release -- edge bundle` construit et valide les bundles Edge avant de démarrer Supabase local et d'exécuter `npm run check:db` (reset **local uniq",
           "classification": "active"
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 79,
+          "line": 85,
           "kind": "npm-run",
           "source": "test",
-          "excerpt": "expect(workflow).toContain('npm run check:db');",
+          "excerpt": "const databaseCheck = runs.indexOf('npm run check:db');",
           "classification": "active"
         }
       ],
@@ -27459,7 +27459,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 45,
+          "line": 48,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
@@ -27467,7 +27467,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 63,
+          "line": 66,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -27475,18 +27475,10 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 109,
+          "line": 112,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
-          "classification": "active"
-        },
-        {
-          "file": ".github/workflows/database-deployment.yml",
-          "line": 115,
-          "kind": "npm-run",
-          "source": "workflow",
-          "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --preview",
           "classification": "active"
         },
         {
@@ -27494,7 +27486,7 @@
           "line": 118,
           "kind": "npm-run",
           "source": "workflow",
-          "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
+          "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --preview",
           "classification": "active"
         },
         {
@@ -27502,15 +27494,15 @@
           "line": 121,
           "kind": "npm-run",
           "source": "workflow",
-          "excerpt": "run: npm run database -- migrations check --linked --project-ref \"$EXPECTED_PROJECT_REF\"",
+          "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
           "classification": "active"
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 167,
+          "line": 124,
           "kind": "npm-run",
           "source": "workflow",
-          "excerpt": "run: npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
+          "excerpt": "run: npm run database -- migrations check --linked --project-ref \"$EXPECTED_PROJECT_REF\"",
           "classification": "active"
         },
         {
@@ -27518,12 +27510,20 @@
           "line": 173,
           "kind": "npm-run",
           "source": "workflow",
+          "excerpt": "run: npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
+          "classification": "active"
+        },
+        {
+          "file": ".github/workflows/database-deployment.yml",
+          "line": 179,
+          "kind": "npm-run",
+          "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --preview",
           "classification": "active"
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 176,
+          "line": 182,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -27531,7 +27531,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 179,
+          "line": 185,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrations check --linked --project-ref \"$EXPECTED_PROJECT_REF\"",
@@ -28307,18 +28307,50 @@
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 80,
+          "line": 84,
           "kind": "npm-run",
           "source": "test",
-          "excerpt": "expect(workflow).toContain('npm run database -- stop');",
+          "excerpt": "const start = runs.indexOf('npm run database -- start');",
           "classification": "active"
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 84,
+          "line": 86,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "const stop = runs.indexOf('npm run database -- stop');",
+          "classification": "active"
+        },
+        {
+          "file": "tests/databaseDeploymentWorkflow.test.ts",
+          "line": 107,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "'npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes',",
+          "classification": "active"
+        },
+        {
+          "file": "tests/databaseDeploymentWorkflow.test.ts",
+          "line": 109,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "'npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --preview',",
+          "classification": "active"
+        },
+        {
+          "file": "tests/databaseDeploymentWorkflow.test.ts",
+          "line": 110,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "'npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --yes',",
+          "classification": "active"
+        },
+        {
+          "file": "tests/databaseDeploymentWorkflow.test.ts",
+          "line": 111,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "'npm run database -- migrations check --linked --project-ref \"$EXPECTED_PROJECT_REF\"',",
           "classification": "active"
         },
         {
@@ -28415,7 +28447,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 45,
+          "line": 48,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
@@ -28423,7 +28455,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 63,
+          "line": 66,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -28431,18 +28463,10 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 109,
+          "line": 112,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
-          "classification": "active"
-        },
-        {
-          "file": ".github/workflows/database-deployment.yml",
-          "line": 115,
-          "kind": "npm-run",
-          "source": "workflow",
-          "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --preview",
           "classification": "active"
         },
         {
@@ -28450,7 +28474,7 @@
           "line": 118,
           "kind": "npm-run",
           "source": "workflow",
-          "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
+          "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --preview",
           "classification": "active"
         },
         {
@@ -28458,15 +28482,15 @@
           "line": 121,
           "kind": "npm-run",
           "source": "workflow",
-          "excerpt": "run: npm run database -- migrations check --linked --project-ref \"$EXPECTED_PROJECT_REF\"",
+          "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
           "classification": "active"
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 167,
+          "line": 124,
           "kind": "npm-run",
           "source": "workflow",
-          "excerpt": "run: npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
+          "excerpt": "run: npm run database -- migrations check --linked --project-ref \"$EXPECTED_PROJECT_REF\"",
           "classification": "active"
         },
         {
@@ -28474,12 +28498,20 @@
           "line": 173,
           "kind": "npm-run",
           "source": "workflow",
+          "excerpt": "run: npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
+          "classification": "active"
+        },
+        {
+          "file": ".github/workflows/database-deployment.yml",
+          "line": 179,
+          "kind": "npm-run",
+          "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --preview",
           "classification": "active"
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 176,
+          "line": 182,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -28487,7 +28519,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 179,
+          "line": 185,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrations check --linked --project-ref \"$EXPECTED_PROJECT_REF\"",
@@ -29272,18 +29304,50 @@
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 80,
+          "line": 84,
           "kind": "npm-run",
           "source": "test",
-          "excerpt": "expect(workflow).toContain('npm run database -- stop');",
+          "excerpt": "const start = runs.indexOf('npm run database -- start');",
           "classification": "active"
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 84,
+          "line": 86,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "const stop = runs.indexOf('npm run database -- stop');",
+          "classification": "active"
+        },
+        {
+          "file": "tests/databaseDeploymentWorkflow.test.ts",
+          "line": 107,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "'npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes',",
+          "classification": "active"
+        },
+        {
+          "file": "tests/databaseDeploymentWorkflow.test.ts",
+          "line": 109,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "'npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --preview',",
+          "classification": "active"
+        },
+        {
+          "file": "tests/databaseDeploymentWorkflow.test.ts",
+          "line": 110,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "'npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --yes',",
+          "classification": "active"
+        },
+        {
+          "file": "tests/databaseDeploymentWorkflow.test.ts",
+          "line": 111,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "'npm run database -- migrations check --linked --project-ref \"$EXPECTED_PROJECT_REF\"',",
           "classification": "active"
         },
         {
@@ -29309,7 +29373,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 59,
+          "line": 62,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:db",
@@ -29334,7 +29398,7 @@
           "line": 36,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "1. `validate-migrations` vérifie le SHA, installe le lockfile et exécute sur Supabase local `npm run check:db` (reset **local uniquement**, RLS, schéma, types et tests).",
+          "excerpt": "1. `validate-migrations` vérifie le SHA et installe le lockfile. `npm run release -- edge bundle` construit et valide les bundles Edge avant de démarrer Supabase local et d'exécuter `npm run check:db` (reset **local uniq",
           "classification": "active",
           "via": [
             "check:db"
@@ -29342,10 +29406,10 @@
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 79,
+          "line": 85,
           "kind": "npm-run",
           "source": "test",
-          "excerpt": "expect(workflow).toContain('npm run check:db');",
+          "excerpt": "const databaseCheck = runs.indexOf('npm run check:db');",
           "classification": "active",
           "via": [
             "check:db"
@@ -30854,7 +30918,7 @@
         "Node 24; preserve registered historical hashes; Supabase CLI for serve/deploy"
       ],
       "effects": [
-        "Bundles authority locally, then deploys verify-run to the explicitly selected or linked Supabase project"
+        "Bundles authority locally, then deploys all local Edge Functions to the approved branch-linked Supabase project"
       ],
       "executionScope": "remote-target",
       "privileges": [
@@ -33438,7 +33502,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 101,
+          "line": 104,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -33446,7 +33510,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 159,
+          "line": 165,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -33698,6 +33762,22 @@
           "source": "test",
           "kind": "implicit-install-hook",
           "excerpt": "expect(() => requirePinnedCli('supabase', 'supabase', root)).toThrow('Run npm ci');",
+          "classification": "active"
+        },
+        {
+          "file": "tests/databaseDeploymentWorkflow.test.ts",
+          "line": 82,
+          "source": "test",
+          "kind": "implicit-install-hook",
+          "excerpt": "const install = runs.indexOf('npm ci');",
+          "classification": "active"
+        },
+        {
+          "file": "tests/databaseDeploymentWorkflow.test.ts",
+          "line": 106,
+          "source": "test",
+          "kind": "implicit-install-hook",
+          "excerpt": "'npm ci',",
           "classification": "active"
         },
         {
@@ -33820,7 +33900,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 101,
+          "line": 104,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -33828,7 +33908,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 159,
+          "line": 165,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -34098,6 +34178,22 @@
           "source": "test",
           "kind": "implicit-install-hook",
           "excerpt": "expect(() => requirePinnedCli('supabase', 'supabase', root)).toThrow('Run npm ci');",
+          "classification": "active"
+        },
+        {
+          "file": "tests/databaseDeploymentWorkflow.test.ts",
+          "line": 82,
+          "source": "test",
+          "kind": "implicit-install-hook",
+          "excerpt": "const install = runs.indexOf('npm ci');",
+          "classification": "active"
+        },
+        {
+          "file": "tests/databaseDeploymentWorkflow.test.ts",
+          "line": 106,
+          "source": "test",
+          "kind": "implicit-install-hook",
+          "excerpt": "'npm ci',",
           "classification": "active"
         },
         {
@@ -34913,6 +35009,30 @@
           "classification": "active"
         },
         {
+          "file": ".github/workflows/database-deployment.yml",
+          "line": 45,
+          "kind": "npm-run",
+          "source": "workflow",
+          "excerpt": "run: npm run release -- edge bundle",
+          "classification": "active"
+        },
+        {
+          "file": ".github/workflows/database-deployment.yml",
+          "line": 127,
+          "kind": "npm-run",
+          "source": "workflow",
+          "excerpt": "run: npm run release -- edge deploy --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
+          "classification": "active"
+        },
+        {
+          "file": ".github/workflows/database-deployment.yml",
+          "line": 188,
+          "kind": "npm-run",
+          "source": "workflow",
+          "excerpt": "run: npm run release -- edge deploy --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
+          "classification": "active"
+        },
+        {
           "file": "README.md",
           "line": 63,
           "kind": "npm-run",
@@ -35110,6 +35230,22 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "page contredit les preuves enregistrées. `npm run release -- preflight --project-ref <project-ref>` reste",
+          "classification": "active"
+        },
+        {
+          "file": "docs/database-deployment.md",
+          "line": 36,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "1. `validate-migrations` vérifie le SHA et installe le lockfile. `npm run release -- edge bundle` construit et valide les bundles Edge avant de démarrer Supabase local et d'exécuter `npm run check:db` (reset **local uniq",
+          "classification": "active"
+        },
+        {
+          "file": "docs/database-deployment.md",
+          "line": 44,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "9. `npm run release -- edge deploy --project-ref ... --yes` construit les bundles puis déploie toutes les Edge Functions du commit sur le même projet, avec le contrôle de branche et de liaison distante et la configuratio",
           "classification": "active"
         },
         {
@@ -35326,6 +35462,22 @@
           "kind": "npm-run",
           "source": "source",
           "excerpt": "npm run release -- deploy --project-ref <project-ref> --yes",
+          "classification": "active"
+        },
+        {
+          "file": "tests/databaseDeploymentWorkflow.test.ts",
+          "line": 83,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "const bundle = runs.indexOf('npm run release -- edge bundle');",
+          "classification": "active"
+        },
+        {
+          "file": "tests/databaseDeploymentWorkflow.test.ts",
+          "line": 112,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "'npm run release -- edge deploy --project-ref \"$EXPECTED_PROJECT_REF\" --yes',",
           "classification": "active"
         },
         {
@@ -35383,6 +35535,30 @@
           "classification": "active"
         },
         {
+          "file": ".github/workflows/database-deployment.yml",
+          "line": 45,
+          "kind": "npm-run",
+          "source": "workflow",
+          "excerpt": "run: npm run release -- edge bundle",
+          "classification": "active"
+        },
+        {
+          "file": ".github/workflows/database-deployment.yml",
+          "line": 127,
+          "kind": "npm-run",
+          "source": "workflow",
+          "excerpt": "run: npm run release -- edge deploy --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
+          "classification": "active"
+        },
+        {
+          "file": ".github/workflows/database-deployment.yml",
+          "line": 188,
+          "kind": "npm-run",
+          "source": "workflow",
+          "excerpt": "run: npm run release -- edge deploy --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
+          "classification": "active"
+        },
+        {
           "file": "README.md",
           "line": 63,
           "kind": "npm-run",
@@ -35580,6 +35756,22 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "page contredit les preuves enregistrées. `npm run release -- preflight --project-ref <project-ref>` reste",
+          "classification": "active"
+        },
+        {
+          "file": "docs/database-deployment.md",
+          "line": 36,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "1. `validate-migrations` vérifie le SHA et installe le lockfile. `npm run release -- edge bundle` construit et valide les bundles Edge avant de démarrer Supabase local et d'exécuter `npm run check:db` (reset **local uniq",
+          "classification": "active"
+        },
+        {
+          "file": "docs/database-deployment.md",
+          "line": 44,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "9. `npm run release -- edge deploy --project-ref ... --yes` construit les bundles puis déploie toutes les Edge Functions du commit sur le même projet, avec le contrôle de branche et de liaison distante et la configuratio",
           "classification": "active"
         },
         {
@@ -35823,6 +36015,22 @@
           "kind": "npm-run",
           "source": "source",
           "excerpt": "npm run release -- deploy --project-ref <project-ref> --yes",
+          "classification": "active"
+        },
+        {
+          "file": "tests/databaseDeploymentWorkflow.test.ts",
+          "line": 83,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "const bundle = runs.indexOf('npm run release -- edge bundle');",
+          "classification": "active"
+        },
+        {
+          "file": "tests/databaseDeploymentWorkflow.test.ts",
+          "line": 112,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "'npm run release -- edge deploy --project-ref \"$EXPECTED_PROJECT_REF\" --yes',",
           "classification": "active"
         },
         {

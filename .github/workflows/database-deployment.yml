@@ -1,4 +1,4 @@
-name: Supabase database deployment
+name: Supabase backend deployment
 
 on:
   push:
@@ -10,14 +10,14 @@ on:
 permissions:
   contents: read
 
-# A migration must never be interrupted halfway through by a newer push.
+# A backend deployment must never be interrupted halfway through by a newer push.
 concurrency:
   group: supabase-db-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   validate-migrations:
-    name: Validate local migrations
+    name: Validate local migrations and Edge bundles
     if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -41,6 +41,9 @@ jobs:
       - name: Install pinned dependencies
         run: npm ci
 
+      - name: Build and validate Edge Function bundles
+        run: npm run release -- edge bundle
+
       - name: Start disposable local Supabase
         run: npm run database -- start
 
@@ -63,7 +66,7 @@ jobs:
         run: npm run database -- stop
 
   deploy-dev:
-    name: Deploy migrations to supabase-dev
+    name: Deploy migrations and Edge Functions to supabase-dev
     needs: validate-migrations
     if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
@@ -120,8 +123,11 @@ jobs:
       - name: Verify remote migration history matches this commit
         run: npm run database -- migrations check --linked --project-ref "$EXPECTED_PROJECT_REF"
 
+      - name: Deploy Edge Functions to the approved Supabase project
+        run: npm run release -- edge deploy --project-ref "$EXPECTED_PROJECT_REF" --yes
+
   deploy-main:
-    name: Deploy migrations to production (main environment)
+    name: Deploy migrations and Edge Functions to production (main environment)
     needs: validate-migrations
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -177,3 +183,6 @@ jobs:
 
       - name: Verify remote migration history matches this commit
         run: npm run database -- migrations check --linked --project-ref "$EXPECTED_PROJECT_REF"
+
+      - name: Deploy Edge Functions to the approved Supabase project
+        run: npm run release -- edge deploy --project-ref "$EXPECTED_PROJECT_REF" --yes
