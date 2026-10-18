@@ -10,7 +10,7 @@ const CONTEXT_ID = 'b'.repeat(32);
 
 function base(filters: BalanceFilters): BalanceReportBase {
   return {
-    snapshotAt: '2026-10-18T12:00:00Z',
+    snapshotAt: new Date(Date.parse(`${filters.to}T00:00:00Z`) + 36 * 3_600_000).toISOString(),
     filters: { ...filters },
     minimumSampleSize: 30,
     segments: [

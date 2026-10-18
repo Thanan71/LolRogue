@@ -62,6 +62,17 @@ describe('balance bounded UTC filters', () => {
 });
 
 describe('balance champion projections and evidence', () => {
+  it.each(['2027-01-01', '2027-10-20', '2028-02-29'])(
+    'keeps controlled UI observations within their requested UTC window after the fixture creation date: %s',
+    (to) => {
+      const filters = { from: to, to };
+      expect(() =>
+        parseAdminBalanceChampions(balanceChampionFixture(filters), filters),
+      ).not.toThrow();
+      expect(() => parseAdminBalanceBuilds(balanceBuildFixture(filters), filters)).not.toThrow();
+    },
+  );
+
   it('keeps absent champions in the full server denominator without inventing metrics', () => {
     const report = balanceChampionFixture();
     expect(parseAdminBalanceChampions(report)).toEqual(report);

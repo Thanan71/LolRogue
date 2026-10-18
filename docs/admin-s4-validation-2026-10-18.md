@@ -113,7 +113,7 @@ soit commitée avant la couverture complète.
 | Structure de base fraîche | PASS ; 71 migrations, lint strict `results: []`, ACL/RLS, advisors, 11 index et types générés concordants |
 | Suite DB complète | PASS ; **247/247**, 25 fichiers, zéro skip, 52,91 s ; 39 nouveaux cas |
 | Rollback applicatif | PASS ; **10/10**, 2,02 s ; checkpoint `968c0b3a` sur migration `20261018073001` |
-| Parseurs/statistiques/cellules historiques | PASS ; **125/125** cas ciblés |
+| Parseurs/statistiques/cellules historiques | PASS ; **128/128** cas ciblés, dont trois fenêtres après la date de création des fixtures |
 | Interface et source de calibration | PASS ; **40/40** cas ciblés, dont les tests historiques du panneau réutilisé |
 | Navigateurs ciblés | PASS ; **4/4**, 17,2 s, sans retry ; FR/EN, 320 px, clavier, axe et route forgée |
 | Navigateur connecté | PASS ; **1/1**, 18,3 s, sans retry ; Auth/RPC/PostgreSQL/parseur/UI/révocation |
@@ -124,6 +124,13 @@ La couverture complète, le SHA final et les contrôles CI sont consignés dans 
 PR de cette branche. Les historiques de gameplay restent figés ; les captures,
 logs et sorties Graphify demeurent hors commit. Aucune image ni dépendance n’est
 ajoutée.
+
+La couverture locale complète passe avec 3 505 tests et 203 skips DB attendus
+(295 fichiers réussis et 17 fichiers réservés à la DB). Une dernière correction
+de fixture fait dériver sa date de lecture de la fenêtre demandée, pour que les
+parcours gardent des données valides après octobre 2026. Les 157 cas ciblés de
+contrat/UI/source historique passent ensuite, avec trois cas supplémentaires
+sur 2027 et l’année bissextile 2028. La CI rejoue la suite complète sur ce SHA.
 
 ## Build et livraison
 
