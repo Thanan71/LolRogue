@@ -18,10 +18,6 @@ import { useAuthStore } from '@/stores/authStore';
 
 const mocks = vi.hoisted(() => ({
   stats: vi.fn(),
-  logs: vi.fn(),
-}));
-vi.mock('@/pages/admin/adminTableQueries', () => ({
-  fetchAdminLogsPage: mocks.logs,
 }));
 vi.mock('@/services/supabaseClient', () => ({
   supabase: {
@@ -60,7 +56,6 @@ beforeEach(() => {
   mocks.stats
     .mockReset()
     .mockResolvedValue({ data: [{ stat_name: 'total_players', stat_value: '10' }], error: null });
-  mocks.logs.mockReset().mockResolvedValue({ rows: [], total: 0 });
   useAuthStore.setState({
     ...accountA,
     isAdmin: true,
@@ -204,21 +199,11 @@ describe('admin metric definitions and values', () => {
 });
 
 describe('independent admin resources', () => {
-  it('finishes ready sections while stats are pending and logs fail, then retries only logs', async () => {
-    const pending = deferred<{ data: []; error: null }>();
-    mocks.stats.mockReturnValueOnce(pending.promise);
-    mocks.logs.mockRejectedValueOnce(new Error('private SQL error'));
+  it('keeps diagnostics lazy instead of reading obsolete privileged channels on dashboard entry', async () => {
     const { result } = renderHook(() => useAdminData(true));
-    await waitFor(() => expect(result.current.sections.authority.hasData).toBe(true));
-    expect(result.current.statsLoading).toBe(true);
-    expect(result.current.authorityLoading).toBe(false);
-    await waitFor(() => expect(result.current.errors.logs).toBe(fr.admin.requestFailed));
-    await act(async () => {
-      await result.current.fetchLogs();
-    });
-    expect(result.current.errors.logs).toBeNull();
-    expect(mocks.stats).toHaveBeenCalledTimes(1);
-    await act(async () => pending.resolve({ data: [], error: null }));
+    await waitFor(() => expect(result.current.sections.stats.hasData).toBe(true));
+    expect(Object.keys(result.current.sections)).toEqual(['stats']);
+    expect(mocks.stats).toHaveBeenCalledOnce();
   });
 
   it('keeps previous data visibly stale after a failed refresh and restores it with a retry', async () => {
@@ -373,7 +358,6 @@ describe('independent admin resources', () => {
       pending.resolve({ data: [{ stat_name: 'total_players', stat_value: '999' }], error: null }),
     );
     expect(result.current.stats).toEqual({});
-    expect(result.current.authorityAggregates).toEqual([]);
     expect(result.current.sections.stats.status).toBe('idle');
   });
 
