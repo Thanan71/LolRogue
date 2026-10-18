@@ -78,6 +78,27 @@ export function compareMigrationManifests(expected, applied) {
   return { missing, unknown, orderDivergent, expectedSharedOrder, appliedSharedOrder };
 }
 
+/**
+ * A remote target may lag the source branch, but it must never have
+ * unknown/reordered versions or a missing migration inside its applied prefix.
+ * Do not silently use --include-all or repair history during deployment.
+ */
+export function assertDeployableMigrationHistory(expected, applied) {
+  const { unknown, orderDivergent } = compareMigrationManifests(expected, applied);
+  const prefix = expected.slice(0, applied.length);
+  if (
+    unknown.length > 0 ||
+    orderDivergent ||
+    JSON.stringify(prefix) !== JSON.stringify(applied)
+  ) {
+    throw new Error(
+      'Remote migrations do not form a known prefix of the candidate. ' +
+        'Investigate migration drift manually; automatic repair is forbidden.',
+    );
+  }
+  return { applied: applied.length, pending: expected.slice(applied.length) };
+}
+
 export function assertRollbackCompatibleMigrationManifest(rollbackVersions, currentVersions) {
   if (rollbackVersions.length > currentVersions.length) {
     throw new Error('Rollback application migrations are newer than the current manifest.');
