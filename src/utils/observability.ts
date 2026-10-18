@@ -1,3 +1,4 @@
+import { resetTechnicalMetrics } from '@/observability/technicalMetrics';
 import { dbLogger } from './dbLogger';
 import { sanitizeLogDetails, sanitizeLogText } from './logSanitizer';
 
@@ -15,6 +16,7 @@ export type TechnicalEvent =
     };
 
 export interface CorrelationContext {
+  attemptId?: string | null;
   runId?: string | null;
   commandId?: string | null;
 }
@@ -30,6 +32,9 @@ const MAX_PER_TYPE_PER_MINUTE = 20;
 const history: ObservedTechnicalEvent[] = [];
 const windows = new Map<TechnicalEvent['type'], number[]>();
 let activeCorrelation: CorrelationContext = {};
+let sessionGeneration = 0;
+
+const ATTEMPT_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function withinBudget(type: TechnicalEvent['type'], now: number): boolean {
   const recent = (windows.get(type) ?? []).filter((timestamp) => now - timestamp < 60_000);
@@ -56,6 +61,9 @@ export function recordTechnicalEvent(
   if (!withinBudget(event.type, now)) return false;
   const safeEvent = sanitizeEvent(event);
   const safeCorrelation = {
+    ...(correlation.attemptId && ATTEMPT_UUID.test(correlation.attemptId)
+      ? { attemptId: correlation.attemptId.toLowerCase() }
+      : {}),
     runId: correlation.runId ? sanitizeLogText(correlation.runId, 100) : undefined,
     commandId: correlation.commandId ? sanitizeLogText(correlation.commandId, 100) : undefined,
   };
@@ -75,9 +83,11 @@ export function recordTechnicalEvent(
 export function measureTransition(
   transition: string,
   correlation: CorrelationContext = {},
-): (outcome?: 'ok' | 'error') => void {
+): (outcome?: 'ok' | 'error', completedCorrelation?: CorrelationContext) => void {
   const startedAt = performance.now();
-  return (outcome = 'ok') =>
+  const generation = sessionGeneration;
+  return (outcome = 'ok', completedCorrelation) => {
+    if (generation !== sessionGeneration) return;
     recordTechnicalEvent(
       {
         type: 'transition_duration',
@@ -85,8 +95,9 @@ export function measureTransition(
         durationMs: Math.max(0, performance.now() - startedAt),
         outcome,
       },
-      correlation,
+      completedCorrelation ?? correlation,
     );
+  };
 }
 
 export function getTechnicalEvents(): readonly ObservedTechnicalEvent[] {
@@ -94,13 +105,22 @@ export function getTechnicalEvents(): readonly ObservedTechnicalEvent[] {
 }
 
 export function resetTechnicalEvents(): void {
+  sessionGeneration += 1;
   history.length = 0;
   windows.clear();
   activeCorrelation = {};
 }
 
+/** Called at the existing Auth identity boundary, including A -> B -> A. */
+export function resetDiagnosticSession(): void {
+  resetTechnicalEvents();
+  resetTechnicalMetrics();
+  dbLogger.resetSession();
+}
+
 export function setTechnicalCorrelation(correlation: CorrelationContext): void {
   activeCorrelation = {
+    attemptId: correlation.attemptId ?? undefined,
     runId: correlation.runId ?? undefined,
     commandId: correlation.commandId ?? undefined,
   };

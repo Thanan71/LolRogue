@@ -394,14 +394,19 @@ export function createRunStartOrchestrator(
           combatCheckpointNodeId: null,
           combatRecoveryRequired: false,
         });
-        setTechnicalCorrelation({ runId });
+        setTechnicalCorrelation({ runId, attemptId: authorityAttempt?.attemptId });
         return { success: true as const, runId, mode: canonicalMode };
       });
       transitionOutcome = result.success ? 'ok' : 'error';
       return result;
     } finally {
       dependencies.lifecycle.finishStart();
-      finishTransition(transitionOutcome);
+      finishTransition(
+        transitionOutcome,
+        transitionOutcome === 'ok'
+          ? { runId: get().runId, attemptId: get().authorityAttempt?.attemptId }
+          : undefined,
+      );
     }
   };
 }

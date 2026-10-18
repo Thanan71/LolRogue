@@ -9,6 +9,7 @@ import { useChampionEconomyStore } from '@/stores/championEconomyStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import type { Player } from '@/types/models';
 import { readGuestMode, setStoredGuestMode } from '@/utils/ancillaryStorage';
+import { resetDiagnosticSession } from '@/utils/observability';
 
 export type AuthStatus =
   | 'bootstrapping'
@@ -70,6 +71,7 @@ let recoveryCallbackPending = initialPasswordRecovery.requested;
 
 function nextGeneration(): number {
   identityGeneration += 1;
+  resetDiagnosticSession();
   return identityGeneration;
 }
 

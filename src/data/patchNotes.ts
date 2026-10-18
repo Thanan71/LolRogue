@@ -541,6 +541,44 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 17,
+    version: '0.2.12',
+    publishedOn: '2026-10-18',
+    title: {
+      'fr-FR': 'Des diagnostics plus utiles et plus clairs',
+      'en-US': 'More useful, clearer diagnostics',
+    },
+    entries: [
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'L’administration permet de parcourir les logs et les tentatives avec des filtres serveur, de rapprocher les événements d’une tentative et de suivre les incidents avec leurs procédures de résolution.',
+          'en-US':
+            'Administration can now browse logs and attempts with server filters, link events from an attempt and track incidents with their resolution procedures.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Les indicateurs de vérification distinguent les mesures serveur, les périodes sans données et les mesures non collectées. Une absence de signal n’est jamais présentée comme un service sans erreur.',
+          'en-US':
+            'Verification indicators distinguish server measurements, periods with no data and metrics that are not collected. Missing signals are never presented as an error-free service.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les diagnostics facultatifs sont isolés entre les sessions et leurs informations sensibles restent masquées. Les droits administrateur sont vérifiés sur chaque lecture.',
+          'en-US':
+            'Optional diagnostics are isolated between sessions and sensitive information stays hidden. Administrator permissions are checked on every read.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {
