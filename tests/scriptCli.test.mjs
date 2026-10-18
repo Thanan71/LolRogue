@@ -742,8 +742,8 @@ describe('canonical operations without retired npm dependencies', () => {
         'db',
         'push',
         '--linked',
-        '--project-ref',
-        projectRef,
+        // The wrapper enforces target identity before calling the native CLI.
+        // db push does not accept a project-ref option.
         '--yes',
       ]);
       const edge = await createCommandPlan(
@@ -798,8 +798,8 @@ describe('canonical operations without retired npm dependencies', () => {
       'db',
       'push',
       '--linked',
-      '--project-ref',
-      'misdmtpfcbxbhheacehm',
+      // The approved dev project was verified by the wrapper.
+      // db push does not accept a project-ref option.
       '--dry-run',
     ]);
     expect(
