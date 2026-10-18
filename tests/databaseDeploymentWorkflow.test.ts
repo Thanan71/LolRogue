@@ -1,5 +1,6 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { parseDocument } from 'yaml';
 
 const workflow = readFileSync(
   new URL('../.github/workflows/database-deployment.yml', import.meta.url),
@@ -19,11 +20,25 @@ const remoteOperations = readFileSync(
 );
 
 describe('branch-isolated Supabase database deployment', () => {
+  it('parses every GitHub Actions workflow as valid YAML', () => {
+    const directory = new URL('../.github/workflows/', import.meta.url);
+    for (const filename of readdirSync(directory).filter((name) => /\.ya?ml$/.test(name))) {
+      const document = parseDocument(readFileSync(new URL(filename, directory), 'utf8'));
+      expect(
+        document.errors.map((error) => error.message),
+        filename,
+      ).toEqual([]);
+    }
+  });
+
   it('deploys only merged dev/main commits or an explicit dispatch on these branches', () => {
-    expect(workflow).toContain('workflow_dispatch:');
-    expect(workflow).toContain('  push:');
-    expect(workflow).toContain('      - dev\n      - main');
-    expect(workflow).not.toContain('  pull_request:');
+    const configuration = parseDocument(workflow).toJS();
+    expect(configuration.on).toHaveProperty('workflow_dispatch');
+    expect(configuration.on.push.branches).toEqual(['dev', 'main']);
+    expect(configuration.on.push).not.toHaveProperty('paths');
+    expect(configuration.on.push).not.toHaveProperty('paths-ignore');
+    expect(configuration.on).not.toHaveProperty('pull_request');
+    expect(configuration.on).not.toHaveProperty('pull_request_target');
     expect(workflow).toContain(
       "if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main'",
     );
@@ -32,6 +47,7 @@ describe('branch-isolated Supabase database deployment', () => {
   });
 
   it('has independent environments, credentials and branch-to-project invariants', () => {
+    const configuration = parseDocument(workflow).toJS();
     for (const [branch, environment] of [
       ['dev', 'supabase-dev'],
       ['main', 'supabase-production'],
@@ -44,15 +60,18 @@ describe('branch-isolated Supabase database deployment', () => {
         .split(`  deploy-${branch}:`)[1]
         ?.split(/\n  deploy-(?:dev|main):/)[0];
       expect(section).toBeTruthy();
-      expect(section).toContain(`environment: ${environment}`);
-      expect(section).toContain(`EXPECTED_BRANCH: ${branch}`);
-      expect(section).toContain(`EXPECTED_PROJECT_REF: ${declaredTarget}`);
-      expect(section).toContain(`if: github.ref == 'refs/heads/${branch}'`);
-      expect(section).toContain('SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}');
-      expect(section).toContain('SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}');
+      const job = configuration.jobs[`deploy-${branch}`];
+      expect(job.environment).toBe(environment);
+      expect(job.env).toEqual({
+        SUPABASE_ACCESS_TOKEN: '${{ secrets.SUPABASE_ACCESS_TOKEN }}',
+        SUPABASE_DB_PASSWORD: '${{ secrets.SUPABASE_DB_PASSWORD }}',
+        EXPECTED_BRANCH: branch,
+        EXPECTED_PROJECT_REF: declaredTarget,
+      });
+      expect(job.if).toBe(`github.ref == 'refs/heads/${branch}'`);
+      expect(job.needs).toBe('validate-migrations');
       expect(section).toContain('test "$(git branch --show-current)" = "$EXPECTED_BRANCH"');
       expect(section).toContain('resolveDeploymentTarget');
-      expect(section).toContain('needs: validate-migrations');
     }
   });
 
@@ -81,7 +100,7 @@ describe('branch-isolated Supabase database deployment', () => {
     expect(workflow).not.toContain('service_role');
   });
 
-  it('passes only the flags supported by the actual Supabase CLI', () => {
+  it('uses the validated link for native Supabase commands', () => {
     const remotePush = databaseRouter.split("if (command.target.kind === 'database-migrate')")[1];
     expect(remotePush).toContain("'db',");
     expect(remotePush).toContain("'push',");

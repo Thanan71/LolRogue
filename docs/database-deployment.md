@@ -9,7 +9,9 @@ Workflow : [`.github/workflows/database-deployment.yml`](../.github/workflows/da
 | `dev` | LolRogueDev | `misdmtpfcbxbhheacehm` | `supabase-dev` |
 | `main` | LolRogue | `mmpvmclqdgfnpfgcqnyu` | `supabase-production` |
 
-Le workflow est exécuté sur un push vers ces branches **si les fichiers de migrations, de configuration ou de déploiement changent**, ou manuellement avec `workflow_dispatch` depuis la branche désirée. Il ne s'exécute **jamais sur une PR** avec des secrets distants. Le SHA actuellement en tête de la branche doit correspondre exactement au SHA de l'événement : un ancien commit n'est pas déployé après un nouveau push.
+Le workflow est exécuté sur **chaque push** vers ces branches, ou manuellement avec `workflow_dispatch` depuis la branche désirée. Il ne s'exécute **jamais sur une PR** avec des secrets distants. Aucun filtre de chemins n'est appliqué : si un commit de migration est dépassé par un commit applicatif avant son checkout, le nouveau commit doit reprendre les migrations en attente.
+
+Au début de chaque job, le SHA du checkout doit correspondre exactement au SHA de l'événement : un job dont le checkout est déjà dépassé est rejeté. Si la branche avance après ce contrôle, le déploiement en cours peut se terminer ; le dernier commit est ensuite traité dans la même file.
 
 ## Configuration nécessaire dans GitHub
 
@@ -23,7 +25,7 @@ Ajouter **dans chacun** les secrets d'environnement suivants (valeurs distinctes
 - `SUPABASE_ACCESS_TOKEN` : jeton Supabase avec les seules autorisations de gestion nécessaires au projet concerné.
 - `SUPABASE_DB_PASSWORD` : mot de passe de la base Postgres de ce même projet Supabase.
 
-Ne pas stocker les mots de passe dans le dépôt ni dans des variables `VITE_*`. L'absence de secrets fait échouer le job avant le rattachement distant. Les références de projets (publiques) sont fixées dans le workflow et comparées à `scripts/lib/environment-config.mjs`.
+Ne pas stocker les mots de passe dans le dépôt ni dans des variables `VITE_*`. L'absence de secrets fait échouer le job avant le rattachement distant. Ne pas définir ces deux noms au niveau dépôt ou organisation : GitHub peut utiliser ces valeurs si un secret d'environnement manque. Les références de projets (publiques) sont fixées dans le workflow et comparées à `scripts/lib/environment-config.mjs`.
 
 **Important :** la définition des environnements, de leurs secrets et des approbations GitHub est une étape manuelle, à réaliser avant d'activer les déploiements automatiques. En particulier, créer un environnement sans reviewers ne suffit pas à protéger la production.
 

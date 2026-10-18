@@ -436,8 +436,8 @@ describe('remote plan concurrency and read-only preview', () => {
       'db',
       'push',
       '--linked',
-      // Project ref was validated before constructing the native CLI command.
-      // db push does not accept a project-ref option.
+      // The wrapper validates the explicit project reference first.
+      // The native CLI then uses the approved linked project.
       '--dry-run',
     ]);
   });

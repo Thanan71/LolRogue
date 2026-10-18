@@ -25379,7 +25379,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 71,
+          "line": 59,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:db",
@@ -25395,7 +25395,7 @@
         },
         {
           "file": "docs/database-deployment.md",
-          "line": 32,
+          "line": 34,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "1. `validate-migrations` vérifie le SHA, installe le lockfile et exécute sur Supabase local `npm run check:db` (reset **local uniquement**, RLS, schéma, types et tests).",
@@ -25403,7 +25403,7 @@
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 60,
+          "line": 79,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(workflow).toContain('npm run check:db');",
@@ -25422,7 +25422,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 71,
+          "line": 59,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:db",
@@ -25438,7 +25438,7 @@
         },
         {
           "file": "docs/database-deployment.md",
-          "line": 32,
+          "line": 34,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "1. `validate-migrations` vérifie le SHA, installe le lockfile et exécute sur Supabase local `npm run check:db` (reset **local uniquement**, RLS, schéma, types et tests).",
@@ -25446,7 +25446,7 @@
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 60,
+          "line": 79,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(workflow).toContain('npm run check:db');",
@@ -27402,7 +27402,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 57,
+          "line": 45,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
@@ -27410,7 +27410,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 75,
+          "line": 63,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -27418,7 +27418,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 121,
+          "line": 109,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -27426,7 +27426,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 127,
+          "line": 115,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --preview",
@@ -27434,7 +27434,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 130,
+          "line": 118,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -27442,7 +27442,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 133,
+          "line": 121,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrations check --linked --project-ref \"$EXPECTED_PROJECT_REF\"",
@@ -27450,7 +27450,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 179,
+          "line": 167,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -27458,7 +27458,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 185,
+          "line": 173,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --preview",
@@ -27466,7 +27466,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 188,
+          "line": 176,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -27474,7 +27474,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 191,
+          "line": 179,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrations check --linked --project-ref \"$EXPECTED_PROJECT_REF\"",
@@ -27754,7 +27754,7 @@
         },
         {
           "file": "docs/database-deployment.md",
-          "line": 35,
+          "line": 37,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "4. Le routeur `npm run database -- link --project-ref ... --yes` refuse toute référence non autorisée.",
@@ -27762,7 +27762,7 @@
         },
         {
           "file": "docs/database-deployment.md",
-          "line": 37,
+          "line": 39,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "6. `npm run database -- migrate --project-ref ... --preview` affiche les migrations prévues.",
@@ -27770,7 +27770,7 @@
         },
         {
           "file": "docs/database-deployment.md",
-          "line": 38,
+          "line": 40,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "7. `npm run database -- migrate --project-ref ... --yes` applique **uniquement les migrations manquantes**. Ni `--include-all`, ni seed, ni reset distant.",
@@ -27778,7 +27778,7 @@
         },
         {
           "file": "docs/database-deployment.md",
-          "line": 39,
+          "line": 41,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "8. `npm run database -- migrations check --linked --project-ref ...` vérifie l'historique final.",
@@ -28250,7 +28250,7 @@
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 61,
+          "line": 80,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(workflow).toContain('npm run database -- stop');",
@@ -28258,7 +28258,7 @@
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 65,
+          "line": 84,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "'npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes',",
@@ -28358,7 +28358,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 57,
+          "line": 45,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
@@ -28366,7 +28366,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 75,
+          "line": 63,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -28374,7 +28374,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 121,
+          "line": 109,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -28382,7 +28382,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 127,
+          "line": 115,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --preview",
@@ -28390,7 +28390,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 130,
+          "line": 118,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -28398,7 +28398,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 133,
+          "line": 121,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrations check --linked --project-ref \"$EXPECTED_PROJECT_REF\"",
@@ -28406,7 +28406,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 179,
+          "line": 167,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -28414,7 +28414,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 185,
+          "line": 173,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --preview",
@@ -28422,7 +28422,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 188,
+          "line": 176,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -28430,7 +28430,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 191,
+          "line": 179,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrations check --linked --project-ref \"$EXPECTED_PROJECT_REF\"",
@@ -28710,7 +28710,7 @@
         },
         {
           "file": "docs/database-deployment.md",
-          "line": 35,
+          "line": 37,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "4. Le routeur `npm run database -- link --project-ref ... --yes` refuse toute référence non autorisée.",
@@ -28718,7 +28718,7 @@
         },
         {
           "file": "docs/database-deployment.md",
-          "line": 37,
+          "line": 39,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "6. `npm run database -- migrate --project-ref ... --preview` affiche les migrations prévues.",
@@ -28726,7 +28726,7 @@
         },
         {
           "file": "docs/database-deployment.md",
-          "line": 38,
+          "line": 40,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "7. `npm run database -- migrate --project-ref ... --yes` applique **uniquement les migrations manquantes**. Ni `--include-all`, ni seed, ni reset distant.",
@@ -28734,7 +28734,7 @@
         },
         {
           "file": "docs/database-deployment.md",
-          "line": 39,
+          "line": 41,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "8. `npm run database -- migrations check --linked --project-ref ...` vérifie l'historique final.",
@@ -29215,7 +29215,7 @@
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 61,
+          "line": 80,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(workflow).toContain('npm run database -- stop');",
@@ -29223,7 +29223,7 @@
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 65,
+          "line": 84,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "'npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes',",
@@ -29252,7 +29252,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 71,
+          "line": 59,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:db",
@@ -29274,7 +29274,7 @@
         },
         {
           "file": "docs/database-deployment.md",
-          "line": 32,
+          "line": 34,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "1. `validate-migrations` vérifie le SHA, installe le lockfile et exécute sur Supabase local `npm run check:db` (reset **local uniquement**, RLS, schéma, types et tests).",
@@ -29285,7 +29285,7 @@
         },
         {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
-          "line": 60,
+          "line": 79,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(workflow).toContain('npm run check:db');",
@@ -33373,7 +33373,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 54,
+          "line": 42,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -33381,7 +33381,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 113,
+          "line": 101,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -33389,7 +33389,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 171,
+          "line": 159,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -33739,7 +33739,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 54,
+          "line": 42,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -33747,7 +33747,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 113,
+          "line": 101,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -33755,7 +33755,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 171,
+          "line": 159,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
