@@ -54,8 +54,8 @@ describe('SECURITY DEFINER privilege contract', () => {
     expect(
       manifest.functions.find(
         (entry) => entry.signature === 'public.invalidate_daily_score(uuid, text)',
-      )?.roles,
-    ).toEqual(['authenticated']);
+      ),
+    ).toBeUndefined();
     expect(
       manifest.functions.find((entry) => entry.signature === 'public.purge_expired_social_data()')
         ?.roles,
@@ -136,7 +136,7 @@ describeLive('SECURITY DEFINER live privilege contract', () => {
     expect(touched.error).toBeNull();
     expect(directExpiry.error).not.toBeNull();
     expect(directPurge.error).not.toBeNull();
-    expect(directInvalidation.error?.message).toContain('admin_required');
+    expect(directInvalidation.error?.code).toBe('42501');
   });
 
   it('keeps start concurrency and maintenance privileges server-controlled', async () => {

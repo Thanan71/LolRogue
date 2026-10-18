@@ -99,123 +99,22 @@ describeDatabase('admin privilege contract', () => {
     });
   });
 
-  it('allows only an authenticated admin to invalidate one existing completed score', async () => {
+  it('retires the two-argument invalidation bypass for every client role', async () => {
     const administrator = await createAccount('score-admin');
     const regular = await createAccount('score-player');
     const anonymous = createClient<Database>(supabaseUrl!, anonKey!, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
-
-    const promotion = await service
-      .from('players')
-      .update({ is_admin: true })
-      .eq('id', administrator.playerId);
-    expect(promotion.error).toBeNull();
-    expect(await administrator.client.rpc('is_current_user_admin')).toMatchObject({
-      data: true,
-      error: null,
-    });
-
-    const dailyRunId = randomUUID();
-    createdDailyRunIds.push(dailyRunId);
-    const insertedDaily = await service.from('daily_runs').insert({
-      id: dailyRunId,
-      player_id: regular.playerId,
-      daily_date: '2026-08-09',
-      daily_seed: 20260809,
-      score: 12_345,
-      won: true,
-      run_level_reached: 6,
-      waves_completed: 24,
-      completed_at: new Date().toISOString(),
-    });
-    expect(insertedDaily.error).toBeNull();
-    const insertedReport = await service.from('daily_score_reports').insert({
-      daily_run_id: dailyRunId,
-      reporter_user_id: regular.userId,
-      reason: 'Le score observé ne correspond pas au replay.',
-    });
-    expect(insertedReport.error).toBeNull();
-
-    const anonymousInvalidation = await anonymous.rpc('invalidate_daily_score', {
-      p_daily_run_id: dailyRunId,
-      p_reason: 'Tentative anonyme avec un motif assez long',
-    });
-    expect(anonymousInvalidation.error).not.toBeNull();
-
-    const regularInvalidation = await regular.client.rpc('invalidate_daily_score', {
-      p_daily_run_id: dailyRunId,
-      p_reason: 'Tentative utilisateur avec un motif assez long',
-    });
-    expect(regularInvalidation.error?.message).toContain('admin_required');
-
-    const missingScore = await administrator.client.rpc('invalidate_daily_score', {
-      p_daily_run_id: randomUUID(),
-      p_reason: 'Score inexistant contrôlé pendant la revue',
-    });
-    expect(missingScore.error?.message).toContain('daily_score_not_invalidateable');
-
-    const shortReason = await administrator.client.rpc('invalidate_daily_score', {
-      p_daily_run_id: dailyRunId,
-      p_reason: 'Court',
-    });
-    expect(shortReason.error?.message).toContain('invalid_invalidation_reason');
-
-    const validInvalidation = await administrator.client.rpc('invalidate_daily_score', {
-      p_daily_run_id: dailyRunId,
-      p_reason: '  Score manipulé\n\tconfirmé par la revue  ',
-    });
-    expect(validInvalidation.error).toBeNull();
-
-    const [daily, audit, report, hiddenAudit] = await Promise.all([
-      service
-        .from('daily_runs')
-        .select('invalidated_at, invalidated_by, invalidation_reason')
-        .eq('id', dailyRunId)
-        .single(),
-      administrator.client
-        .from('daily_score_invalidation_audit')
-        .select('actor_user_id, daily_run_id, reason')
-        .eq('daily_run_id', dailyRunId)
-        .single(),
-      service
-        .from('daily_score_reports')
-        .select('status, reviewed_by, reviewed_at')
-        .eq('daily_run_id', dailyRunId)
-        .single(),
-      regular.client.from('daily_score_invalidation_audit').select('id'),
-    ]);
-    expect(daily.error).toBeNull();
-    expect(daily.data).toMatchObject({
-      invalidated_by: administrator.userId,
-      invalidation_reason: 'Score manipulé confirmé par la revue',
-    });
-    expect(daily.data?.invalidated_at).toBeTruthy();
-    expect(audit).toMatchObject({
-      data: {
-        actor_user_id: administrator.userId,
-        daily_run_id: dailyRunId,
-        reason: 'Score manipulé confirmé par la revue',
-      },
-      error: null,
-    });
-    expect(report.data).toMatchObject({
-      status: 'actioned',
-      reviewed_by: administrator.userId,
-    });
-    expect(report.data?.reviewed_at).toBeTruthy();
-    expect(hiddenAudit).toMatchObject({ data: [], error: null });
-
-    const auditMutation = await administrator.client
-      .from('daily_score_invalidation_audit')
-      .update({ reason: 'Une trace modifiée ne doit jamais être acceptée' })
-      .eq('daily_run_id', dailyRunId);
-    expect(auditMutation.error).not.toBeNull();
-
-    const repeatedInvalidation = await administrator.client.rpc('invalidate_daily_score', {
-      p_daily_run_id: dailyRunId,
-      p_reason: 'Deuxième invalidation volontairement refusée',
-    });
-    expect(repeatedInvalidation.error?.message).toContain('daily_score_not_invalidateable');
+    expect(
+      (await service.from('players').update({ is_admin: true }).eq('id', administrator.playerId))
+        .error,
+    ).toBeNull();
+    for (const client of [anonymous, regular.client, administrator.client, service]) {
+      const result = await client.rpc('invalidate_daily_score', {
+        p_daily_run_id: randomUUID(),
+        p_reason: 'Invalidation requires the confirmed audited moderation command.',
+      });
+      expect(result.error?.code).toBe('42501');
+    }
   });
 });

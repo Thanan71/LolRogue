@@ -67,6 +67,8 @@ describe('public table boundary manifest', () => {
       'champion_rotation_entries',
       'champion_rotations',
       'daily_challenge_rulesets',
+      'daily_score_invalidation_audit',
+      'daily_score_reports',
       'progression_commands',
       'progression_enhancement_security_baselines',
     ]);
@@ -127,12 +129,12 @@ describeDatabase('server-only table live privilege boundary', () => {
   });
 
   it.each(internalTables)(
-    '$name has no PUBLIC, inherited client or column grants and no policy',
+    '$name has no client grants and only an optional restrictive API-denial policy',
     (entry) => {
       const boundary = readSqlJson<{
         publicGrants: number;
         clientGrants: number;
-        policies: number;
+        unsafePolicies: number;
         serviceRead: boolean;
       }>(`
       SELECT json_build_object(
@@ -150,14 +152,24 @@ describeDatabase('server-only table live privilege boundary', () => {
           WHERE has_table_privilege(clients.role_name, relation.oid, 'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER,MAINTAIN')
             OR has_any_column_privilege(clients.role_name, relation.oid, 'SELECT,INSERT,UPDATE,REFERENCES')
         ),
-        'policies', (SELECT count(*) FROM pg_policy WHERE polrelid = relation.oid),
+        'unsafePolicies', (
+          SELECT count(*) FROM pg_policy AS policy
+          WHERE policy.polrelid = relation.oid AND (
+            policy.polpermissive OR policy.polcmd <> '*'
+            OR COALESCE(pg_get_expr(policy.polqual, policy.polrelid), '') <> 'false'
+            OR COALESCE(pg_get_expr(policy.polwithcheck, policy.polrelid), '') <> 'false'
+            OR NOT policy.polroles @> ARRAY[
+              'anon'::regrole::oid, 'authenticated'::regrole::oid, 'service_role'::regrole::oid
+            ]
+          )
+        ),
         'serviceRead', has_table_privilege('service_role', relation.oid, 'SELECT')
       ) FROM pg_class AS relation WHERE relation.oid = 'public.${entry.name}'::regclass;
     `);
       expect(boundary).toEqual({
         publicGrants: 0,
         clientGrants: 0,
-        policies: 0,
+        unsafePolicies: 0,
         serviceRead: true,
       });
     },
