@@ -8,6 +8,8 @@ import { AdminErrorNotice } from './admin/AdminErrorNotice';
 import { AdminModerationPanel } from './admin/AdminModerationPanel';
 import { AdminSectionFeedback, AdminTableCount } from './admin/AdminSectionFeedback';
 import { AdminTabList } from './admin/AdminTabList';
+import { AdminAnalyticsPanel } from './admin/analytics/AdminAnalyticsPanel';
+import { useAdminAnalytics } from './admin/analytics/useAdminAnalytics';
 import { AdminPlayersPanel } from './admin/players/AdminPlayersPanel';
 import { useAdminPlayersExplorer } from './admin/players/useAdminPlayersExplorer';
 import { AdminRunsPanel } from './admin/runs/AdminRunsPanel';
@@ -15,6 +17,7 @@ import { useAdminRunExplorer } from './admin/runs/useAdminRunExplorer';
 import { useAdminData } from './admin/useAdminData';
 import { formatAdminDate, formatAdminNumber, getLogLevelClass } from './adminPageUtils';
 import '@/styles/admin.css';
+import '@/styles/admin-analytics.css';
 
 const LOG_LEVEL_LABELS: Readonly<Record<string, string>> = {
   error: fr.admin.error,
@@ -65,6 +68,7 @@ export function AdminPage() {
   } = useAdminData(isAdmin);
   const playersExplorer = useAdminPlayersExplorer();
   const runExplorer = useAdminRunExplorer();
+  const analytics = useAdminAnalytics(activeTab === 'analytics');
 
   if (!isAdmin) {
     return (
@@ -245,6 +249,8 @@ export function AdminPage() {
         )}
 
         {activeTab === 'runs' && <AdminRunsPanel explorer={runExplorer} />}
+
+        {activeTab === 'analytics' && <AdminAnalyticsPanel analytics={analytics} />}
 
         {activeTab === 'moderation' && (
           <AdminModerationPanel

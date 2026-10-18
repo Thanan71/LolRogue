@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PATCH_NOTES } from '@/data/patchNotes';
+import { adminAnalyticsContent } from '@/i18n/adminAnalytics';
 import { adminExportContent } from '@/i18n/adminExportContent';
 import { getAdminFieldCalibrationCopy } from '@/i18n/adminFieldCalibration';
 import { authRecoveryContent } from '@/i18n/authRecoveryContent';
@@ -27,6 +28,7 @@ type LocaleCatalog = Readonly<Record<Locale, unknown>>;
 const i18nModules = import.meta.glob('../src/i18n/**/*.ts');
 
 const catalogs = {
+  adminAnalytics: adminAnalyticsContent,
   adminExport: adminExportContent,
   authRecovery: authRecoveryContent,
   adminFieldCalibration: {
@@ -66,6 +68,7 @@ const catalogs = {
 // Every i18n module must either join this contract or identify its specialized
 // coverage. Discovering the files prevents new catalogs from silently opting out.
 const catalogModules = {
+  'adminAnalytics.ts': 'adminAnalytics',
   'adminExplorer.ts': 'main',
   'adminRunExplorer.ts': 'main',
   'adminExportContent.ts': 'adminExport',
@@ -111,6 +114,16 @@ type InvariantRule = string | RegExp;
 const intentionallyIdenticalPaths: Readonly<
   Record<Exclude<keyof typeof catalogs, 'main'>, readonly InvariantRule[]>
 > = {
+  adminAnalytics: [
+    '$.utc',
+    '$.source',
+    '$.population',
+    '$.segment',
+    '$.d1',
+    '$.d7',
+    '$.d30',
+    '$.numerator',
+  ],
   adminExport: ['$.biomes.jungle'],
   authRecovery: [],
   adminFieldCalibration: [
@@ -195,6 +208,7 @@ const intentionallyIdenticalPaths: Readonly<
 const intentionallyIdenticalFunctionPaths: Readonly<
   Record<keyof typeof catalogs, readonly string[]>
 > = {
+  adminAnalytics: [],
   adminExport: [],
   authRecovery: [],
   adminFieldCalibration: [],

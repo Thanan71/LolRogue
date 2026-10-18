@@ -7,6 +7,11 @@ assertLocalDatabaseEnvironment();
 const supabase = requirePinnedCli('supabase');
 
 const expectedIndexes = new Map([
+  ['run_attempts_analytics_started_at', ['run_attempts', '(started_at)']],
+  [
+    'run_attempts_analytics_verified_at',
+    ['run_attempts', '(verified_at)', "status = 'verified'", 'result_run_id IS NOT NULL'],
+  ],
   ['runs_player_history_cursor_idx', ['runs', '(player_id, created_at DESC, id DESC)']],
   ['daily_runs_invalidated_by_idx', ['daily_runs', '(invalidated_by)', 'IS NOT NULL']],
   [

@@ -296,6 +296,7 @@ const french = {
     title: "Panneau d'administration",
     welcome: 'Bienvenue',
     dashboard: 'Tableau de bord',
+    analytics: 'Analyses temporelles',
     logs: 'Journaux',
     players: 'Joueurs',
     runs: 'Parties',

@@ -2,6 +2,11 @@
   "version": 1,
   "functions": [
     {
+      "signature": "private.admin_analytics(text, jsonb, timestamp with time zone)",
+      "roles": ["authenticated"],
+      "justification": "Return only bounded retained-data analytics aggregates after a live registered administrator check; never expose personal identities or authority payloads."
+    },
+    {
       "signature": "private.admin_explorer_page(text, jsonb, jsonb, timestamp with time zone, integer, boolean)",
       "roles": ["authenticated"],
       "justification": "Return bounded administrative pages and atomic exports only after a live database-admin identity check."

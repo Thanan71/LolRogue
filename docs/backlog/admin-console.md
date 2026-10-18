@@ -195,75 +195,82 @@ et déploiement sont des étapes distinctes de cette clôture code.
 ## ADM-S3 — Analytics temporels et rétention (P2 ; ADM-12..16)
 
 ### ADM-12 — Courbes temporelles
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Ajouter acquisitions, activité, démarrages, fins vérifiées, victoires et Daily par jour/semaine sur plage choisie.
-  - [ ] Définir granulation jour/semaine, bornes inclusives, UTC et traitement des périodes vides.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Agréger côté PostgreSQL, fuseau explicite, périodes sans données, limites de requêtes et tests de bornes de date.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester passage minuit, changement de fuseau, absence de données et fenêtre inversée.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Ajouter acquisitions, activité, démarrages, fins vérifiées, victoires et Daily par jour/semaine sur plage choisie.
+  - [x] Définir granulation jour/semaine, bornes inclusives, UTC et traitement des périodes vides.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Agréger côté PostgreSQL, fuseau explicite, périodes sans données, limites de requêtes et tests de bornes de date.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester passage minuit, changement de fuseau, absence de données et fenêtre inversée.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-13 — Rétention
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Définir D1/D7/D30 et dénominateurs de cohorte de création, sans confondre connexion, action de jeu et victoire.
-  - [ ] Définir cohorte D1/D7/D30 et exclusion des cohortes dont la période est incomplète.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Écarter les cohortes trop récentes/incomplètes ; afficher N, date et éventuelle incertitude.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester N nul, cohorte récente, retour le jour exact et absence de rétention.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Définir D1/D7/D30 et dénominateurs de cohorte de création, sans confondre connexion, action de jeu et victoire.
+  - [x] Définir cohorte D1/D7/D30 et exclusion des cohortes dont la période est incomplète.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Écarter les cohortes trop récentes/incomplètes ; afficher N, date et éventuelle incertitude.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester N nul, cohorte récente, retour le jour exact et absence de rétention.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-14 — Funnel de jeu
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Instrumenter, à partir d'événements autorisés, inscription → début run → premier combat → fin run → retour.
-  - [ ] Documenter les événements utiles du parcours sans instrumentation invasive ni double comptage.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Éviter double comptage à cause des retries et distinguer invités des comptes connectés.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester abandon avant combat, multi-retry, invité et doublon d'événement.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Instrumenter, à partir d'événements autorisés, inscription → début run → premier combat → fin run → retour.
+  - [x] Documenter les événements utiles du parcours sans instrumentation invasive ni double comptage.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Éviter double comptage à cause des retries et distinguer invités des comptes connectés.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester abandon avant combat, multi-retry, invité et doublon d'événement.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-15 — Filtres comparables
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Segmenter difficulté, mode, période, appareil si mesure autorisée, jeu nouveau/ancien et version de moteur.
-  - [ ] Fixer segments autorisés et comparabilité d'un même engine/ruleset et d'un même mode.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Ne pas comparer deux règles autoritaires différentes comme une seule population ; indiquer changements de version et effectif.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester changement de version en période, série incomplète et mélange Daily/classique.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Segmenter difficulté, mode, période, appareil si mesure autorisée, jeu nouveau/ancien et version de moteur.
+  - [x] Fixer segments autorisés et comparabilité d'un même engine/ruleset et d'un même mode.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Ne pas comparer deux règles autoritaires différentes comme une seule population ; indiquer changements de version et effectif.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester changement de version en période, série incomplète et mélange Daily/classique.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-16 — Qualité statistique
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Afficher tailles d'échantillon, taux et intervalles (Wilson si pertinent) ; état « données insuffisantes ».
-  - [ ] Définir seuils d'effectif et intervalle statistique selon numérateur/dénominateur.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Tester données vides, dates invalides, valeurs manquantes, agrégats partiels et changements de filtre.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester N=0, N=1, 100 % de succès, cohortes partielles et variance élevée.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Afficher tailles d'échantillon, taux et intervalles (Wilson si pertinent) ; état « données insuffisantes ».
+  - [x] Définir seuils d'effectif et intervalle statistique selon numérateur/dénominateur.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Tester données vides, dates invalides, valeurs manquantes, agrégats partiels et changements de filtre.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester N=0, N=1, 100 % de succès, cohortes partielles et variance élevée.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 **Gate ADM-S3 :** aucun chiffre analytique déduit du seul ensemble des lignes chargées ; cohortes et périodes explicites.
+
+
+Contrat : [analytics temporels](../admin-analytics.md). Preuves et limites :
+[validation ADM-S3](../admin-s3-validation-2026-10-17.md). Les données
+historiques conservent leurs observations, sans taux lorsque la couverture
+n’est pas attestée ; invités et appareils restent non mesurés. Migration distante,
+fusion et déploiement restent distincts de cette clôture code.
 
 ## ADM-S4 — Équilibrage séparé de l'exploitation (P2 ; ADM-17..21)
 

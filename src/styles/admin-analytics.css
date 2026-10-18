@@ -1,0 +1,213 @@
+.admin-analytics {
+  display: grid;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+.admin-analytics__heading,
+.admin-analytics__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.admin-analytics__filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 1rem;
+  min-width: 0;
+}
+
+.admin-analytics__field {
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.admin-analytics__field input,
+.admin-analytics__field select {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+}
+
+.admin-analytics__panel {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  min-width: 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.admin-analytics__note,
+.admin-analytics__metadata {
+  color: var(--color-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.admin-analytics__metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+}
+
+.admin-analytics__scroll {
+  overflow-x: auto;
+  max-width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.admin-analytics__scroll:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.admin-analytics__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-analytics__table th,
+.admin-analytics__table td {
+  padding: 0.75rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-analytics__table caption {
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.admin-analytics__table tbody tr:last-child td,
+.admin-analytics__table tbody tr:last-child th {
+  border-bottom: 0;
+}
+
+.admin-analytics__rate {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 10rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-analytics__rate-status {
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+.admin-analytics__chart {
+  display: block;
+  width: 100%;
+  height: 11.25rem;
+  overflow: visible;
+  color: var(--color-text-secondary);
+}
+
+.admin-analytics__chart-labels {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  color: var(--color-text-secondary);
+}
+
+.admin-analytics figure {
+  margin: 0;
+}
+
+.admin-analytics__chart text {
+  fill: currentColor;
+  font-size: 13px;
+}
+
+.admin-analytics__chart-line {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.admin-analytics__chart-point {
+  fill: var(--color-primary);
+  stroke: var(--color-text-primary);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.admin-analytics__funnel {
+  display: grid;
+  gap: 1rem;
+  padding-left: 1.5rem;
+}
+
+.admin-analytics__funnel-step {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.admin-analytics__funnel-bar {
+  appearance: none;
+  width: 100%;
+  height: 0.625rem;
+  max-width: 100%;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-sm);
+  background: transparent;
+}
+
+.admin-analytics__funnel-bar::-webkit-progress-bar {
+  background: transparent;
+}
+.admin-analytics__funnel-bar::-webkit-progress-value {
+  background: var(--color-primary);
+}
+.admin-analytics__funnel-bar::-moz-progress-bar {
+  background: var(--color-primary);
+}
+
+@media (max-width: 480px) {
+  .admin-analytics__heading,
+  .admin-analytics__actions {
+    align-items: stretch;
+  }
+
+  .admin-analytics__actions > button {
+    width: 100%;
+  }
+
+  .admin-analytics__filters {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-analytics__table th,
+  .admin-analytics__table td {
+    padding: 0.5rem;
+  }
+}
+
+@media (forced-colors: active) {
+  .admin-analytics__chart-line,
+  .admin-analytics__chart-point {
+    stroke: CanvasText;
+  }
+
+  .admin-analytics__chart-point {
+    fill: CanvasText;
+  }
+
+  .admin-analytics__funnel-bar::-webkit-progress-value {
+    background: CanvasText;
+  }
+
+  .admin-analytics__funnel-bar::-moz-progress-bar {
+    background: CanvasText;
+  }
+}

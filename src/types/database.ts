@@ -2080,6 +2080,9 @@ export type Database = {
         Args: { p_amount: number; p_command_id: string; p_user_id: string };
         Returns: Json;
       };
+      admin_analytics_funnel: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
+      admin_analytics_retention: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
+      admin_analytics_series: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
       admin_export_runs: {
         Args: { p_filters?: Json; p_max_rows?: number; p_population?: string; p_snapshot?: string };
         Returns: Json;

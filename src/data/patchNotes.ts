@@ -454,6 +454,35 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 14,
+    version: '0.2.9',
+    publishedOn: '2026-10-18',
+    title: {
+      'fr-FR': 'Analyses temporelles et rétention',
+      'en-US': 'Time analytics and retention',
+    },
+    entries: [
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Un nouvel espace admin présente les évolutions par jour ou semaine UTC, les cohortes de rétention à J+1, J+7 et J+30 et les étapes du parcours de jeu, à partir des agrégats calculés par le serveur.',
+          'en-US':
+            'A new admin area shows daily or weekly UTC trends, day 1, 7 and 30 retention cohorts and gameplay funnel stages, using aggregates calculated by the server.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Les analyses distinguent les versions de règles, les modes et les difficultés. Elles affichent les effectifs, les périodes incomplètes, les limites de mesure et les intervalles statistiques pour rendre les comparaisons plus lisibles.',
+          'en-US':
+            'Analytics distinguish rules versions, modes and difficulties. Sample sizes, incomplete periods, measurement limits and statistical intervals make comparisons easier to assess.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {
