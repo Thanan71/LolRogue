@@ -1,11 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import type {
   VerifiedFieldAugmentCohort,
   VerifiedFieldCalibrationCohort,
   VerifiedFieldChampionCohort,
 } from '@/game/balance/fieldCalibrationComparison';
-import { localizeAdminRequestError } from '@/i18n/adminErrorContent';
-import { fr } from '@/i18n/fr';
 import {
   AUTHORITY_REJECTION_ALERT_POLICY,
   type AuthorityAttemptAggregate,
@@ -15,16 +13,9 @@ import {
 import { supabase } from '@/services/supabaseClient';
 import type { Database, Json } from '@/types/database';
 import type { Log } from '@/types/models';
-import { AdminMutationOutcomeUnknown, runAdminMutation } from './adminMutationRequest';
-import {
-  type AdminLogFilter,
-  type AdminModerationReport,
-  type AdminTablePage,
-  fetchAdminLogsPage,
-  fetchAdminModerationPage,
-} from './adminTableQueries';
+import { type AdminLogFilter, type AdminTablePage, fetchAdminLogsPage } from './adminTableQueries';
 import { useAdminExplorerScope } from './explorer/useAdminExplorerScope';
-import { ADMIN_REQUEST_TIMEOUT_MS, useAdminSection } from './useAdminSection';
+import { useAdminSection } from './useAdminSection';
 
 export type AdminTab =
   | 'dashboard'
@@ -35,10 +26,8 @@ export type AdminTab =
   | 'analytics'
   | 'balance'
   | 'moderation';
-export type AdminDataSection = 'stats' | 'authority' | 'logs' | 'moderation';
+export type AdminDataSection = 'stats' | 'authority' | 'logs';
 export type AdminDataErrors = Record<AdminDataSection, string | null>;
-
-export type { AdminModerationReport } from './adminTableQueries';
 
 export interface AdminAuthorityRejection {
   attemptId: string;
@@ -267,7 +256,6 @@ const EMPTY_AUTHORITY: AuthorityData = {
   rejections: [],
 };
 const EMPTY_LOGS: AdminTablePage<Log> = { rows: [], total: 0 };
-const EMPTY_REPORTS: AdminTablePage<AdminModerationReport> = { rows: [], total: 0 };
 const emptyStats = (data: AdminStats) => Object.keys(data).length === 0;
 const emptyAuthority = (data: AuthorityData) =>
   data.aggregates.length === 0 && data.rejections.length === 0;
@@ -366,10 +354,6 @@ export function useAdminData(isAdmin: boolean) {
     (signal: AbortSignal) => fetchAdminLogsPage(logFilter, signal),
     [logFilter],
   );
-  const loadReports = useCallback(
-    (signal: AbortSignal) => fetchAdminModerationPage({}, signal),
-    [],
-  );
   const common = { enabled, scope, captureScope };
   const stats = useAdminSection({
     ...common,
@@ -390,63 +374,7 @@ export function useAdminData(isAdmin: boolean) {
     load: loadLogs,
     isEmpty: emptyTable,
   });
-  const moderation = useAdminSection({
-    ...common,
-    initialData: EMPTY_REPORTS,
-    load: loadReports,
-    isEmpty: emptyTable,
-  });
-  const mutation = useRef<AbortController | null>(null);
-  useEffect(
-    () => () => {
-      mutation.current?.abort();
-      mutation.current = null;
-    },
-    [scope],
-  );
-  const invalidateDailyScore = useCallback(
-    async (dailyRunId: string, reason: string): Promise<boolean> => {
-      if (!enabled || mutation.current) return false;
-      const isCurrent = captureScope();
-      const request = new AbortController();
-      mutation.current = request;
-      moderation.reportError(null);
-      try {
-        const { error } = await runAdminMutation(
-          (signal) =>
-            supabase
-              .rpc('invalidate_daily_score', {
-                p_daily_run_id: dailyRunId,
-                p_reason: reason,
-              })
-              .abortSignal(signal),
-          request,
-          ADMIN_REQUEST_TIMEOUT_MS,
-        );
-        if (!isCurrent()) return false;
-        if (error) throw error;
-        return await moderation.reload();
-      } catch (error) {
-        const serverRejection =
-          error !== null &&
-          typeof error === 'object' &&
-          'code' in error &&
-          typeof error.code === 'string' &&
-          /^(?:[0-9A-Z]{5}|PGRST\d+)$/.test(error.code);
-        if (isCurrent())
-          moderation.reportError(
-            error instanceof AdminMutationOutcomeUnknown || !serverRejection
-              ? fr.admin.moderationResultUnknown
-              : localizeAdminRequestError('request_failed'),
-          );
-        return false;
-      } finally {
-        if (mutation.current === request) mutation.current = null;
-      }
-    },
-    [enabled, captureScope, moderation.reload, moderation.reportError],
-  );
-  const sections = { stats, authority, logs, moderation };
+  const sections = { stats, authority, logs };
   return {
     activeTab,
     setActiveTab,
@@ -455,14 +383,11 @@ export function useAdminData(isAdmin: boolean) {
     authoritySignals: authority.data.signals,
     authorityRejections: authority.data.rejections,
     logs: logs.data.rows,
-    moderationReports: moderation.data.rows,
     logsTotal: logs.hasData ? logs.data.total : null,
-    moderationTotal: moderation.hasData ? moderation.data.total : null,
     loading: Object.values(sections).some((section) => section.loading),
     statsLoading: stats.loading,
     authorityLoading: authority.loading,
     logsLoading: logs.loading,
-    moderationLoading: moderation.loading,
     sections,
     errors: Object.fromEntries(
       Object.entries(sections).map(([key, value]) => [key, value.error]),
@@ -472,7 +397,5 @@ export function useAdminData(isAdmin: boolean) {
     fetchStats: stats.reload,
     fetchAuthorityObservability: authority.reload,
     fetchLogs: logs.reload,
-    fetchModerationReports: moderation.reload,
-    invalidateDailyScore,
   };
 }

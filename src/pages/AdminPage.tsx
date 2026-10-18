@@ -6,7 +6,6 @@ import { useAuthStore } from '@/stores/authStore';
 import { AdminAuthorityPanel } from './admin/AdminAuthorityPanel';
 import { AdminDashboardPanel } from './admin/AdminDashboardPanel';
 import { AdminErrorNotice } from './admin/AdminErrorNotice';
-import { AdminModerationPanel } from './admin/AdminModerationPanel';
 import { AdminSectionFeedback, AdminTableCount } from './admin/AdminSectionFeedback';
 import { AdminTabList } from './admin/AdminTabList';
 import { AdminAnalyticsPanel } from './admin/analytics/AdminAnalyticsPanel';
@@ -21,6 +20,7 @@ import '@/styles/admin.css';
 import '@/styles/admin-analytics.css';
 
 const AdminBalanceWorkspace = lazy(() => import('./admin/balance/AdminBalanceWorkspace'));
+const AdminModerationWorkspace = lazy(() => import('./admin/moderation/AdminModerationWorkspace'));
 
 const LOG_LEVEL_LABELS: Readonly<Record<string, string>> = {
   error: fr.admin.error,
@@ -52,23 +52,20 @@ export function AdminPage() {
     statsLoading,
     authorityLoading,
     logsLoading,
-    moderationLoading,
-    moderationReports,
     errors,
     sections,
     logsTotal,
-    moderationTotal,
     logFilter,
     setLogFilter,
     fetchStats,
     fetchAuthorityObservability,
     fetchLogs,
-    fetchModerationReports,
-    invalidateDailyScore,
   } = useAdminData(isAdmin);
   const [balanceVisited, setBalanceVisited] = useState(false);
+  const [moderationVisited, setModerationVisited] = useState(false);
   const selectTab = (tab: Parameters<typeof setActiveTab>[0]) => {
     if (tab === 'balance') setBalanceVisited(true);
+    if (tab === 'moderation') setModerationVisited(true);
     setActiveTab(tab);
   };
   const playersExplorer = useAdminPlayersExplorer();
@@ -262,17 +259,13 @@ export function AdminPage() {
           )}
         </div>
 
-        {activeTab === 'moderation' && (
-          <AdminModerationPanel
-            state={sections.moderation}
-            total={moderationTotal}
-            reports={moderationReports}
-            loading={moderationLoading}
-            error={errors.moderation}
-            onRetry={() => void fetchModerationReports()}
-            onInvalidate={invalidateDailyScore}
-          />
-        )}
+        <div hidden={activeTab !== 'moderation'}>
+          {moderationVisited && (
+            <Suspense fallback={<p role="status">{fr.common.loading}</p>}>
+              <AdminModerationWorkspace active={activeTab === 'moderation'} />
+            </Suspense>
+          )}
+        </div>
       </div>
     </main>
   );

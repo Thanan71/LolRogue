@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fetchAdminLogsPage, fetchAdminModerationPage } from '@/pages/admin/adminTableQueries';
+import { fetchAdminLogsPage } from '@/pages/admin/adminTableQueries';
 
 const { from } = vi.hoisted(() => ({ from: vi.fn() }));
 vi.mock('@/services/supabaseClient', () => ({ supabase: { from } }));
@@ -127,25 +127,5 @@ describe('exact admin table counts', () => {
     await expect(fetchAdminLogsPage({ level: 'all', operation: 'all', limit: 100 })).rejects.toBe(
       failure,
     );
-  });
-
-  it('counts only open moderation reports and preserves a legitimate zero score', async () => {
-    enqueue('daily_score_reports', {
-      data: [
-        {
-          id: 'report',
-          daily_run_id: 'daily',
-          reason: 'suspicious_score',
-          created_at: '2026-10-17T10:00:00Z',
-          daily_run: { daily_date: '2026-10-17', score: 0 },
-        },
-      ],
-      count: 101,
-    });
-    const page = await fetchAdminModerationPage();
-    expect(page.total).toBe(101);
-    expect(page.rows[0]).toMatchObject({ dailyRunId: 'daily', score: 0 });
-    expect(calls[0].query.eq).toHaveBeenCalledWith('status', 'open');
-    expect(calls[0].query.select.mock.calls[0][1]).toEqual({ count: 'exact' });
   });
 });
