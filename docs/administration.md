@@ -4,7 +4,7 @@ Le panneau `/admin` présente les statistiques, joueurs, runs et logs. La garde
 React améliore l'expérience, mais l'autorisation réelle est imposée par PostgreSQL
 avec RLS et `is_current_user_admin()`.
 
-L'application 0.2.9 expose quinze indicateurs avec leur définition FR/EN et des
+L'application 0.2.10 expose quinze indicateurs avec leur définition FR/EN et des
 totaux serveur distincts des lignes affichées. Le [contrat des métriques](admin-metrics.md)
 précise les connexions du jour UTC, le registre Candies, les valeurs inconnues,
 les droits et les limites des exports. La migration
@@ -24,6 +24,14 @@ n’est pas rétrodaté. Les invités, appareils et connexions historiques ne so
 mesurés. Un refus de permission purge les trois panneaux analytics.
 
 Les déploiements distants restent des opérations séparées de la livraison code.
+
+L’[espace Équilibrage](admin-balance.md) sépare les picks initiaux de toutes les
+tentatives et les performances finales des runs vérifiées. Les contextes de
+composition et de règles, effectifs, incertitudes et données manquantes sont
+explicites. Il réutilise la calibration existante et lit les versions/flags sans
+action de mutation. Il nécessite la migration
+`20261018073001_admin_balance_workspace.sql`. ADM-20 reste en attente de TREE-10 ;
+son panneau ne reconstruit aucune métrique d’arbre depuis les soldes Candies.
 
 ## Promouvoir un administrateur
 
