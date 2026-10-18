@@ -54,6 +54,7 @@ describe('admin data feedback', () => {
     render(<AdminTabList activeTab="dashboard" onSelect={select} />);
     const dashboard = screen.getByRole('tab', { name: /Tableau de bord/i });
     expect(dashboard).toHaveAttribute('aria-controls', 'admin-panel-dashboard');
+    expect(screen.getAllByRole('tab', { name: /Équilibrage/ })).toHaveLength(1);
     fireEvent.keyDown(dashboard, { key: 'ArrowRight' });
     expect(select).toHaveBeenCalledWith('authority');
   });
@@ -101,9 +102,6 @@ describe('admin data feedback', () => {
               rejectionCode: 'pending_choice',
             },
           ]}
-          fieldCohorts={[]}
-          fieldChampionCohorts={[]}
-          fieldAugmentCohorts={[]}
           loading={false}
           error={null}
           onRefresh={vi.fn()}
@@ -117,6 +115,9 @@ describe('admin data feedback', () => {
       expect(screen.getAllByText('pending_choice')).toHaveLength(1);
       expect(screen.getByRole('alert')).toHaveTextContent(`v${label}`);
       expect(screen.getByRole('cell', { name: `v${label}` })).toBeInTheDocument();
+      expect(
+        screen.queryByText(getAdminFieldCalibrationCopy('fr-FR').title),
+      ).not.toBeInTheDocument();
     },
   );
 

@@ -33,6 +33,7 @@ export type AdminTab =
   | 'players'
   | 'runs'
   | 'analytics'
+  | 'balance'
   | 'moderation';
 export type AdminDataSection = 'stats' | 'authority' | 'logs' | 'moderation';
 export type AdminDataErrors = Record<AdminDataSection, string | null>;
@@ -258,28 +259,18 @@ interface AuthorityData {
   aggregates: AuthorityAttemptAggregate[];
   signals: AuthorityRejectionSignal[];
   rejections: AdminAuthorityRejection[];
-  cohorts: VerifiedFieldCalibrationCohort[];
-  champions: VerifiedFieldChampionCohort[];
-  augments: VerifiedFieldAugmentCohort[];
 }
 const EMPTY_STATS: AdminStats = {};
 const EMPTY_AUTHORITY: AuthorityData = {
   aggregates: [],
   signals: [],
   rejections: [],
-  cohorts: [],
-  champions: [],
-  augments: [],
 };
 const EMPTY_LOGS: AdminTablePage<Log> = { rows: [], total: 0 };
 const EMPTY_REPORTS: AdminTablePage<AdminModerationReport> = { rows: [], total: 0 };
 const emptyStats = (data: AdminStats) => Object.keys(data).length === 0;
 const emptyAuthority = (data: AuthorityData) =>
-  data.aggregates.length === 0 &&
-  data.rejections.length === 0 &&
-  data.cohorts.length === 0 &&
-  data.champions.length === 0 &&
-  data.augments.length === 0;
+  data.aggregates.length === 0 && data.rejections.length === 0;
 const emptyTable = (data: { rows: unknown[] }) => data.rows.length === 0;
 
 export function useAdminData(isAdmin: boolean) {
@@ -304,38 +295,16 @@ export function useAdminData(isAdmin: boolean) {
     const windowStart = new Date(
       Date.now() - AUTHORITY_REJECTION_ALERT_POLICY.windowMinutes * 60_000,
     ).toISOString();
-    const [aggregatesResult, rejectionsResult, fieldResult, championResult, augmentResult] =
-      await Promise.all([
-        supabase
-          .from('authority_attempt_aggregates')
-          .select('*')
-          .gte('window_started_at', windowStart)
-          .abortSignal(signal),
-        supabase.from('authority_recent_rejections').select('*').abortSignal(signal),
-        supabase
-          .from('admin_verified_field_cohorts')
-          .select('*')
-          .order('observed_on', { ascending: false })
-          .limit(200)
-          .abortSignal(signal),
-        supabase
-          .from('admin_verified_field_champion_cohorts')
-          .select('*')
-          .order('observed_on', { ascending: false })
-          .limit(200)
-          .abortSignal(signal),
-        supabase
-          .from('admin_verified_field_augment_cohorts')
-          .select('*')
-          .order('observed_on', { ascending: false })
-          .limit(200)
-          .abortSignal(signal),
-      ]);
+    const [aggregatesResult, rejectionsResult] = await Promise.all([
+      supabase
+        .from('authority_attempt_aggregates')
+        .select('*')
+        .gte('window_started_at', windowStart)
+        .abortSignal(signal),
+      supabase.from('authority_recent_rejections').select('*').abortSignal(signal),
+    ]);
     if (aggregatesResult.error) throw aggregatesResult.error;
     if (rejectionsResult.error) throw rejectionsResult.error;
-    if (fieldResult.error) throw fieldResult.error;
-    if (championResult.error) throw championResult.error;
-    if (augmentResult.error) throw augmentResult.error;
 
     const aggregates = (aggregatesResult.data ?? []).flatMap((row) => {
       if (
@@ -391,9 +360,6 @@ export function useAdminData(isAdmin: boolean) {
       aggregates,
       signals: evaluateAuthorityRejectionAlerts(aggregates),
       rejections,
-      cohorts: (fieldResult.data ?? []).flatMap((row) => mapVerifiedFieldCohort(row) ?? []),
-      champions: (championResult.data ?? []).flatMap((row) => mapVerifiedFieldChampion(row) ?? []),
-      augments: (augmentResult.data ?? []).flatMap((row) => mapVerifiedFieldAugment(row) ?? []),
     };
   }, []);
   const loadLogs = useCallback(
@@ -488,9 +454,6 @@ export function useAdminData(isAdmin: boolean) {
     authorityAggregates: authority.data.aggregates,
     authoritySignals: authority.data.signals,
     authorityRejections: authority.data.rejections,
-    fieldCohorts: authority.data.cohorts,
-    fieldChampionCohorts: authority.data.champions,
-    fieldAugmentCohorts: authority.data.augments,
     logs: logs.data.rows,
     moderationReports: moderation.data.rows,
     logsTotal: logs.hasData ? logs.data.total : null,
