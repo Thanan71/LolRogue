@@ -23,6 +23,7 @@ export const legalEn = {
     paragraphs: [
       'For a signed-in account, the service processes the authentication email address, profile, leaderboard preferences, progress, runs, their commands, and combat metrics. This data is used to authenticate, resume and verify runs, grant progress, secure the leaderboard, and diagnose errors.',
       'Shard balances, transactions, purchases, and permanent access are private and retained until account deletion. Operational aggregates are derived from this functional data without publishing identifiers. Guests have no durable Shard balance.',
+      'Administrators can view aggregate activity and retention statistics calculated from registrations, run starts, commands and run completions already retained by the service. These analytics collect no new browser events, guest identifiers or device types.',
       'The leaderboard never publishes an email address, account name, or player ID. It displays a chosen alias or anonymous pseudonym, ranked statistics, and, for the global leaderboard, the optional profile avatar. Users can remove all public scores from settings.',
     ],
     dailyPublic: 'Public daily leaderboard',

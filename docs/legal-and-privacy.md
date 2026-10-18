@@ -39,6 +39,7 @@ Sources à revalider avant chaque release :
 | Performance | Web Vitals et métadonnées techniques de navigation collectées par Vercel Speed Insights | mesurer et améliorer les performances | Vercel / exploitant | selon la configuration et les conditions Vercel en vigueur |
 | Audience web | télémétrie de navigation du composant Vercel Web Analytics intégré dans `src/main.tsx` | mesure d'audience du site | Vercel / exploitant | configuration distante, durée et information utilisateur à vérifier avant bêta |
 | Calibration terrain | agrégats de runs déjà vérifiées, cellules `n >= 30` et empreintes de loadout | confronter simulation et usage réel | administrateurs uniquement | vue calculée, aucune copie persistée |
+| Analytics admin | agrégats des créations de compte, départs autoritaires, commandes acceptées et fins vérifiées déjà conservés | activité UTC, rétention des départs et parcours mesuré | administrateurs uniquement | calcul à la demande, aucune copie personnelle supplémentaire |
 | Calibration optionnelle | offres vues/refusées, raison structurée d'abandon | étude produit future | aucune collecte active | 30 jours maximum si opt-in livré |
 | Invité | réglages, tutoriels, progression et run locale | fonctionnement hors compte | appareil uniquement | jusqu'à effacement du navigateur |
 
