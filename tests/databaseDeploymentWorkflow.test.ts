@@ -1,9 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { DEPLOYMENT_TARGETS } from '../scripts/lib/environment-config.mjs';
 
 const workflow = readFileSync(
   new URL('../.github/workflows/database-deployment.yml', import.meta.url),
+  'utf8',
+);
+const environmentSource = readFileSync(
+  new URL('../scripts/lib/environment-config.mjs', import.meta.url),
   'utf8',
 );
 const databaseRouter = readFileSync(
@@ -31,12 +34,15 @@ describe('branch-isolated Supabase database deployment', () => {
       ['dev', 'supabase-dev'],
       ['main', 'supabase-production'],
     ] as const) {
-      const target = DEPLOYMENT_TARGETS[branch];
+      const declaredTarget = environmentSource
+        .split(`${branch}: Object.freeze({`)[1]
+        ?.match(/projectRef: '([a-z0-9]+)'/)?.[1];
+      expect(declaredTarget).toBeTruthy();
       const section = workflow.split(`  deploy-${branch}:`)[1]?.split(/\n  deploy-(?:dev|main):/)[0];
       expect(section).toBeTruthy();
       expect(section).toContain(`environment: ${environment}`);
       expect(section).toContain(`EXPECTED_BRANCH: ${branch}`);
-      expect(section).toContain(`EXPECTED_PROJECT_REF: ${target.projectRef}`);
+      expect(section).toContain(`EXPECTED_PROJECT_REF: ${declaredTarget}`);
       expect(section).toContain(`if: github.ref == 'refs/heads/${branch}'`);
       expect(section).toContain('SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}');
       expect(section).toContain('SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}');
