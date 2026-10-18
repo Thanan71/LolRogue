@@ -6,6 +6,7 @@ import {
   hasAuthorityFeature,
   isKnownAuthorityEngine,
 } from '@/game/authority/versionRegistry';
+import { parseAdminDiagnostics } from '@/pages/admin/diagnostics/adminDiagnosticsParser';
 import { AccountProgressionService } from '@/services/accountProgressionService';
 import { RepositoryContainer } from '@/services/container/RepositoryContainer';
 import {
@@ -153,7 +154,7 @@ async function createAuthenticatedFixture(
   };
 }
 
-function clientLogPayload(repository: string): Json {
+function clientLogPayload(repository: string, sessionId: string): Json {
   return {
     details: { contract: 'repository-integration' },
     duration_ms: 12,
@@ -161,7 +162,7 @@ function clientLogPayload(repository: string): Json {
     method: 'load',
     operation: 'select',
     repository,
-    session_id: randomUUID(),
+    session_id: sessionId,
     table_name: 'runs',
   };
 }
@@ -361,8 +362,9 @@ describeLive('repositories against migrated local Supabase', () => {
 
   it('exercises the real admin nested relations and bounded client-log RPC', async () => {
     const marker = `RepositoryIntegration${fixture.suffix.slice(0, 12)}`;
+    const sessionId = randomUUID();
     const submitted = await fixture.client.rpc('submit_client_logs', {
-      p_logs: [clientLogPayload(marker)],
+      p_logs: [clientLogPayload(marker, sessionId)],
     });
     expect(submitted).toMatchObject({ data: 1, error: null });
 
@@ -372,6 +374,16 @@ describeLive('repositories against migrated local Supabase', () => {
       .eq('id', fixture.playerId);
     expect(promoted.error).toBeNull();
 
+    const today = new Date();
+    const from = new Date(today.getTime() - 6 * 86_400_000).toISOString().slice(0, 10);
+    const logFilters = {
+      from,
+      to: today.toISOString().slice(0, 10),
+      level: null,
+      operation: null,
+      correlationId: sessionId,
+      attemptId: null,
+    };
     const [stats, players, runs, logs] = await Promise.all([
       fixture.client.from('admin_stats').select('*'),
       fixture.client.from('admin_player_stats').select('*').eq('id', fixture.playerId).single(),
@@ -382,7 +394,10 @@ describeLive('repositories against migrated local Supabase', () => {
         )
         .eq('id', fixture.runId)
         .single(),
-      fixture.client.from('logs').select('*').eq('repository', marker).single(),
+      fixture.client.rpc('admin_diagnostics', {
+        p_section: 'logs',
+        p_filters: logFilters,
+      }),
     ]);
 
     expect(stats.error).toBeNull();
@@ -398,11 +413,18 @@ describeLive('repositories against migrated local Supabase', () => {
       player_username: { username: expect.stringContaining('repository-') },
     });
     expect(logs.error).toBeNull();
-    expect(logs.data).toMatchObject({
-      player_id: fixture.playerId,
-      repository: marker,
-      user_id: fixture.userId,
+    const projected = parseAdminDiagnostics(logs.data, {
+      section: 'logs',
+      filters: logFilters,
     });
+    expect(projected.data.total).toBe(1);
+    expect(projected.data.rows[0]).toMatchObject({
+      repository: 'unknown',
+      method: 'unknown',
+      correlationId: sessionId,
+    });
+    expect(JSON.stringify(projected)).not.toContain(fixture.userId);
+    expect(JSON.stringify(projected)).not.toContain(fixture.playerId);
   });
 
   it('surfaces real PostgREST and PostgreSQL errors instead of mock-shaped responses', async () => {

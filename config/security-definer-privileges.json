@@ -12,6 +12,11 @@
       "justification": "Read bounded descriptive verified balance cohorts and live rule states only after a live registered database administrator check; no personal identities or authority mutations."
     },
     {
+      "signature": "private.admin_diagnostics(text, jsonb, jsonb, timestamp with time zone, integer)",
+      "roles": ["authenticated"],
+      "justification": "Project bounded technical logs, authority counts and measured seal latency only after a live nonanonymous database administrator check; no raw payload, identities or inferred availability."
+    },
+    {
       "signature": "private.admin_explorer_page(text, jsonb, jsonb, timestamp with time zone, integer, boolean)",
       "roles": ["authenticated"],
       "justification": "Return bounded administrative pages and atomic exports only after a live database-admin identity check."

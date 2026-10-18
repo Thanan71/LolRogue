@@ -2086,6 +2086,16 @@ export type Database = {
       admin_balance_builds: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
       admin_balance_champions: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
       admin_balance_config: { Args: Record<PropertyKey, never>; Returns: Json };
+      admin_diagnostics: {
+        Args: {
+          p_cursor?: Json;
+          p_filters?: Json;
+          p_limit?: number;
+          p_section: string;
+          p_snapshot?: string;
+        };
+        Returns: Json;
+      };
       admin_export_runs: {
         Args: { p_filters?: Json; p_max_rows?: number; p_population?: string; p_snapshot?: string };
         Returns: Json;
