@@ -240,15 +240,15 @@ describe('combat integrity source / Edge bundle parity', () => {
     expect(v16?.status).toBe('unsupported');
     expect(v17?.status).toBe('unsupported');
     expect(v18?.status).toBe('unsupported');
-    expect(v19?.status).toBe('replay-only');
-    expect(v20?.status).toBe('replay-only');
+    expect(v19?.status).toBe('unsupported');
+    expect(v20?.status).toBe('unsupported');
     expect(await resolveBundledAuthorityVerifier(v14!.engine, v14!.contentHash)).toBeUndefined();
     expect(await resolveBundledAuthorityVerifier(v15!.engine, v15!.contentHash)).toBeUndefined();
     expect(await resolveBundledAuthorityVerifier(v16!.engine, v16!.contentHash)).toBeUndefined();
     expect(await resolveBundledAuthorityVerifier(v17!.engine, v17!.contentHash)).toBeUndefined();
     expect(await resolveBundledAuthorityVerifier(v18!.engine, v18!.contentHash)).toBeUndefined();
-    expect(await resolveBundledAuthorityVerifier(v19!.engine, v19!.contentHash)).toBeDefined();
-    expect(await resolveBundledAuthorityVerifier(v20!.engine, v20!.contentHash)).toBeDefined();
+    expect(await resolveBundledAuthorityVerifier(v19!.engine, v19!.contentHash)).toBeUndefined();
+    expect(await resolveBundledAuthorityVerifier(v20!.engine, v20!.contentHash)).toBeUndefined();
     expect(
       await resolveBundledAuthorityVerifier(AUTHORITY_ENGINE_VERSION, '0'.repeat(64)),
     ).toBeUndefined();

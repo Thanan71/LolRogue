@@ -126,7 +126,7 @@ describe('run progression authority contract', () => {
 
   it('preserves the byte-for-byte v21 bundle and its exact historical replay', async () => {
     const archive = readFileSync(
-      new URL('../supabase/functions/verify-run/run-authority-v21.bundle.ts', import.meta.url),
+      new URL('../supabase/authority-archive/run-authority-v21.bundle.ts', import.meta.url),
     );
     expect(createHash('sha256').update(archive).digest('hex')).toBe(
       '5fb9483ac2ca82456254bd82aea327b7c7162246517660c3fc20dfe075d0117f',
