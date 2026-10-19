@@ -3,7 +3,6 @@ import { readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { readAuthorityVersionRegistry } from './lib/authority-version-registry.mjs';
 
-
 await build({
   entryPoints: ['src/game/authority/index.ts'],
   bundle: true,
@@ -29,11 +28,11 @@ const deployableBundles = new Set(
     .map((version) => path.basename(version.bundle)),
 );
 const entries = (await readdir(edgeDirectory, { withFileTypes: true })).filter(
-  (entry) => entry.isFile() && /\\.(?:ts|js|json|jsonc)$/.test(entry.name),
+  (entry) => entry.isFile() && /\.(?:ts|js|json|jsonc)$/.test(entry.name),
 );
 for (const entry of entries) {
   if (
-    /^run-authority(?:-(?:v[1-9]\\d*|\\d+\\.\\d+\\.\\d+))?\\.bundle\\.(?:ts|js)$/.test(entry.name) &&
+    /^run-authority(?:-(?:v[1-9]\d*|\d+\.\d+\.\d+))?\.bundle\.(?:ts|js)$/.test(entry.name) &&
     !deployableBundles.has(entry.name)
   ) {
     throw new Error(`Archived/unregistered verifier is still inside the Edge Function: ${entry.name}`);
