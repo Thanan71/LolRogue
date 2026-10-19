@@ -513,10 +513,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 15,
     "progression": 2,
     "command": 2,
-    "status": "replay-only",
+    "status": "unsupported",
     "rulesetCode": "2026-08-combat-balance-v19",
     "contentHash": "45a1dbb93be5a25281ba6fce56517be382ddff6210dce9a55ef3d1ac7c971099",
-    "bundle": "supabase/functions/verify-run/run-authority-v19.bundle.ts",
+    "bundle": "supabase/authority-archive/run-authority-v19.bundle.ts",
     "migration": "supabase/migrations/20260830093859_gameplay_ruleset_v19_combat_balance.sql",
     "features": {
       "canonicalProgression": true,
@@ -541,10 +541,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 15,
     "progression": 3,
     "command": 2,
-    "status": "replay-only",
+    "status": "unsupported",
     "rulesetCode": "2026-08-map-economy-v20",
     "contentHash": "8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91",
-    "bundle": "supabase/functions/verify-run/run-authority-v20.bundle.ts",
+    "bundle": "supabase/authority-archive/run-authority-v20.bundle.ts",
     "migration": "supabase/migrations/20260831152608_gameplay_ruleset_v20_map_economy.sql",
     "features": {
       "canonicalProgression": true,
@@ -569,10 +569,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 15,
     "progression": 3,
     "command": 2,
-    "status": "replay-only",
+    "status": "unsupported",
     "rulesetCode": "2026-09-balance-acceptance-v21",
     "contentHash": "9a83e7631f67d28e47c2cd1e8a0237d1009e8d53416aa97525ee088a1d5a38a6",
-    "bundle": "supabase/functions/verify-run/run-authority-v21.bundle.ts",
+    "bundle": "supabase/authority-archive/run-authority-v21.bundle.ts",
     "migration": "supabase/migrations/20260904151818_gameplay_ruleset_v21_balance_acceptance.sql",
     "features": {
       "canonicalProgression": true,
@@ -597,10 +597,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 15,
     "progression": 3,
     "command": 2,
-    "status": "replay-only",
+    "status": "unsupported",
     "rulesetCode": "2026-10-veigar-run-progression-v22",
     "contentHash": "2e0c2b73796122049cd8493b56e9ed9329a9fde25e27addc71f553eb83025d84",
-    "bundle": "supabase/functions/verify-run/run-authority-v22.bundle.ts",
+    "bundle": "supabase/authority-archive/run-authority-v22.bundle.ts",
     "migration": "supabase/migrations/20261009173939_gameplay_ruleset_v22_veigar_run_progression.sql",
     "features": {
       "canonicalProgression": true,
@@ -625,10 +625,10 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 15,
     "progression": 3,
     "command": 2,
-    "status": "replay-only",
+    "status": "unsupported",
     "rulesetCode": "0.2.0",
     "contentHash": "c74af7632acfb7e4a2ff45140d62d0a96bbd6b063994b3f4b43d0f72fa785e16",
-    "bundle": "supabase/functions/verify-run/run-authority-0.2.0.bundle.js",
+    "bundle": "supabase/authority-archive/run-authority-0.2.0.bundle.js",
     "migration": "supabase/migrations/20261010120531_gameplay_ruleset_0_2_0_veigar_assists.sql",
     "features": {
       "canonicalProgression": true,
@@ -678,12 +678,7 @@ export const AUTHORITY_VERSION_REGISTRY = [
 ] as const;
 
 const verifierLoaders = {
-  "run-engine-v19": () => import("./run-authority-v19.bundle.ts"), // loader-0
-  "run-engine-v20": () => import("./run-authority-v20.bundle.ts"), // loader-1
-  "run-engine-v21": () => import("./run-authority-v21.bundle.ts"), // loader-2
-  "run-engine-v22": () => import("./run-authority-v22.bundle.ts"), // loader-3
-  "run-engine-0.2.0": () => import("./run-authority-0.2.0.bundle.js"), // loader-4
-  "run-engine-0.2.5": () => import("./run-authority.bundle.js"), // loader-5
+  "run-engine-0.2.5": () => import("./run-authority.bundle.js"), // loader-0
 } as const;
 
 export async function resolveAuthorityVerifier(engineVersion: string, contentHash: string) {
