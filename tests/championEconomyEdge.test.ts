@@ -11,7 +11,10 @@ import {
 } from '@/game/authority';
 import { buildVerifiedEconomyResult } from '../supabase/functions/verify-run/champion-economy';
 import rawRegistry from '../config/authority-versions.json';
-import { resolveBundledAuthorityVerifier } from './helpers/authorityBundleResolver';
+import {
+  resolveBundledAuthorityVerifier,
+  resolveRegisteredAuthorityVerifier,
+} from './helpers/authorityBundleResolver';
 import {
   VEIGAR_FIRST_COMBAT_ATTEMPT,
   VEIGAR_FIRST_COMBAT_COMMANDS,
@@ -118,14 +121,26 @@ function handlerFixture(
 }
 
 describe('Edge economy authority boundary', () => {
+  it.each(['run-engine-v20', 'run-engine-v21', 'run-engine-v22'])(
+    'keeps archived %s available for offline replay without deploying its verifier',
+    async (engine) => {
+      const version = rawRegistry.versions.find((entry) => entry.engine === engine)!;
+      expect(version.status).toBe('unsupported');
+      expect(await resolveBundledAuthorityVerifier(engine, version.contentHash)).toBeUndefined();
+      expect(await resolveRegisteredAuthorityVerifier(engine, version.contentHash)).toBeDefined();
+    },
+  );
+
   it.each(['run-engine-v20', 'run-engine-v21', 'run-engine-v22', AUTHORITY_ENGINE_VERSION])(
     'preserves canonical participation when serializing replay %s',
     async (engine) => {
       const version = rawRegistry.versions.find((entry) => entry.engine === engine)!;
-      const authority = (await resolveBundledAuthorityVerifier(
-        version.engine,
-        version.contentHash,
-      ))!;
+      // Replay-only engines stay testable from Git archives, not from the deployed Edge bundle.
+      const authority =
+        version.status === 'current'
+          ? await resolveBundledAuthorityVerifier(version.engine, version.contentHash)
+          : await resolveRegisteredAuthorityVerifier(version.engine, version.contentHash);
+      expect(authority).toBeDefined();
       const fixture = handlerFixture(
         { engine_version: version.engine, gameplay_content_hash: version.contentHash },
         undefined,
