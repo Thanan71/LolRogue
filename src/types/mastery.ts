@@ -6,6 +6,8 @@
  * Ranked run power and starting team size never depend on these unlocks.
  */
 
+import type { ChampionMastery as ChampionMasteryRow } from './models';
+
 // ─── Mastery Level Thresholds ───────────────────────────────────────────────
 
 /** Candy thresholds for each mastery level (index = level, value = total candies needed). */
@@ -108,11 +110,7 @@ export type MasteryProgressionSnapshot = Pick<
 export interface MasteryActions {
   /** Replace the local cache with mastery values loaded from Supabase. */
   hydrateFromDatabase: (
-    masteries: Array<{
-      champion_id: string;
-      total_candies: number;
-      unlocked_ids: string[];
-    }>,
+    masteries: Array<Pick<ChampionMasteryRow, 'champion_id' | 'total_candies' | 'unlocked_ids'>>,
   ) => void;
 
   /**

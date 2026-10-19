@@ -5,8 +5,7 @@ import { ROUTES } from '@/config/routes';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { formatNumber } from '@/i18n/format';
 import { fr } from '@/i18n/fr';
-import { SupabaseDailyRunRepository } from '@/services/repositories/SupabaseDailyRunRepository';
-import { supabase } from '@/services/supabaseClient';
+import { dailyRunApplication } from '@/features/daily/application/dailyRunApplication';
 import { useAudioStore } from '@/stores/audioStore';
 import { useAuthStore } from '@/stores/authStore';
 import {
@@ -56,7 +55,7 @@ export function SettingsPage() {
     privacyRequestVersion.current = requestVersion;
     setSavingPrivacy(true);
     setPrivacyStatus(null);
-    const result = await new SupabaseDailyRunRepository(supabase)
+    const result = await dailyRunApplication
       .setLeaderboardPrivacy(publicName.trim() || null, leaderboardOptOut)
       .catch(() => ({ error: new Error('privacy request failed') }));
     if (

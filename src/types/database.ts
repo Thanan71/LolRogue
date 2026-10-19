@@ -82,6 +82,99 @@ export type Database = {
         };
         Relationships: [];
       };
+      candy_accounts: {
+        Row: {
+          history_complete: boolean;
+          opened_at: string;
+          opening_balance: number;
+          player_id: string;
+        };
+        Insert: {
+          history_complete: boolean;
+          opened_at?: string;
+          opening_balance: number;
+          player_id: string;
+        };
+        Update: {
+          history_complete?: boolean;
+          opened_at?: string;
+          opening_balance?: number;
+          player_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'candy_accounts_player_id_fkey';
+            columns: ['player_id'];
+            isOneToOne: true;
+            referencedRelation: 'admin_player_stats';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'candy_accounts_player_id_fkey';
+            columns: ['player_id'];
+            isOneToOne: true;
+            referencedRelation: 'players';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      candy_ledger_settings: {
+        Row: {
+          singleton: boolean;
+          started_at: string;
+        };
+        Insert: {
+          singleton?: boolean;
+          started_at?: string;
+        };
+        Update: {
+          singleton?: boolean;
+          started_at?: string;
+        };
+        Relationships: [];
+      };
+      candy_transactions: {
+        Row: {
+          amount: number;
+          created_at: string;
+          id: number;
+          kind: string;
+          player_id: string;
+          source_key: string;
+        };
+        Insert: {
+          amount: number;
+          created_at?: string;
+          id?: never;
+          kind: string;
+          player_id: string;
+          source_key: string;
+        };
+        Update: {
+          amount?: number;
+          created_at?: string;
+          id?: never;
+          kind?: string;
+          player_id?: string;
+          source_key?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'candy_transactions_player_id_fkey';
+            columns: ['player_id'];
+            isOneToOne: false;
+            referencedRelation: 'admin_player_stats';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'candy_transactions_player_id_fkey';
+            columns: ['player_id'];
+            isOneToOne: false;
+            referencedRelation: 'players';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       champion_economy_catalog: {
         Row: {
           catalog_version: number;
@@ -1987,6 +2080,68 @@ export type Database = {
         Args: { p_amount: number; p_command_id: string; p_user_id: string };
         Returns: Json;
       };
+      admin_analytics_funnel: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
+      admin_analytics_retention: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
+      admin_analytics_series: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
+      admin_balance_builds: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
+      admin_balance_champions: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
+      admin_balance_config: { Args: Record<PropertyKey, never>; Returns: Json };
+      admin_export_runs: {
+        Args: { p_filters?: Json; p_max_rows?: number; p_population?: string; p_snapshot?: string };
+        Returns: Json;
+      };
+      admin_get_attempt_detail: {
+        Args: { p_attempt_id: string; p_cursor?: Json; p_page_size?: number; p_snapshot?: string };
+        Returns: Json;
+      };
+      admin_get_player_detail: {
+        Args: { p_player_id: string; p_snapshot?: string };
+        Returns: Json;
+      };
+      admin_get_run_detail: {
+        Args: { p_cursor?: Json; p_page_size?: number; p_run_id: string; p_snapshot?: string };
+        Returns: Json;
+      };
+      admin_moderation_decide: {
+        Args: {
+          p_action: string;
+          p_confirmed_daily_date: string;
+          p_confirmed_daily_run_id: string;
+          p_reason: string;
+          p_report_id: string;
+          p_request_id: string;
+          p_scope: string;
+        };
+        Returns: Json;
+      };
+      admin_moderation_history: {
+        Args: { p_cursor?: Json; p_daily_run_id: string; p_limit?: number; p_snapshot?: string };
+        Returns: Json;
+      };
+      admin_moderation_queue: {
+        Args: {
+          p_cursor?: Json;
+          p_daily_run_id?: string;
+          p_from?: string;
+          p_limit?: number;
+          p_snapshot?: string;
+          p_status?: string;
+          p_to?: string;
+        };
+        Returns: Json;
+      };
+      admin_search_attempts: {
+        Args: { p_cursor?: Json; p_filters?: Json; p_page_size?: number; p_snapshot?: string };
+        Returns: Json;
+      };
+      admin_search_players: {
+        Args: { p_cursor?: Json; p_filters?: Json; p_page_size?: number; p_snapshot?: string };
+        Returns: Json;
+      };
+      admin_search_runs: {
+        Args: { p_cursor?: Json; p_filters?: Json; p_page_size?: number; p_snapshot?: string };
+        Returns: Json;
+      };
       append_run_attempt_commands: {
         Args: { p_attempt_id: string; p_commands: Json };
         Returns: Json;
@@ -2132,6 +2287,15 @@ export type Database = {
         Returns: Json;
       };
       complete_run_verification_v21_contract: {
+        Args: {
+          p_attempt_id: string;
+          p_lease_token: string;
+          p_result: Json;
+          p_result_hash: string;
+        };
+        Returns: Json;
+      };
+      complete_run_verification_v22_contract: {
         Args: {
           p_attempt_id: string;
           p_lease_token: string;

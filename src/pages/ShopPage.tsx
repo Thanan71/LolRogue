@@ -7,6 +7,7 @@ import { championDB } from '@/data/championDatabase';
 import { isPassiveCombatReady, isSpellCombatReady } from '@/game/battle/combatContentSupport';
 import { getNodeEncounter } from '@/game/map/mapUtils';
 import type { ShopItem } from '@/game/map/types';
+import { getRunChampionForEngine } from '@/game/run/runChampionCatalog';
 import { createRunAugmentManager } from '@/game/run/runCombatant';
 import { formatStatValue, normalizeStatKey } from '@/game/stats/statContract';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
@@ -99,8 +100,11 @@ function ChampionCard({
   alreadyOnTeam: boolean;
   onRecruit: () => void;
 }) {
+  const engineVersion = useRunStore((state) => state.authorityAttempt?.engineVersion);
   const sourceChampion = championDB.getById(champId);
-  const champ = sourceChampion ? localizeChampion(sourceChampion) : undefined;
+  const champ = sourceChampion
+    ? localizeChampion(getRunChampionForEngine(sourceChampion, engineVersion))
+    : undefined;
   const preview = useRecruitPreview(champId);
   const previewCopy = recruitPreviewCopy[locale];
   const disabled = !canAfford || teamFull || alreadyOnTeam;

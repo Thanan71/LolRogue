@@ -229,6 +229,13 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20261008171535_champion_economy_ledger_and_access.sql',
       '../supabase/migrations/20261009173939_gameplay_ruleset_v22_veigar_run_progression.sql',
       '../supabase/migrations/20261009174447_champion_catalog_v2_veigar.sql',
+      '../supabase/migrations/20261010120531_gameplay_ruleset_0_2_0_veigar_assists.sql',
+      '../supabase/migrations/20261011134126_gameplay_ruleset_0_2_5_engine_modules.sql',
+      '../supabase/migrations/20261017042727_admin_metrics_candy_ledger.sql',
+      '../supabase/migrations/20261017055016_admin_player_run_explorer.sql',
+      '../supabase/migrations/20261017070341_admin_temporal_analytics.sql',
+      '../supabase/migrations/20261018073001_admin_balance_workspace.sql',
+      '../supabase/migrations/20261018082740_admin_audited_moderation.sql',
     ]);
   });
 

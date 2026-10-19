@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import { en } from '@/i18n/en';
 import { formatNumber, plural } from '@/i18n/format';
@@ -12,9 +12,34 @@ const ALL_PAGES = readdirSync(pagesDirectory)
   .filter((file) => file.endsWith('.tsx'))
   .map((file) => `src/pages/${file}`);
 
+/** Follow route facades and their feature views so localization checks inspect visible copy. */
+function readPageLocalizationSource(path: string, visited = new Set<string>()): string {
+  if (visited.has(path)) return '';
+  visited.add(path);
+  const url = new URL(`../${path}`, import.meta.url);
+  const source = readFileSync(url, 'utf8');
+  const featureImports = [
+    ...source.matchAll(/(?:from\s+|import\s+)['"](@\/features\/[^'"]+|\.[^'"]+)['"]/gu),
+  ];
+  const childSources = featureImports.flatMap((match) => {
+    const specifier = match[1];
+    const base = specifier.startsWith('@/')
+      ? new URL(`../src/${specifier.slice(2)}`, import.meta.url)
+      : new URL(specifier, url);
+    if (!base.pathname.includes('/src/features/')) return [];
+    const child = ['.tsx', '.ts']
+      .map((extension) => new URL(`${base.href}${extension}`))
+      .find(existsSync);
+    if (!child) return [];
+    const childPath = `src/features/${child.pathname.split('/src/features/')[1]}`;
+    return [readPageLocalizationSource(childPath, visited)];
+  });
+  return [source, ...childSources].join('\n');
+}
+
 const USER_COPY_COMPONENTS = [
   'src/components/AppErrorBoundary.tsx',
-  'src/components/DailyLeaderboard.tsx',
+  'src/features/daily/ui/DailyLeaderboard.tsx',
   'src/components/EncounterLayout.tsx',
   'src/components/EnhancementTree.tsx',
   'src/components/NotificationRegion.tsx',
@@ -22,12 +47,12 @@ const USER_COPY_COMPONENTS = [
   'src/components/RunMapScreen.tsx',
   'src/components/RunTeamStatsPanel.tsx',
   'src/components/SpellUpgradePanel.tsx',
-  'src/components/CombatUI/AbilityBar.tsx',
-  'src/components/CombatUI/BattleSpeedControl.tsx',
-  'src/components/CombatUI/CombatLog.tsx',
-  'src/components/CombatUI/CombatStage.tsx',
-  'src/components/CombatUI/SpellTooltip.tsx',
-  'src/components/CombatUI/TurnIndicator.tsx',
+  'src/features/combat/ui/AbilityBar.tsx',
+  'src/features/combat/ui/BattleSpeedControl.tsx',
+  'src/features/combat/ui/CombatLog.tsx',
+  'src/features/combat/ui/CombatStage.tsx',
+  'src/features/combat/ui/SpellTooltip.tsx',
+  'src/features/combat/ui/TurnIndicator.tsx',
 ] as const;
 
 const FORBIDDEN_RAW_COPY = [
@@ -70,6 +95,19 @@ const INTENTIONALLY_IDENTICAL_PATHS = [
   'admin.damageShort',
   'admin.date',
   'admin.deleteOperation',
+  'admin.explorerPagination.page',
+  'admin.playerExplorer.candies',
+  'admin.playerExplorer.champion',
+  'admin.playerExplorer.kind',
+  'admin.playerExplorer.occurredAt',
+  'admin.runExplorer.biome',
+  'admin.runExplorer.candies',
+  'admin.runExplorer.champion',
+  'admin.runExplorer.completedAt',
+  'admin.runExplorer.mode',
+  'admin.runExplorer.normal',
+  'admin.runExplorer.runes',
+  'admin.runExplorer.type',
   'admin.info',
   'admin.insertOperation',
   'admin.milliseconds',
@@ -197,7 +235,7 @@ describe('contrat de langue française', () => {
   it('raccorde automatiquement toutes les pages au dictionnaire français', () => {
     expect(ALL_PAGES.length).toBeGreaterThan(0);
     for (const path of ALL_PAGES) {
-      const source = readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+      const source = readPageLocalizationSource(path);
       expect(source, `${path} doit utiliser une source i18n`).toMatch(/@\/i18n\//u);
       for (const copy of FORBIDDEN_RAW_COPY) expect(source).not.toContain(copy);
     }
@@ -205,7 +243,7 @@ describe('contrat de langue française', () => {
 
   it('raccorde les composants porteurs de texte au dictionnaire et interdit les anciens libellés anglais', () => {
     for (const path of USER_COPY_COMPONENTS) {
-      const source = readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+      const source = readPageLocalizationSource(path);
       expect(source, `${path} doit utiliser une source i18n`).toMatch(/@\/i18n\//u);
       for (const copy of FORBIDDEN_RAW_COPY) expect(source).not.toContain(copy);
     }

@@ -35,6 +35,8 @@ describe('LegalPage', () => {
       'id',
       'confidentialite',
     );
-    expect(screen.getByText('25 août 2026')).toHaveAttribute('datetime', '2026-08-25');
+    expect(screen.getByText('18 octobre 2026')).toHaveAttribute('datetime', '2026-10-18');
+    expect(screen.getAllByText(/365 jours, puis suppression/)).toHaveLength(2);
+    expect(screen.getByText(/30 jours, puis suppression/)).toBeInTheDocument();
   });
 });

@@ -23,11 +23,16 @@ export const legalFr = {
     paragraphs: [
       'Pour un compte connecté, le service traite l’adresse e-mail d’authentification, le profil, les préférences de classement, la progression, les parties, leurs commandes et les métriques de combat. Ces données servent à authentifier, reprendre et vérifier les parties, attribuer la progression, sécuriser le classement et diagnostiquer les erreurs.',
       'Le solde d’Éclats, ses transactions, les achats et les accès permanents sont privés et conservés jusqu’à la suppression du compte. Les agrégats d’exploitation sont calculés depuis ces données fonctionnelles sans publier d’identifiants. Aucun solde d’Éclats durable n’est conservé pour les invités.',
+      'Les administrateurs peuvent consulter des statistiques agrégées d’activité et de rétention calculées depuis les inscriptions, départs, commandes et fins de parties déjà conservés par le service. Ces analyses ne collectent aucun nouvel événement navigateur, identifiant invité ou type d’appareil.',
       'Le classement ne publie jamais l’e-mail, le nom de compte ou l’identifiant joueur. Il affiche un alias choisi ou un pseudonyme anonyme, les statistiques classées et, pour le classement global, l’avatar facultatif du profil. L’utilisateur peut retirer tous ses scores publics depuis les réglages.',
     ],
     dailyPublic: 'Classement quotidien public',
     diagnosticLogs: 'Journaux techniques',
     reviewedReports: 'Signalements traités',
+    moderationDecisions: 'Décisions de modération',
+    moderationRejections: 'Rejets et limites de modération',
+    purgeAfter: (count: number) =>
+      `${count.toLocaleString('fr-FR')} jours, puis suppression lors de la prochaine purge quotidienne`,
     accountData: 'Données de compte',
     guestData: 'Données invitées',
     maximum: 'maximum',

@@ -118,7 +118,7 @@ export const veigar: Champion = {
   passive: {
     name: 'Pouvoir maléfique phénoménal',
     description:
-      'Gagne 1 point en éliminant un ennemi normal avec une compétence, 3 pour un élite et 10 pour un boss. Chaque point donne +1 puissance, jusqu’à 200. Ces points persistent uniquement pendant le run. Les touches et les assistances ne donnent aucun point.',
+      'Une élimination normale par compétence ou une assistance attribuée sur un ennemi normal donne 1 point. Élimination ou assistance : 3 points pour un élite, 10 pour un boss. Chaque point donne +1 puissance, jusqu’à 200, uniquement pendant ce run. Les simples touches ne donnent aucun point.',
     image: 'VeigarEntropy.png',
     targeting: TargetingType.Passive,
     scaling: { adRatio: 0, apRatio: 0 },
@@ -128,13 +128,18 @@ export const veigar: Champion = {
         key: 'veigar.phenomenal_power',
         name: 'Pouvoir maléfique phénoménal',
         description:
-          '+1 par élimination normale avec une compétence, +3 par élite, +10 par boss ; +1 puissance par point, uniquement pendant ce run.',
+          '+1 par élimination normale avec une compétence ou assistance normale, +3 par élite, +10 par boss ; +1 puissance par point, uniquement pendant ce run.',
         cap: 200,
         statBonuses: { abilityPower: 1 },
         onKill: [
           { targetTier: 'boss', amount: 10 },
           { targetTier: 'elite', amount: 3 },
           { targetTier: 'normal', abilityOnly: true, amount: 1 },
+        ],
+        onAssist: [
+          { targetTier: 'boss', amount: 10 },
+          { targetTier: 'elite', amount: 3 },
+          { targetTier: 'normal', amount: 1 },
         ],
       },
     ],

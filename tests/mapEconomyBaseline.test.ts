@@ -6,6 +6,8 @@ import {
   createMapEconomyBaseline,
 } from '@/game/balance/mapEconomyBaseline';
 import { type NodeMap, NodeType } from '@/game/map/types';
+import previousBaseline from '../config/map-economy-baseline-0.2.0.json';
+import structuralBaseline from '../config/map-economy-baseline-0.2.5.json';
 
 const metadata = { title: 'Fixture', description: 'Fixture', icon: 'fixture' };
 
@@ -31,6 +33,18 @@ function routeNode(
 }
 
 describe('P1-BAL-02 pre-change map and economy baseline', () => {
+  it('preserves every fixed-seed route and economy observation from 0.2.0 after the structural release', () => {
+    const { identity: previousIdentity, ...previous } = previousBaseline;
+    const { identity, ...current } = structuralBaseline;
+    expect(identity).toMatchObject({
+      engineVersion: CURRENT_AUTHORITY_VERSION.engine,
+      contentHash: CURRENT_AUTHORITY_VERSION.contentHash,
+      gameplayRulesetVersion: CURRENT_AUTHORITY_VERSION.gameplay,
+      firstSeed: previousIdentity.firstSeed,
+      seedCount: previousIdentity.seedCount,
+    });
+    expect(JSON.stringify(current)).toBe(JSON.stringify(previous));
+  });
   it('computes exact route bounds across a branching map DAG', () => {
     const map: NodeMap = {
       biome: 'top_lane',

@@ -4,7 +4,7 @@ import {
   migratePersistedRunState,
   RUN_SCHEMA_VERSION,
   RUN_STORAGE_KEY,
-} from '@/game/run/runPersistence';
+} from '@/stores/persistence/runPersistence';
 import { runError } from '@/i18n/runErrorContent';
 import type { RunStore } from '@/types/run';
 import { safeLocalStorage } from '@/utils/persistence';
@@ -13,7 +13,7 @@ import { createRunDomainSlice } from './runStoreDomainSlice';
 import { createRunLifecycleSlice } from './runStoreLifecycleSlice';
 import { createRunMapSlice } from './runStoreMapSlice';
 
-export { migratePersistedRunState } from '@/game/run/runPersistence';
+export { migratePersistedRunState } from '@/stores/persistence/runPersistence';
 
 // ─── Store ──────────────────────────────────────────────────────────────────
 

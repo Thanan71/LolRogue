@@ -1,11 +1,20 @@
 import { spawnSync } from 'node:child_process';
+import { repositoryRoot, requireNode24, requirePinnedCli } from './lib/critical-command.mjs';
+import { assertLocalDatabaseEnvironment, supabaseEnvironment } from './lib/remote-operation.mjs';
+
+requireNode24();
+assertLocalDatabaseEnvironment();
+const supabase = requirePinnedCli('supabase');
 
 const retryable =
   /Failed to connect|failed to connect|connection refused|database system is starting/i;
 const maxAttempts = 15;
 
 for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-  const lint = spawnSync('supabase', ['db', 'lint', '--level', 'warning'], {
+  assertLocalDatabaseEnvironment();
+  const lint = spawnSync(supabase, ['db', 'lint', '--local', '--level', 'warning'], {
+    cwd: repositoryRoot,
+    env: supabaseEnvironment(),
     encoding: 'utf8',
   });
   if (lint.status === 0) {

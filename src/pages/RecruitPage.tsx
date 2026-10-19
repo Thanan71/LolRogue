@@ -5,6 +5,7 @@ import { RecruitStatList } from '@/components/RecruitStatList';
 import { ROUTES } from '@/config/routes';
 import { championDB } from '@/data/championDatabase';
 import { getNodeEncounter } from '@/game/map/mapUtils';
+import { getRunChampionForEngine } from '@/game/run/runChampionCatalog';
 import { resolveRecruitAttempt } from '@/game/run/runEncounterRules';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useRecruitPreview } from '@/hooks/useRecruitPreview';
@@ -61,6 +62,7 @@ function TeamPreview({ team }: { team: RecruitTeam }) {
 
 export function RecruitPage() {
   const isActive = useRunStore((s) => s.isActive);
+  const engineVersion = useRunStore((state) => state.authorityAttempt?.engineVersion);
   const gold = useRunStore((s) => s.gold);
   const team = useRunStore((s) => s.team);
   const currentNodeId = useRunStore((s) => s.currentNodeId);
@@ -79,7 +81,9 @@ export function RecruitPage() {
   }, [getCurrentNode]);
 
   const sourceChampion = encounter ? championDB.getById(encounter.championId) : null;
-  const champ = sourceChampion ? localizeChampion(sourceChampion) : null;
+  const champ = sourceChampion
+    ? localizeChampion(getRunChampionForEngine(sourceChampion, engineVersion))
+    : null;
   const preview = useRecruitPreview(encounter?.championId ?? '', encounter?.statMultiplier ?? 1);
   const previewCopy = recruitPreviewCopy[locale];
   const encounterPresentation = getEncounterPresentation(locale, {

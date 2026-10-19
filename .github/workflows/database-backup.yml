@@ -33,7 +33,9 @@ jobs:
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
           BACKUP_DIRECTORY: database-backup
-        run: npm run backup:database
+        run: |
+          LOLROGUE_PROJECT_REF=$(node --input-type=module -e "import { resolveDeploymentTarget } from './scripts/lib/environment-config.mjs'; const target = resolveDeploymentTarget(process.env.GITHUB_REF_NAME); if (!target) process.exit(1); process.stdout.write(target.projectRef);")
+          npm run release -- backup --project-ref "$LOLROGUE_PROJECT_REF"
 
       - name: Verify backup checksums
         working-directory: database-backup

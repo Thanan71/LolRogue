@@ -3,8 +3,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { AbilityBar } from '@/components/CombatUI/AbilityBar';
-import { SpellTooltip, spellTooltipPosition } from '@/components/CombatUI/SpellTooltip';
+import { AbilityBar } from '@/features/combat/ui/AbilityBar';
+import { SpellTooltip, spellTooltipPosition } from '@/features/combat/ui/SpellTooltip';
 import type { CombatantInfo } from '@/stores/battleStore';
 import { TargetingType } from '@/types/champion';
 

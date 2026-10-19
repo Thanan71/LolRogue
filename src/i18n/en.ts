@@ -1,3 +1,6 @@
+import { enAdminPlayersExplorer } from './adminExplorer';
+import { adminRunExplorerContent } from './adminRunExplorer';
+
 const formatEnglishNumber = (value: number): string => value.toLocaleString('en-US');
 const formatEnglishPercent = (percent: number): string =>
   new Intl.NumberFormat('en-US', {
@@ -258,12 +261,40 @@ export const en = {
     localRunPreserved: 'The local run is preserved. Reload the page to resume.',
   },
   admin: {
+    playerExplorer: enAdminPlayersExplorer,
+    runExplorer: adminRunExplorerContent['en-US'],
+    explorerInvalidResponse: 'The explorer response is incomplete. Refresh the data.',
+    explorerPagination: {
+      label: 'Admin results pagination',
+      previous: 'Previous page',
+      next: 'Next page',
+      pageSize: 'Rows per page',
+      page: 'Page',
+      displayed: 'Displayed:',
+      total: 'Filtered total:',
+      snapshotNote:
+        'New accounts or runs are excluded until refresh. Historical updates or deletions remain possible.',
+    },
+    requestTimedOut: 'Loading timed out. Retry this section.',
+    moderationResultUnknown:
+      'The invalidation outcome is unknown. Refresh the reports before attempting another invalidation.',
+    unavailable: 'Unavailable',
+    staleData: 'Stale data: the last successful result is still displayed.',
+    refreshingData: 'Refreshing; the last successful result is still displayed.',
+    lastUpdated: 'Last successful read',
+    metricDetails: 'Metric definition',
+    displayedRows: 'Displayed rows',
+    matchingTotal: 'Total matching the filters',
+    pageSampleOnly: 'Statistics for the displayed rows only',
+    exportCurrentRows: 'Export displayed rows',
     accessDenied: 'Access denied',
     noPermission: 'You do not have permission to access this page.',
     home: 'Back home',
     title: 'Admin panel',
     welcome: 'Welcome',
     dashboard: 'Dashboard',
+    analytics: 'Time analytics',
+    balance: 'Balance',
     logs: 'Logs',
     players: 'Players',
     runs: 'Runs',

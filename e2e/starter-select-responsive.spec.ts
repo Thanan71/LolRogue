@@ -248,11 +248,20 @@ test('touch selection exposes a start error without overlap at 320px', async ({ 
   });
 
   const champions = page.getByRole('button', { name: /^Choisir / });
-  const firstChampion = champions.nth(0);
-  const secondChampion = champions.nth(1);
+  // The public catalogue can replace the initial offer while disabled cards are loading.
+  await expect(champions.nth(0)).toBeEnabled();
+  await expect(champions.nth(1)).toBeEnabled();
+  const [firstChampionId, secondChampionId] = await champions.evaluateAll((cards) =>
+    cards.slice(0, 2).map((card) => card.id),
+  );
+  if (!firstChampionId || !secondChampionId) {
+    throw new Error('Two available starter champions are required for touch selection.');
+  }
+  const firstChampion = page.locator(`#${firstChampionId}`);
+  const secondChampion = page.locator(`#${secondChampionId}`);
   await firstChampion.tap();
-  await secondChampion.tap();
   await expect(firstChampion).toHaveAttribute('aria-pressed', 'true');
+  await secondChampion.tap();
   await expect(secondChampion).toHaveAttribute('aria-pressed', 'true');
 
   const confirm = page.getByRole('button', { name: 'Confirmer le choix' });

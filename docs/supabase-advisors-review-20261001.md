@@ -4,7 +4,7 @@
 
 La [CI du commit `1107113`](https://github.com/Thanan71/LolRogue/actions/runs/36878761923/job/110424868105)
 a reconstruit la base locale à partir des migrations, puis réussi le lint et
-l'audit `db:security`. Les advisors ont retourné **29 constats** : sécurité
+l'audit des privilèges. Les advisors ont retourné **29 constats** : sécurité
 3 INFO et aucune ERROR ; performance 25 INFO, 1 WARN et aucune ERROR. Les
 29 blocages étaient exclusivement des exceptions expirées le 30 septembre.
 Ce résultat concerne la base éphémère CI, pas les statistiques ou la configuration
@@ -49,7 +49,7 @@ pour `status = 'verified' AND result_run_id IS NOT NULL`. Le
 [linter Supabase](https://github.com/supabase/splinter/blob/main/lints/0001_unindexed_foreign_keys.sql)
 compare les premières colonnes des index valides sans exclure les index partiels.
 Cela explique l'absence de l'alerte, sans prouver une couverture FK de toutes les
-lignes. `db:indexes:check` attend déjà six alertes et vérifie le prédicat partiel.
+lignes. `npm run database -- indexes check` attend déjà six alertes et vérifie le prédicat partiel.
 
 Les dix-neuf `unused_index` proviennent d'une base fraîche dont les compteurs
 ne représentent pas le trafic. Les chemins documentés de reprise, historique,

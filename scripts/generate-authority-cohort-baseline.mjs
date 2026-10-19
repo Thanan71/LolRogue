@@ -4,23 +4,26 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { build } from 'esbuild-authority';
+import { validateAuthorityVersionRegistry } from './lib/authority-version-registry.mjs';
 
 const repositoryRoot = path.resolve(import.meta.dirname, '..');
-const temporaryRoot = await mkdtemp(path.join(tmpdir(), 'lolrogue-cohort-baseline-'));
-const outputPath = path.join(temporaryRoot, 'authority-cohort-baseline.mjs');
+const registry = validateAuthorityVersionRegistry(
+  JSON.parse(await readFile(path.join(repositoryRoot, 'config/authority-versions.json'), 'utf8')),
+);
+const currentVersions = registry.versions.filter((entry) => entry.status === 'current');
+if (currentVersions.length !== 1)
+  throw new Error('Authority registry must contain one current engine.');
+const currentEngine = currentVersions[0].engine.replace(/^run-engine-/, '');
 const { values } = parseArgs({
   strict: true,
   options: {
     check: { type: 'boolean', default: false },
-    engine: { type: 'string', default: 'v21' },
+    engine: { type: 'string', default: currentEngine },
     output: { type: 'string' },
   },
 });
 
 async function resolveRegisteredAuthorityBundle(engineVersion) {
-  const registry = JSON.parse(
-    await readFile(path.join(repositoryRoot, 'config/authority-versions.json'), 'utf8'),
-  );
   const entry = registry.versions.find((candidate) => candidate.engine === engineVersion);
   if (!entry || typeof entry.bundle !== 'string') {
     throw new Error(`Authority registry does not retain ${engineVersion}.`);
@@ -30,6 +33,37 @@ async function resolveRegisteredAuthorityBundle(engineVersion) {
 
 const v22Bundle =
   values.engine === 'v22' ? await resolveRegisteredAuthorityBundle('run-engine-v22') : null;
+
+async function registeredSemanticVersion(engine) {
+  const engineVersion = `run-engine-${engine}`;
+  const entry = registry.versions.find((candidate) => candidate.engine === engineVersion);
+  const bundle = await resolveRegisteredAuthorityBundle(engineVersion);
+  const identity = {
+    engineVersion,
+    contentHash: entry.contentHash,
+    balanceModelVersion: 2,
+    policy: { id: 'survival-greedy', version: 1 },
+  };
+  return {
+    artifact: `config/authority-cohort-baselines-${engine}.json`,
+    entrySource: `
+      import { getAuthorityVerifier } from ${JSON.stringify(bundle)};
+      import {
+        generateAuthorityCohortBaselineForIdentity,
+      } from './src/game/balance/authorityCohortCurrentBaselineFixture.ts';
+      export function generateAuthorityCohortBaseline() {
+        const identity = ${JSON.stringify(identity)};
+        const authority = getAuthorityVerifier(identity.engineVersion, identity.contentHash);
+        if (!authority) throw new Error('The registered ${engine} authority verifier is unavailable.');
+        return generateAuthorityCohortBaselineForIdentity(authority, identity);
+      }
+    `,
+  };
+}
+
+const semanticVersion = ['0.2.0', '0.2.5'].includes(values.engine)
+  ? await registeredSemanticVersion(values.engine)
+  : null;
 
 const version = {
   v15: {
@@ -166,9 +200,12 @@ const version = {
     }
   `,
   },
+  '0.2.0': semanticVersion,
+  '0.2.5': semanticVersion,
 }[values.engine];
 
-if (!version) throw new Error('--engine must be one of: v15, v16, v17, v18, v19, v20, v21, v22.');
+if (!version)
+  throw new Error('--engine must be one of: v15, v16, v17, v18, v19, v20, v21, v22, 0.2.0, 0.2.5.');
 if (values.check && values.output) throw new Error('--check and --output are mutually exclusive.');
 
 function serializeBaseline(document) {
@@ -183,6 +220,9 @@ function serializeBaseline(document) {
   for (const [token, seeds] of replacements) serialized = serialized.replace(token, seeds);
   return `${serialized}\n`;
 }
+
+const temporaryRoot = await mkdtemp(path.join(tmpdir(), 'lolrogue-cohort-baseline-'));
+const outputPath = path.join(temporaryRoot, 'authority-cohort-baseline.mjs');
 
 try {
   await build({

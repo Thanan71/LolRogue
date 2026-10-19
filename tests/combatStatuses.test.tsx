@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { CombatantPortrait } from '@/components/CombatUI/CombatantPortrait';
-import { CombatStage } from '@/components/CombatUI/CombatStage';
+import { CombatantPortrait } from '@/features/combat/ui/CombatantPortrait';
+import { CombatStage } from '@/features/combat/ui/CombatStage';
 import { CCEffect } from '@/game/effects/CCEffect';
 import { EffectManager } from '@/game/effects/EffectManager';
 import { ShieldEffect } from '@/game/effects/ShieldEffect';

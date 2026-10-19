@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "baselineSha256": "2137eaac5df588ec6234baaf20a18293faa99c1d2bbd1e94e0853f8629579469",
+  "retiredAliases": [
+    "assets:package",
+    "assets:update",
+    "assets:verify",
+    "assets:verify:dist",
+    "audit:security",
+    "authority:check",
+    "backup:database",
+    "balance:artifacts:check",
+    "balance:baseline:check",
+    "balance:baseline:generate",
+    "balance:baseline:generate:v15",
+    "balance:baseline:generate:v16",
+    "balance:baseline:generate:v17",
+    "balance:baseline:generate:v18",
+    "balance:baseline:generate:v19",
+    "balance:baseline:generate:v20",
+    "balance:baseline:generate:v21",
+    "balance:baseline:generate:v22",
+    "balance:check",
+    "balance:cohort",
+    "balance:combat:matrix:check",
+    "balance:combat:matrix:generate",
+    "balance:early-top:affordability",
+    "balance:early-top:affordability:generate",
+    "balance:early-top:affordability:generate:v17",
+    "balance:early-top:catalog-gates",
+    "balance:early-top:check",
+    "balance:early-top:generate",
+    "balance:early-top:generate:v17",
+    "balance:early-top:generate:v18",
+    "balance:early-top:generate:v21",
+    "balance:early-top:starters",
+    "balance:field-baseline:check",
+    "balance:field-baseline:generate",
+    "balance:map-economy:check",
+    "balance:map-economy:generate",
+    "balance:veigar:check",
+    "balance:veigar:generate",
+    "content:check",
+    "csp:styles:check",
+    "db:advisors",
+    "db:finished-queue:measure",
+    "db:finished-queue:stats",
+    "db:indexes:check",
+    "db:indexes:measure",
+    "db:lint",
+    "db:migrations:check",
+    "db:migrations:check:linked",
+    "db:reset",
+    "db:security",
+    "db:start",
+    "db:stop",
+    "db:types",
+    "db:types:check",
+    "db:validate",
+    "ddragon:download",
+    "ddragon:parse",
+    "economy:audit",
+    "edge:bundle",
+    "edge:deploy",
+    "edge:serve",
+    "i18n:check",
+    "migrate",
+    "ops:restore-drill",
+    "release:preflight",
+    "release:readiness:check",
+    "test:assets-clean",
+    "test:db:list",
+    "test:deployed-assets",
+    "test:performance-budgets",
+    "test:performance-preview",
+    "test:production-build"
+  ],
+  "migrationEvidence": {
+    "pullRequestUrl": "https://github.com/Thanan71/LolRogue/pull/213",
+    "headSha": "1b7ab8eea16574e81394c2212417d432d5459c0c",
+    "checks": [
+      {
+        "name": "cohorts",
+        "state": "SUCCESS",
+        "link": "https://github.com/Thanan71/LolRogue/actions/runs/38131806422/job/114447501747"
+      },
+      {
+        "name": "static",
+        "state": "SUCCESS",
+        "link": "https://github.com/Thanan71/LolRogue/actions/runs/38131806413/job/114447501672"
+      },
+      {
+        "name": "strict-typecheck",
+        "state": "SUCCESS",
+        "link": "https://github.com/Thanan71/LolRogue/actions/runs/38131806376/job/114447501746"
+      },
+      {
+        "name": "select-seeds",
+        "state": "SUCCESS",
+        "link": "https://github.com/Thanan71/LolRogue/actions/runs/38131806382/job/114447549129"
+      },
+      {
+        "name": "unit",
+        "state": "SUCCESS",
+        "link": "https://github.com/Thanan71/LolRogue/actions/runs/38131806413/job/114447501617"
+      },
+      {
+        "name": "test-order-seed (1503165922)",
+        "state": "SUCCESS",
+        "link": "https://github.com/Thanan71/LolRogue/actions/runs/38131806382/job/114447576668"
+      },
+      {
+        "name": "test-order-seed (1125875529)",
+        "state": "SUCCESS",
+        "link": "https://github.com/Thanan71/LolRogue/actions/runs/38131806382/job/114447576651"
+      },
+      {
+        "name": "test-order-seed (1821975771)",
+        "state": "SUCCESS",
+        "link": "https://github.com/Thanan71/LolRogue/actions/runs/38131806382/job/114447576742"
+      },
+      {
+        "name": "security",
+        "state": "SUCCESS",
+        "link": "https://github.com/Thanan71/LolRogue/actions/runs/38131806413/job/114447501731"
+      },
+      {
+        "name": "build/assets",
+        "state": "SUCCESS",
+        "link": "https://github.com/Thanan71/LolRogue/actions/runs/38131806413/job/114447501756"
+      },
+      {
+        "name": "DB",
+        "state": "SUCCESS",
+        "link": "https://github.com/Thanan71/LolRogue/actions/runs/38131806413/job/114447501775"
+      },
+      {
+        "name": "clean-room",
+        "state": "SUCCESS",
+        "link": "https://github.com/Thanan71/LolRogue/actions/runs/38131806413/job/114447501748"
+      },
+      {
+        "name": "validate",
+        "state": "SUCCESS",
+        "link": "https://github.com/Thanan71/LolRogue/actions/runs/38131806413/job/114448821871"
+      },
+      {
+        "name": "browser",
+        "state": "SUCCESS",
+        "link": "https://github.com/Thanan71/LolRogue/actions/runs/38131806413/job/114447715706"
+      },
+      {
+        "name": "database",
+        "state": "SUCCESS",
+        "link": "https://github.com/Thanan71/LolRogue/actions/runs/38131806413/job/114448027826"
+      },
+      {
+        "name": "e2e",
+        "state": "SUCCESS",
+        "link": "https://github.com/Thanan71/LolRogue/actions/runs/38131806413/job/114450254334"
+      },
+      {
+        "name": "Vercel",
+        "state": "SUCCESS",
+        "link": "https://vercel.com/utsgenius-4957s-projects/lol-rogue/7gBrCFisxRoEYsRukC3vt38qJX8N"
+      },
+      {
+        "name": "Vercel Preview Comments",
+        "state": "SUCCESS",
+        "link": "https://vercel.com/github"
+      }
+    ]
+  },
+  "historicalSources": [
+    {
+      "path": "docs/archive/",
+      "prefix": true,
+      "reason": "Frozen historical sprint and release evidence; operational commands use the current CLI."
+    },
+    {
+      "path": "docs/sprint-f-validation-2026-10-07.md",
+      "reason": "Dated validation evidence records commands actually executed before caller migration."
+    },
+    {
+      "path": "docs/sprint-g-validation-2026-10-07.md",
+      "reason": "Dated validation evidence records commands actually executed before caller migration."
+    },
+    {
+      "path": "docs/champion-economy-validation-2026-10-08.md",
+      "reason": "Dated validation evidence records commands actually executed before caller migration."
+    }
+  ]
+}

@@ -1,11 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import type {
   VerifiedFieldAugmentCohort,
   VerifiedFieldCalibrationCohort,
   VerifiedFieldChampionCohort,
 } from '@/game/balance/fieldCalibrationComparison';
-import { localizeAdminRequestError } from '@/i18n/adminErrorContent';
-import { fr } from '@/i18n/fr';
 import {
   AUTHORITY_REJECTION_ALERT_POLICY,
   type AuthorityAttemptAggregate,
@@ -13,24 +11,23 @@ import {
   evaluateAuthorityRejectionAlerts,
 } from '@/observability/authorityRejectionMonitor';
 import { supabase } from '@/services/supabaseClient';
-import { useAuthStore } from '@/stores/authStore';
 import type { Database, Json } from '@/types/database';
-import type { AdminPlayerStat, Log, RunTeamMember } from '@/types/models';
-import { logger } from '@/utils/logger';
-import type { AdminRun } from '../adminPageUtils';
+import type { Log } from '@/types/models';
+import { type AdminLogFilter, type AdminTablePage, fetchAdminLogsPage } from './adminTableQueries';
+import { useAdminExplorerScope } from './explorer/useAdminExplorerScope';
+import { useAdminSection } from './useAdminSection';
 
-export type AdminTab = 'dashboard' | 'authority' | 'logs' | 'players' | 'runs' | 'moderation';
-export type AdminDataSection = 'stats' | 'authority' | 'logs' | 'players' | 'runs' | 'moderation';
+export type AdminTab =
+  | 'dashboard'
+  | 'authority'
+  | 'logs'
+  | 'players'
+  | 'runs'
+  | 'analytics'
+  | 'balance'
+  | 'moderation';
+export type AdminDataSection = 'stats' | 'authority' | 'logs';
 export type AdminDataErrors = Record<AdminDataSection, string | null>;
-
-export interface AdminModerationReport {
-  id: string;
-  dailyRunId: string;
-  reason: string;
-  createdAt: string;
-  dailyDate: string;
-  score: number;
-}
 
 export interface AdminAuthorityRejection {
   attemptId: string;
@@ -240,423 +237,165 @@ export function mapVerifiedFieldAugment(row: FieldAugmentRow): VerifiedFieldAugm
   };
 }
 
-const EMPTY_ERRORS: AdminDataErrors = {
-  stats: null,
-  authority: null,
-  logs: null,
-  players: null,
-  runs: null,
-  moderation: null,
-};
-
 export async function loadAllAdminSections(
   loaders: ReadonlyArray<() => Promise<unknown>>,
 ): Promise<void> {
   await Promise.all(loaders.map((load) => load()));
 }
 
+type AdminStats = Record<string, string | null>;
+interface AuthorityData {
+  aggregates: AuthorityAttemptAggregate[];
+  signals: AuthorityRejectionSignal[];
+  rejections: AdminAuthorityRejection[];
+}
+const EMPTY_STATS: AdminStats = {};
+const EMPTY_AUTHORITY: AuthorityData = {
+  aggregates: [],
+  signals: [],
+  rejections: [],
+};
+const EMPTY_LOGS: AdminTablePage<Log> = { rows: [], total: 0 };
+const emptyStats = (data: AdminStats) => Object.keys(data).length === 0;
+const emptyAuthority = (data: AuthorityData) =>
+  data.aggregates.length === 0 && data.rejections.length === 0;
+const emptyTable = (data: { rows: unknown[] }) => data.rows.length === 0;
+
 export function useAdminData(isAdmin: boolean) {
+  const { enabled, scope, captureScope } = useAdminExplorerScope(isAdmin);
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
-  const [stats, setStats] = useState<Record<string, string>>({});
-  const [authorityAggregates, setAuthorityAggregates] = useState<AuthorityAttemptAggregate[]>([]);
-  const [authoritySignals, setAuthoritySignals] = useState<AuthorityRejectionSignal[]>([]);
-  const [authorityRejections, setAuthorityRejections] = useState<AdminAuthorityRejection[]>([]);
-  const [fieldCohorts, setFieldCohorts] = useState<VerifiedFieldCalibrationCohort[]>([]);
-  const [fieldChampionCohorts, setFieldChampionCohorts] = useState<VerifiedFieldChampionCohort[]>(
-    [],
-  );
-  const [fieldAugmentCohorts, setFieldAugmentCohorts] = useState<VerifiedFieldAugmentCohort[]>([]);
-  const [playerStats, setPlayerStats] = useState<AdminPlayerStat[]>([]);
-  const [logs, setLogs] = useState<Log[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [statsLoading, setStatsLoading] = useState(false);
-  const [authorityLoading, setAuthorityLoading] = useState(false);
-  const [logsLoading, setLogsLoading] = useState(false);
-  const [playersLoading, setPlayersLoading] = useState(false);
-  const [runsLoading, setRunsLoading] = useState(false);
-  const [runs, setRuns] = useState<AdminRun[]>([]);
-  const [moderationLoading, setModerationLoading] = useState(false);
-  const [moderationReports, setModerationReports] = useState<AdminModerationReport[]>([]);
-  const [errors, setErrors] = useState<AdminDataErrors>(EMPTY_ERRORS);
-  const initialLoadStarted = useRef(false);
-  const [runFilter, setRunFilter] = useState({
-    won: 'all' as 'all' | 'true' | 'false',
-    minWaves: '' as string,
-    maxWaves: '' as string,
-    sortBy: 'completed_at' as 'completed_at' | 'waves_completed' | 'run_level',
-    sortOrder: 'desc' as 'asc' | 'desc',
+  const [logFilter, setLogFilter] = useState<AdminLogFilter>({
+    level: 'all',
+    operation: 'all',
     limit: 100,
   });
-  const [logFilter, setLogFilter] = useState({
-    level: 'all' as string,
-    operation: 'all' as string,
-    limit: 100,
-  });
-
-  // Check admin status on mount
-  useEffect(() => {
-    if (!isAdmin) {
-      useAuthStore.getState().checkAdminStatus();
+  const loadStats = useCallback(async (signal: AbortSignal): Promise<AdminStats> => {
+    const { data, error } = await supabase.from('admin_stats').select('*').abortSignal(signal);
+    if (error) throw error;
+    const result: AdminStats = {};
+    for (const row of data ?? []) {
+      if (row.stat_name)
+        result[row.stat_name] = row.stat_value === null ? null : String(row.stat_value);
     }
-  }, [isAdmin]);
-
-  // Fetch dashboard stats
-  const setSectionError = useCallback((section: AdminDataSection, error: string | null) => {
-    setErrors((current) => ({ ...current, [section]: error }));
+    return result;
   }, []);
-
-  const fetchStats = useCallback(async (): Promise<boolean> => {
-    setStatsLoading(true);
-    setSectionError('stats', null);
-    try {
-      const { data, error } = await supabase.from('admin_stats').select('*');
-
-      if (error) throw error;
-
-      const statsMap: Record<string, string> = {};
-      data?.forEach((stat) => {
-        if (stat.stat_name && stat.stat_value) {
-          statsMap[stat.stat_name] = stat.stat_value;
-        }
-      });
-      setStats(statsMap);
-      return true;
-    } catch (error) {
-      logger.error('[AdminPage] Error fetching stats:', error);
-      setSectionError('stats', localizeAdminRequestError('request_failed'));
-      return false;
-    } finally {
-      setStatsLoading(false);
-    }
-  }, [setSectionError]);
-
-  const fetchAuthorityObservability = useCallback(async (): Promise<boolean> => {
-    setAuthorityLoading(true);
-    setSectionError('authority', null);
-    try {
-      const windowStart = new Date(
-        Date.now() - AUTHORITY_REJECTION_ALERT_POLICY.windowMinutes * 60_000,
-      ).toISOString();
-      const [aggregatesResult, rejectionsResult, fieldResult, championResult, augmentResult] =
-        await Promise.all([
-          supabase
-            .from('authority_attempt_aggregates')
-            .select('*')
-            .gte('window_started_at', windowStart),
-          supabase.from('authority_recent_rejections').select('*'),
-          supabase
-            .from('admin_verified_field_cohorts')
-            .select('*')
-            .order('observed_on', { ascending: false })
-            .limit(200),
-          supabase
-            .from('admin_verified_field_champion_cohorts')
-            .select('*')
-            .order('observed_on', { ascending: false })
-            .limit(200),
-          supabase
-            .from('admin_verified_field_augment_cohorts')
-            .select('*')
-            .order('observed_on', { ascending: false })
-            .limit(200),
-        ]);
-      if (aggregatesResult.error) throw aggregatesResult.error;
-      if (rejectionsResult.error) throw rejectionsResult.error;
-      if (fieldResult.error) throw fieldResult.error;
-      if (championResult.error) throw championResult.error;
-      if (augmentResult.error) throw augmentResult.error;
-
-      const aggregates = (aggregatesResult.data ?? []).flatMap((row) => {
-        if (
-          !row.window_started_at ||
-          !row.engine_version ||
-          row.gameplay_ruleset_version === null ||
-          row.attempt_count === null ||
-          row.started_count === null ||
-          row.finished_count === null ||
-          row.verified_count === null ||
-          row.rejected_count === null ||
-          row.expired_count === null
-        ) {
-          return [];
-        }
-        return [
-          {
-            windowStartedAt: row.window_started_at,
-            engineVersion: row.engine_version,
-            gameplayRulesetVersion: row.gameplay_ruleset_version,
-            rejectionCode: row.rejection_code,
-            attemptCount: row.attempt_count,
-            startedCount: row.started_count,
-            finishedCount: row.finished_count,
-            verifiedCount: row.verified_count,
-            rejectedCount: row.rejected_count,
-            expiredCount: row.expired_count,
-          },
-        ];
-      });
-      const rejections = (rejectionsResult.data ?? []).flatMap((row) => {
-        if (
-          !row.attempt_id ||
-          !row.rejected_at ||
-          !row.engine_version ||
-          row.gameplay_ruleset_version === null ||
-          !row.rejection_code
-        ) {
-          return [];
-        }
-        return [
-          {
-            attemptId: row.attempt_id,
-            rejectedAt: row.rejected_at,
-            engineVersion: row.engine_version,
-            gameplayRulesetVersion: row.gameplay_ruleset_version,
-            rejectionCode: row.rejection_code,
-          },
-        ];
-      });
-      setAuthorityAggregates(aggregates);
-      setAuthoritySignals(evaluateAuthorityRejectionAlerts(aggregates));
-      setAuthorityRejections(rejections);
-      setFieldCohorts((fieldResult.data ?? []).flatMap((row) => mapVerifiedFieldCohort(row) ?? []));
-      setFieldChampionCohorts(
-        (championResult.data ?? []).flatMap((row) => mapVerifiedFieldChampion(row) ?? []),
-      );
-      setFieldAugmentCohorts(
-        (augmentResult.data ?? []).flatMap((row) => mapVerifiedFieldAugment(row) ?? []),
-      );
-      return true;
-    } catch (error) {
-      logger.error('[AdminPage] Error fetching authority observability:', error);
-      setSectionError('authority', localizeAdminRequestError('request_failed'));
-      return false;
-    } finally {
-      setAuthorityLoading(false);
-    }
-  }, [setSectionError]);
-
-  // Fetch player stats
-  const fetchPlayerStats = useCallback(async (): Promise<boolean> => {
-    setPlayersLoading(true);
-    setSectionError('players', null);
-    try {
-      const { data, error } = await supabase
-        .from('admin_player_stats')
+  const loadAuthority = useCallback(async (signal: AbortSignal): Promise<AuthorityData> => {
+    const windowStart = new Date(
+      Date.now() - AUTHORITY_REJECTION_ALERT_POLICY.windowMinutes * 60_000,
+    ).toISOString();
+    const [aggregatesResult, rejectionsResult] = await Promise.all([
+      supabase
+        .from('authority_attempt_aggregates')
         .select('*')
-        .order('created_at', { ascending: false })
-        .limit(100);
+        .gte('window_started_at', windowStart)
+        .abortSignal(signal),
+      supabase.from('authority_recent_rejections').select('*').abortSignal(signal),
+    ]);
+    if (aggregatesResult.error) throw aggregatesResult.error;
+    if (rejectionsResult.error) throw rejectionsResult.error;
 
-      if (error) throw error;
-      setPlayerStats(data || []);
-      return true;
-    } catch (error) {
-      logger.error('[AdminPage] Error fetching player stats:', error);
-      setSectionError('players', localizeAdminRequestError('request_failed'));
-      return false;
-    } finally {
-      setPlayersLoading(false);
-    }
-  }, [setSectionError]);
-
-  // Fetch logs
-  const fetchLogs = useCallback(async (): Promise<boolean> => {
-    setLogsLoading(true);
-    setSectionError('logs', null);
-    try {
-      let query = supabase
-        .from('logs')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(logFilter.limit);
-
-      if (logFilter.level !== 'all') {
-        query = query.eq('level', logFilter.level);
+    const aggregates = (aggregatesResult.data ?? []).flatMap((row) => {
+      if (
+        !row.window_started_at ||
+        !row.engine_version ||
+        row.gameplay_ruleset_version === null ||
+        row.attempt_count === null ||
+        row.started_count === null ||
+        row.finished_count === null ||
+        row.verified_count === null ||
+        row.rejected_count === null ||
+        row.expired_count === null
+      ) {
+        return [];
       }
-      if (logFilter.operation !== 'all') {
-        query = query.eq('operation', logFilter.operation);
+      return [
+        {
+          windowStartedAt: row.window_started_at,
+          engineVersion: row.engine_version,
+          gameplayRulesetVersion: row.gameplay_ruleset_version,
+          rejectionCode: row.rejection_code,
+          attemptCount: row.attempt_count,
+          startedCount: row.started_count,
+          finishedCount: row.finished_count,
+          verifiedCount: row.verified_count,
+          rejectedCount: row.rejected_count,
+          expiredCount: row.expired_count,
+        },
+      ];
+    });
+    const rejections = (rejectionsResult.data ?? []).flatMap((row) => {
+      if (
+        !row.attempt_id ||
+        !row.rejected_at ||
+        !row.engine_version ||
+        row.gameplay_ruleset_version === null ||
+        !row.rejection_code
+      ) {
+        return [];
       }
+      return [
+        {
+          attemptId: row.attempt_id,
+          rejectedAt: row.rejected_at,
+          engineVersion: row.engine_version,
+          gameplayRulesetVersion: row.gameplay_ruleset_version,
+          rejectionCode: row.rejection_code,
+        },
+      ];
+    });
 
-      const { data, error } = await query;
-
-      if (error) throw error;
-      setLogs(data || []);
-      return true;
-    } catch (error) {
-      logger.error('[AdminPage] Error fetching logs:', error);
-      setSectionError('logs', localizeAdminRequestError('request_failed'));
-      return false;
-    } finally {
-      setLogsLoading(false);
-    }
-  }, [logFilter.level, logFilter.limit, logFilter.operation, setSectionError]);
-
-  // Fetch runs with filters
-  const fetchRuns = useCallback(async (): Promise<boolean> => {
-    setRunsLoading(true);
-    setSectionError('runs', null);
-    try {
-      // First, fetch runs with filters
-      let query = supabase
-        .from('runs')
-        .select(`
-          *,
-          player_username:player_id(username),
-          player_display_name:player_id(display_name)
-        `)
-        .order(runFilter.sortBy, { ascending: runFilter.sortOrder === 'asc' })
-        .limit(runFilter.limit);
-
-      // Apply won filter
-      if (runFilter.won !== 'all') {
-        query = query.eq('won', runFilter.won === 'true');
-      }
-
-      // Apply waves filters
-      if (runFilter.minWaves) {
-        query = query.gte('waves_completed', parseInt(runFilter.minWaves));
-      }
-      if (runFilter.maxWaves) {
-        query = query.lte('waves_completed', parseInt(runFilter.maxWaves));
-      }
-
-      const { data: runsData, error: runsError } = await query;
-
-      if (runsError) throw runsError;
-
-      // Fetch team members for each run
-      const runIds = runsData?.map((r) => r.id) || [];
-      let teamMembers: RunTeamMember[] = [];
-
-      if (runIds.length > 0) {
-        const { data: tmData, error: tmError } = await supabase
-          .from('run_team_members')
-          .select('*')
-          .in('run_id', runIds);
-
-        if (tmError) throw tmError;
-        teamMembers = tmData || [];
-      }
-
-      // Combine runs with team members
-      const runsWithTeam = (runsData || []).map((run) => ({
-        ...run,
-        player_username: run.player_username?.username || fr.admin.unknown,
-        player_display_name: run.player_display_name?.display_name || null,
-        team_members: teamMembers.filter((tm) => tm.run_id === run.id),
-      }));
-
-      setRuns(runsWithTeam as AdminRun[]);
-      return true;
-    } catch (error) {
-      logger.error('[AdminPage] Error fetching runs:', error);
-      setSectionError('runs', localizeAdminRequestError('request_failed'));
-      return false;
-    } finally {
-      setRunsLoading(false);
-    }
-  }, [runFilter, setSectionError]);
-
-  const fetchModerationReports = useCallback(async (): Promise<boolean> => {
-    setModerationLoading(true);
-    setSectionError('moderation', null);
-    try {
-      const { data, error } = await supabase
-        .from('daily_score_reports')
-        .select(
-          'id, daily_run_id, reason, created_at, daily_run:daily_runs!daily_score_reports_daily_run_id_fkey(daily_date, score)',
-        )
-        .eq('status', 'open')
-        .order('created_at', { ascending: true })
-        .limit(100);
-      if (error) throw error;
-      setModerationReports(
-        (data ?? []).map((report) => ({
-          id: report.id,
-          dailyRunId: report.daily_run_id,
-          reason: report.reason,
-          createdAt: report.created_at,
-          dailyDate: report.daily_run.daily_date,
-          score: report.daily_run.score,
-        })),
-      );
-      return true;
-    } catch (error) {
-      logger.error('[AdminPage] Error fetching moderation reports:', error);
-      setSectionError('moderation', localizeAdminRequestError('request_failed'));
-      return false;
-    } finally {
-      setModerationLoading(false);
-    }
-  }, [setSectionError]);
-
-  const invalidateDailyScore = useCallback(
-    async (dailyRunId: string, reason: string): Promise<boolean> => {
-      setSectionError('moderation', null);
-      const { error } = await supabase.rpc('invalidate_daily_score', {
-        p_daily_run_id: dailyRunId,
-        p_reason: reason,
-      });
-      if (error) {
-        logger.error('[AdminPage] Error invalidating Daily score:', error);
-        setSectionError('moderation', localizeAdminRequestError('request_failed'));
-        return false;
-      }
-      return fetchModerationReports();
-    },
-    [fetchModerationReports, setSectionError],
+    return {
+      aggregates,
+      signals: evaluateAuthorityRejectionAlerts(aggregates),
+      rejections,
+    };
+  }, []);
+  const loadLogs = useCallback(
+    (signal: AbortSignal) => fetchAdminLogsPage(logFilter, signal),
+    [logFilter],
   );
-
-  // Initial data fetch
-  useEffect(() => {
-    if (!isAdmin) {
-      initialLoadStarted.current = false;
-      return;
-    }
-    if (initialLoadStarted.current) return;
-    initialLoadStarted.current = true;
-    setLoading(true);
-    void loadAllAdminSections([
-      fetchStats,
-      fetchAuthorityObservability,
-      fetchPlayerStats,
-      fetchLogs,
-      fetchRuns,
-      fetchModerationReports,
-    ]).finally(() => setLoading(false));
-  }, [isAdmin]);
-
+  const common = { enabled, scope, captureScope };
+  const stats = useAdminSection({
+    ...common,
+    initialData: EMPTY_STATS,
+    load: loadStats,
+    isEmpty: emptyStats,
+  });
+  const authority = useAdminSection({
+    ...common,
+    initialData: EMPTY_AUTHORITY,
+    load: loadAuthority,
+    isEmpty: emptyAuthority,
+  });
+  const logs = useAdminSection({
+    ...common,
+    queryKey: JSON.stringify(logFilter),
+    initialData: EMPTY_LOGS,
+    load: loadLogs,
+    isEmpty: emptyTable,
+  });
+  const sections = { stats, authority, logs };
   return {
     activeTab,
     setActiveTab,
-    stats,
-    authorityAggregates,
-    authoritySignals,
-    authorityRejections,
-    fieldCohorts,
-    fieldChampionCohorts,
-    fieldAugmentCohorts,
-    playerStats,
-    logs,
-    loading,
-    statsLoading,
-    authorityLoading,
-    logsLoading,
-    playersLoading,
-    runsLoading,
-    runs,
-    moderationLoading,
-    moderationReports,
-    errors,
-    runFilter,
-    setRunFilter,
+    stats: stats.data,
+    authorityAggregates: authority.data.aggregates,
+    authoritySignals: authority.data.signals,
+    authorityRejections: authority.data.rejections,
+    logs: logs.data.rows,
+    logsTotal: logs.hasData ? logs.data.total : null,
+    loading: Object.values(sections).some((section) => section.loading),
+    statsLoading: stats.loading,
+    authorityLoading: authority.loading,
+    logsLoading: logs.loading,
+    sections,
+    errors: Object.fromEntries(
+      Object.entries(sections).map(([key, value]) => [key, value.error]),
+    ) as AdminDataErrors,
     logFilter,
     setLogFilter,
-    fetchStats,
-    fetchAuthorityObservability,
-    fetchPlayerStats,
-    fetchLogs,
-    fetchRuns,
-    fetchModerationReports,
-    invalidateDailyScore,
+    fetchStats: stats.reload,
+    fetchAuthorityObservability: authority.reload,
+    fetchLogs: logs.reload,
   };
 }

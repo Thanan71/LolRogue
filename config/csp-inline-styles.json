@@ -2,23 +2,23 @@
   "schemaVersion": 1,
   "allowedBindings": [
     {
-      "file": "src/components/CombatUI/AbilityBar.tsx",
+      "file": "src/features/combat/ui/AbilityBar.tsx",
       "properties": ["--combat-ability-cooldown-size", "--combat-ability-label-size"]
     },
     {
-      "file": "src/components/CombatUI/CombatUI.tsx",
+      "file": "src/features/combat/ui/CombatUI.tsx",
       "properties": ["--combat-overlay-height", "--combat-overlay-width"]
     },
     {
-      "file": "src/components/CombatUI/CombatantPortrait.tsx",
+      "file": "src/features/combat/ui/CombatantPortrait.tsx",
       "properties": ["--combat-meter-value"]
     },
     {
-      "file": "src/components/CombatUI/CombatantPortrait.tsx",
+      "file": "src/features/combat/ui/CombatantPortrait.tsx",
       "properties": ["--combat-meter-value"]
     },
     {
-      "file": "src/components/CombatUI/SpellTooltip.tsx",
+      "file": "src/features/combat/ui/SpellTooltip.tsx",
       "properties": [
         "--combat-tooltip-max-height",
         "--combat-tooltip-small-size",

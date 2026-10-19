@@ -193,6 +193,354 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 5,
+    version: '0.2.0',
+    publishedOn: '2026-10-11',
+    title: {
+      'fr-FR': 'Veigar profite aussi des assistances',
+      'en-US': 'Veigar gains power from assists',
+    },
+    entries: [
+      {
+        category: 'balance',
+        text: {
+          'fr-FR':
+            'Les assistances attribuées à Veigar lui donnent désormais des points de pouvoir : +1 sur un ennemi normal, +3 sur un élite et +10 sur un boss. Ses éliminations gardent leurs gains habituels ; chaque point donne +1 puissance, jusqu’à +200 pendant le run.',
+          'en-US':
+            'Credited assists now grant Veigar power points: +1 for a normal enemy, +3 for an elite and +10 for a boss. His kills keep their usual rewards; each point grants +1 ability power, up to +200 during the run.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les fiches et les tooltips expliquent les gains par élimination et par assistance. Les runs déjà commencés conservent leurs règles d’origine.',
+          'en-US':
+            'Champion details and tooltips explain kill and assist rewards. Runs already in progress keep their original rules.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Les versions du jeu et des nouvelles règles de run utilisent désormais le format major.minor.patch, à partir de 0.2.0. La date de publication reste indiquée séparément.',
+          'en-US':
+            'Game versions and new run rules now use the major.minor.patch format, starting with 0.2.0. The publication date remains separate.',
+        },
+      },
+    ],
+  },
+  {
+    sequence: 6,
+    version: '0.2.1',
+    publishedOn: '2026-10-11',
+    title: { 'fr-FR': 'Maintenance des mises à jour', 'en-US': 'Release maintenance' },
+    entries: [
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les outils de vérification et de publication ont été améliorés pour fiabiliser les prochaines mises à jour.',
+          'en-US':
+            'Verification and release tools have been improved to make upcoming updates more reliable.',
+        },
+      },
+    ],
+  },
+  {
+    sequence: 7,
+    version: '0.2.2',
+    publishedOn: '2026-10-11',
+    title: { 'fr-FR': 'Maintenance simplifiée', 'en-US': 'Simplified maintenance' },
+    entries: [
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les outils de maintenance et les vérifications avant publication sont regroupés pour faciliter et fiabiliser les prochaines mises à jour du jeu.',
+          'en-US':
+            'Maintenance tools and pre-release checks are grouped together to make upcoming game updates easier and more reliable.',
+        },
+      },
+    ],
+  },
+  {
+    sequence: 8,
+    version: '0.2.3',
+    publishedOn: '2026-10-11',
+    title: { 'fr-FR': 'Mises à jour plus fiables', 'en-US': 'More reliable updates' },
+    entries: [
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'La configuration des environnements et les contrôles de publication ont été renforcés pour fiabiliser les prochaines mises à jour. Les outils de build et de tests ont aussi été réorganisés, avec les mêmes règles de jeu et garanties de vérification.',
+          'en-US':
+            'Environment configuration and release checks have been strengthened to make upcoming updates more reliable. Build and test tools have also been reorganized while preserving the game rules and verification guarantees.',
+        },
+      },
+    ],
+  },
+  {
+    sequence: 9,
+    version: '0.2.4',
+    publishedOn: '2026-10-11',
+    title: {
+      'fr-FR': 'Runs et progression plus fiables',
+      'en-US': 'More reliable runs and progression',
+    },
+    entries: [
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Le démarrage, la sauvegarde et la reprise des runs utilisent une orchestration commune, tout en conservant les sauvegardes existantes et les résultats validés par le serveur.',
+          'en-US':
+            'Run starts, saves and recovery now share a common orchestration while preserving existing saves and server-verified results.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les réponses réseau retardées sont ignorées après un changement de compte ou de run. Les rafraîchissements de progression concurrents ne remplacent plus les données les plus récentes.',
+          'en-US':
+            'Delayed network responses are ignored after switching accounts or runs. Concurrent progression refreshes no longer overwrite newer data.',
+        },
+      },
+    ],
+  },
+  {
+    sequence: 10,
+    version: '0.2.5',
+    publishedOn: '2026-10-13',
+    title: {
+      'fr-FR': 'Préparation et combats plus robustes',
+      'en-US': 'More robust preparation and battles',
+    },
+    entries: [
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'La préparation des champions, le défi quotidien et les contrôles de combat ont été réorganisés pour faciliter les prochaines améliorations, tout en conservant les règles et les sauvegardes existantes.',
+          'en-US':
+            'Champion preparation, the daily challenge and battle controls have been reorganized to make future improvements easier while preserving existing rules and saves.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Tu peux réessayer de charger les champions du défi quotidien après une erreur réseau. Les réponses retardées après un changement de compte et les confirmations de départ répétées sont mieux prises en charge.',
+          'en-US':
+            'You can retry loading Daily champions after a network error. Delayed responses after switching accounts and repeated start confirmations are handled more reliably.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les transitions de combat évitent les actions automatiques en double et les redirections tardives vers une ancienne run. La vérification des résultats conserve la compatibilité des runs précédentes.',
+          'en-US':
+            'Battle transitions prevent duplicate automatic actions and delayed redirects to an old run. Result verification remains compatible with previous runs.',
+        },
+      },
+    ],
+  },
+  {
+    sequence: 11,
+    version: '0.2.6',
+    publishedOn: '2026-10-13',
+    title: {
+      'fr-FR': 'Maintenance de l’interface et des livraisons',
+      'en-US': 'Interface and release maintenance',
+    },
+    entries: [
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les styles communs de l’interface sont regroupés en conservant le rendu sur ordinateur et mobile, le focus clavier et les préférences de réduction des animations. Le libellé de cible en combat gagne en contraste.',
+          'en-US':
+            'Shared interface styles are consolidated while preserving desktop and mobile rendering, keyboard focus and reduced-motion preferences. The battle target label has better contrast.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les contrôles de livraison vérifient les fichiers générés et les ressources du jeu sans modifier les anciennes versions. Un audit de sécurité incomplet bloque désormais la validation. Les règles et les sauvegardes restent compatibles.',
+          'en-US':
+            'Release checks verify generated files and game assets without modifying historical versions. An incomplete security audit now blocks validation. Rules and saves remain compatible.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les portraits, les icônes de sorts et le décor de combat se chargent aussi correctement dans le serveur de développement.',
+          'en-US':
+            'Portraits, spell icons and the battle backdrop now also load correctly in the development server.',
+        },
+      },
+    ],
+  },
+  {
+    sequence: 12,
+    version: '0.2.7',
+    publishedOn: '2026-10-17',
+    title: {
+      'fr-FR': 'Statistiques d’administration fiables',
+      'en-US': 'Reliable administration statistics',
+    },
+    entries: [
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les statistiques d’administration distinguent les totaux réels des lignes affichées. Les connexions quotidiennes sont définies en UTC et les données absentes sont indiquées comme indisponibles.',
+          'en-US':
+            'Administration statistics distinguish full totals from displayed rows. Daily logins are defined in UTC and missing data is marked as unavailable.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Le suivi des Candies distingue le solde, les gains, les dépenses et les remboursements enregistrés. Les historiques incomplets sont signalés sans inventer de gains à partir d’un solde.',
+          'en-US':
+            'Candy accounting distinguishes balances, earnings, spending and recorded refunds. Incomplete histories are identified without inferring earnings from balances.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Chaque section admin se charge et se relance indépendamment. Les réponses obsolètes sont ignorées et les données périmées sont signalées. Les contrôles d’accès restent appliqués par la base de données.',
+          'en-US':
+            'Each admin section loads and retries independently. Outdated responses are ignored and stale data is identified. Access controls remain enforced by the database.',
+        },
+      },
+    ],
+  },
+  {
+    sequence: 13,
+    version: '0.2.8',
+    publishedOn: '2026-10-17',
+    title: {
+      'fr-FR': 'Fiches joueurs et historiques de runs',
+      'en-US': 'Player profiles and run histories',
+    },
+    entries: [
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Les listes admin disposent de recherche, de filtres et de pagination côté serveur. Les fiches joueurs regroupent progression, maîtrises et historiques, avec des soldes Candies et Shards distincts et les données manquantes signalées.',
+          'en-US':
+            'Admin lists now support server-side search, filters and pagination. Player profiles bring together progression, masteries and histories, with separate Candy and Shard balances and explicit missing data.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'L’explorateur distingue les runs enregistrées des tentatives autoritaires et affiche leur composition, leurs versions et leur journal disponible. Les exports CSV portent sur la page ou sur la sélection complète, avec confirmation et limite explicite.',
+          'en-US':
+            'The explorer distinguishes saved runs from authority attempts and shows their teams, versions and available journals. CSV exports cover the current page or the complete filtered selection, with confirmation and an explicit limit.',
+        },
+      },
+    ],
+  },
+  {
+    sequence: 14,
+    version: '0.2.9',
+    publishedOn: '2026-10-18',
+    title: {
+      'fr-FR': 'Analyses temporelles et rétention',
+      'en-US': 'Time analytics and retention',
+    },
+    entries: [
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Un nouvel espace admin présente les évolutions par jour ou semaine UTC, les cohortes de rétention à J+1, J+7 et J+30 et les étapes du parcours de jeu, à partir des agrégats calculés par le serveur.',
+          'en-US':
+            'A new admin area shows daily or weekly UTC trends, day 1, 7 and 30 retention cohorts and gameplay funnel stages, using aggregates calculated by the server.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Les analyses distinguent les versions de règles, les modes et les difficultés. Elles affichent les effectifs, les périodes incomplètes, les limites de mesure et les intervalles statistiques pour rendre les comparaisons plus lisibles.',
+          'en-US':
+            'Analytics distinguish rules versions, modes and difficulties. Sample sizes, incomplete periods, measurement limits and statistical intervals make comparisons easier to assess.',
+        },
+      },
+    ],
+  },
+  {
+    sequence: 15,
+    version: '0.2.10',
+    publishedOn: '2026-10-18',
+    title: {
+      'fr-FR': 'Un espace dédié à l’équilibrage',
+      'en-US': 'A dedicated balance workspace',
+    },
+    entries: [
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'L’administration sépare désormais l’équilibrage du suivi technique. Les comparaisons terrain et les analyses des champions et builds précisent leurs versions, leurs compositions, leurs effectifs et les limites des données disponibles.',
+          'en-US':
+            'Administration now separates balance analysis from technical monitoring. Field comparisons and champion and build analyses show their versions, team compositions, sample sizes and available data limits.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Les règles et les flags sont consultables en lecture seule. Les mesures non collectées et les statistiques des arbres encore indisponibles sont signalées explicitement.',
+          'en-US':
+            'Rules and flags can be inspected read-only. Metrics that are not collected and tree statistics that are not yet available are explicitly identified.',
+        },
+      },
+    ],
+  },
+  {
+    sequence: 16,
+    version: '0.2.11',
+    publishedOn: '2026-10-18',
+    title: {
+      'fr-FR': 'Une modération plus sûre et traçable',
+      'en-US': 'Safer, traceable moderation',
+    },
+    entries: [
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'La modération des scores quotidiens dispose d’une file paginée avec filtres, statuts et historique des décisions. Les anciens signalements ouverts restent accessibles.',
+          'en-US':
+            'Daily moderation now has a paginated queue with filters, statuses and decision history. Older open reports remain accessible.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Chaque décision exige une cible confirmée et un motif, vérifie les droits côté serveur et conserve une trace. Les réessais ne répètent pas la décision et les runs originales restent conservées.',
+          'en-US':
+            'Every decision requires a confirmed target and reason, checks permissions on the server and leaves an audit record. Retries do not repeat the decision, and original runs are preserved.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {

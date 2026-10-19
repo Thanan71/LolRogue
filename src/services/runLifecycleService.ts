@@ -1,10 +1,9 @@
-import { RepositoryContainerFactory } from '@/services/container';
-import { supabase } from '@/services/supabaseClient';
-import { useAuthStore } from '@/stores/authStore';
-import { useMasteryStore } from '@/stores/masteryStore';
 import type { RunEndResult, RunLifecycleErrorCode, RunStartResult } from '@/types/run';
-import { logger } from '@/utils/logger';
 import { recordTechnicalEvent } from '@/utils/observability';
+import {
+  type RunProgressionDependencies,
+  synchronizeVerifiedRunProgression,
+} from './runLifecycle/runProgressionSync';
 
 export function runStartFailure(
   code: RunLifecycleErrorCode,
@@ -26,7 +25,7 @@ export function runEndFailure(
   return { success: false, runId, code, error, retryable };
 }
 
-class RunLifecycleService {
+export class RunLifecycleService {
   private startInFlight = false;
   private finalization: { runId: string; promise: Promise<boolean> } | null = null;
 
@@ -52,26 +51,11 @@ class RunLifecycleService {
     if (this.finalization?.promise === promise) this.finalization = null;
   }
 
-  async refreshVerifiedProgression(userId: string): Promise<void> {
-    try {
-      await useAuthStore.getState().refreshPlayer();
-      if (useAuthStore.getState().user?.id !== userId) return;
-
-      const masteryResult =
-        await RepositoryContainerFactory.create(supabase).mastery.getChampionMastery(userId);
-      if (useAuthStore.getState().user?.id !== userId) return;
-
-      if (masteryResult.data && !masteryResult.error) {
-        useMasteryStore.getState().hydrateFromDatabase(masteryResult.data);
-      } else if (masteryResult.error) {
-        logger.warn(
-          '[RunLifecycleService] Progression saved, but mastery refresh failed:',
-          masteryResult.error,
-        );
-      }
-    } catch (error) {
-      logger.warn('[RunLifecycleService] Progression saved, but profile refresh failed:', error);
-    }
+  async refreshVerifiedProgression(
+    userId: string,
+    dependencies: RunProgressionDependencies,
+  ): Promise<void> {
+    await synchronizeVerifiedRunProgression(userId, dependencies);
   }
 }
 

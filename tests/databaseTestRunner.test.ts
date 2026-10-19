@@ -26,10 +26,14 @@ function expectedDatabaseTests(directory: string): string[] {
 describe('database test command', () => {
   it('affiche exactement toutes les suites que test:db exécutera', () => {
     const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-    const result = spawnSync(npmCommand, ['run', 'test:db:list', '--silent'], {
-      cwd: root,
-      encoding: 'utf8',
-    });
+    const result = spawnSync(
+      npmCommand,
+      ['run', 'testing', '--silent', '--', 'database', '--list'],
+      {
+        cwd: root,
+        encoding: 'utf8',
+      },
+    );
     const listedTests = result.stdout
       .split('\n')
       .filter((line) => line.startsWith('- '))

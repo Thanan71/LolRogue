@@ -25,23 +25,36 @@ jour à 03:23 UTC et peut aussi être lancé manuellement. Il utilise le secret 
 SHA-256. Le secret doit contenir la chaîne de connexion PostgreSQL encodée fournie
 par le bouton **Connect** du Dashboard Supabase.
 
-Pour produire le même backup localement, utiliser un répertoire hors du dépôt :
+Pour produire le même backup localement, utiliser Node 24, installer les outils
+épinglés avec `npm ci`, puis injecter `SUPABASE_DB_URL` depuis le gestionnaire de
+secrets. Choisir un répertoire hors du dépôt et vérifier le plan avant le dump :
 
 ```bash
-SUPABASE_DB_URL='CONNECTION_STRING' \\
-BACKUP_DIRECTORY="$HOME/secure-backups/lolrogue/$(date -u +%Y-%m-%d)" \\
-npm run backup:database
-cd "$HOME/secure-backups/lolrogue/$(date -u +%Y-%m-%d)" && sha256sum -c SHA256SUMS
+export BACKUP_DIRECTORY="$HOME/secure-backups/lolrogue/$(date -u +%Y-%m-%d)"
+npm run release -- backup --project-ref <project-ref> --dry-run
+npm run release -- backup --project-ref <project-ref>
+(cd "$BACKUP_DIRECTORY" && shasum -a 256 -c SHA256SUMS)
 ```
+
+Une sauvegarde distante exige la branche réelle `main` ou `dev` et une référence
+explicite correspondant à cette branche. L’hôte de `SUPABASE_DB_URL` doit identifier
+ce même projet, y compris via un pooler Supabase. Les identifiants ne sont jamais
+affichés. Une sauvegarde locale exige `--local` et une URL loopback.
+
+Le mode `--dry-run` affiche l'hôte et les fichiers prévus sans lancer le CLI ni
+créer de répertoire. Le dump lit la source ; il écrit seulement les fichiers de
+sauvegarde et leurs empreintes dans `BACKUP_DIRECTORY`.
 
 Récupérer la chaîne de connexion depuis **Connect** dans le Dashboard. La fournir
 interactivement ou par gestionnaire de secrets, jamais dans Git ni l'historique du
-shell. Dans un répertoire chiffré hors du dépôt :
+shell. Pour effectuer les dumps manuellement, définir depuis la racine du dépôt
+`export SUPABASE_CLI="$PWD/node_modules/.bin/supabase"`, puis se placer dans un
+répertoire chiffré hors du dépôt :
 
 ```bash
-npx supabase db dump --db-url "CONNECTION_STRING" -f roles.sql --role-only
-npx supabase db dump --db-url "CONNECTION_STRING" -f schema.sql
-npx supabase db dump --db-url "CONNECTION_STRING" -f data.sql --use-copy --data-only \
+"$SUPABASE_CLI" db dump --db-url "$SUPABASE_DB_URL" -f roles.sql --role-only
+"$SUPABASE_CLI" db dump --db-url "$SUPABASE_DB_URL" -f schema.sql
+"$SUPABASE_CLI" db dump --db-url "$SUPABASE_DB_URL" -f data.sql --use-copy --data-only \
   -x "storage.buckets_vectors" -x "storage.vector_indexes"
 shasum -a 256 roles.sql schema.sql data.sql > SHA256SUMS
 ```
@@ -59,9 +72,16 @@ Avant l'exercice hébergé, exécuter la procédure destructive sur une deuxièm
 Supabase locale, créée sur des ports dédiés et supprimée à la fin :
 
 ```bash
-npm run ops:restore-drill -- \
+npm run release -- restore-drill --dry-run
+npm run release -- restore-drill \
+  --yes \
   --evidence=docs/restore-drills/AAAA-MM-JJ-local.json
 ```
+
+La commande impose `--local`. `--dry-run` ne lance aucun sous-processus, ne crée pas de
+stack et n'écrit pas de preuve. L'exercice exige `--yes` même en CI : il modifie les
+fixtures locales avant de les nettoyer. Les flags de cible distante sont refusés ;
+Node 24, le CLI Supabase épinglé, `psql` et Docker sont vérifiés avant les mutations.
 
 Le script refuse toute base non loopback et toute cible égale à la source. Il ajoute
 deux comptes synthétiques et un marqueur, produit rôles, schéma, données et historique
@@ -88,7 +108,7 @@ dédié : le TODO reste ouvert tant que cette preuve distante n'existe pas.
    de rôles personnalisés ne sont pas couverts par toutes les sauvegardes et doivent
    être recréés depuis le gestionnaire de secrets.
 4. Lier une copie de travail jetable au projet restauré, déployer `verify-run`, puis
-   exécuter `npm run db:lint` et les contrôles SQL de lecture ci-dessous.
+   exécuter `npm run database -- lint` et les contrôles SQL de lecture ci-dessous.
 5. Avec deux comptes synthétiques, exécuter les tests Auth/RLS positifs et négatifs,
    une run vérifiée, un retry idempotent et un daily. Comparer les volumes de tables
    critiques à la source au moment du dump.
@@ -132,21 +152,26 @@ FROM private.social_retention_metrics;
 ```
 
 Le premier contrôle doit retourner exactement une ligne active, planifiée avec
-`43 4 1 * *`, la commande `SELECT private.purge_expired_social_data()` et
+`43 4 * * *`, la commande `SELECT private.purge_expired_social_data()` et
 `username = 'postgres'`. L'absence initiale de métrique est normale tant qu'aucune
-purge n'a réussi. Sur le projet temporaire uniquement, insérer les trois cas
-synthétiques du test de rétention puis exécuter deux fois :
+purge n'a réussi. Sur le projet temporaire uniquement, insérer les cas
+synthétiques de rétention des tests de modération puis exécuter deux fois :
 
 ```sql
 SELECT private.purge_expired_social_data();
 ```
 
-Le premier résultat doit compter uniquement les signalements traités depuis plus de
-24 mois ; le second doit valoir zéro. La métrique doit ensuite montrer deux passages
+Le premier résultat compte les suppressions physiques : signalements traités et
+décisions de plus de 365 jours, rejets et compteurs de plus de 30 jours. Les
+signalements ouverts restent conservés. Le second résultat doit valoir zéro.
+La neutralisation des motifs expirés sur le marqueur d’exclusion Daily ne compte
+pas comme une suppression de ligne. La métrique doit montrer deux passages
 supplémentaires et le nombre de suppressions correspondant. Si le job est absent ou
 différent, ne pas le recréer manuellement : vérifier que la migration
-`20260809180000_automate_social_retention.sql` est appliquée, la rejouer via le
-processus de migration, puis reprendre ces contrôles.
+`20260809180000_automate_social_retention.sql`, puis
+`20261018082740_admin_audited_moderation.sql`, sont appliquées via le processus de
+migration, puis reprendre ces contrôles. La validation locale ne prouve pas
+l’exécution du job distant.
 
 ## Restauration de production
 

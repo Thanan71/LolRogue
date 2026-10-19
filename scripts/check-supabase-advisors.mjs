@@ -1,23 +1,21 @@
-import { readFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { createDatabaseReadScope, parseDatabaseScopeArguments } from './lib/remote-operation.mjs';
 import { evaluateAdvisorFindings } from './lib/supabase-advisor-policy.mjs';
 
 const root = resolve(import.meta.dirname, '..');
-const argumentsSet = new Set(process.argv.slice(2));
-const linked = argumentsSet.has('--linked');
-const local = argumentsSet.has('--local');
-if (linked === local) throw new Error('Pass exactly one of --local or --linked.');
-const scope = linked ? '--linked' : '--local';
+const options = parseDatabaseScopeArguments(process.argv.slice(2), { localDefault: false });
+const scope = createDatabaseReadScope(options);
 const policy = JSON.parse(await readFile(resolve(root, 'config/supabase-advisors.json'), 'utf8'));
 
 function runAdvisors(type) {
   const result = spawnSync(
-    'supabase',
+    scope.supabase,
     [
       'db',
       'advisors',
-      scope,
+      ...scope.arguments(),
       '--type',
       type,
       '--level',
@@ -29,7 +27,7 @@ function runAdvisors(type) {
       '--output-format',
       'json',
     ],
-    { cwd: root, encoding: 'utf8' },
+    { cwd: root, env: scope.env, encoding: 'utf8' },
   );
   if (result.stderr) process.stderr.write(result.stderr);
   if (result.error) throw result.error;
@@ -71,4 +69,6 @@ if (result.blockers.length > 0) {
       .join('\n')}`,
   );
 }
-console.log(`Supabase ${scope.slice(2)} advisors satisfy the versioned policy.`);
+console.log(
+  `Supabase ${options.linked ? 'linked' : 'local'} advisors satisfy the versioned policy.`,
+);

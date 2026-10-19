@@ -2,6 +2,41 @@
   "version": 1,
   "functions": [
     {
+      "signature": "private.admin_analytics(text, jsonb, timestamp with time zone)",
+      "roles": ["authenticated"],
+      "justification": "Return only bounded retained-data analytics aggregates after a live registered administrator check; never expose personal identities or authority payloads."
+    },
+    {
+      "signature": "private.admin_balance(text, jsonb, timestamp with time zone)",
+      "roles": ["authenticated"],
+      "justification": "Read bounded descriptive verified balance cohorts and live rule states only after a live registered database administrator check; no personal identities or authority mutations."
+    },
+    {
+      "signature": "private.admin_explorer_page(text, jsonb, jsonb, timestamp with time zone, integer, boolean)",
+      "roles": ["authenticated"],
+      "justification": "Return bounded administrative pages and atomic exports only after a live database-admin identity check."
+    },
+    {
+      "signature": "private.admin_moderation(text, jsonb)",
+      "roles": ["authenticated"],
+      "justification": "Authorize the live nonanonymous database administrator before bounded queue/history reads or confirmed, idempotent moderation; return audited rejection receipts without exposing unauthorized targets."
+    },
+    {
+      "signature": "private.admin_player_detail(uuid, timestamp with time zone)",
+      "roles": ["authenticated"],
+      "justification": "Project a bounded player profile and separate ledgers only after a live database-admin identity check."
+    },
+    {
+      "signature": "private.admin_run_detail(uuid, text, jsonb, timestamp with time zone, integer)",
+      "roles": ["authenticated"],
+      "justification": "Project run or attempt lifecycle and allowlisted actions only after a live database-admin identity check."
+    },
+    {
+      "signature": "private.report_daily_score(uuid, text)",
+      "roles": ["authenticated"],
+      "justification": "Attribute normalized Daily reports to the live nonanonymous caller, reject invalid targets, deduplicate and enforce per-account reporting limits."
+    },
+    {
       "signature": "public.adjust_champion_shards(uuid, bigint, uuid)",
       "roles": ["service_role"],
       "justification": "Append an explicitly audited idempotent administrative shard adjustment without editing ledger history."
@@ -47,11 +82,6 @@
       "justification": "Return an attempt only after checking authenticated ownership."
     },
     {
-      "signature": "public.invalidate_daily_score(uuid, text)",
-      "roles": ["authenticated"],
-      "justification": "Invalidate one completed Daily score after an internal authenticated-admin check and append-only audit."
-    },
-    {
       "signature": "public.is_current_user_admin()",
       "roles": ["authenticated"],
       "justification": "Support authenticated admin RLS policies and invoker-rights admin views."
@@ -75,11 +105,6 @@
       "signature": "public.reject_run_verification(uuid, uuid, text)",
       "roles": ["service_role"],
       "justification": "Persist a bounded verifier rejection from the trusted Edge worker."
-    },
-    {
-      "signature": "public.report_daily_score(uuid, text)",
-      "roles": ["authenticated"],
-      "justification": "Create a bounded report attributed to the authenticated caller."
     },
     {
       "signature": "public.seal_run_attempt(uuid, uuid, integer)",

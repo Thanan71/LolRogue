@@ -175,6 +175,7 @@ export interface RunProgressionDefinition {
   statBonuses?: Partial<Record<RunProgressStat, number>>;
   onDamage?: RunProgressionTrigger[];
   onKill?: RunProgressionTrigger[];
+  onAssist?: RunProgressionTrigger[];
   onCombatEnd?: RunProgressionTrigger[];
 }
 

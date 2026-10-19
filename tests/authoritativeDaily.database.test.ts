@@ -173,11 +173,11 @@ describeLive('authoritative daily leaderboard live security', () => {
     }
   });
 
-  it('keeps score v14 through Daily v16 and carries gold-neutral score v15 into v22', async () => {
+  it('keeps historical score contracts and activates the current gold-neutral Daily score', async () => {
     const rulesets = await admin
       .from('daily_challenge_rulesets')
       .select('version, score_version, is_active')
-      .in('version', [14, 15, 16, 17, 18, 19, 20, 21, 22])
+      .in('version', [14, 15, 16, 17, 18, 19, 20, 21, 22, CURRENT_AUTHORITY_VERSION.gameplay])
       .order('version');
 
     expect(rulesets.error).toBeNull();
@@ -190,7 +190,12 @@ describeLive('authoritative daily leaderboard live security', () => {
       { version: 19, score_version: 15, is_active: false },
       { version: 20, score_version: 15, is_active: false },
       { version: 21, score_version: 15, is_active: false },
-      { version: 22, score_version: 15, is_active: true },
+      { version: 22, score_version: 15, is_active: false },
+      {
+        version: CURRENT_AUTHORITY_VERSION.gameplay,
+        score_version: CURRENT_AUTHORITY_VERSION.dailyScore,
+        is_active: true,
+      },
     ]);
   });
 

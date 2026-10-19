@@ -16,6 +16,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
 import { createLoggedRepository } from '@/utils/RepositoryLogger';
 import type { IAuthRepository } from '../interfaces/IAuthRepository';
+import type { IChampionEconomyRepository } from '../interfaces/IChampionEconomyRepository';
 import type {
   IDailyRunRepository,
   ILeaderboardRepository,
@@ -29,6 +30,7 @@ import type {
 } from '../interfaces/IRepositoryContainer';
 import type { IRunRepository, IRunStatsRepository } from '../interfaces/IRunRepository';
 import { SupabaseAuthRepository } from '../repositories/SupabaseAuthRepository';
+import { SupabaseChampionEconomyRepository } from '../repositories/SupabaseChampionEconomyRepository';
 import {
   SupabaseDailyRunRepository,
   SupabaseLeaderboardRepository,
@@ -58,6 +60,7 @@ export class RepositoryContainer implements IRepositoryContainer {
   private _dailyRun?: IDailyRunRepository;
   private _leaderboard?: ILeaderboardRepository;
   private _enhancement?: IEnhancementRepository;
+  private _championEconomy?: IChampionEconomyRepository;
 
   constructor(
     private readonly supabase: SupabaseClient<Database>,
@@ -181,9 +184,17 @@ export class RepositoryContainer implements IRepositoryContainer {
     return this._enhancement;
   }
 
-  /**
-   * Clear all cached repositories (useful for testing)
-   */
+  get championEconomy(): IChampionEconomyRepository {
+    if (!this._championEconomy) {
+      const repo = new SupabaseChampionEconomyRepository(this.supabase);
+      this._championEconomy = this.options.enableLogging
+        ? createLoggedRepository(repo, 'SupabaseChampionEconomyRepository')
+        : repo;
+    }
+    return this._championEconomy;
+  }
+
+  /** Clear all cached repositories (useful for testing). */
   clear(): void {
     this._auth = undefined;
     this._player = undefined;
@@ -194,6 +205,7 @@ export class RepositoryContainer implements IRepositoryContainer {
     this._dailyRun = undefined;
     this._leaderboard = undefined;
     this._enhancement = undefined;
+    this._championEconomy = undefined;
   }
 }
 

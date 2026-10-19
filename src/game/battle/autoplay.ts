@@ -1,5 +1,5 @@
-import type { BattleSpeed } from '@/stores/settingsStore';
 import { hasAuthorityFeature } from '@/game/authority/versionRegistry';
+import type { BattleSpeed } from '@/types/combatPresentation';
 
 export const DEFAULT_COMBAT_AUTOPLAY = false;
 export const AUTO_TURN_BASE_DELAY_MS = 1200;

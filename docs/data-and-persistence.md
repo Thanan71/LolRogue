@@ -5,10 +5,10 @@ persistance doit conserver cette séparation et mettre à jour les tests associ�
 
 ## Preuves de contrat et portée
 
-`npm run db:validate` réinitialise uniquement la stack Supabase locale jetable,
+`npm run database -- validate --yes` réinitialise uniquement la stack Supabase locale jetable,
 applique les migrations, vérifie RLS/grants/advisors, compare les types générés et
 exécute les tests `*.database.test.ts` découverts automatiquement. Lancer
-`npm run test:db:list` pour contrôler la liste. Ces preuves ne remplacent pas la
+`npm run testing -- database --list` pour contrôler la liste. Ces preuves ne remplacent pas la
 comparaison des migrations et les smoke tests sur le SHA effectivement déployé.
 
 | Frontière | Preuve réelle | Invariants couverts |

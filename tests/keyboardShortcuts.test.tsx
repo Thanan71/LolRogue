@@ -3,8 +3,8 @@
 import { fireEvent, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { BattleSpeedControl } from '@/components/CombatUI/BattleSpeedControl';
-import { CombatantPortrait } from '@/components/CombatUI/CombatantPortrait';
+import { BattleSpeedControl } from '@/features/combat/ui/BattleSpeedControl';
+import { CombatantPortrait } from '@/features/combat/ui/CombatantPortrait';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useSettingsStore } from '@/stores/settingsStore';
 

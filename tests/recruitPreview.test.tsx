@@ -224,6 +224,34 @@ describe('recruitment preview', () => {
     expect(useRunStore.getState().team).toEqual(TEAM);
   });
 
+  it.each([
+    ['run-engine-v22', 22, 'Les touches et les assistances ne donnent aucun point.'],
+    ['run-engine-0.2.0', 23, 'Une élimination normale par compétence ou une assistance attribuée'],
+  ] as const)(
+    'shows Veigar recruit rules matching the %s attempt before spending',
+    (engineVersion, gameplayRulesetVersion, description) => {
+      enterEncounter({ ...SHOP, recruitableChampions: [{ championId: 'Veigar', cost: 200 }] });
+      useRunStore.setState({
+        authorityAttempt: { ...frozenAttempt(), engineVersion, gameplayRulesetVersion },
+      });
+      render(
+        <MemoryRouter>
+          <ShopPage />
+        </MemoryRouter>,
+      );
+      const candidate = screen.getByRole('heading', { name: 'Veigar' }).closest('article')!;
+      fireEvent.click(within(candidate).getByText(recruitPreviewCopy['fr-FR'].inspect));
+      expect(within(candidate).getByText(description, { exact: false })).toBeVisible();
+      const oppositeDescription =
+        engineVersion === 'run-engine-v22'
+          ? 'Une élimination normale par compétence ou une assistance attribuée'
+          : 'Les touches et les assistances ne donnent aucun point.';
+      expect(within(candidate).queryByText(oppositeDescription, { exact: false })).toBeNull();
+      expect(useRunStore.getState().gold).toBe(1_000);
+      expect(useRunStore.getState().team).toEqual(TEAM);
+    },
+  );
+
   it('uses the authority mastery snapshot instead of changes made during the run', () => {
     enterEncounter(RECRUIT);
     useRunStore.setState({ authorityAttempt: frozenAttempt() });

@@ -52,10 +52,10 @@ Une tâche n'est terminée que lorsque :
 | Chantier | Statut | Priorité de départ | Détail et critères |
 | --- | --- | --- | --- |
 | **Validation bêta, sécurité, cohérence** | Ouvert selon cases ci-dessous | P0/P1/P2 | `P0-I18N-01`, `P1-SEC-01`, `P2-BAL-01`, `P2-CI-01`, `P2-OPS-01`, `P3-A11Y-01`, `P3-LEGAL-01` et gate de bêta |
-| **Nettoyage technique / scripts npm** | À faire ; audit statique réalisé | P2, déploiement P1 | [ARCH — 18 tâches / 5 sprints](docs/backlog/architecture-maintenance.md) |
+| **Nettoyage technique / scripts npm** | ARCH-S1 à S5 implémentés ; validation et livraison distinctes | P2, déploiement P1 | [ARCH — 18 tâches / 5 sprints](docs/backlog/architecture-maintenance.md) |
 | **Arbres Candies** | À auditer puis corriger avant extension | P1 puis P2/P3 | [TREE — 10 lots très détaillés](docs/backlog/champion-enhancement-trees.md) |
 | **Bot tactique selon champion/équipe** | À concevoir derrière flag ; legacy conservé | P1 puis P2 | [AI — 49 tâches / 9 sprints](docs/backlog/tactical-bot.md) |
-| **Administration** | À fiabiliser, puis étendre | P1 puis P2 | [ADM — 36 tâches / 7 sprints](docs/backlog/admin-console.md) |
+| **Administration** | ADM-S1 à S3 et S5 implémentés ; ADM-S4 hors ADM-20 implémenté ; ADM-20 attend TREE-10, S6 à S7 en attente | P1 puis P2 | [ADM — 36 tâches / 7 sprints](docs/backlog/admin-console.md) |
 | **Économie des champions** | Code livré, flag OFF, rollout distant distinct | P3 | `P3-ECO-01` + [procédure](docs/champion-economy.md) |
 | **Nouveaux champions** | Veigar réalisé en code ; cinq sprints en attente | P3 | `P3-CHAMP-01..06` ci-dessous ; [archive Veigar](docs/archive/p3-champ-01-veigar-completed-2026-10-10.md) |
 
@@ -64,13 +64,13 @@ Une tâche n'est terminée que lorsque :
 ### Dépendances et incompatibilités évitées
 
 1. **Candies ≠ Éclats.** `TREE` améliore les nœuds et l'économie des améliorations ; `P3-ECO-01` garde achats/rotation champions à 400 Éclats. `ADM-02/20` ne créent pas de seconde monnaie ou de deuxième ledger.
-2. **Version authority.** `run-engine-v22` actif et bundles historiques restent figés. `AI-038` prévoit une nouvelle version *uniquement* si la politique autoritaire change ; `ARCH` ne réécrit aucun ancien hash. `P0-RUN-01` (registre de versions) reste livré, pas rouvert en doublon.
+2. **Version authority.** `run-engine-0.2.5` est versionné par ARCH-S4 ; les bundles historiques restent figés (dont `0.2.0`). `AI-038` prévoit une nouvelle version *uniquement* si la politique autoritaire change ; `ARCH` ne réécrit aucun ancien hash. `P0-RUN-01` (registre de versions) reste livré, pas rouvert en doublon.
 3. **Arbre Assassin / Katarina.** `TREE-01..04` réparent tous les arbres actuels ; `P3-CHAMP-03 / K.5` possède toujours le travail de support des resets et actions bonus pour Katarina. Les deux lots doivent mutualiser les tests/catalogues, jamais développer deux mécanismes.
 4. **UX/architecture.** `ARCH-12..15` fournit la structure partagée ; `ADM-32` et `AI-036` réutilisent leurs composants/hook et ne lancent pas de deuxième refonte transversale.
 5. **Mesure et équilibrage.** `P2-BAL-01` conserve la validation par **playtests humains** ; `AI-042/047`, `TREE-09/10` et `ADM-17..21` fournissent simulations/affichage/analyses sans cocher le playtest à sa place.
 6. **Données admin.** `ADM-01` traite la métrique `active_today` absente/fictive ; `ADM-02` traite l'intégrité Candies ; `ADM-07/11` résout pagination/export au lieu d'inventer de faux totaux à partir des listes tronquées.
 7. **Sécurité et déploiement.** `ARCH-05/06` préserve `main → LolRogue`, `dev → LolRogueDev` et interdit les autres branches. Pas de clé `service_role` en frontend ; migrations append-only + tests RLS pour TREE/ADM.
-8. **Bêta.** Aucun nouveau code d'initiative n'est marqué « livré » ou intégré artificiellement au registre des **11 invariants P0** suivi par `release:preflight`. Les régressions réellement bloquantes feront l'objet d'un arbitrage explicite et de la mise à jour simultanée de la gate.
+8. **Bêta.** Aucun nouveau code d'initiative n'est marqué « livré » ou intégré artificiellement au registre des **11 invariants P0** suivi par `npm run release -- preflight`. Les régressions réellement bloquantes feront l'objet d'un arbitrage explicite et de la mise à jour simultanée de la gate.
 
 ### Séquençage recommandé des nouveaux dossiers
 
@@ -286,6 +286,7 @@ Aucune production active ni fermeture des blockers bêta n’est annoncée.
 - [x] Kit Veigar, états intra-run, stacking autoritaire, tests de parité et preuves de balance v22 livrés en code ; **pas de preuve d'activation distante**.
 - [x] Sous-tâches et critères complets conservés dans [l'archive du sprint I](docs/archive/p3-champ-01-veigar-completed-2026-10-10.md).
 - [ ] Suivre séparément la publication des migrations/Edge et les vérifications distantes selon [le contrat de progression](docs/champion-run-progression.md) ; **ne pas considérer le rollout comme déjà effectué**.
+- [x] Version `0.2.0` : gains de pouvoir sur les assistances attribuées à Veigar (+1 / +3 / +10, plafond +200), avec reprise des anciennes runs v22 selon leurs règles figées. Nouvelle campagne dans `config/veigar-run-progression-balance-0.2.0.json` ; publication distante à suivre séparément.
 
 ---
 
@@ -962,7 +963,7 @@ le moteur.
 
 # Inventaire des invariants P0 livrés
 
-Ces dix identifiants restent visibles pour que `release:preflight` conserve son
+Ces dix identifiants restent visibles pour que `npm run release -- preflight` conserve son
 inventaire de onze P0, avec `P0-I18N-01` encore ouvert ci-dessus. Les titres ne
 prouvent ni la validation du SHA candidat ni l'état live : la fiche
 `config/beta-release.json` et ses contrôles restent obligatoires.
@@ -1019,11 +1020,11 @@ Invariant livré ; [preuve et critères archivés](docs/archive/todo-snapshot-20
 
 ### Travaux d'ingénierie proposés (non déclarés livrés)
 
-1. **Fiabilité avant fonctionnalités** : `ADM-S1` + `TREE-01..04`, avec correctifs SQL/RLS et parité combat.
-2. **Nettoyage sans risque de gameplay** : `ARCH-S1` et `ARCH-S2` ; alias CI conservés et blocage des déploiements hors `main`/`dev`.
-3. **Interfaces métier** : `ARCH-S3/S4`, `ADM-S2/S3` et `TREE-05..07` ; une seule couche de repositories/services.
+1. **Fiabilité avant fonctionnalités** : [ADM-S1 implémenté](docs/admin-s1-validation-2026-10-17.md) : définitions UTC, registre Candies, totaux exacts et états indépendants avec contrôles SQL/RLS. `TREE-01..04` reste à traiter ; migration distante et déploiement ne sont pas attestés par cette clôture code.
+2. **Nettoyage sans risque de gameplay** : [ARCH-S1 implémenté](docs/backlog/architecture-maintenance.md#arch-s1--catalogue-de-scripts-et-cli-p2-taille-l), appelants migrés dans la PR #213 puis 72 alias retirés après ses 18 checks verts ; 40 entrées npm restent publiques. [ARCH-S2 implémenté](docs/backlog/architecture-maintenance.md#arch-s2--configuration-et-déploiement-p1-taille-ml) : configuration commune, cibles distantes contrôlées et plugins Vite/Vitest séparés ; preuves dans [la validation S2](docs/architecture-s2-validation-2026-10-11.md). Le blocage des déploiements hors `main`/`dev` est maintenu.
+3. **Interfaces métier** : [ARCH-S3 implémenté](docs/backlog/architecture-maintenance.md#arch-s3--frontières-métier-et-stores-p2-taille-lxl) : frontières d’import contrôlées, orchestration des runs injectée, conteneur applicatif unique et contrats de données partagés ; preuves dans [la validation S3](docs/architecture-s3-validation-2026-10-11.md). [ARCH-S4 implémenté](docs/backlog/architecture-maintenance.md#arch-s4--modules-ui-orientés-fonctionnalités-p2-taille-xl) : pilote Daily, contrôleurs combat/sélection et unités moteur versionnées avec replays historiques conservés ; preuves dans [la validation S4](docs/architecture-s4-validation-2026-10-13.md). [ADM-S2 implémenté](docs/admin-s2-validation-2026-10-17.md) : recherche/pagination serveur, fiches joueurs et détails/exports sûrs ; [ADM-S3 implémenté](docs/admin-s3-validation-2026-10-17.md) : analytics UTC, rétention D1/D7/D30, funnel et identités comparables avec couverture/maturité explicites ; [ADM-S4](docs/admin-s4-validation-2026-10-18.md) sépare équilibrage et exploitation, avec picks initiaux, performances finales, builds et flags en lecture ; [ADM-S5](docs/admin-s5-validation-2026-10-18.md) ajoute la file complète, les décisions confirmées et idempotentes, l’audit et la purge de modération ; `ADM-20` attend `TREE-10`, `ADM-S6..S7` et `TREE-05..07` restent à traiter.
 4. **Bot stratégique** : `AI-S1..S9`, en conservant `legacy` ; pas de nouvelle version authority tant que parité/vérification non acquises.
-5. **Mesure / UI / exploitation** : `TREE-08..10`, `ADM-S4..S7` et `ARCH-S5`.
+5. **Mesure / UI / exploitation** : `TREE-08..10`, `ADM-20` et `ADM-S6..S7` restent à traiter. Le panneau d’attente ADM-20 ne clôt pas la dépendance TREE-10. [ARCH-S5 implémenté](docs/backlog/architecture-maintenance.md#arch-s5--artefacts-css-et-dette-suivie-p2-taille-ml) : contrat de dérive des artefacts, CSS comparé avant/après et audit des dépendances ; [validation S5](docs/architecture-s5-validation-2026-10-13.md). La PR, la fusion et le déploiement ont leurs gates propres.
 6. **Champions supplémentaires** : `P3-CHAMP-02..06`, dans l'ordre Renekton → Katarina → Heimerdinger → Kayn → Sylas, avec prérequis moteur mutualisés.
 
 Le chantier `P3-ECO-01` est livré derrière un flag OFF ; son rollout distant suit `docs/champion-economy.md` avant tout élargissement du roster. `P1-SEC-01` reste différé pour raison de coût, `P2-CI-01` reste ouvert sur les exercices de runs annulés/concurrents ; aucune activation de ces fonctionnalités n'est implicite.
@@ -1034,7 +1035,7 @@ Le chantier `P3-ECO-01` est livré derrière un flag OFF ; son rollout distant s
   tant que cette option payante n'est pas souhaitée.
 - `P2-CI-01` conserve l'exercice d'annulation/neutralisation et la gestion des
   runs concurrents. Les protections et les required checks distants sont actifs.
-- Les autres tâches utilisent `npm run check`, `npm run db:validate` et les gates
+- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates
   locales spécialisées comme preuves. Les checks requis de la branche cible
   conditionnent le merge des PR.
 
@@ -1053,7 +1054,7 @@ La bêta technique ne redevient candidate que lorsque :
 - [ ] trois CI complètes consécutives **après** le dernier P0 ;
 - [ ] preview du SHA candidat validée, pas une ancienne prod ;
 - [ ] taux de rejet authority vérifié après déploiement du correctif ;
-- [x] `balance:check` rejoue de vraies runs authority et vérifie le bundle/version/hash
+- [x] `npm run balance -- check` rejoue de vraies runs authority et vérifie le bundle/version/hash
   candidats, au lieu de parcourir synthétiquement tous les nœuds ;
 - [ ] Daily officiel déterministe et identique entre un compte neuf et un compte maxé ;
 - [ ] aucun starter à 0 % sur les premiers combats de la cohorte de release ;

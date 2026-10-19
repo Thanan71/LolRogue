@@ -4,6 +4,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { expect, type Page, test } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 import { getRotationForInstant } from '../src/domain/championEconomy';
+import { CURRENT_AUTHORITY_VERSION } from '../src/game/authority/versionRegistry';
 import type { Database } from '../src/types/database';
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
@@ -91,13 +92,16 @@ async function showFullChampionCatalog(page: Page): Promise<void> {
 
 async function reloadAndRevalidateSelector(page: Page): Promise<void> {
   await page.reload();
-  // A saved attempt automatically recovers its server receipt after reload.
-  await expect(page.locator('.game-over-save-state').getByRole('status')).toContainText(
-    'Partie vérifiée et progression enregistrée.',
-  );
-  await expect(page.getByRole('button', { name: 'Relancer la vérification' })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Nouvelle partie', exact: true })).toBeEnabled();
-  await page.getByRole('button', { name: 'Nouvelle partie', exact: true }).click();
+  const savedStatus = page.locator('.game-over-save-state').getByRole('status');
+  const selectorHeading = page.getByRole('heading', { name: 'Compose ton équipe', exact: true });
+  // Recovery may finish before the route guard mounts, leaving the completed run on the selector.
+  await expect(selectorHeading.or(savedStatus)).toBeVisible();
+  if (new URL(page.url()).pathname === '/game-over') {
+    await expect(savedStatus).toContainText('Partie vérifiée et progression enregistrée.');
+    await expect(page.getByRole('button', { name: 'Relancer la vérification' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Nouvelle partie', exact: true })).toBeEnabled();
+    await page.getByRole('button', { name: 'Nouvelle partie', exact: true }).click();
+  }
   await expect(page).toHaveURL('/starter-select');
   await showFullChampionCatalog(page);
 }
@@ -130,8 +134,8 @@ test('économie connectée : vague vérifiée, rotation expirée, achat permanen
   const firstWeek = '2026-10-12T12:00:00.000Z';
   const secondWeek = '2026-10-19T12:00:00.000Z';
   const thirdWeek = '2026-10-26T12:00:00.000Z';
-  const rotation = getRotationForInstant(firstWeek, 22);
-  const nextRotation = getRotationForInstant(secondWeek, 22);
+  const rotation = getRotationForInstant(firstWeek, CURRENT_AUTHORITY_VERSION.gameplay);
+  const nextRotation = getRotationForInstant(secondWeek, CURRENT_AUTHORITY_VERSION.gameplay);
   const championId = rotation.championIds.find((id) => !nextRotation.championIds.includes(id))!;
   expect(championId).toBe('Darius');
   const suffix = randomUUID().replaceAll('-', '').slice(0, 12);
@@ -228,7 +232,8 @@ test('économie connectée : vague vérifiée, rotation expirée, achat permanen
     expect(start.ok()).toBe(true);
     const started = record(await start.json());
     expect(started.economy_version).toBe(1);
-    expect(started.gameplay_ruleset_version).toBe(22);
+    expect(started.gameplay_ruleset_version).toBe(CURRENT_AUTHORITY_VERSION.gameplay);
+    expect(started.engine_version).toBe(CURRENT_AUTHORITY_VERSION.engine);
     expect(started.rune_ids).not.toContain('e2e_assured_victory');
     expect(started.champion_access_snapshot).toMatchObject({
       enabled: true,

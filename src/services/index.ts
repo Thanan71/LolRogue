@@ -33,10 +33,7 @@ export * from './masteryService';
 // ─── Repositories (Data Access Layer) ────────────────────────────────────────
 export * from './repositories';
 // Enhancement Repository - Supabase implementation
-export {
-  SupabaseEnhancementRepository,
-  supabaseEnhancementRepository,
-} from './repositories';
+export { SupabaseEnhancementRepository } from './repositories';
 export * from './runAttemptService';
 // ─── Domain Services ─────────────────────────────────────────────────────────
 // Run Service - Handles run-related business logic

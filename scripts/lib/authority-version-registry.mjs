@@ -14,6 +14,7 @@ export const AUTHORITY_FEATURES = [
   'canonicalStats',
   'contentBalance',
   'runProgression',
+  'runProgressionAssists',
 ];
 
 const STATUSES = new Set(['current', 'replay-only', 'unsupported']);
@@ -25,6 +26,10 @@ function assert(condition, message) {
 
 export async function readAuthorityVersionRegistry() {
   const registry = JSON.parse(await readFile(AUTHORITY_REGISTRY_PATH, 'utf8'));
+  return validateAuthorityVersionRegistry(registry);
+}
+
+export function validateAuthorityVersionRegistry(registry) {
   assert(registry?.schemaVersion === 1, 'schemaVersion must be 1.');
   assert(Array.isArray(registry.versions) && registry.versions.length > 0, 'versions is empty.');
 
@@ -32,7 +37,22 @@ export async function readAuthorityVersionRegistry() {
   const gameplayVersions = new Set();
   for (const [index, version] of registry.versions.entries()) {
     const label = `versions[${index}]`;
-    assert(/^run-engine-v[1-9]\d*$/.test(version.engine), `${label}.engine is invalid.`);
+    assert(
+      /^run-engine-(?:v[1-9]\d*|(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))$/.test(
+        version.engine,
+      ),
+      `${label}.engine is invalid.`,
+    );
+    if (version.gameplay > 22) {
+      assert(
+        /^run-engine-(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/.test(version.engine),
+        `${label}.engine must use a semantic version.`,
+      );
+      assert(
+        version.rulesetCode === version.engine.slice('run-engine-'.length),
+        `${label}.rulesetCode must match the semantic engine version.`,
+      );
+    }
     assert(!engines.has(version.engine), `${version.engine} is duplicated.`);
     engines.add(version.engine);
     assert(

@@ -9,16 +9,30 @@ Ce document est le point d'entrée opérationnel. Les procédures détaillées s
 - `docs/release-and-support.md` pour environnements, rotation, release, smoke test,
   export et suppression de compte ;
 - `docs/administration.md` pour promouvoir ou révoquer un administrateur.
+- `docs/admin-metrics.md` pour le contrat des métriques et la migration Candies
+  `20261017042727` requise par l'application 0.2.7. Sa validation locale ne vaut
+  pas application distante ; les règles de cible et de déploiement restent identiques.
+- `docs/generated-artifacts.md` pour régénérer et vérifier les artefacts sans
+  supprimer les versions historiques ;
+- `docs/css-maintenance.md` et `docs/dependency-audit.md` pour les contrôles de
+  maintenance et les décisions de dette technique.
 
 Une fiche de release privée doit fournir les project refs et responsables réels.
 Les runbooks versionnés ne contiennent volontairement ni secret ni identifiant de
 production.
 
+Les fiches joueurs et historiques de l’application **0.2.8** nécessitent en plus
+`20261017055016_admin_player_run_explorer.sql` (69e migration), après le registre
+Candies. Voir [le contrat ADM-S2](admin-explorer.md). Ne pas confondre tests locaux,
+PR verte et migrations effectivement appliquées à une cible distante.
+
 ## Environnements
 
-La matrice normative et les contrôles de séparation sont dans
-`docs/release-and-support.md`. Development, Preview et Production utilisent trois
-bases distinctes ; une preview ne doit jamais cibler les données de production.
+La résolution normative des cibles est dans `docs/environment-contract.md` ;
+les contrôles de séparation sont dans `docs/release-and-support.md`.
+Les previews `dev` et de PR utilisent LolRogueDev. La branche `main` cible
+LolRogue en Production ; sa preview conserve cette même cible selon le contrat
+normatif, avec des variables publiques explicites du processus.
 
 Chaque environnement Vercel pointe vers un projet Supabase correspondant. Les
 variables navigateur obligatoires sont :
@@ -40,13 +54,13 @@ n'envoie pas de mails.
 ## Déployer
 
 1. Appliquer et valider les migrations sur une base locale.
-2. Lancer `npm ci`, `npm run edge:bundle`, `npm run check`,
+2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,
    `npm run test:db` et `npm run test:e2e`.
 3. Sauvegarder la base distante et prévoir une courte fenêtre de déploiement :
    la migration révoque immédiatement l'ancien chemin `client_reported` et fait
    expirer les attempts ouverts antérieurs à la quarantaine des améliorations.
 4. Depuis un checkout propre de `dev` ou `main`, exécuter
-   `npm run backend:deploy`. La commande sélectionne explicitement le projet
+   `npm run release -- deploy --project-ref <project-ref> --yes`. La commande sélectionne explicitement le projet
    Supabase et la cible Vercel, prévisualise les migrations, puis publie la fonction
    encore dormante et le client compatible avant d'appliquer les migrations.
 5. Attendre le contrôle final du manifeste distant ; sur `main`, la commande promeut
@@ -76,7 +90,7 @@ La migration `20260809090000_harden_leaderboard_views.sql` recrée les deux vues
 classement avec `security_invoker=true`. Elle initialise des projections sanitisées
 dans le schéma non exposé `private`, puis les maintient par trigger sans élargir les
 droits sur `players` ou `daily_runs`. Après déploiement, exécuter la gate
-`npm run db:security`, contrôler que l'advisor Supabase ne signale plus aucun
+`npm run database -- security`, contrôler que l'advisor Supabase ne signale plus aucun
 `security_definer_view`, puis tester les deux vues avec les rôles `anon`,
 `authenticated` et `service_role`.
 
@@ -86,7 +100,7 @@ les grants des fonctions privilégiées avant de réaccorder uniquement le manif
 à `handle_new_user`, `expire_stale_run_attempts`, `invalidate_daily_score` et à la
 purge sociale. Le démarrage expire les attempts obsolètes du compte ; le worker
 expire aussi un attempt scellé avant son claim. Déployer ensemble migration,
-fonction Edge et client, puis exécuter `npm run db:security`.
+fonction Edge et client, puis exécuter `npm run database -- security`.
 
 La migration `20260726210000_atomic_run_finalization.sql` supprime l'ancien RPC
 `save_run_loadout`. Vérifier avant déploiement que le client publié utilise
@@ -107,6 +121,14 @@ anti-frame, politique de permissions, referrer policy et `nosniff`. Toute nouvel
 API, police ou origine d'image doit être ajoutée explicitement à la CSP.
 
 ## Vérifications après déploiement
+
+Pour la modération ADM-S5, appliquer la migration
+`20261018082740_admin_audited_moderation.sql` avec son client correspondant.
+L’ancien RPC navigateur d’invalidation est révoqué. Vérifier les permissions,
+les trois nouvelles RPC et l’unique cron quotidien selon
+[le contrat de modération](admin-moderation.md) et
+[le runbook de rétention](backup-and-restore.md). Le code et les tests locaux
+ne prouvent ni migration distante, ni action de modération en production.
 
 - ouvrir directement `/auth` et vérifier l'absence de 404 ;
 - créer une session ou entrer en invité ;
@@ -139,7 +161,7 @@ API, police ou origine d'image doit être ajoutée explicitement à la CSP.
 - confirmer dans les advisors Supabase qu'il ne reste aucun
   `security_definer_view`, puis vérifier dans `pg_class.reloptions` que
   `leaderboard` et `daily_leaderboard` portent `security_invoker=true` ;
-- comparer les ACL `SECURITY DEFINER` au manifest avec `npm run db:security` et
+- comparer les ACL `SECURITY DEFINER` au manifest avec `npm run database -- security` et
   confirmer qu'aucun trigger, helper historique ou purge n'est appelable avec un
   JWT navigateur ;
 - si les diagnostics sont activés, confirmer qu'un `INSERT` direct dans `logs`
@@ -157,13 +179,13 @@ API, police ou origine d'image doit être ajoutée explicitement à la CSP.
 ### Preuves de sécurité et de rétention sur la cible
 
 Consigner le SHA, l'environnement, l'heure UTC et le résultat de chaque contrôle
-dans la fiche de release privée. `npm run db:security` et `npm run db:validate`
+dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`
 contrôlent la stack **locale** ; ils ne remplacent pas un relevé de production.
 Après déploiement ou restauration, exécuter les lectures distantes :
 
 ```sh
-npm run db:migrations:check:linked
-node scripts/check-supabase-advisors.mjs --linked
+npm run database -- migrations check --linked --project-ref <project-ref>
+node scripts/check-supabase-advisors.mjs --linked --project-ref <project-ref>
 ```
 
 Depuis une connexion SQL opérateur à la cible, vérifier les invariants suivants
@@ -220,22 +242,22 @@ contre une base migrée.
 
 Les migrations sont progressives et ne doivent pas modifier rétroactivement un
 fichier déjà appliqué sur une base partagée. Ajouter une nouvelle migration
-horodatée et la tester avec `npm run db:validate`.
+horodatée et la tester avec `npm run database -- validate --yes`.
 Avant une promotion, relier explicitement le bon projet puis exécuter
-`npm run db:migrations:check:linked`. Cette commande est en lecture seule et bloque
+`npm run database -- migrations check --linked --project-ref <project-ref>`. Cette commande est en lecture seule et bloque
 si une migration du commit manque sur le projet ou si le projet contient une
 version absente du dépôt.
 
 Le couple `engine_version`/`content_hash` d'un `gameplay_ruleset` est immuable dès
 qu'un attempt l'utilise. `config/authority-versions.json` formalise aussi les
 versions gameplay, progression et commande, les capacités et le statut de chaque
-moteur. `npm run edge:bundle` recalcule les hashes et échoue si le client, le
+moteur. `npm run release -- edge bundle` recalcule les hashes et échoue si le client, le
 resolver Edge, un bundle historique ou un ruleset divergent. Pour changer les
 règles ou le contenu autoritaire, suivre `docs/authority-versioning.md`, conserver
 l'ancien vérificateur en `replay-only` pendant au moins la durée maximale d'un
 attempt, puis seulement activer la nouvelle version.
 
-`npm run backend:deploy` constitue le chemin normal de publication complète. Il
+`npm run release -- deploy --project-ref <project-ref> --yes` constitue le chemin normal de publication complète. Il
 refuse toute branche autre que `dev` ou `main`, relie respectivement `LolRogueDev`
 ou `LolRogue`, prévisualise les montées de version, publie `verify-run`, déploie le
 frontend Vercel en Preview ou Production, applique les migrations sur la référence
@@ -247,7 +269,7 @@ Une nouvelle version de moteur comprise par le navigateur doit être livrée en
 trois étapes afin qu'aucun ancien frontend ne démarre une ruleset qu'il ne sait pas
 journaliser :
 
-1. `npm run backend:deploy` publie le vérificateur compatible avec les anciennes et
+1. `npm run release -- deploy --project-ref <project-ref> --yes` publie le vérificateur compatible avec les anciennes et
    nouvelles versions ;
 2. la même commande déploie le frontend et attend la réussite de Vercel, sans
    encore affecter le domaine Production de `main` ;
@@ -257,7 +279,7 @@ journaliser :
 Le moteur v3 accepte les journaux `resolve_combat` v2 sans trace et les rejoue en
 auto. Le moteur v4 conserve cette compatibilité et introduit la progression de
 biome canonique. Les bundles historiques importés par la fonction restent
-immuables et sont contrôlés par `npm run edge:bundle`.
+immuables et sont contrôlés par `npm run release -- edge bundle`.
 
 Une migration destructive doit inclure une sauvegarde, une estimation d'impact et
 une procédure de restauration. Le retour arrière applicatif se fait en redéployant

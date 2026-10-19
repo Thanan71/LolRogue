@@ -133,7 +133,15 @@ export function LegalPage() {
               </div>
               <div>
                 <dt>{legal.privacy.reviewedReports}</dt>
-                <dd>{legal.privacy.months(PRIVACY_RETENTION.reviewedModerationReportMonths)}</dd>
+                <dd>{legal.privacy.purgeAfter(PRIVACY_RETENTION.reviewedModerationReportDays)}</dd>
+              </div>
+              <div>
+                <dt>{legal.privacy.moderationDecisions}</dt>
+                <dd>{legal.privacy.purgeAfter(PRIVACY_RETENTION.moderationDecisionDays)}</dd>
+              </div>
+              <div>
+                <dt>{legal.privacy.moderationRejections}</dt>
+                <dd>{legal.privacy.purgeAfter(PRIVACY_RETENTION.moderationRejectionDays)}</dd>
               </div>
               <div>
                 <dt>{legal.privacy.accountData}</dt>

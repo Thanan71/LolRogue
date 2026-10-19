@@ -44,8 +44,9 @@ supabase db reset
 ## Fresh hosted project
 
 ```bash
-supabase link --project-ref YOUR_PROJECT_REF
-supabase db push
+npm run database -- link --project-ref YOUR_PROJECT_REF --yes
+npm run database -- migrate --project-ref YOUR_PROJECT_REF --preview
+npm run database -- migrate --project-ref YOUR_PROJECT_REF --yes
 ```
 
 `supabase db push` applies only migrations that are not already recorded in the
@@ -63,13 +64,13 @@ une base contenant des données.
 ## Local validation and generated types
 
 ```bash
-npm run db:start
-npm run db:validate
-npm run db:types
-npm run edge:bundle
+npm run database -- start
+npm run database -- validate --yes
+npm run database -- types generate
+npm run release -- edge bundle
 ```
 
-`db:validate` resets only the local LolRogue database, lints the PostgreSQL
+`database validate --yes` resets only the local LolRogue database, lints the PostgreSQL
 schema, rejects every `public` view that lacks `security_invoker=true`, and runs
 the live Auth/RLS/repository/attempt tests. It also compares every effective
 `SECURITY DEFINER` grant and `search_path` to
@@ -77,7 +78,7 @@ the live Auth/RLS/repository/attempt tests. It also compares every effective
 `src/types/database.ts` is generated from that local schema; application-specific
 models live separately in `src/types/models.ts`.
 
-`edge:bundle` génère le moteur déterministe consommé par `verify-run` et vérifie
+`release edge bundle` génère le moteur déterministe consommé par `verify-run` et vérifie
 le registre unique `config/authority-versions.json`, les hashes des bundles et les
 contrats des rulesets SQL. Le bundle courant généré, les bundles rejouables et le
 resolver de versions sont committés puis contrôlés avant le build. Voir
@@ -87,14 +88,14 @@ parallèle.
 Pour tester localement la fonction avec Supabase déjà démarré :
 
 ```bash
-npm run edge:serve
+npm run release -- edge serve
 ```
 
 Pour un projet hébergé, utiliser l'orchestrateur depuis la branche de release
 correspondante :
 
 ```bash
-npm run backend:deploy
+npm run release -- deploy --project-ref <project-ref> --yes
 ```
 
 Il associe `dev` à `LolRogueDev` et `main` à `LolRogue`, vérifie les migrations

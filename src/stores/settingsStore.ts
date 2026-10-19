@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { getDifficultyRule } from '@/game/run/difficultyRules';
+import type { BattleSpeed } from '@/types/combatPresentation';
+import type { AuthorityDifficulty } from '@/types/runAttempt';
 import { recoverVersionedState, safeLocalStorage } from '@/utils/persistence';
 import { isStoredSettingsState } from '@/utils/storagePolicy';
 
@@ -19,9 +21,10 @@ function isSettingsState(value: unknown): value is Partial<typeof SETTINGS_DEFAU
   return isStoredSettingsState(value);
 }
 
-export type BattleSpeed = 1 | 2 | 3;
+export type { BattleSpeed } from '@/types/combatPresentation';
 export type TextSize = 'small' | 'medium' | 'large';
-export type Difficulty = 'easy' | 'normal' | 'hard';
+/** Compatibility name for the difficulty selected before opening an authority attempt. */
+export type Difficulty = AuthorityDifficulty;
 export type Language = 'fr-FR' | 'en-US';
 
 interface SettingsState {

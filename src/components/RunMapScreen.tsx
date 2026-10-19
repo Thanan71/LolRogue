@@ -7,7 +7,7 @@ import { getRuneDefinition } from '@/data/items/runeDatabase';
 import { toEncounterNodeType } from '@/game/map/mapProgression';
 import { findNode } from '@/game/map/mapUtils';
 import { NodeType } from '@/game/map/types';
-import { finalizeCombatRun } from '@/game/run/runFinalization';
+import { finalizeCombatRun } from '@/stores/runCombatFinalization';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { augmentDescription, augmentName, itemName } from '@/i18n/content';
 import { formatNumber } from '@/i18n/format';

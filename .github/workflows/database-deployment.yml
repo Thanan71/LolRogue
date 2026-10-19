@@ -1,0 +1,188 @@
+name: Supabase backend deployment
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A backend deployment must never be interrupted halfway through by a newer push.
+concurrency:
+  group: supabase-db-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-migrations:
+    name: Validate local migrations and Edge bundles
+    if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout the exact branch selected for deployment
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Reject a superseded commit
+        run: |
+          test "$(git branch --show-current)" = "$GITHUB_REF_NAME"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install pinned dependencies
+        run: npm ci
+
+      - name: Build and validate Edge Function bundles
+        run: npm run release -- edge bundle
+
+      - name: Start disposable local Supabase
+        run: npm run database -- start
+
+      - name: Export local-only credentials for integration tests
+        run: |
+          eval "$(./node_modules/.bin/supabase status -o env)"
+          : "${API_URL:?Supabase local API URL missing}"
+          : "${ANON_KEY:?Supabase local anon key missing}"
+          : "${SERVICE_ROLE_KEY:?Supabase local service role missing}"
+          echo "::add-mask::$SERVICE_ROLE_KEY"
+          echo "VITE_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
+          echo "VITE_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
+
+      - name: Validate schema, migrations, RLS, types and database tests
+        run: npm run check:db
+
+      - name: Stop disposable local Supabase
+        if: always()
+        run: npm run database -- stop
+
+  deploy-dev:
+    name: Deploy migrations and Edge Functions to supabase-dev
+    needs: validate-migrations
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: supabase-dev
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      EXPECTED_BRANCH: dev
+      EXPECTED_PROJECT_REF: misdmtpfcbxbhheacehm
+    steps:
+      - name: Checkout only the authorized branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Reject changed branch head or wrong target
+        run: |
+          test "$GITHUB_REF_NAME" = "$EXPECTED_BRANCH"
+          test "$(git branch --show-current)" = "$EXPECTED_BRANCH"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          node --input-type=module -e '
+            import { resolveDeploymentTarget } from "./scripts/lib/environment-config.mjs";
+            const target = resolveDeploymentTarget(process.env.EXPECTED_BRANCH);
+            if (!target || target.projectRef !== process.env.EXPECTED_PROJECT_REF) process.exit(1);
+          '
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install pinned dependencies
+        run: npm ci
+
+      - name: Require environment-scoped Supabase credentials
+        run: |
+          test -n "$SUPABASE_ACCESS_TOKEN"
+          test -n "$SUPABASE_DB_PASSWORD"
+
+      - name: Link only the approved Supabase project
+        run: npm run database -- link --project-ref "$EXPECTED_PROJECT_REF" --yes
+
+      - name: Reject unexpected or reordered remote migration history
+        run: node scripts/check-database-deploy-plan.mjs --linked --project-ref "$EXPECTED_PROJECT_REF"
+
+      - name: Preview pending migrations without applying them
+        run: npm run database -- migrate --project-ref "$EXPECTED_PROJECT_REF" --preview
+
+      - name: Apply only pending migrations
+        run: npm run database -- migrate --project-ref "$EXPECTED_PROJECT_REF" --yes
+
+      - name: Verify remote migration history matches this commit
+        run: npm run database -- migrations check --linked --project-ref "$EXPECTED_PROJECT_REF"
+
+      - name: Deploy Edge Functions to the approved Supabase project
+        run: npm run release -- edge deploy --project-ref "$EXPECTED_PROJECT_REF" --yes
+
+  deploy-main:
+    name: Deploy migrations and Edge Functions to production (main environment)
+    needs: validate-migrations
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: main
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      EXPECTED_BRANCH: main
+      EXPECTED_PROJECT_REF: mmpvmclqdgfnpfgcqnyu
+    steps:
+      - name: Checkout only the authorized branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Reject changed branch head or wrong target
+        run: |
+          test "$GITHUB_REF_NAME" = "$EXPECTED_BRANCH"
+          test "$(git branch --show-current)" = "$EXPECTED_BRANCH"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          node --input-type=module -e '
+            import { resolveDeploymentTarget } from "./scripts/lib/environment-config.mjs";
+            const target = resolveDeploymentTarget(process.env.EXPECTED_BRANCH);
+            if (!target || target.projectRef !== process.env.EXPECTED_PROJECT_REF) process.exit(1);
+          '
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install pinned dependencies
+        run: npm ci
+
+      - name: Require environment-scoped Supabase credentials
+        run: |
+          test -n "$SUPABASE_ACCESS_TOKEN"
+          test -n "$SUPABASE_DB_PASSWORD"
+
+      - name: Link only the approved Supabase project
+        run: npm run database -- link --project-ref "$EXPECTED_PROJECT_REF" --yes
+
+      - name: Reject unexpected or reordered remote migration history
+        run: node scripts/check-database-deploy-plan.mjs --linked --project-ref "$EXPECTED_PROJECT_REF"
+
+      - name: Preview pending migrations without applying them
+        run: npm run database -- migrate --project-ref "$EXPECTED_PROJECT_REF" --preview
+
+      - name: Apply only pending migrations
+        run: npm run database -- migrate --project-ref "$EXPECTED_PROJECT_REF" --yes
+
+      - name: Verify remote migration history matches this commit
+        run: npm run database -- migrations check --linked --project-ref "$EXPECTED_PROJECT_REF"
+
+      - name: Deploy Edge Functions to the approved Supabase project
+        run: npm run release -- edge deploy --project-ref "$EXPECTED_PROJECT_REF" --yes

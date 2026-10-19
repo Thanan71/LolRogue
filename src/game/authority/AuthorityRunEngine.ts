@@ -1,7 +1,6 @@
 import { championDB } from '@/data/championDatabase';
-import { decodeCombatActionTrace } from '@/game/battle/actionTrace';
 import { BattleManager } from '@/game/battle/BattleManager';
-import { BattlePhase, type BattleTeam } from '@/game/battle/types';
+import type { BattleTeam } from '@/game/battle/types';
 import type { ChampionInstance, SpellSlot } from '@/game/ChampionInstance';
 import { validateItemAddition, validateItemEquipment } from '@/game/inventory/inventoryRules';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
@@ -70,6 +69,7 @@ import {
   type RunLedgerSource,
 } from '@/types/run';
 import { createScopedRunRng } from '@/utils/runRandom';
+import { DeterministicCombatReplay } from './deterministicCombatReplay';
 import {
   AuthorityRunVerificationError,
   failAuthorityVerification as fail,
@@ -93,14 +93,13 @@ import type {
   AuthorityVerificationResult,
 } from './types';
 
-export const AUTHORITY_ENGINE_VERSION = 'run-engine-v22';
+export const AUTHORITY_ENGINE_VERSION = 'run-engine-0.2.5';
 export const AUTHORITY_CONTENT_HASH =
-  '2e0c2b73796122049cd8493b56e9ed9329a9fde25e27addc71f553eb83025d84';
+  '9009950fe0b1c6944a26486e65b0bb0f1379129b42d7499f2bf1c0a8ce3391fa';
 
 assertValidRuleCatalogs();
 
 const MAX_COMMANDS = 10_000;
-const MAX_COMBAT_TURNS = 100_000;
 
 type PendingEncounter = {
   node: MapNode;
@@ -525,16 +524,11 @@ class AuthorityReplayState {
       if (member.currentMp !== null) initialMpOverrides[member.championId] = member.currentMp;
     }
     const rng = createScopedRunRng(this.attempt.seed, `combat:${encounter.id ?? node.id}`);
-    const usesCanonicalAutoPlay = actionsJson === 'auto';
-    const scriptedActions = usesCanonicalAutoPlay ? [] : decodeCombatActionTrace(actionsJson);
-    if (!scriptedActions) {
-      fail('invalid_combat_action_trace', 'Combat action trace is malformed.', commandIndex);
-    }
-    let scriptedActionIndex = 0;
+    const replay = new DeterministicCombatReplay(actionsJson, commandIndex);
     const playerTeam: BattleTeam = { side: 'player', champions: players };
     const enemyTeam: BattleTeam = { side: 'enemy', champions: enemies };
     const battle = new BattleManager(playerTeam, enemyTeam, {
-      autoActions: usesCanonicalAutoPlay,
+      autoActions: replay.usesCanonicalAutoPlay,
       maxRounds: 50,
       maxTeamSize: MAX_TEAM_SIZE,
       combatantTiers: buildCombatantTiers(enemies, combatNodeType),
@@ -557,61 +551,10 @@ class AuthorityReplayState {
         () => rng.next(),
       ),
     });
-    if (!usesCanonicalAutoPlay) {
-      battle.setActionCallback(() => {
-        const replayedActionCount = battle.getPlayerActionTrace().length;
-        while (
-          scriptedActionIndex < replayedActionCount &&
-          scriptedActions[scriptedActionIndex]?.automatic
-        ) {
-          scriptedActionIndex++;
-        }
-        const action = scriptedActions[scriptedActionIndex];
-        // A legal turn may produce no action (for example while rooted with
-        // every spell unavailable). Such a turn is intentionally absent from
-        // the compact trace, so reaching its end must not consume a phantom
-        // entry and invalidate an otherwise exact replay.
-        if (!action) return null;
-        if (action.automatic) return null;
-        scriptedActionIndex++;
-        return action;
-      });
-    }
-    battle.startBattle();
-    const initialPlayerResources = this.captureCombatantResources(battle.getPlayerCombatants());
-    const initialEnemyResources = this.captureCombatantResources(battle.getEnemyCombatants());
-    let processedTurns = 0;
-    while (battle.phase !== BattlePhase.Finished && processedTurns < MAX_COMBAT_TURNS) {
-      battle.processCurrentTurn();
-      processedTurns++;
-    }
-    if (battle.phase !== BattlePhase.Finished) {
-      fail('combat_limit', 'Combat exceeded the deterministic safety limit.', commandIndex);
-    }
-    const result = battle.getResult();
-    if (!result) fail('invalid_combat_result', 'Combat ended without a result.', commandIndex);
-    const replayedActions = battle.getPlayerActionTrace();
-    const firstMismatchedActionIndex = replayedActions.findIndex(
-      (action, index) =>
-        action.type !== scriptedActions[index]?.type ||
-        action.targetId !== scriptedActions[index]?.targetId ||
-        action.automatic !== scriptedActions[index]?.automatic,
+    const { result, initialPlayerResources, initialEnemyResources } = replay.run(
+      battle,
+      this.captureCombatantResources.bind(this),
     );
-    const unconsumedActions = scriptedActions.slice(replayedActions.length);
-    const hasValidReplayPrefix =
-      replayedActions.length <= scriptedActions.length && firstMismatchedActionIndex === -1;
-    const hasOnlyHarmlessAutomaticSuffix = unconsumedActions.every((action) => action.automatic);
-    if (!usesCanonicalAutoPlay && (!hasValidReplayPrefix || !hasOnlyHarmlessAutomaticSuffix)) {
-      const mismatchIndex =
-        firstMismatchedActionIndex !== -1 ? firstMismatchedActionIndex : replayedActions.length;
-      fail(
-        'invalid_combat_action_trace',
-        `Combat action trace does not match deterministic replay at action ${mismatchIndex + 1} ` +
-          `(received ${JSON.stringify(scriptedActions[mismatchIndex] ?? null)}, ` +
-          `replayed ${JSON.stringify(replayedActions[mismatchIndex] ?? null)}).`,
-        commandIndex,
-      );
-    }
 
     const finalPlayerResources = this.captureCombatantResources(battle.getPlayerCombatants());
     const finalEnemyResources = this.captureCombatantResources(battle.getEnemyCombatants());

@@ -2,10 +2,10 @@
 
 import { render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { CombatLog } from '@/components/CombatUI/CombatLog';
-import { CombatStage } from '@/components/CombatUI/CombatStage';
 import { riotSpellIconUrl } from '@/config/riotSpellAssets';
 import { championDB } from '@/data/championDatabase';
+import { CombatLog } from '@/features/combat/ui/CombatLog';
+import { CombatStage } from '@/features/combat/ui/CombatStage';
 import { isActionTargeting } from '@/game/battle/targetResolver';
 import { ActionType } from '@/game/battle/types';
 import { getCombatVisualProfile } from '@/game/presentation/combatVisuals';

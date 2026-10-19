@@ -5,10 +5,12 @@ import { isPassiveCombatReady, isSpellCombatReady } from '@/game/battle/combatCo
 import { ActionType, type CombatantState } from '@/game/battle/types';
 import { ChampionInstance } from '@/game/ChampionInstance';
 import { DelayedDamageEffect } from '@/game/effects/DelayedDamageEffect';
+import { ShieldEffect } from '@/game/effects/ShieldEffect';
 import {
   applyRunProgressStatBonuses,
   cloneRunProgressSnapshot,
   isRunProgressSnapshot,
+  isRunProgressionDefinition,
   resolveRunProgressionGains,
 } from '@/game/runProgression';
 import {
@@ -29,6 +31,14 @@ const DEFINITION: RunProgressionDefinition = {
     { targetTier: 'boss', amount: 10 },
     { targetTier: 'elite', amount: 3 },
     { targetTier: 'normal', abilityOnly: true, amount: 1 },
+  ],
+};
+const ASSIST_DEFINITION: RunProgressionDefinition = {
+  ...DEFINITION,
+  onAssist: [
+    { targetTier: 'boss', amount: 10 },
+    { targetTier: 'elite', amount: 3 },
+    { targetTier: 'normal', amount: 1 },
   ],
 };
 
@@ -96,6 +106,22 @@ function advanceTo(manager: BattleManager, caster: ChampionInstance): void {
 
 function cast(manager: BattleManager, target: CombatantState): void {
   expect(manager.submitAction({ type: ActionType.SpellQ, targetId: target.targetId })).toBe(true);
+}
+
+function assistant(
+  id = 'Assistant',
+  effects: SpellEffect[] = [{ type: 'damage', damageType: 'true', baseDamage: [5] }],
+  progression = ASSIST_DEFINITION,
+): ChampionInstance {
+  const champion = definition(id, effects, [progression]);
+  champion.stats.attackDamage = 5;
+  return new ChampionInstance(champion);
+}
+
+function finisher(): ChampionInstance {
+  return new ChampionInstance(
+    definition('Finisher', [{ type: 'damage', damageType: 'true', baseDamage: [2000] }]),
+  );
 }
 
 describe('run progression state', () => {
@@ -202,6 +228,29 @@ describe('run progression state', () => {
       }),
     ).toBe(true);
   });
+
+  it('accepts a generic assist-only definition and rejects malformed assist triggers', () => {
+    const generic = { ...ASSIST_DEFINITION, onKill: undefined };
+    expect(isRunProgressionDefinition(generic)).toBe(true);
+    expect(
+      isPassiveCombatReady('GenericAssistant', {
+        ...definition('GenericAssistant').passive,
+        runProgression: [generic],
+      }),
+    ).toBe(true);
+    expect(isRunProgressionDefinition({ ...generic, onAssist: [] })).toBe(false);
+    expect(isRunProgressionDefinition({ ...generic, onAssist: [{ amount: 0 }] })).toBe(false);
+    expect(
+      isRunProgressionDefinition({ ...generic, onAssist: [{ amount: 1, abilityOnly: true }] }),
+    ).toBe(true);
+    expect(
+      resolveRunProgressionGains([{ ...generic, onAssist: [{ amount: 1, abilityOnly: true }] }], {
+        hook: 'onAssist',
+        ability: false,
+        targetTier: 'normal',
+      }),
+    ).toEqual([]);
+  });
 });
 
 describe('combat run progression triggers', () => {
@@ -240,7 +289,7 @@ describe('combat run progression triggers', () => {
     );
   });
 
-  it('does not grant stacks on hits or assists', () => {
+  it('does not grant stacks on hits or assists for a kill-only definition', () => {
     const caster = new ChampionInstance(
       definition(
         'GenericMage',
@@ -313,6 +362,338 @@ describe('combat run progression triggers', () => {
     expect(caster.getRunCounter(KEY)).toBe(8);
     manager.processCurrentTurn();
     expect(caster.getRunCounter(KEY)).toBe(8);
+  });
+});
+
+describe('credited assist run progression', () => {
+  it.each([
+    ['normal', ActionType.SpellQ, 1],
+    ['normal', ActionType.BasicAttack, 1],
+    ['elite', ActionType.SpellQ, 3],
+    ['elite', ActionType.BasicAttack, 3],
+    ['boss', ActionType.SpellQ, 10],
+    ['boss', ActionType.BasicAttack, 10],
+  ] as const)(
+    'credits %s assists from effective %s damage once on defeat',
+    (tier, action, amount) => {
+      const caster = assistant();
+      const ally = finisher();
+      const manager = battle(
+        caster,
+        [new ChampionInstance(definition('Target'))],
+        {
+          combatantTiers: { Target: tier },
+        },
+        [ally],
+      );
+      expect(manager.submitAction({ type: action, targetId: 'Target' })).toBe(true);
+      expect(caster.getRunCounter(KEY)).toBe(0);
+      advanceTo(manager, ally);
+      cast(manager, manager.getEnemyCombatants()[0]);
+      expect(caster.getRunCounter(KEY)).toBe(amount);
+      expect(manager.log.filter((event) => event.type === 'run_counter_gain')).toEqual([
+        expect.objectContaining({
+          source: 'Assistant',
+          target: 'Target',
+          sourceCombatantId: 'Assistant',
+          targetCombatantId: 'Target',
+          sourceSide: 'player',
+          targetSide: 'enemy',
+          key: KEY,
+          amount,
+          value: amount,
+        }),
+      ]);
+    },
+  );
+
+  it('uses the Veigar definition for all tiers without changing the normal ability-kill requirement', () => {
+    const progression = championDB.getById('Veigar')!.passive.runProgression![0]!;
+    for (const [targetTier, amount] of [
+      ['normal', 1],
+      ['elite', 3],
+      ['boss', 10],
+    ] as const) {
+      expect(
+        resolveRunProgressionGains([progression], { hook: 'onAssist', targetTier, ability: false }),
+      ).toEqual([{ key: 'veigar.phenomenal_power', amount }]);
+    }
+    expect(
+      resolveRunProgressionGains([progression], {
+        hook: 'onKill',
+        targetTier: 'normal',
+        ability: false,
+      }),
+    ).toEqual([]);
+    expect(isPassiveCombatReady('Veigar', championDB.getById('Veigar')!.passive)).toBe(true);
+  });
+
+  it('credits shield-only effective damage as an assist', () => {
+    const caster = assistant();
+    const ally = finisher();
+    const manager = battle(caster, [new ChampionInstance(definition('Target'))], {}, [ally]);
+    const target = manager.getEnemyCombatants()[0];
+    target.effectManager.apply(
+      new ShieldEffect({
+        sourceId: target.targetId,
+        targetId: target.targetId,
+        magnitude: 50,
+        duration: 5,
+      }),
+    );
+    cast(manager, target);
+    expect(target.currentHp).toBe(target.maxHp);
+    expect(manager.log.find((event) => event.type === 'damage')).toMatchObject({
+      hpDamage: 0,
+      shieldDamage: 5,
+    });
+    advanceTo(manager, ally);
+    cast(manager, target);
+    expect(caster.getRunCounter(KEY)).toBe(1);
+  });
+
+  it.each<SpellEffect>([
+    { type: 'damage', damageType: 'true', baseDamage: [0] },
+    { type: 'cc', ccType: 'stun', ccDuration: 1 },
+  ])('does not credit zero effective damage or control alone: %j', (effect) => {
+    const caster = assistant('Assistant', [effect]);
+    const ally = finisher();
+    const manager = battle(caster, [new ChampionInstance(definition('Target'))], {}, [ally]);
+    const target = manager.getEnemyCombatants()[0];
+    cast(manager, target);
+    advanceTo(manager, ally);
+    cast(manager, target);
+    expect(caster.getRunCounter(KEY)).toBe(0);
+  });
+
+  it('does not credit a nonparticipant or a different target', () => {
+    const caster = assistant();
+    const observer = assistant('Observer', [
+      { type: 'damage', damageType: 'true', baseDamage: [0] },
+    ]);
+    observer.baseStats.attackDamage = 0;
+    const ally = finisher();
+    const manager = battle(
+      caster,
+      [
+        new ChampionInstance(definition('Participated')),
+        new ChampionInstance(definition('Untouched')),
+      ],
+      {},
+      [observer, ally],
+    );
+    const [participated, untouched] = manager.getEnemyCombatants();
+    cast(manager, participated);
+    advanceTo(manager, ally);
+    cast(manager, untouched);
+    expect(caster.getRunCounter(KEY)).toBe(0);
+    expect(observer.getRunCounter(KEY)).toBe(0);
+    advanceTo(manager, ally);
+    cast(manager, participated);
+    expect(caster.getRunCounter(KEY)).toBe(1);
+    expect(observer.getRunCounter(KEY)).toBe(0);
+  });
+
+  it('does not award both a kill and an assist to the finisher', () => {
+    const caster = new ChampionInstance(definition('Assistant', undefined, [ASSIST_DEFINITION]));
+    const manager = battle(caster, [new ChampionInstance(definition('Target'))]);
+    cast(manager, manager.getEnemyCombatants()[0]);
+    expect(caster.getRunCounter(KEY)).toBe(1);
+    expect(manager.log.filter((event) => event.type === 'run_counter_gain')).toHaveLength(1);
+  });
+
+  it('does not turn a prior spell contribution into an assist when its source finishes with an attack', () => {
+    const caster = assistant();
+    const manager = battle(caster, [new ChampionInstance(definition('Target'))]);
+    const target = manager.getEnemyCombatants()[0];
+    target.currentHp = 10;
+    cast(manager, target);
+    expect(target.currentHp).toBe(5);
+    advanceTo(manager, caster);
+    expect(manager.submitAction({ type: ActionType.BasicAttack, targetId: target.targetId })).toBe(
+      true,
+    );
+    expect(target.isDefeated).toBe(true);
+    expect(caster.getRunCounter(KEY)).toBe(0);
+    expect(manager.log.filter((event) => event.type === 'run_counter_gain')).toEqual([]);
+  });
+
+  it('credits duplicate target identities separately and never credits a revived identity twice', () => {
+    const caster = assistant();
+    const ally = finisher();
+    const manager = battle(
+      caster,
+      [
+        new ChampionInstance(definition('Duplicate')),
+        new ChampionInstance(definition('Duplicate')),
+        new ChampionInstance(definition('Survivor')),
+      ],
+      {},
+      [ally],
+    );
+    const [first, second] = manager.getEnemyCombatants();
+    cast(manager, first);
+    advanceTo(manager, ally);
+    cast(manager, first);
+    expect(caster.getRunCounter(KEY)).toBe(1);
+    first.isDefeated = false;
+    first.currentHp = 100;
+    advanceTo(manager, caster);
+    cast(manager, first);
+    advanceTo(manager, ally);
+    cast(manager, first);
+    expect(caster.getRunCounter(KEY)).toBe(1);
+    advanceTo(manager, caster);
+    cast(manager, second);
+    advanceTo(manager, ally);
+    cast(manager, second);
+    expect(caster.getRunCounter(KEY)).toBe(2);
+    expect(
+      manager.log
+        .filter((event) => event.type === 'run_counter_gain')
+        .map((event) => event.targetCombatantId),
+    ).toEqual(['Duplicate#1', 'Duplicate#2']);
+  });
+
+  it.each(['dot', 'delayed_damage'] as const)(
+    'credits the original source of effective %s damage',
+    (type) => {
+      const caster = assistant('Assistant', [
+        { type, damageType: 'true', baseDamage: [5], duration: 1 },
+      ]);
+      const ally = finisher();
+      const manager = battle(caster, [new ChampionInstance(definition('Target'))], {}, [ally]);
+      const target = manager.getEnemyCombatants()[0];
+      cast(manager, target);
+      expect(caster.getRunCounter(KEY)).toBe(0);
+      advanceTo(manager, ally);
+      expect(
+        manager.submitAction({ type: ActionType.BasicAttack, targetId: target.targetId }),
+      ).toBe(true);
+      advanceTo(manager, caster);
+      expect(
+        manager.log.find((event) => event.type === 'damage' && event.source === 'Assistant'),
+      ).toMatchObject({
+        sourceSide: 'player',
+        sourceCombatantId: 'Assistant',
+        hpDamage: 5,
+      });
+      expect(
+        manager.submitAction({ type: ActionType.BasicAttack, targetId: target.targetId }),
+      ).toBe(true);
+      advanceTo(manager, ally);
+      cast(manager, target);
+      expect(caster.getRunCounter(KEY)).toBe(1);
+    },
+  );
+
+  it('keeps assist ownership separate in mirror matchups', () => {
+    const caster = assistant('Mirror');
+    const enemy = assistant('Mirror');
+    const ally = finisher();
+    const manager = battle(caster, [enemy], {}, [ally]);
+    const target = manager.getEnemyCombatants()[0];
+    cast(manager, target);
+    advanceTo(manager, ally);
+    cast(manager, target);
+    expect(caster.getRunCounter(KEY)).toBe(1);
+    expect(enemy.getRunCounter(KEY)).toBe(0);
+    expect(manager.log.filter((event) => event.type === 'run_counter_gain')).toEqual([
+      expect.objectContaining({ sourceSide: 'player', targetSide: 'enemy' }),
+    ]);
+  });
+
+  it('credits a participant who died before the teammate finished the target, as the ledger does', () => {
+    const caster = assistant();
+    const ally = finisher();
+    const manager = battle(caster, [new ChampionInstance(definition('Target'))], {}, [ally]);
+    const target = manager.getEnemyCombatants()[0];
+    cast(manager, target);
+    const source = manager.getCombatantState('Assistant', 'player')!;
+    source.currentHp = 0;
+    source.isDefeated = true;
+    advanceTo(manager, ally);
+    cast(manager, target);
+    expect(caster.getRunCounter(KEY)).toBe(1);
+    expect(
+      manager.getFinalPlayerStates().find((member) => member.championId === 'Assistant'),
+    ).toMatchObject({
+      currentHp: 0,
+      runProgress: { [KEY]: 1 },
+    });
+  });
+
+  it('caps assist rewards and reports only the effective gain', () => {
+    const caster = assistant();
+    caster.setRunCounter(KEY, 198);
+    const ally = finisher();
+    const manager = battle(
+      caster,
+      [new ChampionInstance(definition('Boss'))],
+      {
+        combatantTiers: { Boss: 'boss' },
+      },
+      [ally],
+    );
+    cast(manager, manager.getEnemyCombatants()[0]);
+    advanceTo(manager, ally);
+    cast(manager, manager.getEnemyCombatants()[0]);
+    expect(caster.getRunCounter(KEY)).toBe(200);
+    expect(manager.log.filter((event) => event.type === 'run_counter_gain')).toEqual([
+      expect.objectContaining({ amount: 2, value: 200 }),
+    ]);
+  });
+
+  it('does not emit another gain once the assist counter is capped', () => {
+    const caster = assistant();
+    caster.setRunCounter(KEY, 200);
+    const ally = finisher();
+    const manager = battle(caster, [new ChampionInstance(definition('Target'))], {}, [ally]);
+    cast(manager, manager.getEnemyCombatants()[0]);
+    advanceTo(manager, ally);
+    cast(manager, manager.getEnemyCombatants()[0]);
+    expect(caster.getRunCounter(KEY)).toBe(200);
+    expect(manager.log.filter((event) => event.type === 'run_counter_gain')).toEqual([]);
+  });
+
+  it('retains counters across combats but resets participation and fresh-run state', () => {
+    const caster = assistant();
+    const ally = finisher();
+    const first = battle(caster, [new ChampionInstance(definition('Target'))], {}, [ally]);
+    cast(first, first.getEnemyCombatants()[0]);
+    advanceTo(first, ally);
+    cast(first, first.getEnemyCombatants()[0]);
+    expect(caster.getRunCounter(KEY)).toBe(1);
+    ally.baseStats.moveSpeed = 1000;
+    const second = battle(caster, [new ChampionInstance(definition('Target'))], {}, [ally]);
+    advanceTo(second, ally);
+    cast(second, second.getEnemyCombatants()[0]);
+    expect(caster.getRunCounter(KEY)).toBe(1);
+    ally.baseStats.moveSpeed = 1;
+    const third = battle(caster, [new ChampionInstance(definition('Target'))], {}, [ally]);
+    cast(third, third.getEnemyCombatants()[0]);
+    advanceTo(third, ally);
+    cast(third, third.getEnemyCombatants()[0]);
+    expect(caster.getRunCounter(KEY)).toBe(2);
+    expect(assistant().getRunProgressSnapshot()).toEqual({});
+  });
+
+  it('preserves kill-only progression when the authority capability is disabled', () => {
+    const caster = assistant();
+    const ally = finisher();
+    const manager = battle(
+      caster,
+      [new ChampionInstance(definition('Target'))],
+      {
+        runProgressionAssists: false,
+      },
+      [ally],
+    );
+    cast(manager, manager.getEnemyCombatants()[0]);
+    advanceTo(manager, ally);
+    cast(manager, manager.getEnemyCombatants()[0]);
+    expect(caster.getRunCounter(KEY)).toBe(0);
+    expect(manager.log.filter((event) => event.type === 'run_counter_gain')).toEqual([]);
   });
 });
 

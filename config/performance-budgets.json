@@ -1,17 +1,18 @@
 {
-  "version": 8,
+  "version": 13,
   "bundle": {
-    "totalJavaScriptGzipBytes": 690000,
+    "totalJavaScriptGzipBytes": 770000,
     "largestJavaScriptRawBytes": 560000,
-    "initialJavaScriptGzipBytes": 225000,
-    "authRouteJavaScriptGzipBytes": 230000,
-    "deployableAssetBytes": 8000000
+    "initialJavaScriptGzipBytes": 230000,
+    "authRouteJavaScriptGzipBytes": 235000,
+    "deployableAssetBytes": 8250000
   },
   "headroom": {
     "totalJavaScriptMinimumRatio": 0.1
   },
   "chunks": {
     "content": 135000,
+    "championContent": 135000,
     "react-vendor": 83000,
     "supabase-vendor": 56000,
     "champion-data": 55000,

@@ -45,7 +45,7 @@ doit pas sacrifier les barres PV/XP ni les positions de tooltip et de carte.
 
 ## État après P2-WEB-01
 
-`npm run csp:styles:check` impose désormais exactement neuf bindings dans
+`npm run testing -- styles check` impose désormais exactement neuf bindings dans
 `config/csp-inline-styles.json`. Ils ne contiennent que des custom properties ; toute
 propriété CSS standard, spread, mutation via `HTMLElement.style` ou nouvelle liaison
 non inventoriée bloque `npm run check`.

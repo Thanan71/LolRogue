@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { getAuthorityGameplayVersionLabel } from '@/game/authority/versionRegistry';
 import {
   compareVerifiedFieldAugmentCalibration,
   compareVerifiedFieldCalibration,
@@ -70,7 +71,7 @@ function cellLabel(
   >,
 ): string {
   return [
-    `${copy.cell.gameplay} v${cell.gameplayRulesetVersion}`,
+    `${copy.cell.gameplay} v${getAuthorityGameplayVersionLabel(cell.gameplayRulesetVersion)}`,
     cell.engineVersion,
     copy.difficulty[cell.difficulty],
     copy.mode[cell.mode],
@@ -146,7 +147,12 @@ export function AdminFieldCalibrationPanel({
         </div>
       </div>
 
-      <div className="runs-table-container">
+      <div
+        className="runs-table-container"
+        role="region"
+        aria-label={copy.overallCaption}
+        tabIndex={0}
+      >
         <table className="runs-table field-calibration-table">
           <caption className="sr-only">{copy.overallCaption}</caption>
           <thead>
@@ -243,7 +249,12 @@ export function AdminFieldCalibrationPanel({
       </div>
 
       <div className="field-calibration-conditionals">
-        <div className="runs-table-container">
+        <div
+          className="runs-table-container"
+          role="region"
+          aria-label={copy.champions.caption}
+          tabIndex={0}
+        >
           <table className="runs-table field-calibration-table">
             <caption>{copy.champions.caption}</caption>
             <thead>
@@ -319,7 +330,12 @@ export function AdminFieldCalibrationPanel({
           {championRows.length === 0 ? <div className="no-data">{copy.empty.champions}</div> : null}
         </div>
 
-        <div className="runs-table-container">
+        <div
+          className="runs-table-container"
+          role="region"
+          aria-label={copy.augments.caption}
+          tabIndex={0}
+        >
           <table className="runs-table field-calibration-table">
             <caption>{copy.augments.caption}</caption>
             <thead>

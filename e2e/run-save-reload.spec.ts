@@ -355,7 +355,7 @@ for (const language of ['fr-FR', 'en-US'] as const) {
     // A persisted success is not a server receipt. Forged cached rewards must
     // disappear while the automatic, read-only recovery is still pending.
     await page.evaluate(async () => {
-      const { RUN_STORAGE_KEY } = await import('/src/game/run/runPersistence.ts');
+      const { RUN_STORAGE_KEY } = await import('/src/stores/persistence/runPersistence.ts');
       const stored = JSON.parse(localStorage.getItem(RUN_STORAGE_KEY)!);
       stored.state.serverProgression.candiesEarned = 999999;
       stored.state.serverProgression.shardsBalance = 999999;

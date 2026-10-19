@@ -1,6 +1,21 @@
 # Performance frontend
 
-Dernière mesure bundle : **7 octobre 2026**, Node 24, build Vite de production local.
+Dernière campagne bundle : **18 octobre 2026**, Node 24, build Vite de production local.
+
+## ADM-S5 — modération auditée
+
+Le clone parent indépendant `c1181954` mesure 671 518 octets de JavaScript gzip.
+Le dernier build local ADM-S5 mesure 681 459 octets, soit **+9 941**. L’espace de
+modération de 10 670 octets gzip est chargé à la demande ; le retrait de l’ancien
+panel et de son canal de données réduit le chunk Admin principal. La route Auth
+conserve ses 10 entrées sans module admin et mesure 231 297 octets, comme
+le parent. Les assets passent de 8 174 955 à 8 213 021 octets.
+
+Le budget v13 passe de 750 000 à **770 000 octets JS gzip** et de 8 200 000 à
+**8 250 000 octets d’assets**. Les 10 % de marge minimale, les plafonds
+initial/Auth, les plafonds de chunks existants et les Web Vitals sont conservés.
+Les mesures finales, la comparaison à cache vide et les limites des preuves
+figurent dans la [validation ADM-S5](admin-s5-validation-2026-10-18.md).
 
 ## Référence avant P2-PERF-01
 
@@ -83,7 +98,7 @@ notifications globale déclenchait malgré tout `runStore` sur `/auth`. Elle est
 différée sur les routes publiques. La mesure finale de `/auth` charge dix ressources
 JavaScript pour **184 308 octets transférés**, sans requête vers `champion-data`,
 `DatabasePage`, `AdminPage` ou `LegalPage`. Le détail est écrit dans
-`performance-report/preview-report.json` par `npm run test:performance-preview`.
+`performance-report/preview-report.json` par `npm run testing -- performance preview`.
 
 ## Révision pour la calibration terrain
 
@@ -150,7 +165,7 @@ Le plafond total passe de 640 000 à **650 000 octets** (+1,56 %) et celui de
 la règle minimale de **10 %** ne change pas. Le chargement initial (213 334
 octets) et Auth (217 391 octets) restent sous leurs plafonds inchangés de
 215 000 et 225 000 octets. Les autres chunks, les assets et les limites
-Web Vitals restent inchangés. `test:performance-budgets` reste bloquant ;
+Web Vitals restent inchangés. `npm run testing -- performance budgets` reste bloquant ;
 ces mesures de taille ne constituent pas à elles seules une mesure Web Vitals.
 
 ## Audit Web Vitals avant P2-PERF-02
@@ -253,3 +268,74 @@ Le total mesuré en CI reste à **613 318 octets gzip** sur un plafond de 690 00
 soit **11,11 % de marge**. La marge minimale obligatoire de 10 %, les plafonds par
 chunk et d'assets, les Web Vitals et les seuils de couverture restent inchangés.
 Cette mesure de taille ne remplace pas la vérification des Web Vitals.
+
+## ARCH-S4 — modules et protection des requêtes obsolètes
+
+Le build local final mesure **621 103 octets gzip** après l'extraction des modules
+UI et du contrôle commun de compte. Le plafond v8 de 690 000 octets laisse
+**9,985 %** de marge ; le maximum effectif de 621 000 octets est dépassé de
+103 octets. Le contrôle partagé protège les réponses retardées et les départs
+après A → B → A sans dupliquer l'état du compte.
+
+Conformément à l'autorisation utilisateur de conserver la qualité du code, le
+budget v9 porte uniquement le plafond global à **700 000 octets** (+1,45 %).
+Avec la même marge obligatoire de **10 %**, le maximum effectif devient
+**630 000 octets** ; la mesure locale conserve **11,27 %** de marge globale.
+Les plafonds initial/Auth, par chunk, d'assets et de Web Vitals, ainsi que les
+seuils de couverture, restent inchangés. La séparation des modules, les ports
+explicites et les protections asynchrones sont conservés.
+
+## ADM-S1 — définitions et fiabilité des données
+
+Le premier build ajoute 15 297 octets d'assets déployables par rapport au même
+build du parent `53f63629`, et atteint 8 009 358 octets. Le plafond de
+8 000 000 octets est dépassé de 9 358 octets. Les définitions bilingues, états
+indépendants et protections contre les réponses obsolètes restent dans leurs
+modules habituels.
+
+Conformément à l'autorisation utilisateur de préserver la qualité du code, le
+budget v10 porte uniquement les assets déployables à **8 050 000 octets**
+(+0,625 %). Le plafond JavaScript global de 700 000 octets, sa marge obligatoire
+de 10 %, les budgets initial/Auth, par chunk et de Web Vitals restent inchangés.
+Les mesures finales comparées au parent sont consignées dans la
+[validation ADM-S1](admin-s1-validation-2026-10-17.md).
+
+## ADM-S2 — fiches joueurs et historiques
+
+Le premier build de ce lot ajoute 15 391 octets de JavaScript gzip au parent
+`ae51c452` et atteint 642 427 octets. Sous le plafond v10, sa marge de 8,22 %
+échoue au minimum bloquant de 10 %. Les traductions FR/EN portent l’initial à
+226 373 octets et Auth à 231 177 ; les assets atteignent 8 070 267 octets.
+
+Le budget **v11** porte le JS total à **730 000 octets**, l’initial à **230 000**,
+Auth à **235 000** et les assets à **8 150 000**. Ce changement mesuré respecte
+l’autorisation utilisateur de préserver les modules et la qualité du code.
+Les 10 % de marge, plafonds par chunk, couverture et Web Vitals restent bloquants.
+L’isolation Auth continue d’exclure les écrans admin, Database et données champions.
+Les mesures finales et preuves figurent dans la
+[validation ADM-S2](admin-s2-validation-2026-10-17.md).
+
+## ADM-S4 — espace d’équilibrage différé
+
+Le parent `ee3cf5b2` est construit dans un clone indépendant, sans alternates ni
+configuration privée, sous Node 24 après `npm ci` avec un cache initialement vide.
+Il mesure 656 280 octets de JavaScript gzip, 226 465 pour l’initial, 231 275 pour
+Auth et 8 121 484 octets d’assets. Le premier build ADM-S4 mesure respectivement
+671 270, 226 499, 231 305 et 8 174 038 octets. Sa marge globale de 8,05 % échoue
+au minimum de 10 % ; les assets dépassent aussi leur ancien plafond.
+
+Conformément à l’autorisation utilisateur de préserver la qualité du code, le
+budget **v12** porte uniquement le total JS à **750 000 octets** (+2,74 %) et les
+assets à **8 200 000 octets** (+0,61 %). La marge minimale de **10 %**, les plafonds
+initial/Auth, les plafonds individuels existants et les Web Vitals restent
+bloquants. L’espace est importé à la première visite et les lectures sont annulées
+lorsqu’il est masqué ; les filtres restent conservés pour le retour à l’onglet.
+
+La séparation des imports fait apparaître le catalogue traduit sous le nom
+`championContent`, tandis que `content` conserve ses résolveurs. Le nouveau chunk
+reçoit le même plafond individuel de **135 000 octets gzip**, en plus du contrôle
+existant de `content`, afin de continuer à contrôler les données réellement
+lourdes. Il ne s’agit pas d’un relèvement de leur budget individuel.
+
+Les mesures finales et leurs limites figurent dans la
+[validation ADM-S4](admin-s4-validation-2026-10-18.md).

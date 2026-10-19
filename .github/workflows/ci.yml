@@ -175,7 +175,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Enforce controlled mobile Web Vitals
-        run: npm run test:performance-preview
+        run: npm run testing -- performance preview
 
       - name: Upload performance reports and samples
         if: always()
@@ -204,7 +204,7 @@ jobs:
         run: npm ci
 
       - name: Start local Supabase
-        run: npm run db:start
+        run: npm run database -- start
 
       - name: Export local Supabase credentials
         run: |
@@ -222,7 +222,7 @@ jobs:
 
       - name: Stop local Supabase
         if: always()
-        run: npm run db:stop
+        run: npm run database -- stop
 
   browser:
     name: browser
@@ -267,7 +267,7 @@ jobs:
         run: node scripts/ci-build-artifact.mjs restore
 
       - name: Start disposable Supabase for connected browser tests
-        run: npm run db:start
+        run: npm run database -- start
 
       - name: Export local Supabase credentials
         run: |
@@ -288,7 +288,7 @@ jobs:
           VITE_PUBLIC_SUPABASE_ANON_KEY="$E2E_SUPABASE_ANON_KEY" \
           npm run test:e2e
 
-      - name: Run connected Daily, Sprint G and champion economy browser tests
+      - name: Run connected Daily, Sprint G, champion economy and admin browser tests
         env:
           E2E_REQUIRE_CONNECTED: '1'
         run: |
@@ -296,14 +296,14 @@ jobs:
           VITE_PUBLIC_SUPABASE_ANON_KEY="$E2E_SUPABASE_ANON_KEY" \
           SUPABASE_SERVICE_ROLE_KEY="$E2E_SUPABASE_SERVICE_ROLE_KEY" \
           SUPABASE_DB_URL="$E2E_SUPABASE_DB_URL" \
-          npx playwright test e2e/connected-daily.spec.ts e2e/connected-sprint-g.spec.ts e2e/champion-economy-connected.spec.ts --project=chromium
+          npx playwright test e2e/connected-daily.spec.ts e2e/connected-sprint-g.spec.ts e2e/champion-economy-connected.spec.ts e2e/admin-analytics-connected.spec.ts e2e/admin-balance-connected.spec.ts e2e/admin-moderation-connected.spec.ts --project=chromium
 
       - name: Run production browser matrix
         run: npm run test:e2e:production
 
       - name: Stop local Supabase
         if: always()
-        run: npm run db:stop
+        run: npm run database -- stop
 
   clean-room:
     name: clean-room
@@ -343,10 +343,10 @@ jobs:
         run: npm ci
 
       - name: Verify tracked Riot asset package
-        run: npm run assets:verify
+        run: npm run assets -- verify
 
       - name: Start local Supabase
-        run: npm run db:start
+        run: npm run database -- start
 
       - name: Export local Supabase credentials
         run: |
@@ -360,7 +360,7 @@ jobs:
         run: |
           npx supabase db reset --local --no-seed --version 20260730300000
           npx supabase migration up --local
-          npm run db:lint
+          npm run database -- lint
 
       - name: Verify generated database types
         run: |
@@ -370,8 +370,8 @@ jobs:
 
       - name: Prove a clean latest-schema reset and live RLS/RPC behavior
         run: |
-          npm run db:reset
-          npm run db:lint
+          npm run database -- reset --yes
+          npm run database -- lint
           npm run test:db
 
       - name: Validate source, coverage, assets and production build
@@ -392,4 +392,4 @@ jobs:
 
       - name: Stop local Supabase
         if: always()
-        run: npm run db:stop
+        run: npm run database -- stop

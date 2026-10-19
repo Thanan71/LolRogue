@@ -12,12 +12,12 @@ doit donc échouer localement comme en CI.
 `npm run check` conserve la validation locale complète : `check:static` (format,
 lint, CSP, types, contrat Node, cohérence release et support du contenu),
 `check:unit` (suite Vitest avec couverture), `check:security` (audit),
-`test:assets-clean` (build dans un répertoire jetable) puis `check:build`
+`npm run assets -- clean-build` (build dans un répertoire jetable) puis `check:build`
 (build, contrat de production et budgets des assets). Les sous-commandes isolent
 la responsabilité qui échoue sans supprimer la commande habituelle.
 
 La base jetable et les navigateurs restent explicites : `check:db` et
-`check:browser`. `i18n:check` permet de rejouer le contrat des traductions ; ses
+`check:browser`. `npm run testing -- i18n check` permet de rejouer le contrat des traductions ; ses
 suites font déjà partie de `check:unit`. Les preuves locales restent le contrat
 de livraison des sprints ; aucune CI distante ou protection payante nouvelle
 n’est requise pour fusionner une tâche.
@@ -92,12 +92,14 @@ La console n'affiche que le résumé global. Vitest produit aussi `coverage/inde
 `coverage/lcov.info` et `coverage/coverage-summary.json`. La job `unit` archive le
 dossier `coverage/` pendant 14 jours, y compris lorsque la validation échoue.
 
-Les tests Supabase live restent dans `npm run test:db`; leur objectif est la preuve
-RLS/RPC et non l'augmentation artificielle de la couverture JavaScript.
+Les tests Supabase restent dans `npm run test:db` et exigent des URLs Postgres et
+PostgREST locales (loopback) ; leur objectif est la preuve RLS/RPC. Une URL distante
+est refusée avant le lancement des tests. Les contrôles opérateur distants utilisent
+les commandes liées avec une référence explicite, sur la branche `main` ou `dev`.
 
 ## Gates d'équilibrage versionnées
 
-`npm run balance:check` reproduit byte-for-byte les sept baselines authority v15 à
+`npm run balance -- check` reproduit byte-for-byte les sept baselines authority v15 à
 v21, sans réécrire les six versions historiques, les cohortes Early Top v17/v18/v21,
 la matrice de combat courante et la carte/économie v21.
 `config/champion-combat-matrix-current.json` compare v20 à v21 sur 7 560 combats par
@@ -187,9 +189,9 @@ identifiés exactement par type, `cacheKey`, nom et niveau, avec une justificati
 une date d'expiration. Une alerte inconnue, même `INFO`, une identité qui change ou
 une exception expirée fait échouer le contrôle.
 
-`npm run db:advisors` applique ce contrat à la stack locale. `npm run db:validate`
+`npm run database -- advisors` applique ce contrat à la stack locale. `npm run database -- validate --yes`
 l'exécute après le reset et l'audit de sécurité, tandis que le preflight de release
-relance `node scripts/check-supabase-advisors.mjs --linked` sur le projet Supabase
+relance `node scripts/check-supabase-advisors.mjs --linked --project-ref <project-ref>` sur le projet Supabase
 explicitement lié. Les 29 exceptions actuelles ont été revues le 1er octobre 2026
 et expirent le **31 octobre 2026 inclus** ; dès le 1er novembre, le contrôle refuse
 les constats encore présents. Le [compte rendu de revue](supabase-advisors-review-20261001.md)
@@ -213,11 +215,11 @@ tests en parallèle.
 Toute occurrence de `skip`, `skipIf` ou `todo` dans ces suites fait échouer
 `npm run test:db`, sauf correspondance exacte avec une entrée justifiée de
 `skipAllowlist`. Les seules exceptions actuelles sont les gardes qui permettent à la
-suite générique sans Supabase local d'ignorer les tests live ; `db:validate` passe par
+suite générique sans Supabase local d'ignorer les tests live ; `npm run database -- validate --yes` passe par
 `run-local-db-tests.mjs`, fournit les identifiants locaux à `test:db` et les exécute
 réellement.
 
-`npm run test:db:list` applique ces mêmes règles et affiche, dans l'ordre, chaque
+`npm run testing -- database --list` applique ces mêmes règles et affiche, dans l'ordre, chaque
 fichier que `npm run test:db` transmettra à Vitest. Cette commande ne démarre ni
 Supabase ni les tests et sert de preuve locale de discovery.
 
@@ -275,12 +277,12 @@ limiter la contention et chaque test conserve son propre contexte navigateur vie
 Cette matrice vérifie la compatibilité ; elle ne porte plus le budget Web Vitals.
 
 Les budgets versionnés sont dans `config/performance-budgets.json` et contrôlés par
-`npm run test:performance-budgets`. Ils couvrent le JavaScript total, le plus gros
+`npm run testing -- performance budgets`. Ils couvrent le JavaScript total, le plus gros
 chunk, l'entrée, la route Auth, les assets déployés, une marge globale minimale de 10 %
 et six chunks structurants, dont le catalogue de traduction `content`. Le rapport détaillé est écrit dans
 `performance-report/bundle-report.json`.
 
-Après le build, `npm run test:performance-preview` démarre une vraie preview Vite,
+Après le build, `npm run testing -- performance preview` démarre une vraie preview Vite,
 ouvre `/auth` avec Chromium et écrit `performance-report/preview-report.json`. Ce test
 vérifie notamment que les chunks champions, Database, Admin et légal ne sont pas
 téléchargés sur cette route publique. Il exécute aussi un warm-up puis cinq contextes
@@ -296,9 +298,9 @@ qu'une valeur console. La télémétrie terrain Vercel reste hors de cette gate.
 
 ## CSP et styles dynamiques
 
-`npm run csp:styles:check` analyse tous les fichiers source et refuse les styles
+`npm run testing -- styles check` analyse tous les fichiers source et refuse les styles
 statiques inline, les mutations directes du DOM et tout binding dynamique absent de
 `config/csp-inline-styles.json`. Les tests `cspDynamicStyles.test.tsx` protègent les
 valeurs et bornes des jauges PV/PM/XP ainsi que les coordonnées et interactions SVG de
-la carte. `productionConfig.test.ts` et `test:production-build` vérifient les politiques
+la carte. `productionConfig.test.ts` et `npm run testing -- production-build` vérifient les politiques
 CSP appliquée et Report-Only servies sur les routes profondes.

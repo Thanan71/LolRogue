@@ -1,0 +1,163 @@
+import type React from 'react';
+import type { CSSProperties } from 'react';
+import { RunProgressCounters } from '@/components/RunProgressCounters';
+import { combatantConditions } from '@/game/presentation/combatStatuses';
+import { combatCopy } from '@/i18n/combatContent';
+import { formatNumber } from '@/i18n/format';
+import { runProgressSummary } from '@/i18n/runProgressContent';
+import type { CombatantInfo } from '@/stores/battleStore';
+import { CombatStatusBadges, combatantStatusDescription } from './CombatStatusBadges';
+
+interface Props {
+  combatant: CombatantInfo;
+  isActive: boolean;
+  enhancementBonuses?: string[];
+  isSelected?: boolean;
+  isAttacking?: boolean;
+  isActualTarget?: boolean;
+  onSelect?: () => void;
+}
+
+export const CombatantPortrait: React.FC<Props> = ({
+  combatant,
+  isActive,
+  enhancementBonuses,
+  isSelected,
+  isAttacking,
+  isActualTarget,
+  onSelect,
+}) => {
+  const { name, level, currentHp, maxHp, currentMp, maxMp, iconUrl, isDefeated, side } = combatant;
+  const conditions = combatantConditions(combatant);
+  const statusDescription = combatantStatusDescription(combatant);
+  const progressDescription = combatant.runProgression
+    ?.map((definition) =>
+      runProgressSummary(definition, combatant.runProgress?.[definition.key] ?? 0),
+    )
+    .join(', ');
+  const hpPct = maxHp > 0 ? Math.min(100, Math.max(0, (currentHp / maxHp) * 100)) : 0;
+  const mpPct = maxMp > 0 ? Math.min(100, Math.max(0, (currentMp / maxMp) * 100)) : 0;
+  const hpAriaMax = Math.max(0, Math.round(maxHp));
+  const hpAriaNow = Math.min(hpAriaMax, Math.max(0, Math.round(currentHp)));
+  const mpAriaMax = Math.max(0, Math.round(maxMp));
+  const mpAriaNow = Math.min(mpAriaMax, Math.max(0, Math.round(currentMp)));
+  const className = [
+    'combatant-portrait',
+    `combatant-portrait--${side}`,
+    isActive && 'combatant-portrait--active',
+    isSelected && 'combatant-portrait--selected',
+    isAttacking && 'combatant-portrait--attacking',
+    isActualTarget && 'combatant-portrait--targeted',
+    isDefeated && 'combatant-portrait--defeated',
+    conditions.incapacitated && 'combatant-portrait--incapacitated',
+    conditions.silenced && 'combatant-portrait--silenced',
+    conditions.lowHealth && 'combatant-portrait--low-health',
+    conditions.shielded && 'combatant-portrait--shielded',
+    onSelect && 'combatant-portrait--selectable',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  return (
+    <div
+      className={className}
+      role={onSelect ? 'button' : undefined}
+      tabIndex={onSelect ? 0 : undefined}
+      aria-pressed={onSelect ? isSelected : undefined}
+      aria-label={
+        onSelect
+          ? `${combatCopy.portrait.target(name)}${statusDescription ? `, ${statusDescription}` : ''}${progressDescription ? `, ${progressDescription}` : ''}`
+          : undefined
+      }
+      onClick={onSelect}
+      onKeyDown={(event) => {
+        if (onSelect && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault();
+          event.stopPropagation();
+          onSelect();
+        }
+      }}
+    >
+      <div className="combatant-portrait__avatar">
+        {iconUrl ? (
+          <img
+            src={iconUrl}
+            alt=""
+            width={48}
+            height={48}
+            decoding="async"
+            className="combatant-portrait__image"
+            onError={(e) => {
+              e.currentTarget.hidden = true;
+            }}
+          />
+        ) : (
+          <div className="combatant-portrait__fallback">{name.substring(0, 2).toUpperCase()}</div>
+        )}
+        <div className="combatant-portrait__level">{formatNumber(level)}</div>
+        {isDefeated && <div className="combatant-portrait__defeated">&#10005;</div>}
+      </div>
+      <div className="combatant-portrait__content">
+        <div className="combatant-portrait__name">{name}</div>
+        <div className="combatant-portrait__meter-wrap">
+          <div
+            className="combatant-portrait__meter combatant-portrait__meter--health"
+            role="progressbar"
+            aria-label={combatCopy.portrait.health(name)}
+            aria-valuemin={0}
+            aria-valuemax={hpAriaMax}
+            aria-valuenow={hpAriaNow}
+          >
+            <div
+              className="combatant-portrait__meter-fill"
+              style={{ '--combat-meter-value': `${hpPct}%` } as CSSProperties}
+            />
+          </div>
+          <div className="combatant-portrait__meter-label combatant-portrait__meter-label--health">
+            {formatNumber(Math.round(currentHp))} / {formatNumber(Math.round(maxHp))}
+          </div>
+        </div>
+        {maxMp > 0 && (
+          <div className="combatant-portrait__meter-wrap">
+            <div
+              className="combatant-portrait__meter combatant-portrait__meter--mana"
+              role="progressbar"
+              aria-label={combatCopy.portrait.mana(name)}
+              aria-valuemin={0}
+              aria-valuemax={mpAriaMax}
+              aria-valuenow={mpAriaNow}
+            >
+              <div
+                className="combatant-portrait__meter-fill"
+                style={{ '--combat-meter-value': `${mpPct}%` } as CSSProperties}
+              />
+            </div>
+            <div className="combatant-portrait__meter-label combatant-portrait__meter-label--mana">
+              {formatNumber(Math.round(currentMp))} / {formatNumber(Math.round(maxMp))}
+            </div>
+          </div>
+        )}
+        <CombatStatusBadges combatant={combatant} />
+        <RunProgressCounters
+          definitions={combatant.runProgression}
+          snapshot={combatant.runProgress}
+          variant="compact"
+        />
+        {enhancementBonuses && enhancementBonuses.length > 0 && (
+          <div className="combatant-portrait__bonuses">
+            {enhancementBonuses.slice(0, 3).map((bonus, i) => (
+              <span key={i} className="combatant-portrait__bonus">
+                {bonus}
+              </span>
+            ))}
+            {enhancementBonuses.length > 3 && (
+              <span className="combatant-portrait__bonus-overflow">
+                +{formatNumber(enhancementBonuses.length - 3)}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

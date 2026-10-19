@@ -5,9 +5,29 @@
   "requiredFiles": ["tests/repositoryIntegration.database.test.ts"],
   "skipAllowlist": [
     {
+      "file": "tests/adminBalance.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only in generic unit runs without disposable loopback Supabase credentials; DB_TEST_REQUIRED fails instead of skipping."
+    },
+    {
+      "file": "tests/adminBalancePrivileges.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only in generic unit runs without disposable loopback Supabase credentials; DB_TEST_REQUIRED fails instead of skipping."
+    },
+    {
       "file": "tests/technicalSlo.database.test.ts",
       "expression": "const describeDatabase = process.env.SUPABASE_DB_URL ? describe : describe.skip;",
       "reason": "Skip only in the generic unit suite without a PostgreSQL URL; DB_TEST_REQUIRED fails when missing."
+    },
+    {
+      "file": "tests/adminMetrics.database.test.ts",
+      "expression": "const describeDatabase = hasCredentials ? describe : describe.skip;",
+      "reason": "Skip only in the generic unit suite without disposable loopback Supabase API and SQL credentials; DB_TEST_REQUIRED=1 fails instead of skipping."
+    },
+    {
+      "file": "tests/adminMetricsPrivileges.database.test.ts",
+      "expression": "const describeDatabase = supabaseUrl && anonKey && serviceRoleKey ? describe : describe.skip;",
+      "reason": "Skip only in the generic unit suite without local Supabase credentials; DB_TEST_REQUIRED=1 fails instead of skipping."
     },
     {
       "file": "tests/adminPrivileges.database.test.ts",
@@ -88,6 +108,36 @@
       "file": "tests/championEconomy.database.test.ts",
       "expression": "const describeLive = hasCredentials ? describe : describe.skip;",
       "reason": "Skip only in the generic unit suite without loopback Supabase API and SQL credentials; DB_TEST_REQUIRED=1 fails instead of skipping."
+    },
+    {
+      "file": "tests/adminExplorer.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only in the generic unit suite without disposable loopback Supabase API and SQL credentials; DB_TEST_REQUIRED=1 fails instead of skipping."
+    },
+    {
+      "file": "tests/adminExplorerPrivileges.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only in the generic unit suite without disposable loopback Supabase API and SQL credentials; DB_TEST_REQUIRED=1 fails instead of skipping."
+    },
+    {
+      "file": "tests/adminAnalytics.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only in the generic unit suite without disposable loopback Supabase API and SQL credentials; DB_TEST_REQUIRED=1 fails instead of skipping."
+    },
+    {
+      "file": "tests/adminAnalyticsPrivileges.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only in the generic unit suite without disposable loopback Supabase API and SQL credentials; DB_TEST_REQUIRED=1 fails instead of skipping."
+    },
+    {
+      "file": "tests/adminModeration.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only in generic unit runs without disposable loopback Supabase credentials; DB_TEST_REQUIRED fails instead of skipping."
+    },
+    {
+      "file": "tests/adminModerationPrivileges.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only in generic unit runs without disposable loopback Supabase credentials; DB_TEST_REQUIRED fails instead of skipping."
     }
   ]
 }

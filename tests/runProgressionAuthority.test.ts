@@ -3,6 +3,8 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
+  AUTHORITY_CONTENT_HASH,
+  AUTHORITY_ENGINE_VERSION,
   createAuthorityReplaySession,
   replayAuthorityRun,
   verifyAuthorityRun,
@@ -11,6 +13,7 @@ import { buildRunPlayerTeam } from '@/game/run/runCombatant';
 import { resolveRegisteredAuthorityVerifier } from './helpers/authorityBundleResolver';
 import {
   createVeigarBiomeReplayFixture,
+  VEIGAR_ASSIST_COMBAT_ATTEMPT,
   VEIGAR_FIRST_COMBAT_ATTEMPT,
   VEIGAR_FIRST_COMBAT_COMMANDS,
 } from './helpers/veigarRunProgressionFixture';
@@ -25,6 +28,42 @@ const rules = {
 };
 
 describe('run progression authority contract', () => {
+  it('replays a real posthumous assist identically in the current Edge bundle while preserving v22', async () => {
+    const result = replayAuthorityRun(VEIGAR_ASSIST_COMBAT_ATTEMPT, VEIGAR_FIRST_COMBAT_COMMANDS);
+    expect(
+      result.snapshot.championStats.find((member) => member.championId === 'Veigar'),
+    ).toMatchObject({ kills: 0, assists: 1 });
+    expect(result.snapshot.team.find((member) => member.championId === 'Veigar')).toMatchObject({
+      currentHp: 0,
+      runProgress: { [key]: 1 },
+    });
+    expect(
+      result.combatSummaries[0]!.playerTeam.final.find((member) => member.championId === 'Veigar'),
+    ).toMatchObject({ defeated: true, runProgress: { [key]: 1 } });
+
+    const current = await resolveRegisteredAuthorityVerifier(
+      AUTHORITY_ENGINE_VERSION,
+      AUTHORITY_CONTENT_HASH,
+    );
+    expect(current).toBeDefined();
+    expect(current!.replay(VEIGAR_ASSIST_COMBAT_ATTEMPT, VEIGAR_FIRST_COMBAT_COMMANDS)).toEqual(
+      result,
+    );
+
+    const historical = await resolveRegisteredAuthorityVerifier(
+      'run-engine-v22',
+      '2e0c2b73796122049cd8493b56e9ed9329a9fde25e27addc71f553eb83025d84',
+    );
+    expect(historical).toBeDefined();
+    const legacy = historical!.replay(VEIGAR_ASSIST_COMBAT_ATTEMPT, VEIGAR_FIRST_COMBAT_COMMANDS);
+    expect(
+      legacy.snapshot.championStats.find((member) => member.championId === 'Veigar'),
+    ).toMatchObject({ kills: 0, assists: 1 });
+    expect(
+      legacy.snapshot.team.find((member) => member.championId === 'Veigar'),
+    ).not.toHaveProperty('runProgress');
+  });
+
   it('derives stacks from the deterministic combat and restores exactly the same AP', () => {
     const result = replayAuthorityRun(VEIGAR_FIRST_COMBAT_ATTEMPT, VEIGAR_FIRST_COMBAT_COMMANDS);
     const veigar = result.snapshot.team.find((member) => member.championId === 'Veigar')!;

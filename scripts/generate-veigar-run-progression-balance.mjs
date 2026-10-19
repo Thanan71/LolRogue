@@ -7,14 +7,29 @@ import { parseArgs } from 'node:util';
 import { build } from 'esbuild-authority';
 
 const repositoryRoot = path.resolve(import.meta.dirname, '..');
-const artifactPath = path.join(repositoryRoot, 'config/veigar-run-progression-balance-v22.json');
+const registry = JSON.parse(
+  await readFile(path.join(repositoryRoot, 'config/authority-versions.json'), 'utf8'),
+);
+const currentEngine = registry.versions
+  .find((version) => version.status === 'current')
+  .engine.replace(/^run-engine-/, '');
 const { values } = parseArgs({
   strict: true,
   options: {
     check: { type: 'boolean', default: false },
+    engine: { type: 'string', default: currentEngine },
     output: { type: 'string' },
   },
 });
+if (!['v22', '0.2.0', '0.2.5'].includes(values.engine))
+  throw new Error('--engine must be v22, 0.2.0 or 0.2.5.');
+const entry = registry.versions.find((version) => version.engine === `run-engine-${values.engine}`);
+if (!entry) throw new Error(`Unknown registered authority ${values.engine}.`);
+const isCurrent = entry.status === 'current';
+const artifactPath = path.join(
+  repositoryRoot,
+  `config/veigar-run-progression-balance-${values.engine}.json`,
+);
 if (values.check && values.output) throw new Error('--check and --output are mutually exclusive.');
 const temporaryRoot = await mkdtemp(path.join(tmpdir(), 'lolrogue-veigar-balance-'));
 const runnerPath = path.join(temporaryRoot, 'veigar-balance.mjs');
@@ -31,12 +46,16 @@ try {
         import { importInstrumentedAuthorityBundle } from './tests/helpers/instrumentedAuthorityCombatRuntime.ts';
         export async function generate(bundlePath) {
           const edge = await importInstrumentedAuthorityBundle(bundlePath);
-          const sourceAuthority = getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH);
-          const edgeAuthority = edge.getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH);
-          if (!sourceAuthority || !edgeAuthority) throw new Error('The source or exact current Edge verifier is unavailable. Run npm run edge:bundle first.');
+          const sourceAuthority = ${
+            !isCurrent
+              ? `edge.getAuthorityVerifier(${JSON.stringify(entry.engine)}, ${JSON.stringify(entry.contentHash)})`
+              : 'getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH)'
+          };
+          const edgeAuthority = edge.getAuthorityVerifier(${JSON.stringify(entry.engine)}, ${JSON.stringify(entry.contentHash)});
+          if (!sourceAuthority || !edgeAuthority) throw new Error('The source or exact registered Edge verifier is unavailable. Run npm run release -- edge bundle first.');
           return generateVeigarRunProgressionBalanceDocument({
             sourceAuthority, edgeAuthority,
-            sourceClasses: { championDB, BattleManager, ChampionInstance }, edgeClasses: edge,
+            sourceClasses: ${!isCurrent ? 'edge' : '{ championDB, BattleManager, ChampionInstance }'}, edgeClasses: edge,
           });
         }
       `,
@@ -53,9 +72,7 @@ try {
     tsconfig: path.join(repositoryRoot, 'tsconfig.json'),
   });
   const runner = await import(pathToFileURL(runnerPath).href);
-  const document = await runner.generate(
-    path.join(repositoryRoot, 'supabase/functions/verify-run/run-authority.bundle.js'),
-  );
+  const document = await runner.generate(path.join(repositoryRoot, entry.bundle));
   const formatting = spawnSync(
     path.join(repositoryRoot, 'node_modules/.bin/biome'),
     ['format', '--stdin-file-path', artifactPath],
@@ -66,9 +83,9 @@ try {
   const serialized = formatting.stdout;
   if (values.check) {
     if ((await readFile(artifactPath, 'utf8')) !== serialized)
-      throw new Error('The Veigar v22 balance artifact is stale.');
+      throw new Error(`The Veigar ${values.engine} balance artifact is stale.`);
     process.stdout.write(
-      'Veigar v22: 180 paired runs, source/Edge parity and safety probes are reproducible.\n',
+      `Veigar ${values.engine}: 180 paired runs, source/Edge parity and safety probes are reproducible.\n`,
     );
   } else {
     await writeFile(
@@ -76,7 +93,7 @@ try {
       serialized,
     );
     process.stdout.write(
-      `Veigar v22 balance artifact generated: ${values.output ?? path.relative(repositoryRoot, artifactPath)}.\n`,
+      `Veigar ${values.engine} balance artifact generated: ${values.output ?? path.relative(repositoryRoot, artifactPath)}.\n`,
     );
   }
 } finally {

@@ -16,6 +16,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useRunStore } from '@/stores/runStore';
 import '@/styles/main-menu.css';
 import { playUIClick } from '@/audio';
+import { version as appVersion } from '../../package.json';
 
 export function MenuPage() {
   const navigate = useAppNavigate();
@@ -385,7 +386,7 @@ export function MenuPage() {
       </main>
 
       <footer className="main-menu__footer">
-        <span className="main-menu__version">v0.1.0</span>
+        <span className="main-menu__version">v{appVersion}</span>
         <span className="main-menu__disclaimer">{fr.product.disclaimer}</span>
         <Link to={ROUTES.LEGAL}>{routeTitle(locale, ROUTES.LEGAL)}</Link>
       </footer>

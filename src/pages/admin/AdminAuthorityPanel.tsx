@@ -1,8 +1,4 @@
-import type {
-  VerifiedFieldAugmentCohort,
-  VerifiedFieldCalibrationCohort,
-  VerifiedFieldChampionCohort,
-} from '@/game/balance/fieldCalibrationComparison';
+import { getAuthorityGameplayVersionLabel } from '@/game/authority/versionRegistry';
 import { fr } from '@/i18n/fr';
 import type {
   AuthorityAttemptAggregate,
@@ -16,31 +12,28 @@ import {
   formatAdminPercent,
 } from '../adminPageUtils';
 import { AdminErrorNotice } from './AdminErrorNotice';
-import { AdminFieldCalibrationPanel } from './AdminFieldCalibrationPanel';
+import { AdminSectionFeedback } from './AdminSectionFeedback';
 import type { AdminAuthorityRejection } from './useAdminData';
+import type { AdminSectionFeedback as Feedback } from './useAdminSection';
 
 interface AdminAuthorityPanelProps {
   aggregates: AuthorityAttemptAggregate[];
   signals: AuthorityRejectionSignal[];
   rejections: AdminAuthorityRejection[];
-  fieldCohorts: readonly VerifiedFieldCalibrationCohort[];
-  fieldChampionCohorts: readonly VerifiedFieldChampionCohort[];
-  fieldAugmentCohorts: readonly VerifiedFieldAugmentCohort[];
   loading: boolean;
   error: string | null;
   onRefresh: () => void;
+  state?: Feedback;
 }
 
 export function AdminAuthorityPanel({
   aggregates,
   signals,
   rejections,
-  fieldCohorts,
-  fieldChampionCohorts,
-  fieldAugmentCohorts,
   loading,
   error,
   onRefresh,
+  state,
 }: AdminAuthorityPanelProps) {
   const totals = aggregates.reduce(
     (sum, aggregate) => ({
@@ -70,6 +63,7 @@ export function AdminAuthorityPanel({
       aria-labelledby="admin-tab-authority"
     >
       <AdminErrorNotice message={error} onRetry={onRefresh} retrying={loading} />
+      {state && <AdminSectionFeedback state={state} />}
       <div className="authority-header">
         <div>
           <h3>{fr.admin.authorityTitle}</h3>
@@ -88,9 +82,9 @@ export function AdminAuthorityPanel({
         </button>
       </div>
 
-      {loading ? (
+      {loading && !state?.hasData ? (
         <div className="loading">{fr.admin.loadingAuthority}</div>
-      ) : (
+      ) : error && !state?.hasData ? null : (
         <>
           {signals.length > 0 ? (
             <div className="authority-alerts" role="alert">
@@ -98,10 +92,10 @@ export function AdminAuthorityPanel({
               {signals.map((signal) => (
                 <p key={`${signal.engineVersion}-${signal.gameplayRulesetVersion}`}>
                   {signal.engineVersion} / {fr.admin.gameplay} {fr.admin.versionShort}
-                  {signal.gameplayRulesetVersion} : {formatAdminPercent(signal.rejectionRate)}{' '}
-                  {fr.admin.rejectionRate} ({formatAdminNumber(signal.rejectedCount)}/
-                  {formatAdminNumber(signal.attemptCount)}) —{' '}
-                  {signal.reasons.map((reason) => fr.admin.authorityReasons[reason]).join(', ')}
+                  {getAuthorityGameplayVersionLabel(signal.gameplayRulesetVersion)} :{' '}
+                  {formatAdminPercent(signal.rejectionRate)} {fr.admin.rejectionRate} (
+                  {formatAdminNumber(signal.rejectedCount)}/{formatAdminNumber(signal.attemptCount)}
+                  ) — {signal.reasons.map((reason) => fr.admin.authorityReasons[reason]).join(', ')}
                   {signal.unknownCodes.length > 0
                     ? ` — ${fr.admin.newCodes} : ${signal.unknownCodes.join(', ')}`
                     : ''}
@@ -157,7 +151,7 @@ export function AdminAuthorityPanel({
                     <td>{rejection.engineVersion}</td>
                     <td>
                       {fr.admin.versionShort}
-                      {rejection.gameplayRulesetVersion}
+                      {getAuthorityGameplayVersionLabel(rejection.gameplayRulesetVersion)}
                     </td>
                     <td>
                       <code>{rejection.rejectionCode}</code>
@@ -168,12 +162,6 @@ export function AdminAuthorityPanel({
             </table>
             {rejections.length === 0 && <div className="no-data">{fr.admin.noRejections}</div>}
           </div>
-
-          <AdminFieldCalibrationPanel
-            fieldCohorts={fieldCohorts}
-            championCohorts={fieldChampionCohorts}
-            augmentCohorts={fieldAugmentCohorts}
-          />
         </>
       )}
     </section>

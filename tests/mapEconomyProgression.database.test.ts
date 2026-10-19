@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
 import { CURRENT_AUTHORITY_VERSION } from '@/game/authority/versionRegistry';
+import rawRegistry from '../config/authority-versions.json';
 
 const migrationSql = readFileSync(
   new URL(
@@ -80,6 +81,38 @@ function useArchivedV20Identity(attemptId: string): void {
   );
 }
 
+/** This fixture only rewrites immutable identity on the disposable CI database. */
+function useFrozenReleaseIdentity(
+  attemptId: string,
+  version: { engine: string; gameplay: number; contentHash: string },
+): void {
+  const databaseUrl = process.env.SUPABASE_DB_URL;
+  if (
+    !databaseUrl ||
+    !['localhost', '127.0.0.1', '[::1]'].includes(new URL(databaseUrl).hostname) ||
+    !/^[0-9a-f-]{36}$/.test(attemptId) ||
+    version.engine !== 'run-engine-0.2.0' ||
+    version.gameplay !== 23 ||
+    !/^[0-9a-f]{64}$/.test(version.contentHash)
+  ) {
+    throw new Error(
+      'The historical release fixture requires a loopback database and exact frozen identity.',
+    );
+  }
+  execFileSync(
+    'psql',
+    [
+      databaseUrl,
+      '--no-psqlrc',
+      '--set',
+      'ON_ERROR_STOP=1',
+      '--command',
+      `UPDATE public.run_attempts SET engine_version = '${version.engine}', gameplay_ruleset_version = ${version.gameplay}, gameplay_content_hash = '${version.contentHash}' WHERE id = '${attemptId}'::UUID;`,
+    ],
+    { stdio: 'pipe' },
+  );
+}
+
 describe('gameplay v20 progression migration', () => {
   it('publishes an append-only, service-only participation contract', () => {
     expect(migrationSql).toContain("'run-engine-v20'");
@@ -100,7 +133,10 @@ describe('gameplay v20 progression migration', () => {
 const describeWithSupabase = hasSupabaseCredentials ? describe : describe.skip;
 
 describeWithSupabase('gameplay v20 progression live contract', () => {
-  it('allocates a fixed candy budget by participation exactly once', async () => {
+  it.each([
+    CURRENT_AUTHORITY_VERSION,
+    rawRegistry.versions.find((version) => version.engine === 'run-engine-0.2.0')!,
+  ])('allocates a fixed candy budget exactly once for $engine', async (version) => {
     const admin = createClient(supabaseUrl!, serviceRoleKey!, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
@@ -154,6 +190,9 @@ describeWithSupabase('gameplay v20 progression live contract', () => {
       });
       expect(sealed.error).toBeNull();
 
+      if (version.engine !== CURRENT_AUTHORITY_VERSION.engine)
+        useFrozenReleaseIdentity(attemptId, version);
+
       const claim = await admin.rpc('claim_run_verification', {
         p_attempt_id: attemptId,
         p_worker_id: randomUUID(),
@@ -201,8 +240,8 @@ describeWithSupabase('gameplay v20 progression live contract', () => {
         candies_per_champion: 0,
         candies_by_champion: { Garen: 15, Lux: 5 },
         progression_version: 3,
-        gameplay_ruleset_version: CURRENT_AUTHORITY_VERSION.gameplay,
-        engine_version: CURRENT_AUTHORITY_VERSION.engine,
+        gameplay_ruleset_version: version.gameplay,
+        engine_version: version.engine,
       });
 
       const replayed = await admin.rpc('complete_run_verification', {

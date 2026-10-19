@@ -7,7 +7,9 @@ export default defineConfig({
     // Real connected scenarios run only in their mandatory dedicated CI gate.
     ...(process.env.E2E_REQUIRE_CONNECTED === '1'
       ? []
-      : [/(?:connected-(?:daily|sprint-g)|champion-economy-connected)\.spec\.ts$/]),
+      : [
+          /(?:connected-(?:daily|sprint-g)|champion-economy-connected|admin-(?:analytics|balance|moderation)-connected)\.spec\.ts$/,
+        ]),
   ],
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),

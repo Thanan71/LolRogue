@@ -1,5 +1,6 @@
 import englishChampionContentJson from '@/data/generated/champion-content.en-US.json';
 import frenchChampionContentJson from '@/data/generated/champion-content.fr-FR.json';
+import type { Champion } from '@/types/champion';
 
 export type ChampionContentLocale = 'fr-FR' | 'en-US';
 
@@ -34,7 +35,7 @@ const implementedFrFR = {
     passive: {
       name: 'Pouvoir maléfique phénoménal',
       description:
-        'Gagne 1 point en éliminant un ennemi normal avec une compétence, 3 pour un élite et 10 pour un boss. Chaque point donne +1 puissance, jusqu’à 200. Ces points persistent uniquement pendant le run. Les touches et les assistances ne donnent aucun point.',
+        'Une élimination normale par compétence ou une assistance attribuée sur un ennemi normal donne 1 point. Élimination ou assistance : 3 points pour un élite, 10 pour un boss. Chaque point donne +1 puissance, jusqu’à 200, uniquement pendant ce run. Les simples touches ne donnent aucun point.',
     },
     spells: {
       VeigarBalefulStrike: {
@@ -374,7 +375,7 @@ const implementedEnUS = {
     passive: {
       name: 'Phenomenal Evil Power',
       description:
-        'Gain 1 point for killing a normal enemy with an ability, 3 for an elite and 10 for a boss. Each point grants +1 ability power, up to 200. Points persist only during this run. Hits and assists grant no points.',
+        'A normal ability kill or credited assist on a normal enemy grants 1 point. Kills or credited assists grant 3 points for an elite and 10 for a boss. Each point grants +1 ability power, up to 200, for this run only. Hits alone grant no points.',
     },
     spells: {
       VeigarBalefulStrike: {
@@ -735,3 +736,33 @@ export const championContent: Readonly<Record<ChampionContentLocale, ChampionCon
   'fr-FR': frFR,
   'en-US': enUS,
 };
+
+const killOnlyPassives: Readonly<
+  Record<ChampionContentLocale, Readonly<Record<string, ChampionContentCopy>>>
+> = {
+  'fr-FR': {
+    Veigar: {
+      name: 'Pouvoir maléfique phénoménal',
+      description:
+        'Gagne 1 point en éliminant un ennemi normal avec une compétence, 3 pour un élite et 10 pour un boss. Chaque point donne +1 puissance, jusqu’à 200. Ces points persistent uniquement pendant le run. Les touches et les assistances ne donnent aucun point.',
+    },
+  },
+  'en-US': {
+    Veigar: {
+      name: 'Phenomenal Evil Power',
+      description:
+        'Gain 1 point for killing a normal enemy with an ability, 3 for an elite and 10 for a boss. Each point grants +1 ability power, up to 200. Points persist only during this run. Hits and assists grant no points.',
+    },
+  },
+};
+
+/** Describe the effective kit, including the frozen rules of a resumed run. */
+export function getChampionPassiveContent(champion: Champion, language: ChampionContentLocale) {
+  const historical = killOnlyPassives[language][champion.id];
+  const hasAssistProgression = champion.passive.runProgression?.some(
+    (definition) => (definition.onAssist?.length ?? 0) > 0,
+  );
+  return historical && !hasAssistProgression
+    ? historical
+    : championContent[language][champion.id]?.passive;
+}

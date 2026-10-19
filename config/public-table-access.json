@@ -13,6 +13,21 @@
       "reason": "Lecture de la wallet du compte sous RLS propriétaire ; aucun solde modifiable directement via la Data API."
     },
     {
+      "name": "candy_accounts",
+      "exposure": "client-data-api",
+      "reason": "Lecture administrative des soldes d'ouverture et de la couverture sous RLS ; aucune écriture client ou service directe."
+    },
+    {
+      "name": "candy_ledger_settings",
+      "exposure": "client-data-api",
+      "reason": "Lecture administrative de la date de couverture sous RLS ; configuration immuable et aucune écriture Data API."
+    },
+    {
+      "name": "candy_transactions",
+      "exposure": "client-data-api",
+      "reason": "Lecture administrative du ledger Candies sous RLS ; événements append-only écrits exclusivement par fonctions privées."
+    },
+    {
       "name": "champion_economy_catalog",
       "exposure": "server-only",
       "reason": "Catalogue de prix versionné publié par snapshot RPC borné ; aucune écriture ou lecture client directe."
@@ -59,13 +74,15 @@
     },
     {
       "name": "daily_score_invalidation_audit",
-      "exposure": "client-data-api",
-      "reason": "Lecture administrative sous RLS ; écriture par la RPC de modération auditée."
+      "exposure": "server-only",
+      "reason": "Journal historique archivé après import dans l’audit canonique privé ; aucune lecture ni écriture directe des rôles navigateur.",
+      "apiPolicy": "deny-all"
     },
     {
       "name": "daily_score_reports",
-      "exposure": "client-data-api",
-      "reason": "Signalement lié au compte et lecture administrative sous RLS."
+      "exposure": "server-only",
+      "reason": "File privée ADM-S5 lue et modifiée uniquement via les RPC gardées ; aucun grant navigateur direct, attribution et limites serveur.",
+      "apiPolicy": "deny-all"
     },
     {
       "name": "enhancement_node_catalog",

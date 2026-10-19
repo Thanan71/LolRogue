@@ -56,30 +56,37 @@ serveur, limités, sanitisés et supprimés après 14 jours.
 ## Supabase local et migrations
 
 ```bash
-npm run db:start
-npm run db:reset
-npm run db:lint
-npm run db:types
-npm run edge:serve
-npm run db:stop
+npm run database -- start
+npm run database -- reset --yes
+npm run database -- lint
+npm run database -- types generate
+npm run release -- edge serve
+npm run database -- stop
 ```
 
-`db:reset` est destructif et ne doit viser qu'une instance locale ou jetable. Le
+`npm run database -- reset` exige `--yes`, utilise exclusivement la base locale et propose
+`--dry-run` pour consulter la commande avant exécution. Le
 schéma initial est dans
 `supabase/migrations/00000000000000_schema.sql`; les migrations horodatées qui
 suivent mettent à niveau une base ayant déjà exécuté une ancienne version du
-schéma. Sur un projet distant existant, utiliser :
+schéma. Sur le projet distant correspondant à la branche effective `dev` ou `main`,
+prévisualiser les migrations avant de les appliquer :
 
 ```bash
-supabase link --project-ref PROJECT_REF
-npm run migrate
+npm run database -- link --project-ref PROJECT_REF --yes
+npm run database -- migrate --project-ref PROJECT_REF --preview
+npm run database -- migrate --project-ref PROJECT_REF --yes
 ```
 
-Le déploiement complet est automatisé et limité aux branches de release :
+Le déploiement complet est automatisé et limité aux branches de release. La référence
+explicite doit correspondre à la branche réelle et `--yes` confirme la mutation :
 
 ```bash
-npm run backend:deploy
+npm run release -- deploy --project-ref PROJECT_REF --yes
 ```
+
+La [configuration des environnements](docs/environment-contract.md) décrit les
+variables publiques autorisées, leur priorité et les préflights distants.
 
 La branche `dev` cible Supabase `LolRogueDev` et un déploiement Vercel Preview ;
 la branche `main` cible Supabase `LolRogue` et Vercel Production. La commande
@@ -89,6 +96,11 @@ Sur `main`, le build Production est d'abord créé sans changer le domaine publi
 puis promu seulement après ce contrôle. Toute autre branche est bloquée avant le
 premier appel distant.
 
+Les précontrôles utilisent Supabase depuis les dépendances verrouillées du dépôt.
+Vercel `59.11.7` doit être disponible dans le cache npm avant le déploiement ; sa
+préparation explicite est `npx --yes --package=vercel@59.11.7 vercel --version`.
+Le déploiement emploie ensuite cette version en mode `--offline`.
+
 Ne jamais utiliser `db reset` sur la production. Le projet n'utilise pas de système
 de mailing : la confirmation d'adresse doit être désactivée dans
 Authentication → Providers → Email. La procédure détaillée est dans
@@ -96,17 +108,22 @@ Authentication → Providers → Email. La procédure détaillée est dans
 
 ## Commandes de qualité
 
+Les commandes regroupées `balance`, `database`, `assets`, `release` et `testing`
+proposent une aide avec `npm run <groupe> -- --help`. Le [guide de la CLI](docs/script-cli.md)
+décrit les options et confirmations ; l'[inventaire des scripts](docs/script-inventory.md)
+relie chaque ancien alias à sa commande canonique et à ses appelants.
+
 ```bash
 npm test              # tests unitaires et tests de structure SQL
 npm run test:coverage # tests avec seuils de couverture
 npm run test:e2e      # parcours UI, dont une victoire six biomes et une défaite réelles
 npm run test:e2e:production # smoke test des 3 moteurs, desktop et mobile
 npm run test:db       # intégration Auth/RLS sur une vraie instance de test
-npm run test:production-build # deep links, headers et 404 du build servi
-npm run test:performance-budgets # budgets bundle, routes et assets
-npm run test:deployed-assets # vérifie les 187 assets sur DEPLOYMENT_URL/Vercel
-npm run edge:bundle   # bundle du replay serveur + contrôle du hash de contenu
-npm run audit:security # audit critique/haut et contrôle des exceptions bornées
+npm run testing -- production-build # deep links, headers et 404 du build servi
+npm run testing -- performance budgets # budgets bundle, routes et assets
+npm run assets -- deployed verify # vérifie les 187 assets sur DEPLOYMENT_URL/Vercel
+npm run release -- edge bundle   # bundle du replay serveur + contrôle du hash de contenu
+npm run testing -- security # audit critique/haut et contrôle des exceptions bornées
 npm run check         # format, lint, types, audit, couverture et build
 ```
 
@@ -126,12 +143,15 @@ recrée automatiquement une instance locale jetable.
 src/
 ├── components/          composants React partagés et gardes de routes
 ├── data/                définitions de champions, objets, runes et augments
+├── features/            modules Daily, combat et préparation des champions
 ├── game/                règles déterministes et replay autoritaire
+├── infrastructure/      composition unique des dépôts applicatifs
 ├── pages/               écrans chargés paresseusement par React Router
 ├── services/
 │   ├── interfaces/      contrats des dépôts
 │   ├── repositories/    implémentations Supabase
-│   └── container/       composition et injection des dépendances
+│   └── container/       façade de compatibilité du conteneur applicatif
+├── shared/              composants UI et hooks communs
 ├── stores/              état Zustand et orchestration de l'interface
 ├── types/               modèles applicatifs et types Supabase générés
 └── utils/               calculs et utilitaires transverses
@@ -147,18 +167,24 @@ Les règles pures appartiennent à `src/game`, l'accès distant passe par les
 interfaces de dépôt, et les stores coordonnent l'état d'écran. Les détails sur la
 propriété de chaque donnée sont dans [docs/data-and-persistence.md](docs/data-and-persistence.md).
 
+Les [contrats des artefacts](docs/generated-artifacts.md) indiquent quoi générer,
+vérifier et conserver dans Git. `npm run release -- artifacts check` contrôle leur
+dérive sans écrire de fichier. Le [contrat CSS](docs/css-maintenance.md) décrit la
+cascade et les preuves visuelles ; l'[audit des dépendances](docs/dependency-audit.md)
+conserve les décisions et la dette restante.
+
 ## Assets
 
-Les 172 portraits du catalogue serveur et les 15 icônes d'objets utilisés — soit
-187 fichiers — sont tous versionnés sous `public/assets/riot/<version>` avec leurs
-SHA-256. Seuls 10
+Les 172 portraits du catalogue serveur, les 15 icônes d'objets utilisés et les
+44 icônes de sorts — soit 231 fichiers — sont versionnés sous
+`public/assets/riot/<version>` avec leurs SHA-256. Onze
 champions sont actuellement jouables, mais la page Database et le catalogue
 serveur exposent l'ensemble. Le catalogue importé est sous `src/data/generated`.
 Le cache brut `public/lol/data` est un espace de génération local : Vite l'exclut
 explicitement de `dist` et il n'est jamais nécessaire à un build normal.
 
 ```bash
-npm run assets:update
+npm run assets -- update
 ```
 
 Cette commande télécharge la version déclarée dans
@@ -167,6 +193,11 @@ paquet minimal et recalcule son manifest d'intégrité. Voir
 [docs/assets.md](docs/assets.md) avant toute mise à jour. `npm run check` exécute
 aussi un build temporaire sans aucun fichier ignoré pour reproduire un clone
 propre.
+
+Le serveur de développement sert les fichiers Riot déclarés dans les manifestes,
+le décor de combat et le script de locale. Une ressource manquante renvoie 404 ;
+le cache brut reste exclu. Après une mise à jour des manifestes, redémarrer Vite
+pour charger leur nouvelle liste de fichiers.
 
 ## Documentation
 
@@ -179,6 +210,8 @@ propre.
 - [Social, confidentialité et classement](docs/social-leaderboard.md)
 - [Légal et confidentialité](docs/legal-and-privacy.md)
 - [Administration sécurisée](docs/administration.md)
+- [Définitions et fiabilité des métriques admin](docs/admin-metrics.md)
+- [Fiches joueurs, historiques et exports admin](docs/admin-explorer.md)
 - [Déploiement et exploitation](docs/operations.md)
 - [Runbooks d'incident](docs/incident-runbooks.md)
 - [Sauvegarde et restauration](docs/backup-and-restore.md)

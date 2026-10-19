@@ -44,7 +44,7 @@ describe('deployment workflow contract', () => {
       'VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}',
     );
     expect(previewWorkflow).toContain('npm run build');
-    expect(previewWorkflow).toContain('npm run test:deployed-assets');
+    expect(previewWorkflow).toContain('npm run assets -- deployed verify');
     expect(previewWorkflow).not.toContain('lol-rogue.vercel.app');
   });
 
@@ -68,12 +68,13 @@ describe('deployment workflow contract', () => {
     expect(vercelConfig).not.toContain('"source": "/(.*)",\n      "destination": "/index.html"');
   });
 
-  it('verrouille les builds dev et main sur leur projet Supabase', () => {
-    expect(viteConfig).toContain('process.env.LOLROGUE_DEPLOY_BRANCH');
-    expect(viteConfig).toContain("const devSupabaseProjectRef = 'misdmtpfcbxbhheacehm'");
-    expect(viteConfig).toContain("const productionSupabaseProjectRef = 'mmpvmclqdgfnpfgcqnyu'");
-    expect(viteConfig).toContain('Vercel dev deployments must target the LolRogueDev');
-    expect(viteConfig).toContain('Vercel main deployments must target the LolRogue');
+  it('utilise la configuration partagée et une liste explicite des variables navigateur', () => {
+    expect(viteConfig).toContain('resolveBuildEnvironment');
+    expect(viteConfig).toContain('readPublicEnvironmentFile');
+    expect(viteConfig).toContain('envPrefix: []');
+    expect(viteConfig).toContain('define: environment.define');
+    expect(viteConfig).not.toContain('const devSupabaseProjectRef');
+    expect(viteConfig).not.toContain('const productionSupabaseProjectRef');
   });
 
   it("vérifie la production via l'alias public et le SHA attendu", () => {
@@ -88,6 +89,6 @@ describe('deployment workflow contract', () => {
     expect(productionWorkflow).not.toContain(
       'DEPLOYMENT_URL: ${{ github.event.client_payload.url }}',
     );
-    expect(productionWorkflow).toContain('npm run test:deployed-assets');
+    expect(productionWorkflow).toContain('npm run assets -- deployed verify');
   });
 });

@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CHAMPION_ECONOMY_CATALOG, getRotationForInstant } from '@/domain/championEconomy';
 import {
   CHAMPION_ECONOMY_REQUEST_TIMEOUT_MS,
+  createChampionEconomyService,
   loadChampionEconomy,
   purchaseAccountChampion,
 } from '@/services/championEconomyService';
@@ -29,6 +30,30 @@ function reply(response: unknown) {
 }
 
 describe('economy API boundary', () => {
+  it('uses explicitly supplied repository dependencies without consulting the shared client', async () => {
+    const getSnapshot = vi.fn().mockResolvedValue({ data: snapshot, error: null });
+    const purchaseChampion = vi
+      .fn()
+      .mockResolvedValue({ data: { replayed: true, snapshot }, error: null });
+    const service = createChampionEconomyService({
+      championEconomy: { getSnapshot, purchaseChampion },
+    });
+    await expect(service.loadChampionEconomy()).resolves.toEqual(snapshot);
+    await expect(
+      service.purchaseAccountChampion('Lux', quote, 'explicit-command'),
+    ).resolves.toEqual({
+      replayed: true,
+      snapshot,
+    });
+    expect(getSnapshot).toHaveBeenCalledWith(expect.any(AbortSignal));
+    expect(purchaseChampion).toHaveBeenCalledWith(
+      'Lux',
+      quote,
+      'explicit-command',
+      expect.any(AbortSignal),
+    );
+    expect(rpc).not.toHaveBeenCalled();
+  });
   it.each(['load', 'purchase'])(
     'bounds a hanging %s request and preserves the retry contract',
     async (operation) => {

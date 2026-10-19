@@ -5,7 +5,7 @@ Le parcours automatique FR → EN couvre maintenant deux tailles d'écran : desk
 les attributs accessibles, les titres et les pseudo-éléments sur Auth, Menu,
 sélection, carte, combat, inventaire, encounter et résultat.
 
-Commandes reproductibles : `npm run i18n:check` et
+Commandes reproductibles : `npm run testing -- i18n check` et
 `npx playwright test e2e/i18n-english-journey.spec.ts --project=chromium --workers=1`.
 Les contrats découvrent les modules i18n et les sources utilisateur afin qu'un
 nouveau catalogue ou une nouvelle page ne puisse contourner les contrôles.

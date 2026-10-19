@@ -1,4 +1,9 @@
-import type { PendingRunAttemptStart, RunAuthorityAttempt, RunCommandInput } from './runAttempt';
+import type {
+  AuthorityRunMode,
+  PendingRunAttemptStart,
+  RunAuthorityAttempt,
+  RunCommandInput,
+} from './runAttempt';
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -172,7 +177,7 @@ export interface RunState {
   /** Whether a run is currently active */
   isActive: boolean;
   /** Normal progression or the shared daily challenge. */
-  mode: 'normal' | 'daily';
+  mode: AuthorityRunMode;
   /** Unique ID for this run instance (used to prevent stale timeouts from affecting new runs) */
   runId: string;
   /** Deterministic seed used to generate this run */

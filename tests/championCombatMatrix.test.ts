@@ -16,6 +16,12 @@ import { loadInstrumentedAuthorityCombatRuntime } from './helpers/instrumentedAu
 const matrix = matrixJson as unknown as ChampionCombatMatrixComparison;
 
 describe('champion combat acceptance matrix', () => {
+  it('preserves all paired combat outcomes between frozen 0.2.0 and extracted 0.2.5', () => {
+    expect(matrix.baseline.authority.engineVersion).toBe('run-engine-0.2.0');
+    expect(matrix.candidate.authority.engineVersion).toBe('run-engine-0.2.5');
+    expect(matrix.candidate.champions).toEqual(matrix.baseline.champions);
+    expect(matrix.candidate.metricAvailability).toEqual(matrix.baseline.metricAvailability);
+  });
   it('enumerates every complementary 5v5 partition exactly once', () => {
     // The paired P0 acceptance population remains the frozen v21 ten-champion roster.
     // Veigar has its own zero-stack, capped-damage and full-run acceptance campaign.

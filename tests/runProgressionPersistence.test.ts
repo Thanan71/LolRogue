@@ -1,21 +1,26 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { replayAuthorityRun } from '@/game/authority';
 import { generateRunMap } from '@/game/map/MapGenerator-core';
 import { buildRunPlayerTeam } from '@/game/run/runCombatant';
-import { migratePersistedRunState, RUN_STORAGE_KEY } from '@/game/run/runPersistence';
+import { migratePersistedRunState, RUN_STORAGE_KEY } from '@/stores/persistence/runPersistence';
 import { isPersistedRunState } from '@/game/run/runPersistenceValidation';
 import { normalizeTeamMembers } from '@/game/run/teamRules';
 import { RUN_INITIAL_STATE } from '@/stores/runInitialState';
 import { useRunStore } from '@/stores/runStore';
 import type { RunState } from '@/types/run';
+import {
+  VEIGAR_ASSIST_COMBAT_ATTEMPT,
+  VEIGAR_FIRST_COMBAT_COMMANDS,
+} from './helpers/veigarRunProgressionFixture';
 
 const key = 'veigar.phenomenal_power';
-function activeState(): RunState {
-  const biomeMaps = generateRunMap(2);
+function activeState(seed = 2): RunState {
+  const biomeMaps = generateRunMap(seed);
   return {
     ...structuredClone(RUN_INITIAL_STATE),
     isActive: true,
     runId: 'veigar-persistence-run',
-    seed: 2,
+    seed,
     startedAt: '2026-10-09T12:00:00.000Z',
     team: [{ championId: 'Veigar', level: 2, runProgress: { [key]: 7 } }],
     biomeMaps,
@@ -63,6 +68,47 @@ describe('run counter persistence', () => {
       7,
     );
     expect(nextRun.getRunCounter(key)).toBe(0);
+  });
+
+  it('persists an authoritative assist reward and restores its exact bonus after reloading', async () => {
+    const result = replayAuthorityRun(VEIGAR_ASSIST_COMBAT_ATTEMPT, VEIGAR_FIRST_COMBAT_COMMANDS);
+    useRunStore.setState({
+      ...activeState(VEIGAR_ASSIST_COMBAT_ATTEMPT.seed),
+      team: [{ championId: 'Veigar' }, { championId: 'Garen' }],
+    });
+    useRunStore.getState().updateTeamAfterCombat(
+      result.snapshot.team.map(({ currentHp, currentMp, ...member }) => ({
+        ...member,
+        currentHp: currentHp ?? undefined,
+        currentMp: currentMp ?? undefined,
+      })),
+    );
+    const cache = storage.get(RUN_STORAGE_KEY)!;
+    expect(
+      JSON.parse(cache).state.team.find(
+        (member: { championId: string }) => member.championId === 'Veigar',
+      ),
+    ).toMatchObject({ runProgress: { [key]: 1 } });
+    useRunStore.setState(structuredClone(RUN_INITIAL_STATE));
+    storage.set(RUN_STORAGE_KEY, cache);
+    await useRunStore.persist.rehydrate();
+
+    const restored = useRunStore.getState().team.find((member) => member.championId === 'Veigar')!;
+    expect(restored.runProgress).toEqual({ [key]: 1 });
+    const rules = {
+      inventory: [],
+      augmentIds: [],
+      currentBiomeIndex: 0,
+      getUnlockedEnhancements: () => ({}),
+      getMasteryLevel: () => 0,
+    };
+    const continued = buildRunPlayerTeam([restored], rules)[0]!;
+    const fresh = buildRunPlayerTeam([{ championId: 'Veigar', level: restored.level }], rules)[0]!;
+    expect(continued.getRunCounter(key)).toBe(1);
+    expect(continued.getEnhancedStats().abilityPower - fresh.getEnhancedStats().abilityPower).toBe(
+      1,
+    );
+    expect(fresh.getRunCounter(key)).toBe(0);
   });
 
   it('keeps pre-counter saves compatible and does not add empty fields', () => {

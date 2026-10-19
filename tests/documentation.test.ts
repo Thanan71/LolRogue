@@ -93,7 +93,7 @@ describe('documentation maintenue', () => {
     expect(backup).toContain('Test de restauration isolé');
     expect(backup).toContain('SHA256SUMS');
     expect(backup).toContain('run_attempt_commands');
-    expect(backup).toContain('npm run ops:restore-drill');
+    expect(backup).toContain('npm run release -- restore-drill');
 
     const restoreEvidence = JSON.parse(read('docs/restore-drills/2026-08-12-local.json'));
     expect(restoreEvidence).toMatchObject({
@@ -176,7 +176,7 @@ describe('documentation maintenue', () => {
     expect(matrix).toContain('Fonctionnalité | Implémentation de référence | Preuves principales');
     expect(matrix).toContain('Validation live requise');
     expect(matrix).toContain('P0-I18N-01 ouvert');
-    expect(matrix).toContain('npm run audit:security');
+    expect(matrix).toContain('npm run testing -- security');
     for (const proof of [
       'authorityRunEngine.test.ts',
       'six-biome-run.spec.ts',
@@ -304,9 +304,9 @@ describe('documentation maintenue', () => {
       );
     }
     expect(balance).toContain('huit baselines authority v15 à v22');
-    expect(balance).toMatch(/v15 à v21 sont des\s+archives/);
-    expect(balance).toContain('config/authority-cohort-baselines-v22.json');
-    expect(balance).toContain('golden v22 commité');
+    expect(balance).toMatch(/v15 à v22 sont des\s+archives/);
+    expect(balance).toContain('config/authority-cohort-baselines-0.2.0.json');
+    expect(balance).toContain('golden `0.2.0` commité');
     expect(balance).toContain('La référence historique v21 passe sans violation');
     expect(balance).toContain('analyse 1 000 seeds');
     expect(balance).toContain('rejoue 1 200 runs');

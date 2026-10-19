@@ -45,11 +45,13 @@ describe('release preflight', () => {
   });
 
   it('exécute la politique des advisors sécurité et performance en local et sur la base liée', () => {
-    expect(packageJson.scripts['db:validate']).toContain('npm run db:advisors');
+    expect(packageJson.scripts['check:db']).toContain('npm run database -- validate --yes');
     expect(releaseSheet.supabaseAdvisors.checks).toContain(
-      'node scripts/check-supabase-advisors.mjs --linked',
+      'node scripts/check-supabase-advisors.mjs --linked --project-ref <project-ref>',
     );
-    expect(preflightSource).toContain("['scripts/check-supabase-advisors.mjs', '--linked']");
+    expect(preflightSource).toContain(
+      "['scripts/check-supabase-advisors.mjs', '--linked', '--project-ref', projectRef]",
+    );
     expect(preflightSource).toContain("block('advisors-live'");
   });
 

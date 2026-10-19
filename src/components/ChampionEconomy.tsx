@@ -1,6 +1,10 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Dialog } from '@/components/ui/Feedback';
 import { ROUTES } from '@/config/routes';
+import type {
+  ChampionAccessFilter,
+  ChampionAccessSort,
+} from '@/features/champion-economy/application/championAccessView';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { getChampionEconomyContent } from '@/i18n/championEconomyContent';
 import { formatDate, formatNumber } from '@/i18n/format';
@@ -14,25 +18,15 @@ import type {
 import '@/styles/champion-economy.css';
 
 const copy = getChampionEconomyContent();
-export type ChampionAccessFilter = 'all' | 'available' | 'owned' | 'rotation' | 'locked';
-export type ChampionAccessSort = 'name' | 'access';
-export const accessOrder: Record<ChampionAccess, number> = {
-  permanent_free: 0,
-  owned: 1,
-  weekly_rotation: 2,
-  locked: 3,
-};
 
-export function championMatchesAccess(access: ChampionAccess, filter: ChampionAccessFilter) {
-  return (
-    filter === 'all' ||
-    (filter === 'available'
-      ? access !== 'locked'
-      : filter === 'rotation'
-        ? access === 'weekly_rotation'
-        : access === filter)
-  );
-}
+export type {
+  ChampionAccessFilter,
+  ChampionAccessSort,
+} from '@/features/champion-economy/application/championAccessView';
+export {
+  accessOrder,
+  championMatchesAccess,
+} from '@/features/champion-economy/application/championAccessView';
 
 export function ChampionAccessControls({
   filter,

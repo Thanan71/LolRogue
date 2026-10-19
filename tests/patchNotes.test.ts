@@ -29,6 +29,42 @@ describe('publication unread calculation', () => {
     expect(unreadPatchNotes(1, [republished])).toEqual([]);
     expect(unreadPatchNotes(1, [{ ...fixture(2), version: 'same-build-sha' }])).toHaveLength(1);
   });
+  it('orders semantic versions after historical date versions by publication sequence', () => {
+    const historical = { ...fixture(4), version: '2026.10.10', publishedOn: '2026-10-10' };
+    const semantic = { ...fixture(5), version: '0.2.0', publishedOn: '2026-10-11' };
+    const catalog = [historical, semantic];
+    expect(latestPatchNote(catalog)).toBe(semantic);
+    expect(unreadPatchNotes(0, catalog).map((note) => note.version)).toEqual([
+      '0.2.0',
+      '2026.10.10',
+    ]);
+    expect(unreadPatchNotes(4, catalog)).toEqual([semantic]);
+    expect(unreadPatchNotes(5, catalog)).toEqual([]);
+  });
+  it('publishes bilingual assist rules with a semantic version without rewriting historical notes', () => {
+    const publication = PATCH_NOTES.find((note) => note.sequence === 5)!;
+    expect(publication.version).toBe('0.2.0');
+    expect(publication.publishedOn).toBe('2026-10-11');
+    expect(publication.version).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(
+      PATCH_NOTES.filter((note) => note.sequence < publication.sequence).map(
+        (note) => note.version,
+      ),
+    ).toEqual(['2026.10.07', '2026.10.09', '2026.10.09.1', '2026.10.10']);
+    for (const locale of ['fr-FR', 'en-US'] as const) {
+      const text = publication.entries.map((entry) => entry.text[locale]).join(' ');
+      expect(text).toMatch(/(?:assistances attribuées|Credited assists)/);
+      expect(text).toContain('+1');
+      expect(text).toContain('+3');
+      expect(text).toContain('+10');
+      expect(text).toContain('+200');
+      expect(text).toContain('major.minor.patch');
+    }
+    const launch = PATCH_NOTES.find((note) => note.sequence === 3)!;
+    expect(launch.entries.map((entry) => entry.text['en-US']).join(' ')).toContain(
+      'killed with an ability',
+    );
+  });
   it.each([NaN, Infinity, -1, 1.5])(
     'treats malformed reading state %s as a first visit',
     (value) => {

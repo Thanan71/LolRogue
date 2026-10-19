@@ -25,6 +25,7 @@ const includedDirectories = [
   'src/',
   'public/',
   'scripts/',
+  'tooling/',
   'supabase/authority-archive/',
   'supabase/functions/verify-run/',
   'supabase/migrations/',

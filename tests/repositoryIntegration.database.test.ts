@@ -6,6 +6,8 @@ import {
   hasAuthorityFeature,
   isKnownAuthorityEngine,
 } from '@/game/authority/versionRegistry';
+import { AccountProgressionService } from '@/services/accountProgressionService';
+import { RepositoryContainer } from '@/services/container/RepositoryContainer';
 import {
   SupabaseDailyRunRepository,
   SupabaseLeaderboardRepository,
@@ -312,6 +314,49 @@ describeLive('repositories against migrated local Supabase', () => {
       totalCandiesSpent: 20,
       unlockedNodes: { fighter_core_1: 1 },
     });
+  });
+
+  it('loads canonical progression through the existing container and server-only service', async () => {
+    const container = new RepositoryContainer(fixture.client);
+    const service = new AccountProgressionService(container);
+    const scope = { userId: fixture.userId };
+    const player = await service.loadPlayer(scope);
+    expect(player).toMatchObject({
+      status: 'loaded',
+      data: { id: fixture.playerId, user_id: fixture.userId, total_candies: 250 },
+    });
+    const progression = await service.loadEnhancements(scope);
+    expect(progression.status).toBe('loaded');
+    if (progression.status !== 'loaded') throw new Error('Progression was not loaded');
+    expect(progression.data.masteries).toMatchObject([
+      { champion_id: 'Garen', mastery_level: 2, player_id: fixture.playerId },
+    ]);
+    expect(progression.data.states.get('Garen')).toEqual({
+      totalCandiesSpent: 20,
+      unlockedNodes: { fighter_core_1: 1 },
+    });
+  });
+
+  it('preserves RLS when an authenticated service requests another account progression', async () => {
+    const other = await createAuthenticatedFixture(admin);
+    try {
+      const service = new AccountProgressionService(new RepositoryContainer(other.client));
+      await expect(service.loadPlayer({ userId: fixture.userId })).resolves.toEqual({
+        status: 'loaded',
+        data: null,
+      });
+      await expect(service.loadMasteries({ userId: fixture.userId })).resolves.toEqual({
+        status: 'loaded',
+        data: [],
+      });
+      const progression = await service.loadEnhancements({ userId: fixture.userId });
+      expect(progression).toEqual({
+        status: 'loaded',
+        data: { states: new Map(), masteries: [] },
+      });
+    } finally {
+      await admin.auth.admin.deleteUser(other.userId);
+    }
   });
 
   it('exercises the real admin nested relations and bounded client-log RPC', async () => {

@@ -29,7 +29,7 @@ fiche ; une commande destructive exige confirmation par une seconde personne.
 ## Checklist de release
 
 La personne qui publie renseigne d'abord la fiche versionnée
-`config/beta-release.json`, puis exécute `npm run release:preflight`. Cette fiche
+`config/beta-release.json`, puis exécute `npm run release -- preflight --project-ref <project-ref>`. Cette fiche
 conserve le SHA exact, la preview, le manifeste ordonné des migrations live avec sa
 dernière version et l'heure du relevé, les trois CI post-P0 et les preuves externes ;
 elle reste bloquante tant qu'un champ objectif manque. La
@@ -38,17 +38,17 @@ l'opérateur rollback et l'heure UTC.
 
 ### Avant promotion
 
-- [ ] `npm run release:preflight` conclut `READY` sur le SHA exact à promouvoir.
+- [ ] `npm run release -- preflight --project-ref <project-ref>` conclut `READY` sur le SHA exact à promouvoir.
 - [ ] Branche à jour, CI verte, diff sans secret et dépendances auditées.
 - [ ] `npm ci`, `npm run check`, `npm run test:e2e`, `npm run test:e2e:production`,
-      `npm run db:validate`, `npm run test:db` et `npm run test:deployed-assets`
+      `npm run database -- validate --yes`, `npm run test:db` et `npm run assets -- deployed verify`
       réussissent sous Node 24.
-- [ ] `npm run db:migrations:check:linked` confirme que la dernière migration du
+- [ ] `npm run database -- migrations check --linked --project-ref <project-ref>` confirme que la dernière migration du
       projet Supabase lié correspond à celle du commit candidat ; consigner les
       versions ordonnées, la dernière version et l'heure du relevé dans la fiche.
 - [ ] Le contrôle de drift reste strictement en lecture seule : il exécute seulement
-      `supabase migration list --linked`, jamais `push`, `up`, `repair` ou `fetch`.
-- [ ] `node scripts/check-supabase-advisors.mjs --linked` valide les advisors sécurité
+      `npm run database -- migrations check --linked --project-ref <project-ref>`, jamais `push`, `up`, `repair` ou `fetch`.
+- [ ] `node scripts/check-supabase-advisors.mjs --linked --project-ref <project-ref>` valide les advisors sécurité
       et performance contre l'allowlist exacte, sans alerte inconnue ni exception
       expirée ; consigner l'URL et la date de preuve dans la fiche.
 - [ ] Migrations nouvelles uniquement, types DB à jour et fonction autoritaire
@@ -67,7 +67,7 @@ l'opérateur rollback et l'heure UTC.
 
 ### Ordre de promotion
 
-1. Exécuter `npm run backend:deploy` depuis `dev` ou `main`.
+1. Exécuter `npm run release -- deploy --project-ref <project-ref> --yes` depuis `dev` ou `main`.
 2. La commande déploie la fonction compatible puis publie le frontend sans activer
    encore la ruleset ; le build Production de `main` reste sans domaine.
 3. Elle applique les migrations sur le projet Supabase confirmé et contrôle leur
@@ -102,7 +102,10 @@ d'autres comptes.
 2. Geler l'export à un instant UTC et extraire uniquement les données reliées à son
    `auth.users.id` : profil, maîtrise, améliorations, runs, tentatives/commandes et
    participations daily, wallet d'Éclats, transactions, unlocks permanents et
-   commandes d'achat. Exclure secrets internes et données d'autres joueurs.
+   commandes d'achat. Pour les Candies, inclure `candy_accounts` et
+   `candy_transactions` filtrés sur le `players.id` lié à cet utilisateur ;
+   `candy_ledger_settings` est une configuration globale sans donnée personnelle.
+   Exclure secrets internes et données d'autres joueurs.
 3. Produire JSON/CSV UTF-8, vérifier manuellement l'identité des lignes, chiffrer le
    fichier et transmettre le secret par un canal distinct.
 4. Supprimer l'archive de travail après confirmation et consigner seulement preuve,
@@ -126,7 +129,8 @@ d'autres comptes.
    suppression partielle de run ou de ledger.
 4. Vérifier l'absence dans `auth.users`, `players`, maîtrise, améliorations, runs et
    attempts, `account_wallets`, `shard_transactions`, `account_champion_unlocks` et
-   `champion_purchase_commands`, invalider les sessions puis demander au joueur
+   `champion_purchase_commands`, `candy_accounts` et `candy_transactions` pour
+   l'ancien `players.id`, invalider les sessions puis demander au joueur
    d'effacer son état local. La suppression complète du compte autorise la cascade
    du ledger ; aucune suppression partielle de son historique n'est permise.
 5. Consigner demande, validations, opérateur et résultat sans conserver les données
