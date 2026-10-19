@@ -10,7 +10,7 @@ import { useRunStore } from '@/stores/runStore';
 import type { RunAuthorityAttempt } from '@/types/runAttempt';
 
 const frozenSource = readFileSync(
-  new URL('../supabase/functions/verify-run/run-authority-v21.bundle.ts', import.meta.url),
+  new URL('../supabase/authority-archive/run-authority-v21.bundle.ts', import.meta.url),
   'utf8',
 )
   .replace(/^\/\/ @ts-nocheck\r?\n/, '')

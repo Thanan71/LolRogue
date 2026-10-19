@@ -148,7 +148,8 @@
       "patterns": [
         "supabase/functions/verify-run/run-authority*.bundle.js",
         "supabase/functions/verify-run/run-authority*.bundle.ts",
-        "supabase/authority-archive/run-authority*.bundle.ts"
+        "supabase/authority-archive/run-authority*.bundle.ts",
+        "supabase/authority-archive/run-authority*.bundle.js"
       ],
       "sources": [
         "config/authority-versions.json",

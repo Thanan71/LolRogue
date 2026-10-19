@@ -54,26 +54,26 @@ describe('authority progression engine versioning', () => {
       dailyScore: 15,
       progression: 3,
       command: 2,
-      status: 'replay-only',
-      bundle: 'supabase/functions/verify-run/run-authority-v21.bundle.ts',
+      status: 'unsupported',
+      bundle: 'supabase/authority-archive/run-authority-v21.bundle.ts',
       features: { runProgression: false },
     });
     expect(
       AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v22'),
     ).toMatchObject({
-      status: 'replay-only',
+      status: 'unsupported',
       gameplay: 22,
-      bundle: 'supabase/functions/verify-run/run-authority-v22.bundle.ts',
+      bundle: 'supabase/authority-archive/run-authority-v22.bundle.ts',
       contentHash: '2e0c2b73796122049cd8493b56e9ed9329a9fde25e27addc71f553eb83025d84',
       features: { runProgression: true, runProgressionAssists: false },
     });
     expect(
       AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-0.2.0'),
     ).toMatchObject({
-      status: 'replay-only',
+      status: 'unsupported',
       gameplay: 23,
       contentHash: 'c74af7632acfb7e4a2ff45140d62d0a96bbd6b063994b3f4b43d0f72fa785e16',
-      bundle: 'supabase/functions/verify-run/run-authority-0.2.0.bundle.js',
+      bundle: 'supabase/authority-archive/run-authority-0.2.0.bundle.js',
     });
     expect(CURRENT_REGISTRY_ENTRY).toMatchObject({
       engine: 'run-engine-0.2.5',
@@ -154,9 +154,9 @@ describe('authority progression engine versioning', () => {
     expect(usesCanonicalProgression({ engineVersion } as RunAuthorityAttempt)).toBe(expected);
   });
 
-  it('keeps a golden biome transition trace for every replayable progression family', () => {
+  it('keeps a golden biome transition trace for archived and current progression families', () => {
     const replayableProgressionFamilies = new Set(
-      AUTHORITY_VERSION_REGISTRY.filter((version) => version.status !== 'unsupported').map(
+      AUTHORITY_VERSION_REGISTRY.filter((version) => version.progression >= 2).map(
         (version) => version.progression,
       ),
     );

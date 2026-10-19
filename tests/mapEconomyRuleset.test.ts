@@ -9,7 +9,7 @@ const migrationSql = readFileSync(
   'utf8',
 );
 const archivedV19Bundle = readFileSync(
-  new URL('../supabase/functions/verify-run/run-authority-v19.bundle.ts', import.meta.url),
+  new URL('../supabase/authority-archive/run-authority-v19.bundle.ts', import.meta.url),
 );
 
 describe('gameplay ruleset v20 publication', () => {
