@@ -35,7 +35,9 @@ for (const entry of entries) {
     /^run-authority(?:-(?:v[1-9]\d*|\d+\.\d+\.\d+))?\.bundle\.(?:ts|js)$/.test(entry.name) &&
     !deployableBundles.has(entry.name)
   ) {
-    throw new Error(`Archived/unregistered verifier is still inside the Edge Function: ${entry.name}`);
+    throw new Error(
+      `Archived/unregistered verifier is still inside the Edge Function: ${entry.name}`,
+    );
   }
 }
 const totalBytes = (
