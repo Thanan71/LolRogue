@@ -713,6 +713,27 @@ describe('canonical operations without retired npm dependencies', () => {
     expect(plan[0].args).toEqual(initialScripts['i18n:check'].split(' ').slice(1));
   });
 
+  it.each([
+    { options: [], childOptions: [], risk: 'generate' },
+    { options: ['--check'], childOptions: ['--check'], risk: 'read-only' },
+  ])(
+    'preserves enhancement audit generation/check semantics: $risk',
+    async ({ options, childOptions, risk }) => {
+      const invocation = ['testing', 'enhancements', 'audit', ...options];
+      const expectedPlan = [
+        {
+          command: process.execPath,
+          args: [path.join(root, 'scripts/audit-enhancement-trees.mjs'), ...childOptions],
+        },
+      ];
+      expect(await createCommandPlan(parseCommand(invocation), context)).toEqual(expectedPlan);
+      const preview = executeCli([...invocation, '--dry-run']);
+      expect(preview.status).toBe(0);
+      expect(JSON.parse(preview.stdout)).toMatchObject({ risk, steps: expectedPlan });
+      expect(preview.stderr).toBe('');
+    },
+  );
+
   it('serves only after checking and bundling authority, using the installed Supabase CLI', async () => {
     const plan = await createCommandPlan(parseCommand(['release', 'edge', 'serve']), context);
     expect(plan.slice(0, 2).map((step) => path.relative(root, step.args[0]))).toEqual([

@@ -1,5 +1,8 @@
 import { targetPlan } from '../../lib/command-runner.mjs';
 
 export function buildTestingPlan(command, options, context) {
-  return targetPlan(command.target, context, options.list ? ['--list'] : []);
+  const args = [];
+  if (options.list) args.push('--list');
+  if (options.check) args.push('--check');
+  return targetPlan(command.target, context, args);
 }

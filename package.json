@@ -1,7 +1,7 @@
 {
   "name": "lolrogue",
   "private": true,
-  "version": "0.2.13",
+  "version": "0.2.14",
   "type": "module",
   "engines": {
     "node": "24.x"
@@ -34,7 +34,7 @@
     "authority:generate": "node scripts/generate-authority-resolver.mjs",
     "backend:deploy": "node scripts/deploy-backend.mjs",
     "balance:repro": "node scripts/cli.mjs balance repro",
-    "check:static": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+    "check:static": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
     "check:unit": "npm run test:coverage",
     "check:security": "npm run testing -- security",
     "check:build": "npm run build && npm run testing -- production-build && npm run testing -- performance budgets",

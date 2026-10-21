@@ -6,7 +6,9 @@
     "supabase/authority-archive",
     "src/game/authority/versionCapabilities.generated.ts",
     "src/types/database.ts",
-    "public/assets"
+    "public/assets",
+    "docs/audits/enhancement-trees.json",
+    "docs/audits/enhancement-trees.md"
   ],
   "families": [
     {
@@ -334,6 +336,30 @@
       "integrity": ["tracked-presence"],
       "retention": "Reviewed authored illustration; source bitmap is versioned, not reproducibly generated.",
       "reproduction": "manual: authored image has no deterministic generator."
+    },
+    {
+      "id": "enhancement-tree-audit",
+      "patterns": ["docs/audits/enhancement-trees.json", "docs/audits/enhancement-trees.md"],
+      "sources": [
+        "src/data/enhancementTrees.ts",
+        "src/i18n/enhancementContent.ts",
+        "tooling/enhancements/graphAudit.ts",
+        "tooling/enhancements/effectEvidence.ts",
+        "tooling/enhancements/serverEvidence.ts",
+        "tooling/enhancements/report.ts",
+        "scripts/audit-enhancement-trees.mjs"
+      ],
+      "generator": "npm run testing -- enhancements audit",
+      "git": "tracked",
+      "consumers": ["docs/enhancement-tree-audit.md", "tests/enhancementAuditReport.test.ts"],
+      "integrity": [
+        "byte-exact-regenerated-json-and-markdown",
+        "source-sha256",
+        "per-node-causes-and-ownership",
+        "live-sql-tests-separate"
+      ],
+      "retention": "Retain the current exhaustive audit and its source evidence; changes to findings must be reviewed before TREE-02/03 fixes.",
+      "reproduction": "offline: reproduced from committed catalogue, runtime evidence and SQL migrations; local live RPC evidence is tested separately."
     }
   ]
 }

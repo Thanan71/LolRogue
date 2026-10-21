@@ -15,6 +15,11 @@
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@data/*": ["./data/*"],
+      "@assets/*": ["./assets/*"]
+    },
     "types": ["node"]
   },
   "include": [
