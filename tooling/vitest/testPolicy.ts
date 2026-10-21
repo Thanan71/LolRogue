@@ -28,6 +28,8 @@ export function createTestPolicy(argv: readonly string[] = process.argv): ViteUs
         'src/components/RunLifecycleRoute.tsx',
         'src/shared/ui/Feedback.tsx',
         'src/shared/hooks/**/*.ts',
+        'src/features/administration/**/*.ts',
+        'src/features/administration/**/*.tsx',
         'src/features/combat/**/*.ts',
         'src/features/combat/**/*.tsx',
         'src/features/champions/**/*.ts',

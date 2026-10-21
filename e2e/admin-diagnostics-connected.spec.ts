@@ -136,7 +136,16 @@ test('diagnostics connectés : Auth, projection minimale, corrélation et révoc
         .getByRole('region', { name: 'Tentatives et rejets authority', exact: true })
         .getByRole('table'),
     ).toContainText(attemptId);
-    await expect(authority.getByText('Non instrumenté')).toHaveCount(3);
+    await page.getByRole('tab', { name: 'État du service', exact: true }).click();
+    const servicePanel = page.locator('#admin-panel-service');
+    await expect(servicePanel.getByText('Non instrumenté')).toHaveCount(3);
+    const restoredAuthorityRead = page.waitForResponse(
+      (response) =>
+        new URL(response.url()).pathname === '/rest/v1/rpc/admin_diagnostics' &&
+        record(response.request().postDataJSON()).p_section === 'authority',
+    );
+    await page.getByRole('tab', { name: /Autorité/ }).click();
+    expect((await restoredAuthorityRead).status()).toBe(200);
     explorerSql(`UPDATE public.players SET is_admin=FALSE WHERE id='${playerId}'::uuid;`);
     const deniedResponse = page.waitForResponse(
       (response) =>

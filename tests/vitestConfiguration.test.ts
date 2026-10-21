@@ -126,6 +126,8 @@ describe('independent Vitest configuration', () => {
       expect.arrayContaining([
         'src/game/**/*.ts',
         'src/services/**/*.ts',
+        'src/features/administration/**/*.ts',
+        'src/features/administration/**/*.tsx',
         'src/features/combat/**/*.tsx',
         'src/features/champions/**/*.tsx',
         'src/features/daily/**/*.tsx',

@@ -286,7 +286,7 @@ jobs:
         run: |
           VITE_PUBLIC_SUPABASE_URL="$E2E_SUPABASE_URL" \
           VITE_PUBLIC_SUPABASE_ANON_KEY="$E2E_SUPABASE_ANON_KEY" \
-          npm run test:e2e
+          npm run test:e2e -- --output=test-results/source
 
       - name: Run connected Daily, Sprint G, champion economy and admin browser tests
         env:
@@ -296,10 +296,21 @@ jobs:
           VITE_PUBLIC_SUPABASE_ANON_KEY="$E2E_SUPABASE_ANON_KEY" \
           SUPABASE_SERVICE_ROLE_KEY="$E2E_SUPABASE_SERVICE_ROLE_KEY" \
           SUPABASE_DB_URL="$E2E_SUPABASE_DB_URL" \
-          npx playwright test e2e/connected-daily.spec.ts e2e/connected-sprint-g.spec.ts e2e/champion-economy-connected.spec.ts e2e/admin-analytics-connected.spec.ts e2e/admin-balance-connected.spec.ts e2e/admin-moderation-connected.spec.ts e2e/admin-diagnostics-connected.spec.ts --project=chromium
+          npx playwright test e2e/connected-daily.spec.ts e2e/connected-sprint-g.spec.ts e2e/champion-economy-connected.spec.ts e2e/admin-analytics-connected.spec.ts e2e/admin-balance-connected.spec.ts e2e/admin-moderation-connected.spec.ts e2e/admin-diagnostics-connected.spec.ts e2e/admin-navigation-connected.spec.ts --project=chromium --output=test-results/connected
 
       - name: Run production browser matrix
-        run: npm run test:e2e:production
+        run: npm run test:e2e:production -- --output=test-results/production
+
+      - name: Upload admin UI screenshots and browser zoom evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: admin-ui-evidence
+          path: |
+            test-results/source/**/admin-real-zoom-*.png
+            test-results/source/**/browser-zoom-*.json
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Stop local Supabase
         if: always()
