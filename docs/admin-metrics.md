@@ -13,7 +13,7 @@ ce chantier**. Validation locale, CI, fusion et déploiement sont des étapes di
 publie quinze lignes `stat_name` / `stat_value`, cette dernière étant du texte
 nullable. La vue est un agrégat SQL vivant, sans cache applicatif ni somme des
 premières lignes chargées. Le
-[dictionnaire FR/EN de l'interface](../src/pages/admin/adminMetrics.ts)
+[dictionnaire FR/EN de l'interface](../src/features/administration/domain/adminMetrics.ts)
 expose formule, source, unité, période, population et politique de vérification.
 
 Les notations de la table ci-dessous sont :
@@ -178,35 +178,42 @@ Un échec de rafraîchissement peut conserver les données avec un état périm�
 Une erreur de permission purge ces données privilégiées. Une panne n'est pas un
 état vide réussi et ne remplace pas les valeurs par zéro.
 
-Les [requêtes de listes](../src/pages/admin/adminTableQueries.ts) demandent
-`select(..., { count: 'exact' })` avec les mêmes filtres que les lignes et un tri
-stable complété par l'ID. Le total correspond à la population SQL autorisée et
-filtrée ; la taille de la page et le plafond effectif de l'API restent distincts.
-Un count absent, invalide ou inférieur aux lignes retournées fait échouer la
-requête ; il n'est remplacé ni par zéro ni par `rows.length`.
+Les [lectures joueurs](../src/features/administration/infrastructure/players/adminPlayerQueries.ts),
+[lectures de runs](../src/features/administration/infrastructure/runs/adminRunQueries.ts)
+et [diagnostics](../src/features/administration/infrastructure/diagnostics/adminDiagnosticsClient.ts)
+utilisent leurs RPC dédiées et des projections validées. Le total correspond à
+la population SQL autorisée et filtrée ; la taille de la page reste distincte.
+Les curseurs sont liés aux filtres et au snapshot, avec un tri stable complété
+par l'ID. Un total absent, invalide ou inférieur aux lignes retournées fait
+échouer la lecture ; il n'est remplacé ni par zéro ni par `rows.length`.
 
 L'interface affiche « lignes affichées / total filtré », par exemple 100 / 1 001.
-ADM-S1 ne livre pas la navigation exhaustive ADM-07. Les membres d'équipe des runs
-chargées sont néanmoins récupérés par lots/pages et une équipe incomplète est
-refusée. Les totaux des cartes ne viennent jamais des seules lignes affichées.
+Les totaux des cartes ne viennent jamais des seules lignes affichées. Une
+équipe ou une projection incomplète est refusée par le contrat concerné.
 
-Le CSV conserve sa protection contre les formules et exporte **les lignes de runs
-actuellement affichées**, avec leurs équipes chargées. Son libellé annonce ce
-périmètre ; ce n'est pas un export exhaustif du total filtré. L'export de tous les
-résultats reste dans ADM-11. Les lignes conservées après un échec de refresh gardent
-leur état périmé visible ; aucun export ne constitue une photographie globale de
-la base prise à un autre instant.
+Le CSV conserve sa protection contre les formules. Sa confirmation distingue la
+page affichée de la population filtrée complète, bornée à 5 000 résultats ; sa
+portée et sa période sont explicites. Le serveur refuse la troncature. Les
+lignes conservées après un échec de refresh gardent leur état périmé visible ;
+aucun export ne constitue une photographie globale de la base à un autre instant.
 
-Le comportement historique de listes décrit ci-dessus correspond à ADM-S1.
-Depuis **0.2.8**, la pagination et les exports sont remplacés par le
-[contrat ADM-S2](admin-explorer.md) ; les tests des anciennes requêtes de joueurs
-et de runs ont été migrés vers les RPC dédiées et leurs projections sûres.
+Le comportement historique reste documenté dans la
+[validation ADM-S1](admin-s1-validation-2026-10-17.md). Depuis **0.2.8**, pagination
+et exports suivent le [contrat ADM-S2](admin-explorer.md). L'interface et les
+frontières de code suivent désormais le [contrat ADM-S7](admin-interface.md).
 
 ## Vérifications et état de livraison
 
-- [`adminTableQueries.test.ts`](../tests/adminTableQueries.test.ts) couvre counts
-  0/100/101/1 000/1 001, plafond API, filtres, count absent/incohérent, annulation,
-  lots d'équipes, changements pendant pagination et équipe incomplète.
+Les durées et compteurs des suites S1 ci-dessous conservent leur référence du
+17 octobre. La [validation S7](admin-s7-validation-2026-10-21.md) documente la
+campagne globale actuelle et la séparation entre preuve locale et livraison.
+
+- [`adminVolume.database.test.ts`](../tests/adminVolume.database.test.ts) vérifie
+  les volumes 0/100/101/1 000/1 001 en parcourant toutes les pages, sans doublon,
+  avec métrique globale concordante. Les
+  [contrats d’exploration SQL](../tests/adminExplorer.database.test.ts) et
+  [tests de l’interface joueurs](../tests/adminPlayersExplorer.test.tsx) couvrent
+  filtres, curseurs, annulation, projections incomplètes et changements de contexte.
 - [`adminReliability.test.tsx`](../tests/adminReliability.test.tsx) couvre les
   quinze clés FR/EN, l'ancienne vue trompeuse, absence/`NULL`/zéro, états indépendants,
   retry/stale, filtres obsolètes, déconnexion et portée de compte. Le CSV garde ses

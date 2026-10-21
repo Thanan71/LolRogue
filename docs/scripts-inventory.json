@@ -186,6 +186,7 @@
     "docs/admin-balance.md",
     "docs/admin-diagnostics.md",
     "docs/admin-explorer.md",
+    "docs/admin-interface.md",
     "docs/admin-metrics.md",
     "docs/admin-moderation.md",
     "docs/admin-s1-validation-2026-10-17.md",
@@ -194,6 +195,7 @@
     "docs/admin-s4-validation-2026-10-18.md",
     "docs/admin-s5-validation-2026-10-18.md",
     "docs/admin-s6-validation-2026-10-18.md",
+    "docs/admin-s7-validation-2026-10-21.md",
     "docs/administration.md",
     "docs/architecture-s2-validation-2026-10-11.md",
     "docs/architecture-s3-validation-2026-10-11.md",
@@ -288,6 +290,8 @@
     "e2e/admin-diagnostics.spec.ts",
     "e2e/admin-moderation-connected.spec.ts",
     "e2e/admin-moderation.spec.ts",
+    "e2e/admin-navigation-connected.spec.ts",
+    "e2e/admin-navigation.spec.ts",
     "e2e/admin-players-explorer.spec.ts",
     "e2e/admin-run-explorer.spec.ts",
     "e2e/auth-menu-responsive.spec.ts",
@@ -300,7 +304,9 @@
     "e2e/css-maintenance.spec.ts",
     "e2e/database-mobile-navigation.spec.ts",
     "e2e/game-screens-responsive.spec.ts",
+    "e2e/helpers/admin-browser-zoom.ts",
     "e2e/helpers/admin-explorer.ts",
+    "e2e/helpers/admin-navigation-backend.ts",
     "e2e/i18n-english-journey.spec.ts",
     "e2e/onboarding.spec.ts",
     "e2e/patch-notes.spec.ts",
@@ -496,6 +502,116 @@
     "src/data/items/runeDatabase.ts",
     "src/data/patchNotes.ts",
     "src/domain/championEconomy.ts",
+    "src/features/administration/domain/adminCsv.ts",
+    "src/features/administration/domain/adminDataContracts.ts",
+    "src/features/administration/domain/adminFieldCalibration.ts",
+    "src/features/administration/domain/adminFormatting.ts",
+    "src/features/administration/domain/adminMetrics.ts",
+    "src/features/administration/domain/administrationNavigation.ts",
+    "src/features/administration/domain/analytics/adminAnalyticsFilterDraft.ts",
+    "src/features/administration/domain/analytics/adminAnalyticsParser.ts",
+    "src/features/administration/domain/analytics/adminAnalyticsStatistics.ts",
+    "src/features/administration/domain/analytics/adminAnalyticsValidation.ts",
+    "src/features/administration/domain/analytics/analyticsTypes.ts",
+    "src/features/administration/domain/balance/adminBalanceConfigParser.ts",
+    "src/features/administration/domain/balance/adminBalanceFieldValidation.ts",
+    "src/features/administration/domain/balance/adminBalanceFilterDraft.ts",
+    "src/features/administration/domain/balance/adminBalanceReportParser.ts",
+    "src/features/administration/domain/balance/adminBalanceStatistics.ts",
+    "src/features/administration/domain/balance/adminBalanceValidation.ts",
+    "src/features/administration/domain/balance/balanceTypes.ts",
+    "src/features/administration/domain/diagnostics/adminDiagnosticsIncidents.ts",
+    "src/features/administration/domain/diagnostics/adminDiagnosticsParser.ts",
+    "src/features/administration/domain/diagnostics/adminDiagnosticsTypes.ts",
+    "src/features/administration/domain/diagnostics/adminDiagnosticsValidation.ts",
+    "src/features/administration/domain/explorer/adminExplorerClient.ts",
+    "src/features/administration/domain/explorer/adminExplorerTypes.ts",
+    "src/features/administration/domain/moderation/moderationFilterDraft.ts",
+    "src/features/administration/domain/moderation/moderationTypes.ts",
+    "src/features/administration/domain/moderation/moderationValidation.ts",
+    "src/features/administration/domain/players/adminPlayerProjection.ts",
+    "src/features/administration/domain/players/adminPlayerTypes.ts",
+    "src/features/administration/domain/runs/adminRunContracts.ts",
+    "src/features/administration/domain/runs/adminRunCsv.ts",
+    "src/features/administration/domain/runs/adminRunExport.ts",
+    "src/features/administration/domain/runs/adminRunFilters.ts",
+    "src/features/administration/hooks/analytics/useAdminAnalytics.ts",
+    "src/features/administration/hooks/balance/useAdminBalance.ts",
+    "src/features/administration/hooks/diagnostics/useAdminDiagnostics.ts",
+    "src/features/administration/hooks/explorer/useAdminExplorerScope.ts",
+    "src/features/administration/hooks/moderation/useAdminModeration.ts",
+    "src/features/administration/hooks/moderation/useModerationDecision.ts",
+    "src/features/administration/hooks/players/useAdminPlayersExplorer.ts",
+    "src/features/administration/hooks/runs/useAdminRunExplorer.ts",
+    "src/features/administration/hooks/runs/useAdminRunExport.ts",
+    "src/features/administration/hooks/useAdminData.ts",
+    "src/features/administration/hooks/useAdminSection.ts",
+    "src/features/administration/hooks/useAdministrationForm.ts",
+    "src/features/administration/hooks/useAdministrationNavigation.ts",
+    "src/features/administration/index.ts",
+    "src/features/administration/infrastructure/adminCsvDownload.ts",
+    "src/features/administration/infrastructure/adminDashboardQueries.ts",
+    "src/features/administration/infrastructure/adminMutationRequest.ts",
+    "src/features/administration/infrastructure/analytics/adminAnalyticsClient.ts",
+    "src/features/administration/infrastructure/balance/adminBalanceClient.ts",
+    "src/features/administration/infrastructure/balance/adminBalanceFieldClient.ts",
+    "src/features/administration/infrastructure/diagnostics/adminDiagnosticsClient.ts",
+    "src/features/administration/infrastructure/moderation/moderationClient.ts",
+    "src/features/administration/infrastructure/players/adminPlayerQueries.ts",
+    "src/features/administration/infrastructure/runs/adminRunDownload.ts",
+    "src/features/administration/infrastructure/runs/adminRunQueries.ts",
+    "src/features/administration/ui/AdminAuthorityPanel.tsx",
+    "src/features/administration/ui/AdminDashboardPanel.tsx",
+    "src/features/administration/ui/AdminErrorNotice.tsx",
+    "src/features/administration/ui/AdminFieldCalibrationPanel.tsx",
+    "src/features/administration/ui/AdminResponsiveTable.tsx",
+    "src/features/administration/ui/AdminSectionFeedback.tsx",
+    "src/features/administration/ui/AdminTabList.tsx",
+    "src/features/administration/ui/AdministrationScreen.tsx",
+    "src/features/administration/ui/adminLogDisplay.ts",
+    "src/features/administration/ui/analytics/AdminAnalyticsChart.tsx",
+    "src/features/administration/ui/analytics/AdminAnalyticsContext.tsx",
+    "src/features/administration/ui/analytics/AdminAnalyticsFilters.tsx",
+    "src/features/administration/ui/analytics/AdminAnalyticsPanel.tsx",
+    "src/features/administration/ui/analytics/AdminAnalyticsSection.tsx",
+    "src/features/administration/ui/analytics/AdminFunnelPanel.tsx",
+    "src/features/administration/ui/analytics/AdminRate.tsx",
+    "src/features/administration/ui/analytics/AdminRetentionPanel.tsx",
+    "src/features/administration/ui/analytics/AdminTimeSeries.tsx",
+    "src/features/administration/ui/analytics/adminAnalyticsDisplay.ts",
+    "src/features/administration/ui/balance/AdminBalanceBuilds.tsx",
+    "src/features/administration/ui/balance/AdminBalanceChampions.tsx",
+    "src/features/administration/ui/balance/AdminBalanceConfig.tsx",
+    "src/features/administration/ui/balance/AdminBalanceContext.tsx",
+    "src/features/administration/ui/balance/AdminBalanceFilters.tsx",
+    "src/features/administration/ui/balance/AdminBalancePicks.tsx",
+    "src/features/administration/ui/balance/AdminBalanceProvenance.tsx",
+    "src/features/administration/ui/balance/AdminBalanceRate.tsx",
+    "src/features/administration/ui/balance/AdminBalanceSection.tsx",
+    "src/features/administration/ui/balance/AdminBalanceWorkspace.tsx",
+    "src/features/administration/ui/diagnostics/AdminDiagnosticsWorkspace.tsx",
+    "src/features/administration/ui/diagnostics/DiagnosticsCorrelation.tsx",
+    "src/features/administration/ui/diagnostics/DiagnosticsFilters.tsx",
+    "src/features/administration/ui/diagnostics/DiagnosticsIncidents.tsx",
+    "src/features/administration/ui/diagnostics/DiagnosticsLogs.tsx",
+    "src/features/administration/ui/diagnostics/DiagnosticsSection.tsx",
+    "src/features/administration/ui/diagnostics/DiagnosticsService.tsx",
+    "src/features/administration/ui/explorer/AdminPagination.tsx",
+    "src/features/administration/ui/moderation/AdminModerationWorkspace.tsx",
+    "src/features/administration/ui/moderation/ModerationCase.tsx",
+    "src/features/administration/ui/moderation/ModerationDecisionForm.tsx",
+    "src/features/administration/ui/moderation/ModerationDecisionReceipt.tsx",
+    "src/features/administration/ui/moderation/ModerationFilters.tsx",
+    "src/features/administration/ui/moderation/ModerationQueue.tsx",
+    "src/features/administration/ui/players/AdminPlayerHistories.tsx",
+    "src/features/administration/ui/players/AdminPlayerProfile.tsx",
+    "src/features/administration/ui/players/AdminPlayersPanel.tsx",
+    "src/features/administration/ui/players/adminPlayerFormat.ts",
+    "src/features/administration/ui/runs/AdminRunDetail.tsx",
+    "src/features/administration/ui/runs/AdminRunExportDialog.tsx",
+    "src/features/administration/ui/runs/AdminRunFilterForm.tsx",
+    "src/features/administration/ui/runs/AdminRunsPanel.tsx",
+    "src/features/administration/ui/runs/adminRunDisplay.ts",
     "src/features/champion-economy/application/championAccessView.ts",
     "src/features/champions/application/starterCatalog.ts",
     "src/features/champions/application/starterPreparation.ts",
@@ -676,6 +792,7 @@
     "src/hooks/useRecruitPreview.ts",
     "src/hooks/useReducedMotion.ts",
     "src/hooks/useRunImagePreload.ts",
+    "src/i18n/adminAccessibility.ts",
     "src/i18n/adminAnalytics.ts",
     "src/i18n/adminBalance.ts",
     "src/i18n/adminDiagnostics.ts",
@@ -685,6 +802,7 @@
     "src/i18n/adminFieldCalibration.ts",
     "src/i18n/adminModeration.ts",
     "src/i18n/adminRunExplorer.ts",
+    "src/i18n/administration.ts",
     "src/i18n/authRecoveryContent.ts",
     "src/i18n/championContent.ts",
     "src/i18n/championEconomyContent.ts",
@@ -738,102 +856,6 @@
     "src/pages/ShopPage.tsx",
     "src/pages/StarterSelectPage.tsx",
     "src/pages/TreasurePage.tsx",
-    "src/pages/admin/AdminAuthorityPanel.tsx",
-    "src/pages/admin/AdminDashboardPanel.tsx",
-    "src/pages/admin/AdminErrorNotice.tsx",
-    "src/pages/admin/AdminFieldCalibrationPanel.tsx",
-    "src/pages/admin/AdminSectionFeedback.tsx",
-    "src/pages/admin/AdminTabList.tsx",
-    "src/pages/admin/adminMetrics.ts",
-    "src/pages/admin/adminMutationRequest.ts",
-    "src/pages/admin/analytics/AdminAnalyticsChart.tsx",
-    "src/pages/admin/analytics/AdminAnalyticsContext.tsx",
-    "src/pages/admin/analytics/AdminAnalyticsFilters.tsx",
-    "src/pages/admin/analytics/AdminAnalyticsPanel.tsx",
-    "src/pages/admin/analytics/AdminAnalyticsSection.tsx",
-    "src/pages/admin/analytics/AdminFunnelPanel.tsx",
-    "src/pages/admin/analytics/AdminRate.tsx",
-    "src/pages/admin/analytics/AdminRetentionPanel.tsx",
-    "src/pages/admin/analytics/AdminTimeSeries.tsx",
-    "src/pages/admin/analytics/adminAnalyticsClient.ts",
-    "src/pages/admin/analytics/adminAnalyticsDisplay.ts",
-    "src/pages/admin/analytics/adminAnalyticsFilterDraft.ts",
-    "src/pages/admin/analytics/adminAnalyticsStatistics.ts",
-    "src/pages/admin/analytics/adminAnalyticsValidation.ts",
-    "src/pages/admin/analytics/analyticsTypes.ts",
-    "src/pages/admin/analytics/useAdminAnalytics.ts",
-    "src/pages/admin/balance/AdminBalanceBuilds.tsx",
-    "src/pages/admin/balance/AdminBalanceChampions.tsx",
-    "src/pages/admin/balance/AdminBalanceConfig.tsx",
-    "src/pages/admin/balance/AdminBalanceContext.tsx",
-    "src/pages/admin/balance/AdminBalanceFilters.tsx",
-    "src/pages/admin/balance/AdminBalancePicks.tsx",
-    "src/pages/admin/balance/AdminBalanceProvenance.tsx",
-    "src/pages/admin/balance/AdminBalanceRate.tsx",
-    "src/pages/admin/balance/AdminBalanceSection.tsx",
-    "src/pages/admin/balance/AdminBalanceWorkspace.tsx",
-    "src/pages/admin/balance/adminBalanceClient.ts",
-    "src/pages/admin/balance/adminBalanceConfigParser.ts",
-    "src/pages/admin/balance/adminBalanceFieldClient.ts",
-    "src/pages/admin/balance/adminBalanceFieldValidation.ts",
-    "src/pages/admin/balance/adminBalanceFilterDraft.ts",
-    "src/pages/admin/balance/adminBalanceReportParser.ts",
-    "src/pages/admin/balance/adminBalanceStatistics.ts",
-    "src/pages/admin/balance/adminBalanceValidation.ts",
-    "src/pages/admin/balance/balanceTypes.ts",
-    "src/pages/admin/balance/useAdminBalance.ts",
-    "src/pages/admin/diagnostics/AdminDiagnosticsWorkspace.tsx",
-    "src/pages/admin/diagnostics/DiagnosticsCorrelation.tsx",
-    "src/pages/admin/diagnostics/DiagnosticsFilters.tsx",
-    "src/pages/admin/diagnostics/DiagnosticsIncidents.tsx",
-    "src/pages/admin/diagnostics/DiagnosticsLogs.tsx",
-    "src/pages/admin/diagnostics/DiagnosticsSection.tsx",
-    "src/pages/admin/diagnostics/DiagnosticsService.tsx",
-    "src/pages/admin/diagnostics/adminDiagnosticsClient.ts",
-    "src/pages/admin/diagnostics/adminDiagnosticsIncidents.ts",
-    "src/pages/admin/diagnostics/adminDiagnosticsParser.ts",
-    "src/pages/admin/diagnostics/adminDiagnosticsTypes.ts",
-    "src/pages/admin/diagnostics/adminDiagnosticsValidation.ts",
-    "src/pages/admin/diagnostics/useAdminDiagnostics.ts",
-    "src/pages/admin/explorer/AdminPagination.tsx",
-    "src/pages/admin/explorer/adminExplorerClient.ts",
-    "src/pages/admin/explorer/adminExplorerTypes.ts",
-    "src/pages/admin/explorer/useAdminExplorerScope.ts",
-    "src/pages/admin/moderation/AdminModerationWorkspace.tsx",
-    "src/pages/admin/moderation/ModerationCase.tsx",
-    "src/pages/admin/moderation/ModerationDecisionForm.tsx",
-    "src/pages/admin/moderation/ModerationDecisionReceipt.tsx",
-    "src/pages/admin/moderation/ModerationFilters.tsx",
-    "src/pages/admin/moderation/ModerationQueue.tsx",
-    "src/pages/admin/moderation/moderationClient.ts",
-    "src/pages/admin/moderation/moderationFilterDraft.ts",
-    "src/pages/admin/moderation/moderationTypes.ts",
-    "src/pages/admin/moderation/moderationValidation.ts",
-    "src/pages/admin/moderation/useAdminModeration.ts",
-    "src/pages/admin/moderation/useModerationDecision.ts",
-    "src/pages/admin/players/AdminPlayerHistories.tsx",
-    "src/pages/admin/players/AdminPlayerProfile.tsx",
-    "src/pages/admin/players/AdminPlayersPanel.tsx",
-    "src/pages/admin/players/adminPlayerFormat.ts",
-    "src/pages/admin/players/adminPlayerProjection.ts",
-    "src/pages/admin/players/adminPlayerQueries.ts",
-    "src/pages/admin/players/adminPlayerTypes.ts",
-    "src/pages/admin/players/useAdminPlayersExplorer.ts",
-    "src/pages/admin/runs/AdminRunDetail.tsx",
-    "src/pages/admin/runs/AdminRunExportDialog.tsx",
-    "src/pages/admin/runs/AdminRunFilterForm.tsx",
-    "src/pages/admin/runs/AdminRunsPanel.tsx",
-    "src/pages/admin/runs/adminRunContracts.ts",
-    "src/pages/admin/runs/adminRunCsv.ts",
-    "src/pages/admin/runs/adminRunDisplay.ts",
-    "src/pages/admin/runs/adminRunExport.ts",
-    "src/pages/admin/runs/adminRunFilters.ts",
-    "src/pages/admin/runs/adminRunQueries.ts",
-    "src/pages/admin/runs/useAdminRunExplorer.ts",
-    "src/pages/admin/runs/useAdminRunExport.ts",
-    "src/pages/admin/useAdminData.ts",
-    "src/pages/admin/useAdminSection.ts",
-    "src/pages/adminPageUtils.ts",
     "src/pages/auth/PasswordRecoveryForm.tsx",
     "src/pages/combat/combatCompletion.ts",
     "src/pages/combat/combatPresenter.ts",
@@ -992,6 +1014,10 @@
     "tests/adminRunContracts.test.ts",
     "tests/adminRunExplorer.test.tsx",
     "tests/adminRunExport.test.ts",
+    "tests/adminVolume.database.test.ts",
+    "tests/administrationArchitecture.test.mjs",
+    "tests/administrationNavigation.test.ts",
+    "tests/administrationNavigationHistory.test.tsx",
     "tests/ancillaryStorage.test.ts",
     "tests/applicationRollback.test.mjs",
     "tests/architectureResponsibilities.test.ts",
@@ -1852,7 +1878,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 346,
+          "line": 357,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run assets -- verify",
@@ -2138,7 +2164,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 346,
+          "line": 357,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run assets -- verify",
@@ -2436,7 +2462,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -2508,6 +2534,19 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "cache npm, passe `npm ci` et `npm run check:build` sous Node 24.19.0/npm 11.17.0.",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build",
+            "prebuild"
+          ]
+        },
+        {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 108,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:build",
           "classification": "active",
           "via": [
             "check:build",
@@ -2718,7 +2757,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -23745,7 +23784,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -23797,6 +23836,17 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "cache npm, passe `npm ci` et `npm run check:build` sous Node 24.19.0/npm 11.17.0.",
+          "classification": "active",
+          "via": [
+            "check:build"
+          ]
+        },
+        {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 108,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:build",
           "classification": "active",
           "via": [
             "check:build"
@@ -24013,7 +24063,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -24252,7 +24302,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -24332,7 +24382,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -24530,7 +24580,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -24682,7 +24732,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -24941,6 +24991,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 108,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:build",
+          "classification": "active"
+        },
+        {
           "file": "docs/architecture-s2-validation-2026-10-11.md",
           "line": 90,
           "kind": "npm-run",
@@ -24993,6 +25051,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 108,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:build",
+          "classification": "active"
+        },
+        {
           "file": "docs/architecture-s2-validation-2026-10-11.md",
           "line": 90,
           "kind": "npm-run",
@@ -25029,7 +25095,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -25235,7 +25301,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -25466,6 +25532,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 105,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:db",
+          "classification": "active"
+        },
+        {
           "file": "docs/backlog/architecture-maintenance.md",
           "line": 314,
           "kind": "npm-run",
@@ -25506,6 +25580,14 @@
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:db",
+          "classification": "active"
+        },
+        {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 105,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:db",
           "classification": "active"
         },
         {
@@ -25637,7 +25719,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -25843,7 +25925,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -26140,7 +26222,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -26346,7 +26428,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -26568,6 +26650,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 104,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:unit",
+          "classification": "active"
+        },
+        {
           "file": "docs/architecture-s2-validation-2026-10-11.md",
           "line": 83,
           "kind": "npm-run",
@@ -26596,6 +26686,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 104,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:unit",
+          "classification": "active"
+        },
+        {
           "file": "docs/architecture-s2-validation-2026-10-11.md",
           "line": 83,
           "kind": "npm-run",
@@ -26616,7 +26714,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -26822,7 +26920,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -27434,7 +27532,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 306,
+          "line": 317,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -27442,26 +27540,10 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 349,
+          "line": 360,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
-          "classification": "active"
-        },
-        {
-          "file": ".github/workflows/ci.yml",
-          "line": 363,
-          "kind": "npm-run",
-          "source": "workflow",
-          "excerpt": "npm run database -- lint",
-          "classification": "active"
-        },
-        {
-          "file": ".github/workflows/ci.yml",
-          "line": 373,
-          "kind": "npm-run",
-          "source": "workflow",
-          "excerpt": "npm run database -- reset --yes",
           "classification": "active"
         },
         {
@@ -27474,7 +27556,23 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 395,
+          "line": 384,
+          "kind": "npm-run",
+          "source": "workflow",
+          "excerpt": "npm run database -- reset --yes",
+          "classification": "active"
+        },
+        {
+          "file": ".github/workflows/ci.yml",
+          "line": 385,
+          "kind": "npm-run",
+          "source": "workflow",
+          "excerpt": "npm run database -- lint",
+          "classification": "active"
+        },
+        {
+          "file": ".github/workflows/ci.yml",
+          "line": 406,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -27730,7 +27828,7 @@
         },
         {
           "file": "docs/administration.md",
-          "line": 138,
+          "line": 149,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`service_role`. `npm run database -- security` compare les ACL réelles à ce manifest et",
@@ -27978,7 +28076,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 93,
+          "line": 96,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- security`, contrôler que l'advisor Supabase ne signale plus aucun",
@@ -27986,7 +28084,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 103,
+          "line": 106,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "fonction Edge et client, puis exécuter `npm run database -- security`.",
@@ -27994,7 +28092,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 171,
+          "line": 188,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- comparer les ACL `SECURITY DEFINER` au manifest avec `npm run database -- security` et",
@@ -28002,7 +28100,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 189,
+          "line": 206,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
@@ -28010,7 +28108,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 189,
+          "line": 206,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
@@ -28018,7 +28116,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 194,
+          "line": 211,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run database -- migrations check --linked --project-ref <project-ref>",
@@ -28026,7 +28124,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 252,
+          "line": 269,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "horodatée et la tester avec `npm run database -- validate --yes`.",
@@ -28034,7 +28132,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 254,
+          "line": 271,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- migrations check --linked --project-ref <project-ref>`. Cette commande est en lecture seule et bloque",
@@ -28422,7 +28520,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 306,
+          "line": 317,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -28430,26 +28528,10 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 349,
+          "line": 360,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
-          "classification": "active"
-        },
-        {
-          "file": ".github/workflows/ci.yml",
-          "line": 363,
-          "kind": "npm-run",
-          "source": "workflow",
-          "excerpt": "npm run database -- lint",
-          "classification": "active"
-        },
-        {
-          "file": ".github/workflows/ci.yml",
-          "line": 373,
-          "kind": "npm-run",
-          "source": "workflow",
-          "excerpt": "npm run database -- reset --yes",
           "classification": "active"
         },
         {
@@ -28462,7 +28544,23 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 395,
+          "line": 384,
+          "kind": "npm-run",
+          "source": "workflow",
+          "excerpt": "npm run database -- reset --yes",
+          "classification": "active"
+        },
+        {
+          "file": ".github/workflows/ci.yml",
+          "line": 385,
+          "kind": "npm-run",
+          "source": "workflow",
+          "excerpt": "npm run database -- lint",
+          "classification": "active"
+        },
+        {
+          "file": ".github/workflows/ci.yml",
+          "line": 406,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -28718,7 +28816,7 @@
         },
         {
           "file": "docs/administration.md",
-          "line": 138,
+          "line": 149,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`service_role`. `npm run database -- security` compare les ACL réelles à ce manifest et",
@@ -28966,7 +29064,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 93,
+          "line": 96,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- security`, contrôler que l'advisor Supabase ne signale plus aucun",
@@ -28974,7 +29072,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 103,
+          "line": 106,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "fonction Edge et client, puis exécuter `npm run database -- security`.",
@@ -28982,7 +29080,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 171,
+          "line": 188,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- comparer les ACL `SECURITY DEFINER` au manifest avec `npm run database -- security` et",
@@ -28990,7 +29088,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 189,
+          "line": 206,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
@@ -28998,7 +29096,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 189,
+          "line": 206,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
@@ -29006,7 +29104,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 194,
+          "line": 211,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run database -- migrations check --linked --project-ref <project-ref>",
@@ -29014,7 +29112,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 252,
+          "line": 269,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "horodatée et la tester avec `npm run database -- validate --yes`.",
@@ -29022,7 +29120,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 254,
+          "line": 271,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- migrations check --linked --project-ref <project-ref>`. Cette commande est en lecture seule et bloque",
@@ -29400,6 +29498,17 @@
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:db",
+          "classification": "active",
+          "via": [
+            "check:db"
+          ]
+        },
+        {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 105,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:db",
           "classification": "active",
           "via": [
             "check:db"
@@ -31134,7 +31243,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -31369,7 +31478,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -31682,7 +31791,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -31917,7 +32026,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -32266,7 +32375,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -32501,7 +32610,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -32827,7 +32936,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -32905,6 +33014,18 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "cache npm, passe `npm ci` et `npm run check:build` sous Node 24.19.0/npm 11.17.0.",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build"
+          ]
+        },
+        {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 108,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:build",
           "classification": "active",
           "via": [
             "check:build",
@@ -33139,7 +33260,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -33501,7 +33622,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 343,
+          "line": 354,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -33669,7 +33790,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 345,
+          "line": 365,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "configuration privée, sous Node 24 après `npm ci` avec un cache initialement vide.",
@@ -33685,7 +33806,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -33899,7 +34020,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 343,
+          "line": 354,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -34076,7 +34197,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 345,
+          "line": 365,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "configuration privée, sous Node 24 après `npm ci` avec un cache initialement vide.",
@@ -34092,7 +34213,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -34322,7 +34443,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -34400,6 +34521,18 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "cache npm, passe `npm ci` et `npm run check:build` sous Node 24.19.0/npm 11.17.0.",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build"
+          ]
+        },
+        {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 108,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:build",
           "classification": "active",
           "via": [
             "check:build",
@@ -34634,7 +34767,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -35321,7 +35454,7 @@
         },
         {
           "file": "docs/incident-runbooks.md",
-          "line": 118,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- edge bundle`, déployer la fonction, puis activer le nouveau ruleset.",
@@ -35329,7 +35462,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -35337,7 +35470,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 63,
+          "line": 66,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes`. La commande sélectionne explicitement le projet",
@@ -35345,7 +35478,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 261,
+          "line": 278,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "moteur. `npm run release -- edge bundle` recalcule les hashes et échoue si le client, le",
@@ -35353,7 +35486,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 267,
+          "line": 284,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes` constitue le chemin normal de publication complète. Il",
@@ -35361,7 +35494,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 279,
+          "line": 296,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "1. `npm run release -- deploy --project-ref <project-ref> --yes` publie le vérificateur compatible avec les anciennes et",
@@ -35369,7 +35502,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 289,
+          "line": 306,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "immuables et sont contrôlés par `npm run release -- edge bundle`.",
@@ -35847,7 +35980,7 @@
         },
         {
           "file": "docs/incident-runbooks.md",
-          "line": 118,
+          "line": 127,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- edge bundle`, déployer la fonction, puis activer le nouveau ruleset.",
@@ -35855,7 +35988,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -35863,7 +35996,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 63,
+          "line": 66,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes`. La commande sélectionne explicitement le projet",
@@ -35871,7 +36004,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 261,
+          "line": 278,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "moteur. `npm run release -- edge bundle` recalcule les hashes et échoue si le client, le",
@@ -35879,7 +36012,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 267,
+          "line": 284,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes` constitue le chemin normal de publication complète. Il",
@@ -35887,7 +36020,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 279,
+          "line": 296,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "1. `npm run release -- deploy --project-ref <project-ref> --yes` publie le vérificateur compatible avec les anciennes et",
@@ -35895,7 +36028,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 289,
+          "line": 306,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "immuables et sont contrôlés par `npm run release -- edge bundle`.",
@@ -36100,7 +36233,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -36176,6 +36309,19 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "cache npm, passe `npm ci` et `npm run check:build` sous Node 24.19.0/npm 11.17.0.",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build",
+            "prebuild"
+          ]
+        },
+        {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 108,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:build",
           "classification": "active",
           "via": [
             "check:build",
@@ -36411,7 +36557,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -37065,7 +37211,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -37300,7 +37446,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -37990,7 +38136,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -38033,6 +38179,17 @@
           "classification": "active",
           "via": [
             "check",
+            "check:unit"
+          ]
+        },
+        {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 104,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:unit",
+          "classification": "active",
+          "via": [
             "check:unit"
           ]
         },
@@ -38225,7 +38382,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -38453,7 +38610,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 375,
+          "line": 386,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run test:db",
@@ -38485,7 +38642,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 58,
+          "line": 61,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:db` et `npm run test:e2e`.",
@@ -38570,7 +38727,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 375,
+          "line": 386,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run test:db",
@@ -38602,7 +38759,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 58,
+          "line": 61,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:db` et `npm run test:e2e`.",
@@ -38925,7 +39082,7 @@
           "line": 289,
           "kind": "npm-run",
           "source": "workflow",
-          "excerpt": "npm run test:e2e",
+          "excerpt": "npm run test:e2e -- --output=test-results/source",
           "classification": "active"
         },
         {
@@ -38945,8 +39102,24 @@
           "classification": "active"
         },
         {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 106,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run test:e2e -- e2e/admin-navigation.spec.ts",
+          "classification": "active"
+        },
+        {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 107,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "E2E_REQUIRE_CONNECTED=1 npm run test:e2e -- e2e/admin-navigation-connected.spec.ts",
+          "classification": "active"
+        },
+        {
           "file": "docs/operations.md",
-          "line": 58,
+          "line": 61,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:db` et `npm run test:e2e`.",
@@ -38995,7 +39168,7 @@
           "line": 289,
           "kind": "npm-run",
           "source": "workflow",
-          "excerpt": "npm run test:e2e",
+          "excerpt": "npm run test:e2e -- --output=test-results/source",
           "classification": "active"
         },
         {
@@ -39015,8 +39188,24 @@
           "classification": "active"
         },
         {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 106,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run test:e2e -- e2e/admin-navigation.spec.ts",
+          "classification": "active"
+        },
+        {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 107,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "E2E_REQUIRE_CONNECTED=1 npm run test:e2e -- e2e/admin-navigation-connected.spec.ts",
+          "classification": "active"
+        },
+        {
           "file": "docs/operations.md",
-          "line": 58,
+          "line": 61,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:db` et `npm run test:e2e`.",
@@ -39117,7 +39306,7 @@
           "line": 302,
           "kind": "npm-run",
           "source": "workflow",
-          "excerpt": "run: npm run test:e2e:production",
+          "excerpt": "run: npm run test:e2e:production -- --output=test-results/production",
           "classification": "active"
         },
         {
@@ -39130,7 +39319,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 200,
+          "line": 220,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:e2e:production` sans `continue-on-error` : ce contrôle est donc",
@@ -39187,7 +39376,7 @@
           "line": 302,
           "kind": "npm-run",
           "source": "workflow",
-          "excerpt": "run: npm run test:e2e:production",
+          "excerpt": "run: npm run test:e2e:production -- --output=test-results/production",
           "classification": "active"
         },
         {
@@ -39200,7 +39389,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 200,
+          "line": 220,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:e2e:production` sans `continue-on-error` : ce contrôle est donc",
@@ -40114,7 +40303,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 125,
+          "line": 145,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`performance-report/preview-report.json` par `npm run testing -- performance preview`.",
@@ -40122,7 +40311,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 192,
+          "line": 212,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Web Vitals restent inchangés. `npm run testing -- performance budgets` reste bloquant ;",
@@ -40482,7 +40671,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 125,
+          "line": 145,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`performance-report/preview-report.json` par `npm run testing -- performance preview`.",
@@ -40490,7 +40679,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 192,
+          "line": 212,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Web Vitals restent inchangés. `npm run testing -- performance budgets` reste bloquant ;",
@@ -40754,7 +40943,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -40806,6 +40995,17 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "cache npm, passe `npm ci` et `npm run check:build` sous Node 24.19.0/npm 11.17.0.",
+          "classification": "active",
+          "via": [
+            "check:build"
+          ]
+        },
+        {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 108,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:build",
           "classification": "active",
           "via": [
             "check:build"
@@ -41044,7 +41244,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -41293,6 +41493,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 103,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run typecheck",
+          "classification": "active"
+        },
+        {
           "file": "docs/testing.md",
           "line": 129,
           "kind": "npm-run",
@@ -41334,6 +41542,14 @@
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run typecheck",
+          "classification": "active"
+        },
+        {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 103,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run typecheck",
           "classification": "active"
         },
         {
@@ -41384,7 +41600,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -41619,7 +41835,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -41906,7 +42122,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -41964,6 +42180,17 @@
           "via": [
             "check",
             "check:static",
+            "typecheck"
+          ]
+        },
+        {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 103,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run typecheck",
+          "classification": "active",
+          "via": [
             "typecheck"
           ]
         },
@@ -42171,7 +42398,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -42537,7 +42764,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -42595,6 +42822,17 @@
           "via": [
             "check",
             "check:static",
+            "typecheck"
+          ]
+        },
+        {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 103,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run typecheck",
+          "classification": "active",
+          "via": [
             "typecheck"
           ]
         },
@@ -42802,7 +43040,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",
@@ -43136,7 +43374,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 378,
+          "line": 389,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -43194,6 +43432,17 @@
           "via": [
             "check",
             "check:static",
+            "typecheck"
+          ]
+        },
+        {
+          "file": "docs/admin-s7-validation-2026-10-21.md",
+          "line": 103,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run typecheck",
+          "classification": "active",
+          "via": [
             "typecheck"
           ]
         },
@@ -43401,7 +43650,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 57,
+          "line": 60,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "2. Lancer `npm ci`, `npm run release -- edge bundle`, `npm run check`,",

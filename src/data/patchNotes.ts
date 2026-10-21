@@ -587,6 +587,44 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 18,
+    version: '0.2.13',
+    publishedOn: '2026-10-21',
+    title: {
+      'fr-FR': 'Une administration plus facile à parcourir',
+      'en-US': 'Administration that is easier to navigate',
+    },
+    entries: [
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Les six rubriques de l’administration conservent les filtres appliqués et les fiches sélectionnées dans leur lien. Le rafraîchissement et les boutons Précédent et Suivant du navigateur retrouvent ce contexte.',
+          'en-US':
+            'The six administration sections preserve applied filters and selected profiles in their links. Refreshing and using the browser Back and Forward buttons restore this context.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Sur les petits écrans, les tables présentent les colonnes essentielles et permettent d’afficher la vue complète. Le zoom, le clavier et le retour du focus après fermeture d’un dialogue sont améliorés.',
+          'en-US':
+            'On small screens, tables show essential columns and let you open the complete view. Zoom, keyboard navigation and focus restoration after closing a dialog are improved.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Changer de rubrique ou de filtre annule les lectures devenues inutiles. Les erreurs et les réessais restent propres à chaque section, avec des états de données vides ou périmées explicites.',
+          'en-US':
+            'Changing sections or filters cancels reads that are no longer needed. Errors and retries remain independent for each section, with explicit empty and stale data states.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {

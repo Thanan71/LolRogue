@@ -110,7 +110,7 @@ export const adminRunExplorerContent = {
     last: 'Fin',
     actionCount: 'Actions dans le journal sûr',
     privacy:
-      'Le lien conserve les filtres appliqués et les identifiants internes des profils et des runs. Il ne contient ni email ni identifiant d’authentification.',
+      'Le lien conserve les filtres appliqués et les identifiants internes des profils et des runs. L’accès aux fiches reste réservé aux administrateurs.',
   },
   'en-US': {
     title: 'Run explorer',
@@ -220,7 +220,7 @@ export const adminRunExplorerContent = {
     last: 'Finished',
     actionCount: 'Actions in the safe journal',
     privacy:
-      'The link preserves applied filters and internal profile and run IDs. It contains no email or authentication ID.',
+      'The link preserves applied filters and internal profile and run IDs. Only administrators can access detail pages.',
   },
 };
 
