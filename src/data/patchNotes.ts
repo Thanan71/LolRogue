@@ -577,6 +577,14 @@ export const PATCH_NOTES: readonly PatchNote[] = [
             'Optional diagnostics are isolated between sessions and sensitive information stays hidden. Administrator permissions are checked on every read.',
         },
       },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'L’outillage de compilation intègre les derniers correctifs de sécurité de Vite.',
+          'en-US': 'Build tooling includes the latest Vite security fixes.',
+        },
+      },
     ],
   },
 ];

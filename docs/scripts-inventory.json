@@ -33669,7 +33669,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 342,
+          "line": 345,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "configuration privée, sous Node 24 après `npm ci` avec un cache initialement vide.",
@@ -34076,7 +34076,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 342,
+          "line": 345,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "configuration privée, sous Node 24 après `npm ci` avec un cache initialement vide.",
@@ -39130,7 +39130,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 197,
+          "line": 200,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:e2e:production` sans `continue-on-error` : ce contrôle est donc",
@@ -39200,7 +39200,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 197,
+          "line": 200,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:e2e:production` sans `continue-on-error` : ce contrôle est donc",
@@ -40114,7 +40114,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 122,
+          "line": 125,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`performance-report/preview-report.json` par `npm run testing -- performance preview`.",
@@ -40122,7 +40122,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 189,
+          "line": 192,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Web Vitals restent inchangés. `npm run testing -- performance budgets` reste bloquant ;",
@@ -40482,7 +40482,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 122,
+          "line": 125,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`performance-report/preview-report.json` par `npm run testing -- performance preview`.",
@@ -40490,7 +40490,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 189,
+          "line": 192,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Web Vitals restent inchangés. `npm run testing -- performance budgets` reste bloquant ;",

@@ -1,8 +1,11 @@
 # Performance frontend
 
-Dernière campagne bundle : **18 octobre 2026**, Node 24, build Vite de production local.
+Dernière validation bundle : **21 octobre 2026**, Node 24 et Vite **8.3.5**.
 
 ## ADM-S6 — surveillance technique
+
+Les mesures parent/candidat ci-dessous proviennent de la campagne du 18 octobre.
+Les résultats du commit final avec Vite corrigé sont rattachés à la PR.
 
 Le parent indépendant `4abb2b28` est reconstruit avec cache npm vide et postinstall
 complet : JS gzip **681 459** octets, initial **226 498**, Auth **231 297** et
