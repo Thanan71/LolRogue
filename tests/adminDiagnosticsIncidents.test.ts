@@ -5,7 +5,7 @@ import {
   diagnosticsRejectionCategory,
   type DiagnosticsIncidentObservation,
   type DiagnosticsIncidentState,
-} from '@/pages/admin/diagnostics/adminDiagnosticsIncidents';
+} from '@/features/administration/domain/diagnostics/adminDiagnosticsIncidents';
 import {
   diagnosticsAggregate,
   diagnosticsRequest,
@@ -59,7 +59,11 @@ describe('authority diagnostics incidents use existing policy without notificati
   it('refreshes counts without repeating an alert for the same reasons and severity', () => {
     const initial = advanceDiagnosticsIncidents(null, observation()).state;
     const next = later(initial);
-    next.evidence[0] = { ...next.evidence[0]!, attemptCount: 50, rejectedCount: 20 };
+    next.evidence[0] = {
+      ...next.evidence[0]!,
+      attemptCount: 50,
+      rejectedCount: 20,
+    };
     const result = advanceDiagnosticsIncidents(initial, next);
     expect(result.transitions).toEqual([]);
     expect(result.state.incidents[0]).toMatchObject({

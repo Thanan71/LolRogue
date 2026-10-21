@@ -4,16 +4,19 @@ import type { Session, User } from '@supabase/supabase-js';
 import { act, cleanup, render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fr } from '@/i18n/fr';
-import { AdminDashboardPanel } from '@/pages/admin/AdminDashboardPanel';
-import { AdminTableCount } from '@/pages/admin/AdminSectionFeedback';
+import { AdminDashboardPanel } from '@/features/administration/ui/AdminDashboardPanel';
+import { AdminTableCount } from '@/features/administration/ui/AdminSectionFeedback';
 import {
   ADMIN_METRIC_KEYS,
   formatAdminMetric,
   getAdminMetricDefinition,
   getAdminMetricValue,
-} from '@/pages/admin/adminMetrics';
-import { useAdminData } from '@/pages/admin/useAdminData';
-import { ADMIN_REQUEST_TIMEOUT_MS, useAdminSection } from '@/pages/admin/useAdminSection';
+} from '@/features/administration/domain/adminMetrics';
+import { useAdminData } from '@/features/administration/hooks/useAdminData';
+import {
+  ADMIN_REQUEST_TIMEOUT_MS,
+  useAdminSection,
+} from '@/features/administration/hooks/useAdminSection';
 import { useAuthStore } from '@/stores/authStore';
 
 const mocks = vi.hoisted(() => ({
@@ -53,9 +56,10 @@ const accountB = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mocks.stats
-    .mockReset()
-    .mockResolvedValue({ data: [{ stat_name: 'total_players', stat_value: '10' }], error: null });
+  mocks.stats.mockReset().mockResolvedValue({
+    data: [{ stat_name: 'total_players', stat_value: '10' }],
+    error: null,
+  });
   useAuthStore.setState({
     ...accountA,
     isAdmin: true,
@@ -325,7 +329,10 @@ describe('independent admin resources', () => {
   it.each(['account', 'permission'] as const)(
     'rejects an obsolete response after %s A→B→A in one render batch',
     async (kind) => {
-      const first = deferred<{ data: { stat_name: string; stat_value: string }[]; error: null }>();
+      const first = deferred<{
+        data: { stat_name: string; stat_value: string }[];
+        error: null;
+      }>();
       mocks.stats.mockReturnValueOnce(first.promise);
       const { result } = renderHook(() => useAdminData(true));
       act(() => {
@@ -339,14 +346,20 @@ describe('independent admin resources', () => {
       });
       await waitFor(() => expect(result.current.stats.total_players).toBe('10'));
       await act(async () =>
-        first.resolve({ data: [{ stat_name: 'total_players', stat_value: '999' }], error: null }),
+        first.resolve({
+          data: [{ stat_name: 'total_players', stat_value: '999' }],
+          error: null,
+        }),
       );
       expect(result.current.stats.total_players).toBe('10');
     },
   );
 
   it('hides all privileged data after logout and ignores pending responses', async () => {
-    const pending = deferred<{ data: { stat_name: string; stat_value: string }[]; error: null }>();
+    const pending = deferred<{
+      data: { stat_name: string; stat_value: string }[];
+      error: null;
+    }>();
     const { result } = renderHook(() => useAdminData(useAuthStore((state) => state.isAdmin)));
     await waitFor(() => expect(result.current.stats.total_players).toBe('10'));
     mocks.stats.mockReturnValueOnce(pending.promise);
@@ -355,7 +368,10 @@ describe('independent admin resources', () => {
     });
     act(() => useAuthStore.setState({ user: null, session: null, isAdmin: false }));
     await act(async () =>
-      pending.resolve({ data: [{ stat_name: 'total_players', stat_value: '999' }], error: null }),
+      pending.resolve({
+        data: [{ stat_name: 'total_players', stat_value: '999' }],
+        error: null,
+      }),
     );
     expect(result.current.stats).toEqual({});
     expect(result.current.sections.stats.status).toBe('idle');
@@ -363,7 +379,10 @@ describe('independent admin resources', () => {
 
   it('clears already displayed data on a filter change instead of labeling old rows with the new filters', async () => {
     const next = deferred<string>();
-    const loads = { old: () => Promise.resolve('old rows'), next: () => next.promise };
+    const loads = {
+      old: () => Promise.resolve('old rows'),
+      next: () => next.promise,
+    };
     const { result, rerender } = renderHook(
       ({ key }: { key: 'old' | 'next' }) =>
         useAdminSection({

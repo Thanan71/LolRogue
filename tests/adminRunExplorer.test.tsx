@@ -2,14 +2,16 @@
 
 import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AdminRunsPanel } from '@/pages/admin/runs/AdminRunsPanel';
-import { downloadAdminExplorerCsv } from '@/pages/admin/runs/adminRunExport';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
+import { useAdministrationNavigation } from '@/features/administration/hooks/useAdministrationNavigation';
+import { AdminRunsPanel } from '@/features/administration/ui/runs/AdminRunsPanel';
+import { downloadAdminExplorerCsv } from '@/features/administration/infrastructure/runs/adminRunDownload';
 import {
   fetchAdminRunDetail,
   fetchAdminRunExplorerPage,
   fetchAdminRunExport,
-} from '@/pages/admin/runs/adminRunQueries';
-import { useAdminRunExplorer } from '@/pages/admin/runs/useAdminRunExplorer';
+} from '@/features/administration/infrastructure/runs/adminRunQueries';
+import { useAdminRunExplorer } from '@/features/administration/hooks/runs/useAdminRunExplorer';
 import {
   adminAttemptFixture,
   adminRunDetailFixture,
@@ -20,17 +22,23 @@ import {
 
 const account = vi.hoisted(() => ({ current: true, scope: {}, enabled: true }));
 const captureScope = () => () => account.current;
-vi.mock('@/pages/admin/explorer/useAdminExplorerScope', () => ({
-  useAdminExplorerScope: () => ({ enabled: account.enabled, scope: account.scope, captureScope }),
+vi.mock('@/features/administration/hooks/explorer/useAdminExplorerScope', () => ({
+  useAdminExplorerScope: () => ({
+    enabled: account.enabled,
+    scope: account.scope,
+    captureScope,
+  }),
 }));
-vi.mock('@/pages/admin/runs/adminRunQueries', () => ({
+vi.mock('@/features/administration/infrastructure/runs/adminRunQueries', () => ({
   fetchAdminRunExplorerPage: vi.fn(),
   fetchAdminRunDetail: vi.fn(),
   fetchAdminRunExport: vi.fn(),
   isAdminSavedRun: (value: object) => 'won' in value,
 }));
-vi.mock('@/pages/admin/runs/adminRunExport', async (original) => ({
-  ...(await original<typeof import('@/pages/admin/runs/adminRunExport')>()),
+vi.mock('@/features/administration/infrastructure/runs/adminRunDownload', async (original) => ({
+  ...(await original<
+    typeof import('@/features/administration/infrastructure/runs/adminRunDownload')
+  >()),
   downloadAdminExplorerCsv: vi.fn(),
 }));
 
@@ -68,7 +76,11 @@ beforeEach(() => {
   account.scope = {};
   search.mockResolvedValue(adminRunPageFixture());
   detail.mockResolvedValue(adminRunDetailFixture());
-  exportAll.mockResolvedValue({ items: [adminRunFixture()], total: 1, snapshotAt: runSnapshot });
+  exportAll.mockResolvedValue({
+    items: [adminRunFixture()],
+    total: 1,
+    snapshotAt: runSnapshot,
+  });
 });
 
 describe('admin run explorer state', () => {
@@ -79,7 +91,10 @@ describe('admin run explorer state', () => {
       hasMore: true,
       nextCursor: { after: 'page1' },
     };
-    const second = { ...adminRunPageFixture([adminRunFixture({ id: 'run-2' })]), total: 2 };
+    const second = {
+      ...adminRunPageFixture([adminRunFixture({ id: 'run-2' })]),
+      total: 2,
+    };
     search.mockImplementation(async ({ cursor }) => (cursor ? second : first));
     const { result } = renderHook(() => useAdminRunExplorer());
     await waitFor(() => expectReadyList(result.current));
@@ -110,7 +125,10 @@ describe('admin run explorer state', () => {
     });
     act(() => result.current.previous());
     await waitFor(() => expectReadyList(result.current));
-    expect(search.mock.lastCall?.[0]).toMatchObject({ cursor: null, snapshot: runSnapshot });
+    expect(search.mock.lastCall?.[0]).toMatchObject({
+      cursor: null,
+      snapshot: runSnapshot,
+    });
   });
 
   it('preserves filters and the current page after opening and closing safe details', async () => {
@@ -135,8 +153,16 @@ describe('admin run explorer state', () => {
   it('fails visibly when an exact count changes between pages', async () => {
     search.mockImplementation(async ({ cursor }) =>
       cursor
-        ? { ...adminRunPageFixture([adminRunFixture({ id: 'run-2' })]), total: 3 }
-        : { ...adminRunPageFixture(), total: 2, hasMore: true, nextCursor: { after: 'page1' } },
+        ? {
+            ...adminRunPageFixture([adminRunFixture({ id: 'run-2' })]),
+            total: 3,
+          }
+        : {
+            ...adminRunPageFixture(),
+            total: 2,
+            hasMore: true,
+            nextCursor: { after: 'page1' },
+          },
     );
     const { result } = renderHook(() => useAdminRunExplorer());
     await waitFor(() => expectReadyList(result.current));
@@ -149,7 +175,12 @@ describe('admin run explorer state', () => {
     search.mockImplementation(async ({ cursor }) =>
       cursor
         ? { ...adminRunPageFixture(), total: 2 }
-        : { ...adminRunPageFixture(), total: 2, hasMore: true, nextCursor: { after: 'page1' } },
+        : {
+            ...adminRunPageFixture(),
+            total: 2,
+            hasMore: true,
+            nextCursor: { after: 'page1' },
+          },
     );
     const { result } = renderHook(() => useAdminRunExplorer());
     await waitFor(() => expectReadyList(result.current));
@@ -198,14 +229,20 @@ describe('admin run export lifecycle', () => {
       const pending = deferred<Awaited<ReturnType<typeof fetchAdminRunExport>>>();
       exportAll.mockReturnValue(pending.promise);
       render(<Harness />);
-      const trigger = screen.getByRole('button', { name: 'Exporter tous les résultats filtrés' });
+      const trigger = screen.getByRole('button', {
+        name: 'Exporter tous les résultats filtrés',
+      });
       await waitFor(() => expect(trigger).toBeEnabled());
       fireEvent.click(trigger);
       fireEvent.click(screen.getByRole('button', { name: 'Confirmer et exporter' }));
       expect(screen.getByRole('button', { name: 'Annuler' })).toHaveFocus();
       if (ending === 'cancel') fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
       await act(async () => {
-        pending.resolve({ items: [adminRunFixture()], total: 1, snapshotAt: runSnapshot });
+        pending.resolve({
+          items: [adminRunFixture()],
+          total: 1,
+          snapshotAt: runSnapshot,
+        });
         await Promise.resolve();
       });
       await waitFor(() => expect(trigger).toHaveFocus());
@@ -225,7 +262,9 @@ describe('admin run export lifecycle', () => {
     });
     exportAll.mockResolvedValue({ items, total: 101, snapshotAt: runSnapshot });
     render(<Harness />);
-    const button = screen.getByRole('button', { name: 'Exporter tous les résultats filtrés' });
+    const button = screen.getByRole('button', {
+      name: 'Exporter tous les résultats filtrés',
+    });
     await waitFor(() => expect(button).toBeEnabled());
     fireEvent.click(button);
     expect(screen.getByRole('dialog', { name: 'Confirmer l’export filtré' })).toHaveTextContent(
@@ -254,10 +293,19 @@ describe('admin run export lifecycle', () => {
       work = result.current.exporting.start();
     });
     expect(result.current.exporting.busy).toBe(true);
-    act(() => result.current.changeDraft({ ...result.current.draft, championId: 'Lux' }));
+    act(() =>
+      result.current.changeDraft({
+        ...result.current.draft,
+        championId: 'Lux',
+      }),
+    );
     expect(exportAll.mock.lastCall?.[0].signal.aborted).toBe(true);
     await act(async () => {
-      pending.resolve({ items: [adminRunFixture()], total: 1, snapshotAt: runSnapshot });
+      pending.resolve({
+        items: [adminRunFixture()],
+        total: 1,
+        snapshotAt: runSnapshot,
+      });
       await work;
     });
     expect(download).not.toHaveBeenCalled();
@@ -265,7 +313,11 @@ describe('admin run export lifecycle', () => {
   });
 
   it('rejects a partial, duplicate or changed export instead of downloading it', async () => {
-    exportAll.mockResolvedValue({ items: [], total: 1, snapshotAt: runSnapshot });
+    exportAll.mockResolvedValue({
+      items: [],
+      total: 1,
+      snapshotAt: runSnapshot,
+    });
     const { result } = renderHook(() => useAdminRunExplorer());
     await waitFor(() => expectReadyList(result.current));
     act(() => result.current.exporting.confirm());
@@ -296,7 +348,11 @@ describe('admin run export lifecycle', () => {
       expect(result.current.exporting.message).toMatch(/30 secondes/);
       expect(exportAll.mock.lastCall?.[0].signal.aborted).toBe(true);
       await act(async () => {
-        pending.resolve({ items: [adminRunFixture()], total: 1, snapshotAt: runSnapshot });
+        pending.resolve({
+          items: [adminRunFixture()],
+          total: 1,
+          snapshotAt: runSnapshot,
+        });
         await Promise.resolve();
       });
       expect(download).not.toHaveBeenCalled();
@@ -323,10 +379,111 @@ describe('admin run export lifecycle', () => {
     rerender();
     expect(result.current.section.data.items).toEqual([]);
     await act(async () => {
-      pending.resolve({ items: [adminRunFixture()], total: 1, snapshotAt: runSnapshot });
+      pending.resolve({
+        items: [adminRunFixture()],
+        total: 1,
+        snapshotAt: runSnapshot,
+      });
       await work;
     });
     expect(download).not.toHaveBeenCalled();
     expect(exportAll.mock.lastCall?.[0].signal.aborted).toBe(true);
+  });
+});
+
+describe('run URL and request ownership', () => {
+  it('hydrates a deep link once, keeps sort and page size, and returns from detail without a duplicate list request', async () => {
+    const initial = `/admin?group=runs&view=list&runFilters=${encodeURIComponent(JSON.stringify({ playerId: adminRunFixture().playerId, sortOrder: 'asc', difficulty: 'hard' }))}&runOptions=${encodeURIComponent(JSON.stringify({ population: 'runs', pageSize: '25' }))}`;
+    const { result } = renderHook(
+      () => {
+        const navigation = useAdministrationNavigation();
+        return {
+          navigation,
+          history: useNavigate(),
+          explorer: useAdminRunExplorer(true, true, navigation),
+        };
+      },
+      {
+        wrapper: ({ children }) => (
+          <MemoryRouter initialEntries={[initial]}>{children}</MemoryRouter>
+        ),
+      },
+    );
+    await waitFor(() => expectReadyList(result.current.explorer));
+    expect(search).toHaveBeenCalledOnce();
+    expect(search.mock.lastCall?.[0]).toMatchObject({
+      pageSize: 25,
+      filters: { playerId: adminRunFixture().playerId, sortOrder: 'asc', difficulty: 'hard' },
+    });
+    act(() => result.current.explorer.openDetail(adminRunFixture().id));
+    await waitFor(() => expect(result.current.explorer.detail.hasData).toBe(true));
+    act(() => result.current.history(-1));
+    await waitFor(() => expectReadyList(result.current.explorer));
+    expect(search).toHaveBeenCalledOnce();
+    expect(result.current.explorer.selectedId).toBeNull();
+    expect(result.current.explorer.filters.sortOrder).toBe('asc');
+    act(() => result.current.history(1));
+    await waitFor(() => expect(result.current.explorer.selectedId).toBe(adminRunFixture().id));
+  });
+  it('applies URL filters with one request and restores their form values on Back', async () => {
+    const { result } = renderHook(
+      () => {
+        const navigation = useAdministrationNavigation();
+        return { history: useNavigate(), explorer: useAdminRunExplorer(true, true, navigation) };
+      },
+      {
+        wrapper: ({ children }) => (
+          <MemoryRouter initialEntries={['/admin?group=runs&view=list']}>{children}</MemoryRouter>
+        ),
+      },
+    );
+    await waitFor(() => expectReadyList(result.current.explorer));
+    act(() =>
+      result.current.explorer.changeDraft({
+        ...result.current.explorer.draft,
+        difficulty: 'hard',
+        sortOrder: 'asc',
+      }),
+    );
+    act(() => result.current.explorer.apply());
+    await waitFor(() => expect(search.mock.lastCall?.[0].filters.difficulty).toBe('hard'));
+    await waitFor(() => expectReadyList(result.current.explorer));
+    expect(search).toHaveBeenCalledTimes(2);
+    act(() => result.current.history(-1));
+    await waitFor(() => expectReadyList(result.current.explorer));
+    expect(result.current.explorer.filters.difficulty).toBe('all');
+    expect(result.current.explorer.draft.difficulty).toBe('all');
+    expect(result.current.explorer.draft.sortOrder).toBe('desc');
+    expect(search).toHaveBeenCalledTimes(3);
+  });
+  it('aborts a pending masked list and performs only one request for explicit refresh', async () => {
+    const pending = deferred<ReturnType<typeof adminRunPageFixture>>();
+    search.mockReturnValueOnce(pending.promise);
+    const { result } = renderHook(
+      () => {
+        const navigation = useAdministrationNavigation();
+        return useAdminRunExplorer(true, true, navigation);
+      },
+      {
+        wrapper: ({ children }) => (
+          <MemoryRouter initialEntries={['/admin?group=runs&view=list']}>{children}</MemoryRouter>
+        ),
+      },
+    );
+    await waitFor(() => expect(search).toHaveBeenCalledOnce());
+    const oldSignal = search.mock.calls[0][0].signal;
+    act(() => result.current.openDetail(adminRunFixture().id));
+    expect(oldSignal.aborted).toBe(true);
+    await act(async () => pending.resolve(adminRunPageFixture()));
+    act(() => result.current.closeDetail());
+    await waitFor(() => expectReadyList(result.current));
+    const count = search.mock.calls.length;
+    const refreshed = deferred<ReturnType<typeof adminRunPageFixture>>();
+    search.mockReturnValueOnce(refreshed.promise);
+    act(() => result.current.refresh());
+    await waitFor(() => expect(search.mock.calls.length).toBe(count + 1));
+    await act(async () => refreshed.resolve(adminRunPageFixture()));
+    await waitFor(() => expectReadyList(result.current));
+    expect(search.mock.calls.length).toBe(count + 1);
   });
 });

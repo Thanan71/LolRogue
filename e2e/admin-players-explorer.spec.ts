@@ -117,7 +117,7 @@ test('player search spans server pages, preserves literal filters and returns fr
   await expect(search).toHaveValue('éLISE%_,.()');
   await expect(open).toBeFocused();
   const count = api.searches.length;
-  await page.getByRole('tab', { name: /Tableau de bord/ }).click();
+  await page.getByRole('tab', { name: /Vue globale/ }).click();
   await page.getByRole('tab', { name: /Joueurs/ }).click();
   await expect(search).toHaveValue('éLISE%_,.()');
   expect(api.searches).toHaveLength(count);

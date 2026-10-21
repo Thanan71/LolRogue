@@ -12,18 +12,24 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getAdminBalanceCopy } from '@/i18n/adminBalance';
-import { AdminBalanceBuilds } from '@/pages/admin/balance/AdminBalanceBuilds';
-import { AdminBalanceChampions } from '@/pages/admin/balance/AdminBalanceChampions';
-import { AdminBalanceConfig } from '@/pages/admin/balance/AdminBalanceConfig';
-import { AdminBalanceProvenance } from '@/pages/admin/balance/AdminBalanceProvenance';
-import { AdminBalanceRate } from '@/pages/admin/balance/AdminBalanceRate';
-import AdminBalanceWorkspace from '@/pages/admin/balance/AdminBalanceWorkspace';
+import { AdminBalanceBuilds } from '@/features/administration/ui/balance/AdminBalanceBuilds';
+import { AdminBalanceChampions } from '@/features/administration/ui/balance/AdminBalanceChampions';
+import { AdminBalanceConfig } from '@/features/administration/ui/balance/AdminBalanceConfig';
+import { AdminBalanceProvenance } from '@/features/administration/ui/balance/AdminBalanceProvenance';
+import { AdminBalanceRate } from '@/features/administration/ui/balance/AdminBalanceRate';
+import AdminBalanceWorkspace from '@/features/administration/ui/balance/AdminBalanceWorkspace';
 import {
   adminBalanceAppliedFilters,
   defaultAdminBalanceDraft,
-} from '@/pages/admin/balance/adminBalanceFilterDraft';
-import type { BalanceChampionReport, BalanceFilters } from '@/pages/admin/balance/balanceTypes';
-import { type AdminBalance, useAdminBalance } from '@/pages/admin/balance/useAdminBalance';
+} from '@/features/administration/domain/balance/adminBalanceFilterDraft';
+import type {
+  BalanceChampionReport,
+  BalanceFilters,
+} from '@/features/administration/domain/balance/balanceTypes';
+import {
+  type AdminBalance,
+  useAdminBalance,
+} from '@/features/administration/hooks/balance/useAdminBalance';
 import { useAuthStore } from '@/stores/authStore';
 import {
   balanceBuildFixture,
@@ -37,13 +43,18 @@ const mocks = vi.hoisted(() => ({
   config: vi.fn(),
   field: vi.fn(),
 }));
-vi.mock('@/pages/admin/balance/adminBalanceClient', async (original) => ({
-  ...(await original<typeof import('@/pages/admin/balance/adminBalanceClient')>()),
-  fetchAdminBalanceChampions: mocks.champions,
-  fetchAdminBalanceBuilds: mocks.builds,
-  fetchAdminBalanceConfig: mocks.config,
-}));
-vi.mock('@/pages/admin/balance/adminBalanceFieldClient', () => ({
+vi.mock(
+  '@/features/administration/infrastructure/balance/adminBalanceClient',
+  async (original) => ({
+    ...(await original<
+      typeof import('@/features/administration/infrastructure/balance/adminBalanceClient')
+    >()),
+    fetchAdminBalanceChampions: mocks.champions,
+    fetchAdminBalanceBuilds: mocks.builds,
+    fetchAdminBalanceConfig: mocks.config,
+  }),
+);
+vi.mock('@/features/administration/infrastructure/balance/adminBalanceFieldClient', () => ({
   fetchAdminBalanceField: mocks.field,
 }));
 const copy = getAdminBalanceCopy('fr-FR');
@@ -290,7 +301,11 @@ describe('honest balance evidence and accessible presentation', () => {
         id: 'second-context',
         initialComposition: ['ahri', 'garen'],
       });
-      report.rows.push({ ...row, contextId: 'second-context', championId: 'second-champion' });
+      report.rows.push({
+        ...row,
+        contextId: 'second-context',
+        championId: 'second-champion',
+      });
       report.population.verifiedRuns = 4;
       report.selections.segments.push({
         ...segment,
@@ -299,7 +314,10 @@ describe('honest balance evidence and accessible presentation', () => {
         gameplayVersion: 21,
       });
       report.selections.rows.push(
-        ...report.selections.rows.map((pick) => ({ ...pick, segmentId: 'second-pick-version' })),
+        ...report.selections.rows.map((pick) => ({
+          ...pick,
+          segmentId: 'second-pick-version',
+        })),
       );
       report.selections.population.starts = 6;
       return report;
@@ -314,7 +332,10 @@ describe('honest balance evidence and accessible presentation', () => {
         initialComposition: ['ahri', 'garen'],
       });
       report.rows.push(
-        ...report.rows.map((row) => ({ ...row, contextId: 'second-build-context' })),
+        ...report.rows.map((row) => ({
+          ...row,
+          contextId: 'second-build-context',
+        })),
       );
       report.population.verifiedRuns = 4;
       return report;
@@ -328,7 +349,9 @@ describe('honest balance evidence and accessible presentation', () => {
       within(championSection).getByRole('combobox', { name: copy.context });
     const buildChoice = () => within(buildSection).getByRole('combobox', { name: copy.context });
     fireEvent.change(championChoice(), { target: { value: 'second-context' } });
-    fireEvent.change(buildChoice(), { target: { value: 'second-build-context' } });
+    fireEvent.change(buildChoice(), {
+      target: { value: 'second-build-context' },
+    });
     fireEvent.change(screen.getByRole('combobox', { name: copy.pickIdentity }), {
       target: { value: 'second-pick-version' },
     });

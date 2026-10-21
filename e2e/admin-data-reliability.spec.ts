@@ -1,6 +1,6 @@
 import { expect, type Page, type TestInfo, test } from '@playwright/test';
 import { getAdminDiagnosticsCopy } from '../src/i18n/adminDiagnostics';
-import { validateDiagnosticsFilters } from '../src/pages/admin/diagnostics/adminDiagnosticsValidation';
+import { validateDiagnosticsFilters } from '../src/features/administration/domain/diagnostics/adminDiagnosticsValidation';
 import { diagnosticsLog, diagnosticsResponse } from '../tests/helpers/adminDiagnosticsUiFixtures';
 
 async function captureAdminPage(page: Page, testInfo: TestInfo, name: string) {
@@ -71,7 +71,11 @@ async function enterAdmin(page: Page, language: 'fr-FR' | 'en-US' = 'fr-FR') {
 }
 
 async function backend(page: Page, emptyPlayers = false) {
-  const state = { statsFail: false, logsFail: true, reads: new Map<string, number>() };
+  const state = {
+    statsFail: false,
+    logsFail: true,
+    reads: new Map<string, number>(),
+  };
   await page.route('**/rest/v1/**', async (route) => {
     const table = new URL(route.request().url()).pathname.split('/').at(-1) ?? '';
     state.reads.set(table, (state.reads.get(table) ?? 0) + 1);
@@ -87,9 +91,15 @@ async function backend(page: Page, emptyPlayers = false) {
         json: [
           { stat_name: 'active_today', stat_value: '0' },
           { stat_name: 'total_players', stat_value: '1001' },
-          { stat_name: 'total_candies_balance', stat_value: '9007199254740993' },
+          {
+            stat_name: 'total_candies_balance',
+            stat_value: '9007199254740993',
+          },
           { stat_name: 'total_candies_earned', stat_value: null },
-          { stat_name: 'candies_ledger_started_at', stat_value: '2026-10-17T04:00:00.000Z' },
+          {
+            stat_name: 'candies_ledger_started_at',
+            stat_value: '2026-10-17T04:00:00.000Z',
+          },
         ],
       });
       return;
@@ -145,7 +155,10 @@ async function backend(page: Page, emptyPlayers = false) {
     }
     await route.fulfill({
       json: [],
-      headers: { 'access-control-expose-headers': 'content-range', 'content-range': '*/0' },
+      headers: {
+        'access-control-expose-headers': 'content-range',
+        'content-range': '*/0',
+      },
     });
   });
   return state;
@@ -176,6 +189,7 @@ test('admin sections recover independently and distinguish absent metrics, exact
   await expect(players.getByRole('row')).toHaveCount(51);
   await expect(players.getByRole('status')).toContainText(/Affichées : 50.*Total filtré : 1\s001/);
 
+  await page.getByRole('tab', { name: /Surveillance/ }).click();
   await page.getByRole('tab', { name: /Journaux/ }).click();
   const logs = page.getByRole('tabpanel', { name: /Journaux/ });
   const diagnosticsCopy = getAdminDiagnosticsCopy('fr-FR');
@@ -189,7 +203,7 @@ test('admin sections recover independently and distinguish absent metrics, exact
   expect(api.reads.get('admin_search_players')).toBe(1);
   expect(api.reads.get('admin_stats')).toBe(1);
 
-  await page.getByRole('tab', { name: /Tableau de bord/ }).click();
+  await page.getByRole('tab', { name: /Vue globale/ }).click();
   api.statsFail = true;
   await dashboard.getByRole('button', { name: 'Actualiser les statistiques' }).click();
   await expect(dashboard.getByRole('alert')).toBeVisible();
@@ -222,6 +236,8 @@ test('English admin definitions and a true empty count remain usable at 320px', 
   await captureAdminPage(page, testInfo, 'admin-mobile-en');
   await page.getByRole('tab', { name: /Players/ }).click();
   const players = page.getByRole('tabpanel', { name: /Players/ });
-  await expect(players.getByRole('status')).toContainText(/Filtered total\s*:\s*0/);
+  await expect(
+    players.getByRole('navigation', { name: 'Admin results pagination' }).getByRole('status'),
+  ).toContainText(/Filtered total\s*:\s*0/);
   await expect(players.getByText(/No players/)).toBeVisible();
 });

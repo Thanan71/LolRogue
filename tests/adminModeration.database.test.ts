@@ -4,7 +4,7 @@ import {
   parseModerationQueue,
   parseModerationHistory,
   parseModerationReceipt,
-} from '@/pages/admin/moderation/moderationValidation';
+} from '@/features/administration/domain/moderation/moderationValidation';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   cleanupExplorer,
@@ -63,7 +63,10 @@ describeDatabase('audited moderation commands and complete queue', () => {
     const query = { p_from: '1900-01-01', p_to: '1900-01-01', p_limit: 50 };
     try {
       const first = await rpcData(admin.client, 'admin_moderation_queue', query);
-      expect(first).toMatchObject({ total: 101, counts: { open: 101, resolved: 1, dismissed: 1 } });
+      expect(first).toMatchObject({
+        total: 101,
+        counts: { open: 101, resolved: 1, dismissed: 1 },
+      });
       expect(first.rows).toHaveLength(50);
       const second = await rpcData(admin.client, 'admin_moderation_queue', {
         ...query,
@@ -99,7 +102,9 @@ describeDatabase('audited moderation commands and complete queue', () => {
   });
 
   it('returns explicit empty queues and filters exact target IDs and UTC calendar edges', async () => {
-    const fixture = moderationFixture(player, player, { createdAt: '2024-02-29T23:59:59.999999Z' });
+    const fixture = moderationFixture(player, player, {
+      createdAt: '2024-02-29T23:59:59.999999Z',
+    });
     const data = await rpcData(admin.client, 'admin_moderation_queue', {
       p_from: '2024-02-29',
       p_to: '2024-02-29',
@@ -120,12 +125,16 @@ describeDatabase('audited moderation commands and complete queue', () => {
   });
 
   it('keeps legacy reopened review timestamps visible instead of inventing a new history', async () => {
-    const fixture = moderationFixture(player, player, { createdAt: '2024-02-29T00:00:00Z' });
+    const fixture = moderationFixture(player, player, {
+      createdAt: '2024-02-29T00:00:00Z',
+    });
     explorerSql(
       `UPDATE public.daily_score_reports SET reviewed_at='2024-01-01T00:00:00Z' WHERE id='${fixture.reportId}';`,
     );
     const queue = parseModerationQueue(
-      await rpcData(admin.client, 'admin_moderation_queue', { p_daily_run_id: fixture.dailyRunId }),
+      await rpcData(admin.client, 'admin_moderation_queue', {
+        p_daily_run_id: fixture.dailyRunId,
+      }),
     );
     expect(queue.rows[0]).toMatchObject({
       status: 'open',
@@ -162,7 +171,9 @@ describeDatabase('audited moderation commands and complete queue', () => {
     });
     expect(parseModerationQueue(actualQueue).rows).toHaveLength(2);
     const applied = await decide(admin.client, args);
-    expect(parseModerationReceipt(applied)).toMatchObject({ outcome: 'applied' });
+    expect(parseModerationReceipt(applied)).toMatchObject({
+      outcome: 'applied',
+    });
     expect(applied).toMatchObject({
       outcome: 'applied',
       code: 'score_invalidated',
@@ -213,7 +224,10 @@ describeDatabase('audited moderation commands and complete queue', () => {
   });
 
   it('backfills historical invalidations without inventing request keys or rewriting original evidence', async () => {
-    const fixture = moderationFixture(player, player, { invalidated: true, status: 'actioned' });
+    const fixture = moderationFixture(player, player, {
+      invalidated: true,
+      status: 'actioned',
+    });
     const id = randomUUID();
     explorerSql(`INSERT INTO public.daily_score_invalidation_audit(id,daily_run_id,actor_user_id,reason,invalidated_at)
       VALUES('${id}','${fixture.dailyRunId}',NULL,'Evidence from person@example.test token=historical-secret',NOW()-INTERVAL '2 days');`);
@@ -321,7 +335,9 @@ describeDatabase('audited moderation commands and complete queue', () => {
     expect((await decide(admin.client, moderationDecision(incomplete))).code).toBe(
       'score_not_completed',
     );
-    const invalidated = moderationFixture(player, player, { invalidated: true });
+    const invalidated = moderationFixture(player, player, {
+      invalidated: true,
+    });
     expect((await decide(admin.client, moderationDecision(invalidated))).code).toBe(
       'score_already_invalidated',
     );
@@ -392,8 +408,14 @@ describeDatabase('audited moderation commands and complete queue', () => {
     // the disposable limiter window models the next eligible minute.
     clearModerationCounters([admin]);
     const admitted = await decide(admin.client, args);
-    expect(admitted).toMatchObject({ outcome: 'applied', code: 'report_dismissed' });
-    expect(await decide(admin.client, args)).toEqual({ ...admitted, outcome: 'replayed' });
+    expect(admitted).toMatchObject({
+      outcome: 'applied',
+      code: 'report_dismissed',
+    });
+    expect(await decide(admin.client, args)).toEqual({
+      ...admitted,
+      outcome: 'replayed',
+    });
     expect(
       explorerSql(
         `SELECT count(*) FROM private.moderation_events WHERE actor_user_id='${admin.userId}' AND request_id='${args.p_request_id}'`,

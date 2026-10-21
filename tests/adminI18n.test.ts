@@ -13,14 +13,14 @@ import {
   formatAdminDay,
   formatAdminNumber,
   formatAdminPercent,
-} from '@/pages/adminPageUtils';
+} from '@/features/administration/domain/adminFormatting';
 import { scanUserCopyFile } from './helpers/userCopyScanner';
 
 const ADMIN_PAGE_FILES = [
-  'src/pages/AdminPage.tsx',
-  ...readdirSync('src/pages/admin')
+  'src/features/administration/ui/AdministrationScreen.tsx',
+  ...readdirSync('src/features/administration/ui')
     .filter((file) => file.endsWith('.tsx'))
-    .map((file) => `src/pages/admin/${file}`),
+    .map((file) => `src/features/administration/ui/${file}`),
 ].sort();
 
 function catalogPaths(value: unknown, prefix = ''): string[] {
@@ -77,7 +77,7 @@ describe('admin i18n contract', () => {
       JSON.stringify({ state: { language: 'en-US' } }),
     );
     vi.resetModules();
-    const { AdminErrorNotice } = await import('@/pages/admin/AdminErrorNotice');
+    const { AdminErrorNotice } = await import('@/features/administration/ui/AdminErrorNotice');
 
     render(
       createElement(AdminErrorNotice, {

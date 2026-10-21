@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { describeAdminAnalyticsRate } from '@/pages/admin/analytics/adminAnalyticsStatistics';
+import { describeAdminAnalyticsRate } from '@/features/administration/domain/analytics/adminAnalyticsStatistics';
 import {
   type AdminBalanceFieldView,
   validateAdminBalanceFieldRows,
-} from '@/pages/admin/balance/adminBalanceFieldValidation';
+} from '@/features/administration/domain/balance/adminBalanceFieldValidation';
 
 const filters = { from: '2026-10-01', to: '2026-10-17' };
 const common = {

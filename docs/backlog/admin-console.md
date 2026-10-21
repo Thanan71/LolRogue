@@ -1,6 +1,6 @@
 # ADM — Administration fiable et exploitable
 
-**Statut : ADM-S1 à S3 implémentés ; ADM-S4 implémenté hors ADM-20, en attente de TREE-10 ; ADM-S5 et ADM-S6 implémentés ; ADM-S7 reste planifié.** 7 sprints, **36 tâches** (`ADM-01` à `ADM-36`). Cible : `src/pages/AdminPage.tsx`, `src/pages/admin/useAdminData.ts` et panneaux existants, vues/RPC PostgreSQL, `docs/administration.md`. [Retour au TODO](../../TODO.md) · [Architecture](architecture-maintenance.md).
+**Statut : ADM-S1 à S3 implémentés ; ADM-S4 implémenté hors ADM-20, en attente de TREE-10 ; ADM-S5 et ADM-S6 implémentés ; ADM-S7 est implémenté en code et automatisation locale ; validation humaine ADM-34 confirmée par l’utilisateur le 21 octobre.** 7 sprints, **36 tâches** (`ADM-01` à `ADM-36`). Cible : wrapper `src/pages/AdminPage.tsx`, module `src/features/administration`, vues/RPC PostgreSQL et `docs/administration.md`. [Retour au TODO](../../TODO.md) · [Architecture](architecture-maintenance.md).
 
 ## État initial et frontières
 
@@ -499,76 +499,85 @@ fusion et déploiement restent distincts de cette clôture code.
 
 ## ADM-S7 — UI, architecture et preuves (P2 ; ADM-32..36)
 
+**Application 0.2.13 : ADM-32, 33, 35 et 36 réalisés en code et preuves locales.**
+ADM-34 est couvert automatiquement ; le parcours humain demandé a été validé
+par l’utilisateur sur la Preview le 21 octobre (voir le rapport de validation). [Contrat d’interface](../admin-interface.md) ·
+[validation du 21 octobre](../admin-s7-validation-2026-10-21.md).
+Le build candidat local passe ; la reconstruction indépendante finale, les
+checks CI/Preview et le SHA livré sont à joindre à la PR vers `dev`. Aucune fusion, livraison distante, migration, activation ou
+notification n’est implicite. ADM-20 reste dépendant de TREE-10.
+
 ### ADM-32 — Isoler le domaine administration
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Migrer progressivement `src/pages/admin/` et `useAdminData.ts` vers `src/features/administration` selon `ARCH-12`, sans refaire en parallèle un deuxième refactor.
-  - [ ] Définir frontière entre UI admin, hooks, DTO et repositories selon ARCH-12 sans deuxième système DI.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Séparer « queries/dto/état/panneaux », mutualiser erreurs/chargements et conserver `RepositoryContainer` ou interfaces de service existantes.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester import interdit de couche, action admin non autorisée et rendu existant.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Migrer les 97 modules historiques vers `src/features/administration` selon `ARCH-12`, sans refaire en parallèle un deuxième refactor.
+  - [x] Définir frontière entre UI admin, hooks, DTO et repositories selon ARCH-12 sans deuxième système DI.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Séparer « queries/dto/état/panneaux », mutualiser erreurs/chargements et conserver `RepositoryContainer` ou interfaces de service existantes.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester import interdit de couche, action admin non autorisée et rendu existant.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultats locaux et modèle de preuve à joindre à la PR, sans activer de nouvelles actions en production.
 
 ### ADM-33 — Navigation et expériences
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Prévoir sous-onglets « Vue globale / Joueurs / Runs / Équilibrage / Modération / Surveillance », filtres visibles et états de chargement individuels.
-  - [ ] Concevoir navigation par URL/onglet, conservation de filtres et retour depuis fiche run.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Conserver l'URL et le contexte lors des navigations ; confirmations pour actions sensibles et export indiquant périmètre/période.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester rafraîchissement deep link, historique navigateur et interruption d'une requête.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Prévoir sous-onglets « Vue globale / Joueurs / Runs / Équilibrage / Modération / Surveillance », filtres visibles et états de chargement individuels.
+  - [x] Concevoir navigation par URL/onglet, conservation de filtres et retour depuis fiche run.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Conserver l'URL et le contexte lors des navigations ; confirmations pour actions sensibles et export indiquant périmètre/période.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester rafraîchissement deep link, historique navigateur et interruption d'une requête.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultats locaux et modèle de preuve à joindre à la PR, sans activer de nouvelles actions en production.
 
 ### ADM-34 — Responsive et accessibilité
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Tester tables larges mobile, colonnes essentielles, vues détails et pagination à 320 px / zoom 200–400 %.
-  - [ ] Définir table responsive à colonnes essentielles, légendes, focus et alternatives aux icônes couleur.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Navigation clavier, focus, tableaux avec en-têtes, lecteur d'écran, contrastes et messages FR/EN cohérents avec `P0-I18N-01`.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester 320px, zoom 400 %, NVDA/VoiceOver, keyboard-only et FR/EN.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Tester tables larges mobile, colonnes essentielles, vues détails et pagination à 320 px / zoom 200–400 %.
+  - [x] Définir table responsive à colonnes essentielles, légendes, focus et alternatives aux icônes couleur.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Navigation clavier, focus, tableaux avec en-têtes, contrastes et messages FR/EN cohérents avec `P0-I18N-01` ; sémantique vérifiée automatiquement.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Automatisé : 320 px, zoom natif Chromium 200 %/400 %, clavier, focus, FR/EN et axe sans violation.
+  - [x] Manuel : parcours lecteur d’écran demandé sur la Preview `7c157b4`, confirmé par l’utilisateur le 21 octobre : « la verification humaine est ok ». Retour déclaré ; outil, appareil et versions non renseignés, aucune exécution distincte des deux lecteurs attribuée à l’agent.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultats locaux et modèle de preuve à joindre à la PR, sans activer de nouvelles actions en production.
 
 ### ADM-35 — Couverture de tests et non-régression
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Contrats SQL/permissions, 0/100/101/1000/1001 lignes, imports de données incomplètes, agrégations, filtres, exports et actions de modération.
-  - [ ] Tests composants et Playwright connecté : rôle non-admin interdit, admin autorisé, refresh, pagination, erreurs et mobile.
-  - [ ] Établir matrice SQL/Auth/component/E2E et jeux de données volumineux déterministes.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Préserver tests et vues existants ; rapport de validation sur environnement local migré.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester RLS positive/négative, pagination 1001 lignes, retry réseau et export CSV.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Contrats SQL/permissions, 0/100/101/1000/1001 lignes, imports de données incomplètes, agrégations, filtres, exports et actions de modération.
+  - [x] Tests composants et Playwright connecté : rôle non-admin interdit, admin autorisé, refresh, pagination, erreurs et mobile.
+  - [x] Établir matrice SQL/Auth/component/E2E et jeux de données volumineux déterministes.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Préserver tests et vues existants ; rapport de validation sur environnement local migré.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester RLS positive/négative, pagination 1001 lignes, retry réseau et export CSV.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultats locaux et modèle de preuve à joindre à la PR, sans activer de nouvelles actions en production.
 
 ### ADM-36 — Documentation et livraison progressive
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Mettre à jour `docs/administration.md`, dictionnaire métriques, modèles de rôles, runbooks incidents et release notes.
-  - [ ] Fixer modèle de preuves de PR, dictionnaire KPI, instructions de restauration et plan d'archivage.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Diviser en PR logiques (fiabilité → pagination → analytics → modération → refactor) et enregistrer preuve SQL, UI et E2E pour chaque lot.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Vérifier documentation, commandes CI, lien vers release et statut non livré si déploiement absent.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Mettre à jour `docs/administration.md`, dictionnaire métriques, modèles de rôles, runbooks incidents et release notes.
+  - [x] Fixer modèle de preuves de PR, dictionnaire KPI, instructions de restauration et plan d'archivage.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Diviser en PR logiques (fiabilité → pagination → analytics → modération → refactor) et enregistrer preuve SQL, UI et E2E pour chaque lot.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Documenter commandes CI, publication 18 FR/EN, liens des contrats et preuves ; garder CI/Preview finale et déploiement distincts de la validation locale.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultats locaux et modèle de preuve à joindre à la PR, sans activer de nouvelles actions en production.
 **Gate générale :** tous les indicateurs ont une définition et une population, nombres globaux indépendants des plafonds de pagination, sécurité PostgreSQL/RLS prouvée, aucun faux 0, aucune action administrative non auditée.
 
 ## Doublons délibérément évités

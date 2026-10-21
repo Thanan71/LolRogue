@@ -12,25 +12,30 @@ import {
   within,
 } from '@testing-library/react';
 import { useState } from 'react';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
+import { useAdministrationNavigation } from '@/features/administration/hooks/useAdministrationNavigation';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getAdminAnalyticsCopy } from '@/i18n/adminAnalytics';
-import { AdminAnalyticsPanel } from '@/pages/admin/analytics/AdminAnalyticsPanel';
-import { AdminFunnelPanel } from '@/pages/admin/analytics/AdminFunnelPanel';
-import { AdminRate } from '@/pages/admin/analytics/AdminRate';
-import { AdminRetentionPanel } from '@/pages/admin/analytics/AdminRetentionPanel';
-import { AdminTimeSeries } from '@/pages/admin/analytics/AdminTimeSeries';
+import { AdminAnalyticsPanel } from '@/features/administration/ui/analytics/AdminAnalyticsPanel';
+import { AdminFunnelPanel } from '@/features/administration/ui/analytics/AdminFunnelPanel';
+import { AdminRate } from '@/features/administration/ui/analytics/AdminRate';
+import { AdminRetentionPanel } from '@/features/administration/ui/analytics/AdminRetentionPanel';
+import { AdminTimeSeries } from '@/features/administration/ui/analytics/AdminTimeSeries';
 import {
   parseAdminAnalyticsFunnel,
   parseAdminAnalyticsRetention,
   parseAdminAnalyticsSeries,
-} from '@/pages/admin/analytics/adminAnalyticsClient';
-import { describeAdminAnalyticsRate } from '@/pages/admin/analytics/adminAnalyticsStatistics';
-import type { AnalyticsFilters, AnalyticsSeries } from '@/pages/admin/analytics/analyticsTypes';
+} from '@/features/administration/domain/analytics/adminAnalyticsParser';
+import { describeAdminAnalyticsRate } from '@/features/administration/domain/analytics/adminAnalyticsStatistics';
+import type {
+  AnalyticsFilters,
+  AnalyticsSeries,
+} from '@/features/administration/domain/analytics/analyticsTypes';
 import {
   type AdminAnalytics,
   type AdminAnalyticsMetric,
   useAdminAnalytics,
-} from '@/pages/admin/analytics/useAdminAnalytics';
+} from '@/features/administration/hooks/analytics/useAdminAnalytics';
 import { useAuthStore } from '@/stores/authStore';
 import {
   adminFunnelUiFixture,
@@ -38,17 +43,32 @@ import {
   adminSeriesUiFixture,
 } from './fixtures/adminAnalyticsUi';
 
-const mocks = vi.hoisted(() => ({ series: vi.fn(), retention: vi.fn(), funnel: vi.fn() }));
-vi.mock('@/pages/admin/analytics/adminAnalyticsClient', async (original) => ({
-  ...(await original<typeof import('@/pages/admin/analytics/adminAnalyticsClient')>()),
-  fetchAdminAnalyticsSeries: mocks.series,
-  fetchAdminAnalyticsRetention: mocks.retention,
-  fetchAdminAnalyticsFunnel: mocks.funnel,
+const mocks = vi.hoisted(() => ({
+  series: vi.fn(),
+  retention: vi.fn(),
+  funnel: vi.fn(),
 }));
+vi.mock(
+  '@/features/administration/infrastructure/analytics/adminAnalyticsClient',
+  async (original) => ({
+    ...(await original<
+      typeof import('@/features/administration/infrastructure/analytics/adminAnalyticsClient')
+    >()),
+    fetchAdminAnalyticsSeries: mocks.series,
+    fetchAdminAnalyticsRetention: mocks.retention,
+    fetchAdminAnalyticsFunnel: mocks.funnel,
+  }),
+);
 
 const copy = getAdminAnalyticsCopy('fr-FR');
-const accountA = { user: { id: 'admin-a' } as User, session: { access_token: 'a' } as Session };
-const accountB = { user: { id: 'admin-b' } as User, session: { access_token: 'b' } as Session };
+const accountA = {
+  user: { id: 'admin-a' } as User,
+  session: { access_token: 'a' } as Session,
+};
+const accountB = {
+  user: { id: 'admin-b' } as User,
+  session: { access_token: 'b' } as Session,
+};
 const filters: AnalyticsFilters = {
   from: '2026-10-01',
   to: '2026-10-16',
@@ -273,7 +293,10 @@ describe('analytics independent reads and filter scopes', () => {
     expect(signal.aborted).toBe(true);
     const current = result.current.series.data;
     await act(async () => {
-      pending.resolve({ ...adminSeriesUiFixture(filters), snapshotAt: 'old-account' });
+      pending.resolve({
+        ...adminSeriesUiFixture(filters),
+        snapshotAt: 'old-account',
+      });
     });
     expect(result.current.series.data).toBe(current);
     const permissionRead = deferred<AnalyticsSeries>();
@@ -310,7 +333,10 @@ describe('analytics independent reads and filter scopes', () => {
     const signal = mocks.retention.mock.calls[
       mocks.retention.mock.calls.length - 1
     ]?.[1] as AbortSignal;
-    mocks.series.mockRejectedValueOnce({ code: '42501', message: 'admin required' });
+    mocks.series.mockRejectedValueOnce({
+      code: '42501',
+      message: 'admin required',
+    });
     await act(async () => {
       expect(await result.current.series.reload()).toBe(false);
     });
@@ -328,7 +354,9 @@ describe('analytics independent reads and filter scopes', () => {
     act(() => result.current.refresh());
     expect(mocks.series).toHaveBeenCalledTimes(readCount);
     act(() =>
-      useAuthStore.setState({ session: { ...accountA.session, access_token: 'reauthenticated' } }),
+      useAuthStore.setState({
+        session: { ...accountA.session, access_token: 'reauthenticated' },
+      }),
     );
     await ready(result);
     expect(result.current.permissionDenied).toBe(false);
@@ -420,7 +448,9 @@ describe('analytics presentation and honest uncertainty', () => {
     expect(
       screen.getByText(new RegExp(copy.acquisitionScope.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))),
     ).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText(copy.metric), { target: { value: 'starts' } });
+    fireEvent.change(screen.getByLabelText(copy.metric), {
+      target: { value: 'starts' },
+    });
     fireEvent.click(screen.getByText(copy.table));
     const select = screen.getByLabelText(`${copy.segment} — ${copy.seriesTitle}`);
     const table = screen.getByRole('table');
@@ -466,5 +496,63 @@ describe('analytics presentation and honest uncertainty', () => {
     expect(document.querySelector('svg')).toBeNull();
     for (const button of screen.getAllByRole('button')) expect(button).toBeDisabled();
     for (const field of screen.getAllByRole('combobox')) expect(field).toBeDisabled();
+  });
+});
+
+describe('analytics URL request ownership', () => {
+  it('hydrates applied filters once, changes metrics without another RPC and restores filters with history', async () => {
+    const initial = `/admin?group=overview&view=analytics&analytics=${encodeURIComponent(JSON.stringify({ from: '2026-10-01', to: '2026-10-16', granularity: 'day', mode: 'daily' }))}`;
+    const { result } = renderHook(
+      () => {
+        const navigation = useAdministrationNavigation();
+        return {
+          navigation,
+          history: useNavigate(),
+          analytics: useAdminAnalytics(true, navigation),
+        };
+      },
+      {
+        wrapper: ({ children }) => (
+          <MemoryRouter initialEntries={[initial]}>{children}</MemoryRouter>
+        ),
+      },
+    );
+    await ready(
+      {
+        get current() {
+          return result.current.analytics;
+        },
+      },
+      '2026-10-01',
+    );
+    expect(mocks.series).toHaveBeenCalledOnce();
+    act(() => result.current.analytics.selectMetric('starts'));
+    expect(result.current.analytics.metric).toBe('starts');
+    expect(mocks.series).toHaveBeenCalledOnce();
+    expect(mocks.retention).toHaveBeenCalledOnce();
+    expect(mocks.funnel).toHaveBeenCalledOnce();
+    act(() => result.current.analytics.changeDraft('from', '2026-10-02'));
+    act(() => result.current.analytics.apply());
+    await ready(
+      {
+        get current() {
+          return result.current.analytics;
+        },
+      },
+      '2026-10-02',
+    );
+    expect(result.current.navigation.location.contexts.analytics?.from).toBe('2026-10-02');
+    expect(mocks.series).toHaveBeenCalledTimes(2);
+    act(() => result.current.history(-1));
+    await ready(
+      {
+        get current() {
+          return result.current.analytics;
+        },
+      },
+      '2026-10-01',
+    );
+    expect(mocks.series).toHaveBeenCalledTimes(3);
+    expect(result.current.analytics.draft.from).toBe('2026-10-01');
   });
 });

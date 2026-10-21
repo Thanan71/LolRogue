@@ -2,18 +2,35 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { fr } from '@/i18n/fr';
-import { AdminPagination } from '@/pages/admin/explorer/AdminPagination';
-import { parseAdminExplorerPage } from '@/pages/admin/explorer/adminExplorerClient';
+import { AdminPagination } from '@/features/administration/ui/explorer/AdminPagination';
+import { parseAdminExplorerPage } from '@/features/administration/domain/explorer/adminExplorerClient';
 
 const stamp = '2026-10-17T06:00:00Z';
-const empty = { items: [], total: 0, hasMore: false, nextCursor: null, snapshotAt: stamp };
+const empty = {
+  items: [],
+  total: 0,
+  hasMore: false,
+  nextCursor: null,
+  snapshotAt: stamp,
+};
 
 describe('admin explorer page boundary', () => {
   it('preserves exact zero and an opaque cursor without rounding or local filtering', () => {
     expect(parseAdminExplorerPage(empty, String)).toEqual(empty);
-    const cursor = { id: 'public-id', filterKey: 'opaque', value: 0, snapshot: stamp };
+    const cursor = {
+      id: 'public-id',
+      filterKey: 'opaque',
+      value: 0,
+      snapshot: stamp,
+    };
     const result = parseAdminExplorerPage(
-      { ...empty, items: ['É_%'], total: 1001, hasMore: true, nextCursor: cursor },
+      {
+        ...empty,
+        items: ['É_%'],
+        total: 1001,
+        hasMore: true,
+        nextCursor: cursor,
+      },
       String,
     );
     expect(result.items).toEqual(['É_%']);
@@ -71,16 +88,24 @@ describe('accessible server pagination', () => {
     expect(screen.getByRole('status')).toHaveTextContent(fr.admin.unavailable);
     expect(screen.getByRole('button', { name: fr.admin.explorerPagination.next })).toBeDisabled();
     expect(
-      screen.getByRole('button', { name: fr.admin.explorerPagination.previous }),
+      screen.getByRole('button', {
+        name: fr.admin.explorerPagination.previous,
+      }),
     ).toBeDisabled();
     rerender(<AdminPagination {...props} total={0} busy={false} />);
     expect(screen.getByRole('status')).not.toHaveTextContent(fr.admin.unavailable);
     rerender(
       <AdminPagination {...props} pageIndex={2} total={1001} displayed={50} busy={false} hasMore />,
     );
-    fireEvent.click(screen.getByRole('button', { name: fr.admin.explorerPagination.previous }));
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: fr.admin.explorerPagination.previous,
+      }),
+    );
     fireEvent.click(screen.getByRole('button', { name: fr.admin.explorerPagination.next }));
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: '100' } });
+    fireEvent.change(screen.getByRole('combobox'), {
+      target: { value: '100' },
+    });
     expect(onPrevious).toHaveBeenCalledOnce();
     expect(onNext).toHaveBeenCalledOnce();
     expect(onPageSizeChange).toHaveBeenCalledWith(100);

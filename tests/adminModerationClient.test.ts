@@ -3,8 +3,8 @@ import {
   fetchModerationHistory,
   fetchModerationQueue,
   sendModerationDecision,
-} from '@/pages/admin/moderation/moderationClient';
-import type { ModerationQueueRequest } from '@/pages/admin/moderation/moderationTypes';
+} from '@/features/administration/infrastructure/moderation/moderationClient';
+import type { ModerationQueueRequest } from '@/features/administration/domain/moderation/moderationTypes';
 import {
   moderationDecisionFixture,
   moderationFixtureIds,
@@ -15,7 +15,12 @@ import {
 
 const mocks = vi.hoisted(() => ({ rpc: vi.fn() }));
 vi.mock('@/services/supabaseClient', () => ({ supabase: { rpc: mocks.rpc } }));
-const request: ModerationQueueRequest = { status: 'open', from: null, to: null, dailyRunId: null };
+const request: ModerationQueueRequest = {
+  status: 'open',
+  from: null,
+  to: null,
+  dailyRunId: null,
+};
 function response(data: unknown, error: unknown = null) {
   return {
     abortSignal: vi.fn().mockResolvedValue({ data, error }),
@@ -44,9 +49,11 @@ describe('single guarded moderation RPC surface', () => {
   it('keeps exact target identity and history cursor on the server', async () => {
     const value = moderationHistoryFixture();
     mocks.rpc.mockReturnValueOnce(response(value));
-    expect(await fetchModerationHistory({ dailyRunId: moderationFixtureIds.dailyRun })).toEqual(
-      value,
-    );
+    expect(
+      await fetchModerationHistory({
+        dailyRunId: moderationFixtureIds.dailyRun,
+      }),
+    ).toEqual(value);
     expect(mocks.rpc).toHaveBeenCalledWith('admin_moderation_history', {
       p_daily_run_id: moderationFixtureIds.dailyRun,
       p_limit: 25,
@@ -55,8 +62,13 @@ describe('single guarded moderation RPC surface', () => {
     });
   });
   it('normalizes the reason before sending and validates the returned request receipt', async () => {
-    const value = moderationDecisionFixture({ p_reason: '  A verified\nmoderation  decision.  ' });
-    const normalized = { ...value, p_reason: 'A verified moderation decision.' };
+    const value = moderationDecisionFixture({
+      p_reason: '  A verified\nmoderation  decision.  ',
+    });
+    const normalized = {
+      ...value,
+      p_reason: 'A verified moderation decision.',
+    };
     mocks.rpc.mockReturnValueOnce(response(moderationReceiptFixture(normalized)));
     expect(await sendModerationDecision(value, new AbortController().signal)).toEqual(
       moderationReceiptFixture(normalized),
@@ -79,7 +91,9 @@ describe('single guarded moderation RPC surface', () => {
     mocks.rpc.mockReturnValueOnce(
       response(
         moderationReceiptFixture(
-          moderationDecisionFixture({ p_request_id: '10000000-0000-4000-8000-000000000002' }),
+          moderationDecisionFixture({
+            p_request_id: '10000000-0000-4000-8000-000000000002',
+          }),
         ),
       ),
     );

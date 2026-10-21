@@ -3,12 +3,14 @@ import {
   fetchAdminBalanceBuilds,
   fetchAdminBalanceChampions,
   fetchAdminBalanceConfig,
+} from '@/features/administration/infrastructure/balance/adminBalanceClient';
+import {
   parseAdminBalanceBuilds,
   parseAdminBalanceChampions,
-  parseAdminBalanceConfig,
-  validateAdminBalanceFilters,
-} from '@/pages/admin/balance/adminBalanceClient';
-import type { BalanceChampionReport } from '@/pages/admin/balance/balanceTypes';
+} from '@/features/administration/domain/balance/adminBalanceReportParser';
+import { parseAdminBalanceConfig } from '@/features/administration/domain/balance/adminBalanceConfigParser';
+import { validateAdminBalanceFilters } from '@/features/administration/domain/balance/adminBalanceValidation';
+import type { BalanceChampionReport } from '@/features/administration/domain/balance/balanceTypes';
 import {
   balanceBuildFixture,
   balanceChampionFixture,
@@ -16,12 +18,17 @@ import {
 } from './fixtures/adminBalanceUi';
 
 const transport = vi.hoisted(() => ({ rpc: vi.fn(), abortSignal: vi.fn() }));
-vi.mock('@/services/supabaseClient', () => ({ supabase: { rpc: transport.rpc } }));
+vi.mock('@/services/supabaseClient', () => ({
+  supabase: { rpc: transport.rpc },
+}));
 
 beforeEach(() => {
   vi.clearAllMocks();
   transport.rpc.mockReturnValue({ abortSignal: transport.abortSignal });
-  transport.abortSignal.mockResolvedValue({ data: balanceChampionFixture(), error: null });
+  transport.abortSignal.mockResolvedValue({
+    data: balanceChampionFixture(),
+    error: null,
+  });
 });
 
 describe('balance bounded UTC filters', () => {
@@ -76,7 +83,11 @@ describe('balance champion projections and evidence', () => {
   it('keeps absent champions in the full server denominator without inventing metrics', () => {
     const report = balanceChampionFixture();
     expect(parseAdminBalanceChampions(report)).toEqual(report);
-    expect(report.rows[0]).toMatchObject({ runs: 0, cohortRuns: 2, meanDamageDealt: null });
+    expect(report.rows[0]).toMatchObject({
+      runs: 0,
+      cohortRuns: 2,
+      meanDamageDealt: null,
+    });
   });
 
   it('accepts no source cohort and an explicitly unknown row selector', () => {
@@ -86,7 +97,10 @@ describe('balance champion projections and evidence', () => {
     empty.rows = [];
     empty.population = { verifiedRuns: 0, uniquePlayers: 0 };
     expect(parseAdminBalanceChampions(empty)).toEqual(empty);
-    const unknown = balanceChampionFixture({ ...empty.filters, championId: 'missing' });
+    const unknown = balanceChampionFixture({
+      ...empty.filters,
+      championId: 'missing',
+    });
     expect(parseAdminBalanceChampions(unknown)).toMatchObject({
       rows: [],
       population: { verifiedRuns: 2 },
@@ -132,12 +146,23 @@ describe('balance champion projections and evidence', () => {
   });
 
   it('projects requested filters strictly even when object property order differs', () => {
-    const report = balanceChampionFixture({ from: '2026-10-01', to: '2026-10-17', mode: 'daily' });
+    const report = balanceChampionFixture({
+      from: '2026-10-01',
+      to: '2026-10-17',
+      mode: 'daily',
+    });
     expect(
-      parseAdminBalanceChampions(report, { mode: 'daily', to: '2026-10-17', from: '2026-10-01' }),
+      parseAdminBalanceChampions(report, {
+        mode: 'daily',
+        to: '2026-10-17',
+        from: '2026-10-01',
+      }),
     ).toEqual(report);
     expect(() =>
-      parseAdminBalanceChampions(report, { ...report.filters, difficulty: 'hard' }),
+      parseAdminBalanceChampions(report, {
+        ...report.filters,
+        difficulty: 'hard',
+      }),
     ).toThrow();
   });
 
@@ -290,16 +315,28 @@ describe('balance champion projections and evidence', () => {
     const data = balanceChampionFixture();
     expect(() => parseAdminBalanceChampions({ ...data, player_id: 'private' })).toThrow();
     expect(() =>
-      parseAdminBalanceChampions({ ...data, metrics: { ...data.metrics, dps: 'calculated' } }),
+      parseAdminBalanceChampions({
+        ...data,
+        metrics: { ...data.metrics, dps: 'calculated' },
+      }),
     ).toThrow();
     expect(() =>
-      parseAdminBalanceChampions({ ...data, rows: Array(1025).fill(data.rows[0]) }),
+      parseAdminBalanceChampions({
+        ...data,
+        rows: Array(1025).fill(data.rows[0]),
+      }),
     ).toThrow();
     expect(() =>
-      parseAdminBalanceChampions({ ...data, segments: Array(33).fill(data.segments[0]) }),
+      parseAdminBalanceChampions({
+        ...data,
+        segments: Array(33).fill(data.segments[0]),
+      }),
     ).toThrow();
     expect(() =>
-      parseAdminBalanceChampions({ ...data, contexts: Array(129).fill(data.contexts[0]) }),
+      parseAdminBalanceChampions({
+        ...data,
+        contexts: Array(129).fill(data.contexts[0]),
+      }),
     ).toThrow();
   });
 
@@ -319,7 +356,11 @@ describe('balance champion projections and evidence', () => {
     const data = balanceChampionFixture();
     data.population.verifiedRuns = 4;
     const secondContext = 'e'.repeat(32);
-    data.contexts.push({ ...data.contexts[0], id: secondContext, runeIds: ['rune-a'] });
+    data.contexts.push({
+      ...data.contexts[0],
+      id: secondContext,
+      runeIds: ['rune-a'],
+    });
     data.rows.push({ ...data.rows[1], contextId: secondContext });
     expect(() => parseAdminBalanceChampions(data)).toThrow();
   });
@@ -402,7 +443,10 @@ describe('read-only balance policy projection', () => {
     const data = balanceConfigFixture();
     expect(() => parseAdminBalanceConfig({ ...data, readOnly: false })).toThrow();
     expect(() =>
-      parseAdminBalanceConfig({ ...data, trees: { status: 'enabled', dependency: 'TREE-10' } }),
+      parseAdminBalanceConfig({
+        ...data,
+        trees: { status: 'enabled', dependency: 'TREE-10' },
+      }),
     ).toThrow();
     expect(() => parseAdminBalanceConfig({ ...data, unsupportedMetrics: ['dps'] })).toThrow();
     expect(() => parseAdminBalanceConfig({ ...data, mutationToken: 'private' })).toThrow();
@@ -435,7 +479,10 @@ describe('read-only balance policy projection', () => {
     expect(() =>
       parseAdminBalanceConfig({
         ...data,
-        championEconomy: { ...data.championEconomy, updatedAt: '2026-10-19T00:00:00Z' },
+        championEconomy: {
+          ...data.championEconomy,
+          updatedAt: '2026-10-19T00:00:00Z',
+        },
       }),
     ).toThrow();
   });
@@ -455,7 +502,10 @@ describe('admin balance read transport', () => {
 
   it('keeps build and config reads distinct with no mutation API', async () => {
     const signal = new AbortController().signal;
-    transport.abortSignal.mockResolvedValueOnce({ data: balanceBuildFixture(), error: null });
+    transport.abortSignal.mockResolvedValueOnce({
+      data: balanceBuildFixture(),
+      error: null,
+    });
     await expect(fetchAdminBalanceBuilds(balanceBuildFixture().filters, signal)).resolves.toEqual(
       balanceBuildFixture(),
     );
@@ -463,7 +513,10 @@ describe('admin balance read transport', () => {
       p_filters: balanceBuildFixture().filters,
       p_snapshot: undefined,
     });
-    transport.abortSignal.mockResolvedValueOnce({ data: balanceConfigFixture(), error: null });
+    transport.abortSignal.mockResolvedValueOnce({
+      data: balanceConfigFixture(),
+      error: null,
+    });
     await expect(fetchAdminBalanceConfig(signal)).resolves.toEqual(balanceConfigFixture());
     expect(transport.rpc).toHaveBeenLastCalledWith('admin_balance_config');
   });

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { expect, test } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
-import { validateModerationDecision } from '../src/pages/admin/moderation/moderationValidation';
+import { validateModerationDecision } from '../src/features/administration/domain/moderation/moderationValidation';
 import type { Database } from '../src/types/database';
 import {
   cleanupExplorer,
@@ -153,19 +153,29 @@ test('modération connectée : signalement, décision auditée, réessai et rév
       (response) => new URL(response.url()).pathname === '/rest/v1/rpc/admin_moderation_decide',
     );
     await panel
-      .getByRole('button', { name: 'Confirmer et enregistrer la décision', exact: true })
+      .getByRole('button', {
+        name: 'Confirmer et enregistrer la décision',
+        exact: true,
+      })
       .click();
     const decision = await decisionResponse;
     expect(decision.status()).toBe(200);
     const receipt = record(await decision.json());
-    expect(receipt).toMatchObject({ outcome: 'applied', code: 'score_invalidated', dailyRunId });
+    expect(receipt).toMatchObject({
+      outcome: 'applied',
+      code: 'score_invalidated',
+      dailyRunId,
+    });
     await expect(
       panel.getByRole('region', { name: 'Reçu de la décision', exact: true }),
     ).toContainText(String(receipt.auditId));
     const request = validateModerationDecision(decision.request().postDataJSON());
     const replay = await actor.rpc('admin_moderation_decide', request);
     expect(replay.error).toBeNull();
-    expect(replay.data).toMatchObject({ outcome: 'replayed', auditId: receipt.auditId });
+    expect(replay.data).toMatchObject({
+      outcome: 'replayed',
+      auditId: receipt.auditId,
+    });
     const after = await service
       .from('daily_runs')
       .select('score,completed_at,daily_date,invalidated_at')
@@ -197,7 +207,10 @@ test('modération connectée : signalement, décision auditée, réessai et rév
       (response) => new URL(response.url()).pathname === '/rest/v1/rpc/admin_moderation_decide',
     );
     await panel
-      .getByRole('button', { name: 'Confirmer et enregistrer la décision', exact: true })
+      .getByRole('button', {
+        name: 'Confirmer et enregistrer la décision',
+        exact: true,
+      })
       .click();
     const denied = await deniedResponse;
     expect(denied.status()).toBe(200);

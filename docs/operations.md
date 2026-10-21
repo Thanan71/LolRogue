@@ -8,7 +8,10 @@ Ce document est le point d'entrée opérationnel. Les procédures détaillées s
   restauration de production ;
 - `docs/release-and-support.md` pour environnements, rotation, release, smoke test,
   export et suppression de compte ;
-- `docs/administration.md` pour promouvoir ou révoquer un administrateur.
+- `docs/administration.md` pour promouvoir ou révoquer un administrateur ;
+- `docs/admin-interface.md` pour les liens directs, filtres, états et limites de
+  confidentialité de l’interface ; les preuves locales sont dans
+  `docs/admin-s7-validation-2026-10-21.md` ;
 - `docs/admin-metrics.md` pour le contrat des métriques et la migration Candies
   `20261017042727` requise par l'application 0.2.7. Sa validation locale ne vaut
   pas application distante ; les règles de cible et de déploiement restent identiques.
@@ -121,6 +124,20 @@ anti-frame, politique de permissions, referrer policy et `nosniff`. Toute nouvel
 API, police ou origine d'image doit être ajoutée explicitement à la CSP.
 
 ## Vérifications après déploiement
+
+ADM-S7 (client 0.2.13) ne demande aucune migration supplémentaire et conserve les
+contrats SQL déjà migrés. Avant une promotion, rattacher les preuves complètes
+unitaires, SQL, E2E, build et Preview au SHA final de la PR vers `dev`. Les
+[preuves locales S7](admin-s7-validation-2026-10-21.md) ne démontrent aucune
+application distante, activation, fusion ou notification.
+
+Sur une cible autorisée, reprendre le [contrat d’interface](admin-interface.md) :
+ouverture directe d’un lien filtré, refresh, Précédent/Suivant, fermeture de fiche,
+compteurs/pagination serveur, erreur puis retry, export confirmé et refus après
+retrait du rôle courant. Ne pas partager de recherches ou UUID personnels dans
+les artefacts publics. Conserver la vérification humaine NVDA/VoiceOver ouverte
+tant qu’un compte rendu réel n’est pas joint.
+
 
 Pour la modération ADM-S5, appliquer la migration
 `20261018082740_admin_audited_moderation.sql` avec son client correspondant.

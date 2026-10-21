@@ -217,7 +217,11 @@ export function buildImportGraph(files, resolveImport) {
                 resolveImport?.(edge.source, edge.specifier) ??
                   resolveInMemory(edge.source, edge.specifier, paths),
               );
-        return { ...edge, target, internal: target !== null && paths.has(target) };
+        return {
+          ...edge,
+          target,
+          internal: target !== null && paths.has(target),
+        };
       }),
     )
     .sort((a, b) => a.source.localeCompare(b.source) || a.line - b.line);
@@ -297,6 +301,87 @@ function replacementFor(reason) {
   return 'Keep rules in src/game or src/domain and pass data through src/types; inject UI/store/repository effects from the outer orchestration layer.';
 }
 
+const ADMINISTRATION_ROOT = 'src/features/administration/';
+const ADMINISTRATION_ENTRY = `${ADMINISTRATION_ROOT}index.ts`;
+
+function administrationLayer(path) {
+  if (!path?.startsWith(ADMINISTRATION_ROOT)) return null;
+  return path.slice(ADMINISTRATION_ROOT.length).split('/')[0];
+}
+
+/** Administration uses the existing transport; its inner layers never depend on React state. */
+function administrationViolation(edge) {
+  const source = administrationLayer(edge.source);
+  const target = administrationLayer(edge.target);
+  if (!source && target && edge.target !== ADMINISTRATION_ENTRY) {
+    return [
+      'administration-public-entry',
+      'Import administration through @/features/administration.',
+    ];
+  }
+  if (!source) return null;
+  if (edge.target === null) {
+    return [
+      'administration-literal-import',
+      'Use a literal import so administration boundaries can be checked.',
+    ];
+  }
+  if (source === 'index.ts') return null;
+  const targetLayer = dependencyLayer(edge.target);
+  const transport =
+    ['transport', 'repositories', 'container'].includes(targetLayer) ||
+    /^@supabase\//.test(edge.specifier ?? '');
+  const reactState = /^(?:react(?:-dom)?|react-router(?:-dom)?|zustand)(?:\/|$)/.test(
+    edge.specifier ?? '',
+  );
+  if (
+    source === 'domain' &&
+    ((target && target !== 'domain') ||
+      transport ||
+      reactState ||
+      [
+        'pages',
+        'components',
+        'hooks',
+        'stores',
+        'auth',
+        'infrastructure',
+        'shared',
+        'services',
+      ].includes(targetLayer) ||
+      (targetLayer === 'features' && !target))
+  ) {
+    return [
+      'administration-domain-boundary',
+      'Keep administration contracts, validation and statistics independent of UI, hooks and transport.',
+    ];
+  }
+  if (
+    source === 'infrastructure' &&
+    (['ui', 'hooks', 'index.ts'].includes(target) ||
+      reactState ||
+      ['pages', 'components', 'hooks', 'stores', 'auth'].includes(targetLayer))
+  ) {
+    return [
+      'administration-infrastructure-boundary',
+      'Use domain contracts and the existing Supabase or repository entry from administration infrastructure.',
+    ];
+  }
+  if (source === 'hooks' && (['ui', 'index.ts'].includes(target) || transport)) {
+    return [
+      'administration-hooks-boundary',
+      'Load administration data through its infrastructure layer; hooks must not import UI.',
+    ];
+  }
+  if (source === 'ui' && (target === 'infrastructure' || transport)) {
+    return [
+      'administration-ui-boundary',
+      'Read and mutate administration data through hooks, keeping transport in infrastructure.',
+    ];
+  }
+  return null;
+}
+
 function findReachableImports(graph, roots, predicate, { includeTypes = true } = {}) {
   const outgoing = new Map(graph.nodes.map((node) => [node, []]));
   for (const edge of graph.edges) outgoing.get(edge.source)?.push(edge);
@@ -323,6 +408,16 @@ function findReachableImports(graph, roots, predicate, { includeTypes = true } =
 export function checkBusinessBoundaries(graph) {
   const violations = [];
   for (const edge of graph.edges) {
+    const administration = administrationViolation(edge);
+    if (administration) {
+      const [rule, guidance] = administration;
+      violations.push({
+        ...edge,
+        rule,
+        chain: [edge.source, edge.target],
+        message: `${edge.source}:${edge.line} imports ${edge.specifier ?? '<computed import>'}. ${guidance}`,
+      });
+    }
     if (
       edge.source.startsWith('src/features/') &&
       (edge.target?.startsWith('src/components/CombatUI/') ||

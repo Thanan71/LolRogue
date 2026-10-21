@@ -2,6 +2,26 @@
 
 Dernière validation bundle : **21 octobre 2026**, Node 24 et Vite **8.3.5**.
 
+## ADM-S7 — isolation de l’interface
+
+Parent `dev` indépendant : `bafc1c18969d7484aa9d511682fd035acb94b5b3`, clone
+propre et cache npm vide, Node **24.19.0**. Le parent mesure **694 022 octets JS
+gzip**, **226 971 initiaux**, **231 774 pour Auth** et **8 253 013 d’assets**.
+La fermeture Auth contient **10 entrées sans module admin**.
+
+La migration de 97 modules vers `features/administration` conserve les imports
+différés Équilibrage/Modération/Surveillance et l’entrée de route légère.
+Le candidat local validé mesure **699 097 octets JS gzip** (**+5 075**),
+**227 272 initiaux** (**+301**), **232 069 pour Auth** (**+295**) et
+**8 270 304 d’assets** (**+17 291**). Sa marge JS est de **10,37 %** et Auth
+conserve **10 entrées sans module admin**. Aucun budget n’est ajusté ; build,
+sécurité et typecheck passent localement.
+
+La reconstruction indépendante finale, ses mesures et la CI/Preview restent à
+rattacher au SHA livré dans la PR vers `dev`. Aucune nouvelle mesure Web Vitals
+n’est déduite de ces tailles de bundle. Voir la
+[validation S7](admin-s7-validation-2026-10-21.md).
+
 ## ADM-S6 — surveillance technique
 
 Les mesures parent/candidat ci-dessous proviennent de la campagne du 18 octobre.

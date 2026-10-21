@@ -4,7 +4,7 @@ import {
   parseAdminAnalyticsFunnel,
   parseAdminAnalyticsRetention,
   parseAdminAnalyticsSeries,
-} from '@/pages/admin/analytics/adminAnalyticsClient';
+} from '@/features/administration/domain/analytics/adminAnalyticsParser';
 import {
   analyticsAttempt,
   analyticsCombat,
@@ -82,7 +82,11 @@ describeDatabase('admin temporal aggregates on retained server events', () => {
       `INSERT INTO public.run_attempts SELECT (jsonb_populate_record(NULL::public.run_attempts,to_jsonb(t)||jsonb_build_object('id',gen_random_uuid(),'run_uuid','attempt_'||gen_random_uuid(),'start_command_id',gen_random_uuid()))).* FROM public.run_attempts t CROSS JOIN generate_series(1,1004)n WHERE t.id='${attempt.id}';`;
     const value = analyticsScenario(admin, [a], setup, analyticsRpc('series', filters));
     expect(value.buckets).toHaveLength(1);
-    expect(value.buckets[0]).toMatchObject({ starts: 1005, activePlayers: 1, verifiedFinishes: 0 });
+    expect(value.buckets[0]).toMatchObject({
+      starts: 1005,
+      activePlayers: 1,
+      verifiedFinishes: 0,
+    });
     expect(() => parseAdminAnalyticsSeries(value, filters)).not.toThrow();
   });
 
@@ -134,7 +138,11 @@ describeDatabase('admin temporal aggregates on retained server events', () => {
   });
 
   it('anchors weeks on Monday, clips leap-day bounds and labels the current partial bucket', () => {
-    const f = { from: '2024-02-28', to: '2024-03-05', granularity: 'week' } as const;
+    const f = {
+      from: '2024-02-28',
+      to: '2024-03-05',
+      granularity: 'week',
+    } as const;
     const value = analyticsScenario(
       admin,
       [a],
@@ -164,7 +172,10 @@ describeDatabase('admin temporal aggregates on retained server events', () => {
       ['2024-02-01T00:00:00Z', 'covered'],
     ]) {
       const value = analyticsScenario(admin, [a], '', analyticsRpc('series', filters), { marker });
-      expect(value.acquisitions[0]).toMatchObject({ sourceCoverage: expected, isPartial: false });
+      expect(value.acquisitions[0]).toMatchObject({
+        sourceCoverage: expected,
+        isPartial: false,
+      });
       expect(() => parseAdminAnalyticsSeries(value, filters)).not.toThrow();
     }
   });
@@ -172,7 +183,11 @@ describeDatabase('admin temporal aggregates on retained server events', () => {
   it('assigns activity age at each event clock and leaves acquisitions global under filters', () => {
     const attempt = analyticsAttempt(templateId, a, '2024-02-01T23:00:00Z');
     const setup = attempt.sql + analyticsFinish(attempt.id, a, '2024-02-02T00:00:00Z');
-    const f = { from: '2024-02-01', to: '2024-02-02', accountAge: 'new' } as const;
+    const f = {
+      from: '2024-02-01',
+      to: '2024-02-02',
+      accountAge: 'new',
+    } as const;
     const value = analyticsScenario(admin, [a], setup, analyticsRpc('series', f));
     expect(
       value.buckets.map((row: { starts: number; verifiedFinishes: number }) => [
@@ -221,7 +236,9 @@ describeDatabase('admin temporal aggregates on retained server events', () => {
     const first = analyticsAttempt(templateId, a, '2024-02-01T23:59:59Z');
     const d1 = analyticsAttempt(templateId, a, '2024-02-02T00:00:00Z');
     const d2 = analyticsAttempt(templateId, a, '2024-02-03T00:00:00Z');
-    const d7 = analyticsAttempt(templateId, a, '2024-02-08T00:00:00Z', { difficulty: 'hard' });
+    const d7 = analyticsAttempt(templateId, a, '2024-02-08T00:00:00Z', {
+      difficulty: 'hard',
+    });
     const d30 = analyticsAttempt(templateId, a, '2024-03-02T00:00:00Z');
     const value = analyticsScenario(
       admin,
@@ -277,7 +294,9 @@ describeDatabase('admin temporal aggregates on retained server events', () => {
   it('keeps the ordered funnel in the first attempt and restricts return to a later UTC day', () => {
     const first = analyticsAttempt(templateId, a, '2024-02-01T01:00:00Z');
     const sameDay = analyticsAttempt(templateId, a, '2024-02-01T04:00:00Z');
-    const nextDay = analyticsAttempt(templateId, a, '2024-02-02T00:00:00Z', { difficulty: 'hard' });
+    const nextDay = analyticsAttempt(templateId, a, '2024-02-02T00:00:00Z', {
+      difficulty: 'hard',
+    });
     const afterHorizon = analyticsAttempt(templateId, a, '2024-02-09T00:00:00Z');
     const setup =
       first.sql +
@@ -423,7 +442,9 @@ describeDatabase('admin temporal aggregates on retained server events', () => {
     { ...filters, gameplayVersion: 1.5 },
     { ...filters, mode: 'guest' },
   ])('rejects invalid/missing/future/unbounded filters: %j', async (invalid) => {
-    const response = await admin.client.rpc('admin_analytics_series', { p_filters: invalid });
+    const response = await admin.client.rpc('admin_analytics_series', {
+      p_filters: invalid,
+    });
     expect(response.data).toBeNull();
     expect(response.error?.code).toBe('22023');
   });

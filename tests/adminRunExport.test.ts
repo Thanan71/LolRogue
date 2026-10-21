@@ -4,7 +4,7 @@ import {
   AdminRunExportError,
   buildAdminExplorerCsv,
   validateRunExport,
-} from '@/pages/admin/runs/adminRunExport';
+} from '@/features/administration/domain/runs/adminRunExport';
 
 describe('admin run export integrity', () => {
   const signal = new AbortController().signal;

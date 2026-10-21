@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page, test } from '@playwright/test';
-import type { AnalyticsFilters } from '../src/pages/admin/analytics/analyticsTypes';
+import type { AnalyticsFilters } from '../src/features/administration/domain/analytics/analyticsTypes';
 import {
   adminFunnelUiFixture,
   adminRetentionUiFixture,
@@ -18,13 +18,18 @@ async function analyticsBackend(page: Page) {
   await page.route('**/rest/v1/**', async (route) => {
     const name = new URL(route.request().url()).pathname.split('/').pop();
     if (name?.startsWith('admin_analytics_')) {
-      const args = route.request().postDataJSON() as { p_filters: AnalyticsFilters };
+      const args = route.request().postDataJSON() as {
+        p_filters: AnalyticsFilters;
+      };
       if (name === 'admin_analytics_series') {
         api.series.push(args.p_filters);
         if (api.failSeries)
           await route.fulfill({
             status: 500,
-            json: { code: 'XX000', message: 'Controlled analytics read failure' },
+            json: {
+              code: 'XX000',
+              message: 'Controlled analytics read failure',
+            },
           });
         else await route.fulfill({ json: adminSeriesUiFixture(args.p_filters) });
       } else if (name === 'admin_analytics_retention') {
@@ -50,7 +55,10 @@ async function analyticsBackend(page: Page) {
     }
     await route.fulfill({
       json: [],
-      headers: { 'access-control-expose-headers': 'content-range', 'content-range': '*/0' },
+      headers: {
+        'access-control-expose-headers': 'content-range',
+        'content-range': '*/0',
+      },
     });
   });
   return api;
@@ -112,7 +120,7 @@ test('French UTC charts preserve the chosen metric across filters, tabs and an i
   expect(api.retention).toHaveLength(retentionCount);
   expect(api.funnel).toHaveLength(funnelCount);
   await expect(series.getByLabel('Indicateur affiché')).toHaveValue('starts');
-  await page.getByRole('tab', { name: /Tableau de bord/ }).click();
+  await page.getByRole('tab', { name: /Vue globale/ }).click();
   await page.getByRole('tab', { name: /Analyses temporelles/ }).click();
   await expect(series.getByLabel('Indicateur affiché')).toHaveValue('starts');
   await expect(panel.getByLabel('Date de début incluse (UTC)')).toHaveValue('2026-10-01');
@@ -135,7 +143,9 @@ test('retention distinguishes observed history, eligible N and immature horizons
   await expect(historical.locator('[data-status="unavailable"]')).toHaveCount(3);
   await expect(historical.getByRole('group').first()).toContainText('1 / 4');
   await expect(
-    historical.getByText('Comptes éligibles à cet horizon (N) : 0', { exact: true }),
+    historical.getByText('Comptes éligibles à cet horizon (N) : 0', {
+      exact: true,
+    }),
   ).toHaveCount(3);
   const small = retention.getByRole('row').nth(2);
   await expect(small).toContainText('4 oct. 2026');

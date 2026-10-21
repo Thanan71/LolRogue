@@ -27,7 +27,7 @@ function readPageLocalizationSource(path: string, visited = new Set<string>()): 
       ? new URL(`../src/${specifier.slice(2)}`, import.meta.url)
       : new URL(specifier, url);
     if (!base.pathname.includes('/src/features/')) return [];
-    const child = ['.tsx', '.ts']
+    const child = ['.tsx', '.ts', '/index.tsx', '/index.ts']
       .map((extension) => new URL(`${base.href}${extension}`))
       .find(existsSync);
     if (!child) return [];
@@ -239,6 +239,21 @@ describe('contrat de langue française', () => {
       expect(source, `${path} doit utiliser une source i18n`).toMatch(/@\/i18n\//u);
       for (const copy of FORBIDDEN_RAW_COPY) expect(source).not.toContain(copy);
     }
+  });
+
+  it('suit les façades de route via leur API publique jusqu’à la vue réellement affichée', () => {
+    const visited = new Set<string>();
+    const source = readPageLocalizationSource('src/pages/AdminPage.tsx', visited);
+    expect(visited).toContain('src/features/administration/index.ts');
+    expect(visited).toContain('src/features/administration/ui/AdministrationScreen.tsx');
+    expect(source).toContain(
+      readFileSync(
+        new URL('../src/features/administration/ui/AdministrationScreen.tsx', import.meta.url),
+        'utf8',
+      ),
+    );
+    expect(source).toMatch(/@\/i18n\//u);
+    for (const copy of FORBIDDEN_RAW_COPY) expect(source).not.toContain(copy);
   });
 
   it('raccorde les composants porteurs de texte au dictionnaire et interdit les anciens libellés anglais', () => {

@@ -10,18 +10,20 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
+import { useAdministrationNavigation } from '@/features/administration/hooks/useAdministrationNavigation';
 import { getAdminModerationCopy } from '@/i18n/adminModeration';
-import AdminModerationWorkspace from '@/pages/admin/moderation/AdminModerationWorkspace';
+import AdminModerationWorkspace from '@/features/administration/ui/moderation/AdminModerationWorkspace';
 import {
   appliedModerationFilters,
   EMPTY_MODERATION_DRAFT,
-} from '@/pages/admin/moderation/moderationFilterDraft';
-import type { ModerationQueue } from '@/pages/admin/moderation/moderationTypes';
+} from '@/features/administration/domain/moderation/moderationFilterDraft';
+import type { ModerationQueue } from '@/features/administration/domain/moderation/moderationTypes';
 import {
   type AdminModeration,
   useAdminModeration,
-} from '@/pages/admin/moderation/useAdminModeration';
-import { ADMIN_REQUEST_TIMEOUT_MS } from '@/pages/admin/useAdminSection';
+} from '@/features/administration/hooks/moderation/useAdminModeration';
+import { ADMIN_REQUEST_TIMEOUT_MS } from '@/features/administration/hooks/useAdminSection';
 import { useAuthStore } from '@/stores/authStore';
 import {
   moderationDecisionFixture,
@@ -32,8 +34,12 @@ import {
   moderationReceiptFixture,
 } from './helpers/adminModerationFixtures';
 
-const mocks = vi.hoisted(() => ({ queue: vi.fn(), history: vi.fn(), decide: vi.fn() }));
-vi.mock('@/pages/admin/moderation/moderationClient', () => ({
+const mocks = vi.hoisted(() => ({
+  queue: vi.fn(),
+  history: vi.fn(),
+  decide: vi.fn(),
+}));
+vi.mock('@/features/administration/infrastructure/moderation/moderationClient', () => ({
   fetchModerationQueue: mocks.queue,
   fetchModerationHistory: mocks.history,
   sendModerationDecision: mocks.decide,
@@ -94,13 +100,23 @@ describe('moderation filters and resource lifetime', () => {
       dailyRunId: null,
     });
     expect(() =>
-      appliedModerationFilters({ ...EMPTY_MODERATION_DRAFT, from: '2026-02-30' }),
+      appliedModerationFilters({
+        ...EMPTY_MODERATION_DRAFT,
+        from: '2026-02-30',
+      }),
     ).toThrow();
     expect(() =>
-      appliedModerationFilters({ ...EMPTY_MODERATION_DRAFT, from: '2026-02-03', to: '2026-02-01' }),
+      appliedModerationFilters({
+        ...EMPTY_MODERATION_DRAFT,
+        from: '2026-02-03',
+        to: '2026-02-01',
+      }),
     ).toThrow();
     expect(() =>
-      appliedModerationFilters({ ...EMPTY_MODERATION_DRAFT, dailyRunId: 'partial' }),
+      appliedModerationFilters({
+        ...EMPTY_MODERATION_DRAFT,
+        dailyRunId: 'partial',
+      }),
     ).toThrow();
   });
   it.each([
@@ -278,7 +294,10 @@ describe('audited decision lifecycle', () => {
     expect(mocks.decide.mock.lastCall![0]).toEqual(request);
   });
   it('requires a fresh case selection after an explicit PostgreSQL rejection', async () => {
-    mocks.decide.mockRejectedValueOnce({ code: '22023', message: 'private detail' });
+    mocks.decide.mockRejectedValueOnce({
+      code: '22023',
+      message: 'private detail',
+    });
     const { result } = renderHook(() => useAdminModeration());
     await selected(result);
     await act(async () => {
@@ -392,7 +411,10 @@ describe('audited decision lifecycle', () => {
       const request = moderationDecisionFixture();
       if (variant === 'receipt')
         mocks.decide.mockResolvedValueOnce(
-          moderationReceiptFixture(request, { outcome: 'rejected', code: 'admin_access_denied' }),
+          moderationReceiptFixture(request, {
+            outcome: 'rejected',
+            code: 'admin_access_denied',
+          }),
         );
       else mocks.decide.mockRejectedValueOnce({ code: '42501' });
       const { result } = renderHook(() => useAdminModeration());
@@ -443,7 +465,9 @@ describe('moderation accessible action preparation', () => {
     }
     const { rerender } = render(<View active />);
     fireEvent.click(
-      await screen.findByRole('button', { name: `${copy.view} ${moderationFixtureIds.report}` }),
+      await screen.findByRole('button', {
+        name: `${copy.view} ${moderationFixtureIds.report}`,
+      }),
     );
     expect(screen.getByRole('heading', { name: copy.caseTitle })).toHaveFocus();
     await waitFor(() =>
@@ -467,10 +491,14 @@ describe('moderation accessible action preparation', () => {
       </>,
     );
     fireEvent.click(
-      await screen.findByRole('button', { name: `${copy.view} ${moderationFixtureIds.report}` }),
+      await screen.findByRole('button', {
+        name: `${copy.view} ${moderationFixtureIds.report}`,
+      }),
     );
     expect(screen.getByRole('heading', { name: copy.caseTitle })).toHaveFocus();
-    const reason = await screen.findByRole('textbox', { name: copy.decisionReason });
+    const reason = await screen.findByRole('textbox', {
+      name: copy.decisionReason,
+    });
     await waitFor(() => expect(reason).toBeEnabled());
     expect(reason).toHaveValue('');
     fireEvent.change(screen.getByRole('combobox', { name: copy.action }), {
@@ -488,7 +516,9 @@ describe('moderation accessible action preparation', () => {
     expect(submit).toBeDisabled();
     fireEvent.change(confirmation, { target: { value: 'different-target' } });
     expect(submit).toBeDisabled();
-    fireEvent.change(confirmation, { target: { value: moderationFixtureIds.dailyRun } });
+    fireEvent.change(confirmation, {
+      target: { value: moderationFixtureIds.dailyRun },
+    });
     fireEvent.click(submit);
     fireEvent.click(submit);
     await screen.findByText(copy.saved);
@@ -506,7 +536,9 @@ describe('moderation accessible action preparation', () => {
     mocks.queue.mockResolvedValueOnce(
       moderationQueueFixture({
         rows: [
-          moderationQueueRowFixture({ target: { invalidatedAt: '2020-01-02T12:00:00+00:00' } }),
+          moderationQueueRowFixture({
+            target: { invalidatedAt: '2020-01-02T12:00:00+00:00' },
+          }),
         ],
       }),
     );
@@ -517,7 +549,9 @@ describe('moderation accessible action preparation', () => {
       </>,
     );
     fireEvent.click(
-      await screen.findByRole('button', { name: `${copy.view} ${moderationFixtureIds.report}` }),
+      await screen.findByRole('button', {
+        name: `${copy.view} ${moderationFixtureIds.report}`,
+      }),
     );
     await waitFor(() =>
       expect(screen.getByRole('textbox', { name: copy.decisionReason })).toBeEnabled(),
@@ -533,5 +567,62 @@ describe('moderation accessible action preparation', () => {
       expect(value.invalidateScope).not.toBe(value.dismissScope);
       expect(value.unknown).toMatch(/UUID|request|demande/);
     }
+  });
+});
+
+describe('moderation URL applied context', () => {
+  it('hydrates, applies once and restores matching first-page filters with browser history', async () => {
+    const row = moderationQueueRowFixture();
+    const cursor = { createdAt: row.createdAt, id: row.reportId };
+    mocks.queue.mockImplementation(async (request) =>
+      moderationQueueFixture({
+        status: request.status,
+        total: 101,
+        nextCursor: request.cursor ? null : cursor,
+      }),
+    );
+    const initial = `/admin?group=moderation&view=queue&moderation=${encodeURIComponent(JSON.stringify({ status: 'open' }))}`;
+    const { result } = renderHook(
+      () => {
+        const navigation = useAdministrationNavigation();
+        return {
+          navigation,
+          history: useNavigate(),
+          moderation: useAdminModeration(true, navigation),
+        };
+      },
+      {
+        wrapper: ({ children }) => (
+          <MemoryRouter initialEntries={[initial]}>{children}</MemoryRouter>
+        ),
+      },
+    );
+    const resource = {
+      get current() {
+        return result.current.moderation;
+      },
+    };
+    await ready(resource);
+    expect(mocks.queue).toHaveBeenCalledOnce();
+    act(() => result.current.moderation.navigateQueue('next'));
+    await ready(resource);
+    expect(result.current.moderation.queuePage).toBe(2);
+    act(() => result.current.moderation.changeDraft('status', 'dismissed'));
+    act(() => result.current.moderation.apply());
+    await ready(resource);
+    expect(result.current.navigation.location.contexts.moderation?.status).toBe('dismissed');
+    expect(mocks.queue).toHaveBeenCalledTimes(3);
+    act(() => result.current.moderation.navigateQueue('next'));
+    await ready(resource);
+    expect(mocks.queue.mock.lastCall?.[0]).toMatchObject({ status: 'dismissed', cursor });
+    act(() => result.current.history(-1));
+    await ready(resource);
+    expect(mocks.queue.mock.lastCall?.[0]).toMatchObject({
+      status: 'open',
+      cursor: null,
+      snapshotAt: null,
+    });
+    expect(result.current.moderation.queuePage).toBe(1);
+    expect(result.current.moderation.draft.status).toBe('open');
   });
 });

@@ -87,6 +87,15 @@ correspondant est sain. Préparer et tester ce déploiement avant promotion,
 consigner son identifiant, et conserver les protections d’accès de la migration.
 Ce candidat ne rétablit pas le comportement brut pré-S6.
 
+ADM-S7 n’ajoute aucun SQL : restaurer un frontend précédent compatible avec les
+73 migrations et `admin_diagnostics` suffit pour retirer sa nouvelle interface.
+Vérifier le checkpoint, ses variables et le smoke test avant restauration ; le
+[rapport S7](admin-s7-validation-2026-10-21.md) ne prouve aucun déploiement distant
+sain. Ne pas réactiver les lectures brutes de logs, rejouer des écritures de
+modération ni effacer le contexte serveur. Conserver les migrations, journaux,
+versions et archives authority immuables. Les limites historiques des
+[contrats admin](administration.md) restent valables après retour arrière.
+
 Critères : rollback si Auth, démarrage, reprise ou finalisation d'une run échoue au
 smoke test, si le taux d'erreur critique augmente durablement, ou si une migration
 et son client ne peuvent être rendus compatibles en 30 minutes. Après rollback,

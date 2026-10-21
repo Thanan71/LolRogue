@@ -4,7 +4,7 @@ Le panneau `/admin` présente les statistiques, joueurs, runs et logs. La garde
 React améliore l'expérience, mais l'autorisation réelle est imposée par PostgreSQL
 avec RLS et `is_current_user_admin()`.
 
-L'application 0.2.12 expose quinze indicateurs avec leur définition FR/EN et des
+L'application 0.2.13 expose quinze indicateurs avec leur définition FR/EN et des
 totaux serveur distincts des lignes affichées. Le [contrat des métriques](admin-metrics.md)
 précise les connexions du jour UTC, le registre Candies, les valeurs inconnues,
 les droits et les limites des exports. La migration
@@ -32,6 +32,17 @@ explicites. Il réutilise la calibration existante et lit les versions/flags san
 action de mutation. Il nécessite la migration
 `20261018073001_admin_balance_workspace.sql`. ADM-20 reste en attente de TREE-10 ;
 son panneau ne reconstruit aucune métrique d’arbre depuis les soldes Candies.
+
+## Interface ADM-S7
+
+L’[interface 0.2.13](admin-interface.md) organise les six groupes Vue globale,
+Joueurs, Runs, Équilibrage, Modération et Surveillance. L’URL conserve les filtres
+appliqués et les sélections indépendantes de joueur/run, sans JWT, curseur ou DTO.
+Les rôles et les contrats de données ci-dessous restent les sources de vérité.
+Les tables à colonnes essentielles et les parcours FR/EN/clavier/zoom ont des
+[preuves automatisées locales](admin-s7-validation-2026-10-21.md) ; VoiceOver et
+NVDA restent à vérifier humainement. S7 ne modifie ni SQL, ni permissions, ni
+versions authority. La PR, la CI/Preview et le déploiement ont leurs gates propres.
 
 ## Promouvoir un administrateur
 

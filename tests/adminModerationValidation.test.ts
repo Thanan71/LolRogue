@@ -5,7 +5,7 @@ import type {
   ModerationQueue,
   ModerationQueueRequest,
   ModerationReceipt,
-} from '@/pages/admin/moderation/moderationTypes';
+} from '@/features/administration/domain/moderation/moderationTypes';
 import {
   moderationDate,
   moderationUuid,
@@ -15,7 +15,7 @@ import {
   parseModerationReceipt,
   validateModerationDecision,
   validateModerationFilters,
-} from '@/pages/admin/moderation/moderationValidation';
+} from '@/features/administration/domain/moderation/moderationValidation';
 import {
   moderationDecisionFixture,
   moderationHistoryFixture,
@@ -411,7 +411,11 @@ describe('bounded moderation queue projections', () => {
     reversed.total = 2;
     reversed.counts.open = 2;
     reversed.rows[0].createdAt = at;
-    reversed.rows.push({ ...reversed.rows[0], reportId: runId, createdAt: before });
+    reversed.rows.push({
+      ...reversed.rows[0],
+      reportId: runId,
+      createdAt: before,
+    });
     expect(() => parseModerationQueue(reversed)).toThrow();
     reversed.rows.reverse();
     expect(parseModerationQueue(reversed).rows).toHaveLength(2);

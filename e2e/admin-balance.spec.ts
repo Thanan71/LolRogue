@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page, test } from '@playwright/test';
-import type { BalanceFilters } from '../src/pages/admin/balance/balanceTypes';
+import type { BalanceFilters } from '../src/features/administration/domain/balance/balanceTypes';
 import {
   balanceBuildFixture,
   balanceChampionFixture,
@@ -28,7 +28,10 @@ async function balanceBackend(page: Page) {
       if (name === 'admin_balance_champions') {
         api.champions.push(filters);
         if (api.denyChampions) {
-          await route.fulfill({ status: 403, json: { code: '42501', message: 'Admin required' } });
+          await route.fulfill({
+            status: 403,
+            json: { code: '42501', message: 'Admin required' },
+          });
           return;
         }
         if (api.failChampions) {
@@ -59,7 +62,10 @@ async function balanceBackend(page: Page) {
     }
     await route.fulfill({
       json: [],
-      headers: { 'access-control-expose-headers': 'content-range', 'content-range': '*/0' },
+      headers: {
+        'access-control-expose-headers': 'content-range',
+        'content-range': '*/0',
+      },
     });
   });
   return api;
@@ -67,7 +73,11 @@ async function balanceBackend(page: Page) {
 
 async function openBalance(page: Page, language: 'fr-FR' | 'en-US' = 'fr-FR') {
   await enterAdminExplorer(page, language);
-  await page.getByRole('tab', { name: language === 'fr-FR' ? /Équilibrage/ : /Balance/ }).click();
+  await page
+    .getByRole('tab', {
+      name: language === 'fr-FR' ? /Équilibrage/ : /Balance/,
+    })
+    .click();
   const panel = page.locator('#admin-panel-balance');
   await expect(panel.locator('#admin-balance-final-champions table')).toBeVisible();
   await expect(panel.locator('#admin-balance-picks table')).toBeVisible();
@@ -83,18 +93,22 @@ test('balance has one dedicated tab, versioned populations and independent stale
   const api = await balanceBackend(page);
   const panel = await openBalance(page);
   await expect(page.getByRole('tab', { name: /Équilibrage/ })).toHaveCount(1);
-  const form = panel.getByRole('form', { name: 'Équilibrage : période et population' });
+  const form = panel.getByRole('form', {
+    name: 'Équilibrage : période et population',
+  });
   await form.getByLabel('Début inclus (UTC)', { exact: true }).fill('2026-10-01');
   await form.getByLabel('Fin incluse (UTC)', { exact: true }).fill('2026-10-17');
   await form.getByRole('combobox', { name: 'Difficulté', exact: true }).selectOption('hard');
   await form.getByRole('button', { name: 'Appliquer les filtres', exact: true }).click();
   const champions = panel.locator('#admin-balance-champions');
   await expect(champions).toHaveAttribute('aria-busy', 'false');
-  expect(api.champions.at(-1)).toMatchObject({
-    from: '2026-10-01',
-    to: '2026-10-17',
-    difficulty: 'hard',
-  });
+  await expect
+    .poll(() => api.champions.at(-1))
+    .toMatchObject({
+      from: '2026-10-01',
+      to: '2026-10-17',
+      difficulty: 'hard',
+    });
   expect(api.builds.at(-1)).toEqual(api.champions.at(-1));
   await expect(champions).toContainText('run-engine-0.2.5');
   await expect(champions).toContainText(/moins de 30 comptes/);
@@ -113,10 +127,15 @@ test('balance has one dedicated tab, versioned populations and independent stale
   await expect(champions).toHaveAttribute('aria-busy', 'false');
   expect(api.builds).toHaveLength(buildReads);
   expect(api.configReads).toBe(configReads);
+  await page.getByRole('tab', { name: /Surveillance/ }).click();
   await page.getByRole('tab', { name: /Autorité/ }).click();
   await expect(page.locator('#admin-panel-authority .field-calibration')).toHaveCount(0);
   await page.getByRole('tab', { name: /Équilibrage/ }).click();
-  await expect(panel.locator('.field-calibration')).toHaveCount(1);
+  await expect(panel.locator('.field-calibration')).toHaveCount(0);
+  await page.getByRole('tab', { name: 'Calibration terrain', exact: true }).click();
+  const calibration = page.locator('#admin-panel-calibration');
+  await expect(calibration.locator('.field-calibration')).toHaveCount(1);
+  await page.getByRole('tab', { name: 'Rapports', exact: true }).click();
   await expect(form.getByRole('combobox', { name: 'Difficulté', exact: true })).toHaveValue('hard');
   await captureLoadedAdminPage(page, info, 'admin-balance-desktop-fr');
 });
@@ -127,7 +146,9 @@ test('English balance reflows at320px with keyboard tables, honest missing metri
   await page.setViewportSize({ width: 320, height: 780 });
   await balanceBackend(page);
   const panel = await openBalance(page, 'en-US');
-  const form = panel.getByRole('form', { name: 'Balance: period and population' });
+  const form = panel.getByRole('form', {
+    name: 'Balance: period and population',
+  });
   await form.getByRole('combobox', { name: 'Difficulty', exact: true }).selectOption('easy');
   await form.getByRole('button', { name: 'Apply filters', exact: true }).focus();
   await page.keyboard.press('Enter');

@@ -1,4 +1,7 @@
-import type { AdminAttemptItem, AdminRunItem } from '@/pages/admin/runs/adminRunContracts';
+import type {
+  AdminAttemptItem,
+  AdminRunItem,
+} from '@/features/administration/domain/runs/adminRunContracts';
 
 export const runSnapshot = '2026-10-17T10:00:00.000Z';
 
@@ -94,7 +97,13 @@ export function adminAttemptFixture(overrides: Partial<AdminAttemptItem> = {}): 
 }
 
 export function adminRunPageFixture(items = [adminRunFixture()]) {
-  return { items, total: items.length, hasMore: false, nextCursor: null, snapshotAt: runSnapshot };
+  return {
+    items,
+    total: items.length,
+    hasMore: false,
+    nextCursor: null,
+    snapshotAt: runSnapshot,
+  };
 }
 
 export function adminRunDetailFixture() {

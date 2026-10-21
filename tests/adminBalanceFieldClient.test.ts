@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fetchAdminBalanceField } from '@/pages/admin/balance/adminBalanceFieldClient';
+import { fetchAdminBalanceField } from '@/features/administration/infrastructure/balance/adminBalanceFieldClient';
 
 const mocks = vi.hoisted(() => ({
   from: vi.fn(),

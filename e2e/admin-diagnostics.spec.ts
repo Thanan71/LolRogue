@@ -3,8 +3,8 @@ import { expect, type Page, test } from '@playwright/test';
 import type {
   DiagnosticsRequest,
   DiagnosticsSection,
-} from '../src/pages/admin/diagnostics/adminDiagnosticsTypes';
-import { validateDiagnosticsFilters } from '../src/pages/admin/diagnostics/adminDiagnosticsValidation';
+} from '../src/features/administration/domain/diagnostics/adminDiagnosticsTypes';
+import { validateDiagnosticsFilters } from '../src/features/administration/domain/diagnostics/adminDiagnosticsValidation';
 import {
   diagnosticsAggregate,
   diagnosticsAttempt,
@@ -22,7 +22,12 @@ async function diagnosticsBackend(page: Page) {
       method: index === 0 ? 'oldestLog' : 'sealRunAttempt',
     }),
   ).reverse();
-  const api = { logs, reads: [] as Record<string, unknown>[], failLogs: false, deny: false };
+  const api = {
+    logs,
+    reads: [] as Record<string, unknown>[],
+    failLogs: false,
+    deny: false,
+  };
   await page.route('**/rest/v1/**', async (route) => {
     const name = new URL(route.request().url()).pathname.split('/').pop();
     if (name !== 'admin_diagnostics') {
@@ -39,14 +44,20 @@ async function diagnosticsBackend(page: Page) {
       else
         await route.fulfill({
           json: [],
-          headers: { 'access-control-expose-headers': 'content-range', 'content-range': '*/0' },
+          headers: {
+            'access-control-expose-headers': 'content-range',
+            'content-range': '*/0',
+          },
         });
       return;
     }
     const input = route.request().postDataJSON() as Record<string, unknown>;
     api.reads.push(input);
     if (api.deny) {
-      await route.fulfill({ status: 403, json: { code: '42501', message: 'permission denied' } });
+      await route.fulfill({
+        status: 403,
+        json: { code: '42501', message: 'permission denied' },
+      });
       return;
     }
     const section = input.p_section as DiagnosticsSection;
@@ -61,7 +72,10 @@ async function diagnosticsBackend(page: Page) {
     }
     if (section === 'logs') {
       if (api.failLogs) {
-        await route.fulfill({ status: 503, json: { code: 'XX000', message: 'fixture failure' } });
+        await route.fulfill({
+          status: 503,
+          json: { code: 'XX000', message: 'fixture failure' },
+        });
         return;
       }
       const req = request('logs');
@@ -103,7 +117,13 @@ async function diagnosticsBackend(page: Page) {
       const result = diagnosticsResponse(req, {
         rows,
         total: rows.length,
-        counts: { started: 0, finished: 0, verified: 0, rejected: rows.length, expired: 0 },
+        counts: {
+          started: 0,
+          finished: 0,
+          verified: 0,
+          rejected: rows.length,
+          expired: 0,
+        },
       });
       result.data.alerts = {
         from: '2026-10-18T12:00:00Z',
@@ -122,7 +142,12 @@ async function diagnosticsBackend(page: Page) {
     await route.fulfill({
       json: diagnosticsResponse(request('correlation'), {
         attempt: diagnosticsAttempt(),
-        logs: { rows: [diagnosticsLog()], total: 1, nextCursor: null, retentionDays: 14 },
+        logs: {
+          rows: [diagnosticsLog()],
+          total: 1,
+          nextCursor: null,
+          retentionDays: 14,
+        },
       }),
     });
   });
@@ -130,6 +155,7 @@ async function diagnosticsBackend(page: Page) {
 }
 async function openLogs(page: Page, language: 'fr-FR' | 'en-US' = 'fr-FR') {
   await enterAdminExplorer(page, language);
+  await page.getByRole('tab', { name: /Monitoring|Surveillance/ }).click();
   await page.getByRole('tab', { name: /Logs|Journaux/ }).click();
   const panel = page.locator('#admin-panel-logs');
   await expect(panel.getByRole('table').first()).toBeVisible();
@@ -148,7 +174,10 @@ test('diagnostics : pagination serveur complète, corrélation et filtres UTC ex
   expect(api.reads.filter((read) => read.p_section === 'logs')).toHaveLength(5);
   await panel.getByRole('button', { name: 'Diagnostiquer cette tentative' }).click();
   await expect(
-    panel.getByRole('heading', { name: 'Corrélation d’une tentative', level: 2 }),
+    panel.getByRole('heading', {
+      name: 'Corrélation d’une tentative',
+      level: 2,
+    }),
   ).toBeFocused();
   await expect(panel.getByText('Journal client facultatif, couverture partielle')).toBeVisible();
   await panel.getByRole('button', { name: 'Fermer le diagnostic' }).click();
@@ -187,8 +216,10 @@ test('diagnostics : erreur indépendante, données périmées puis réessai', as
   await page.getByRole('tab', { name: /Authority|Autorité/ }).click();
   const authority = page.locator('#admin-panel-authority');
   await expect(authority.getByText('Investigation à ouvrir')).toBeVisible();
-  await expect(authority.getByText('Non instrumenté')).toHaveCount(3);
-  await expect(authority.getByText('Aucun signal instrumenté pour cette période.')).toBeVisible();
+  await page.getByRole('tab', { name: /État du service/ }).click();
+  const service = page.locator('#admin-panel-service');
+  await expect(service.getByText('Non instrumenté')).toHaveCount(3);
+  await expect(service.getByText('Aucun signal instrumenté pour cette période.')).toBeVisible();
 });
 
 test('diagnostics EN 320px : clavier, régions défilantes et accessibilité', async ({ page }) => {
@@ -201,7 +232,7 @@ test('diagnostics EN 320px : clavier, régions défilantes et accessibilité', a
     panel.getByRole('region', { name: 'Technical logs, horizontal scroll' }),
   ).toBeFocused();
   await page.getByRole('tab', { name: /Logs|Journaux/ }).focus();
-  await page.keyboard.press('ArrowLeft');
+  await page.keyboard.press('ArrowRight');
   const authority = page.locator('#admin-panel-authority');
   await expect(authority.getByText('Verification and incidents')).toBeVisible();
   await expect(page.getByRole('tab', { name: /Authority|Autorité/ })).toBeFocused();
@@ -225,7 +256,10 @@ test('diagnostics : retrait des droits purge journaux, tentative et corrélation
   const panel = await openLogs(page);
   await panel.getByRole('button', { name: 'Diagnostiquer cette tentative' }).first().click();
   await expect(
-    panel.getByRole('heading', { name: 'Corrélation d’une tentative', level: 2 }),
+    panel.getByRole('heading', {
+      name: 'Corrélation d’une tentative',
+      level: 2,
+    }),
   ).toBeVisible();
   api.deny = true;
   await panel.getByRole('button', { name: 'Actualiser', exact: true }).first().click();

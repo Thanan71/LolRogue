@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { describeAdminBalanceWinRate } from '@/pages/admin/balance/adminBalanceStatistics';
+import { describeAdminBalanceWinRate } from '@/features/administration/domain/balance/adminBalanceStatistics';
 
 describe('balance descriptive run outcomes', () => {
   it('distinguishes an empty population from zero observed victories', () => {

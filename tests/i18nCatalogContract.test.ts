@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { PATCH_NOTES } from '@/data/patchNotes';
+import { getAdminAccessibilityCopy } from '@/i18n/adminAccessibility';
 import { adminAnalyticsContent } from '@/i18n/adminAnalytics';
 import { getAdminBalanceCopy } from '@/i18n/adminBalance';
 import { getAdminDiagnosticsCopy } from '@/i18n/adminDiagnostics';
 import { adminExportContent } from '@/i18n/adminExportContent';
 import { getAdminFieldCalibrationCopy } from '@/i18n/adminFieldCalibration';
+import { getAdministrationCopy } from '@/i18n/administration';
 import { getAdminModerationCopy } from '@/i18n/adminModeration';
 import { authRecoveryContent } from '@/i18n/authRecoveryContent';
 import { championContent } from '@/i18n/championContent';
@@ -31,6 +33,14 @@ type LocaleCatalog = Readonly<Record<Locale, unknown>>;
 const i18nModules = import.meta.glob('../src/i18n/**/*.ts');
 
 const catalogs = {
+  adminAccessibility: {
+    'fr-FR': getAdminAccessibilityCopy('fr-FR'),
+    'en-US': getAdminAccessibilityCopy('en-US'),
+  },
+  administration: {
+    'fr-FR': getAdministrationCopy('fr-FR'),
+    'en-US': getAdministrationCopy('en-US'),
+  },
   adminAnalytics: adminAnalyticsContent,
   adminBalance: {
     'fr-FR': getAdminBalanceCopy('fr-FR'),
@@ -83,6 +93,8 @@ const catalogs = {
 // Every i18n module must either join this contract or identify its specialized
 // coverage. Discovering the files prevents new catalogs from silently opting out.
 const catalogModules = {
+  'adminAccessibility.ts': 'adminAccessibility',
+  'administration.ts': 'administration',
   'adminAnalytics.ts': 'adminAnalytics',
   'adminBalance.ts': 'adminBalance',
   'adminModeration.ts': 'adminModeration',
@@ -132,6 +144,9 @@ type InvariantRule = string | RegExp;
 const intentionallyIdenticalPaths: Readonly<
   Record<Exclude<keyof typeof catalogs, 'main'>, readonly InvariantRule[]>
 > = {
+  adminAccessibility: [],
+  // Runs is the established product term in both locales.
+  administration: ['$.groups.runs'],
   adminAnalytics: [
     '$.utc',
     '$.source',
@@ -242,6 +257,8 @@ const intentionallyIdenticalPaths: Readonly<
 const intentionallyIdenticalFunctionPaths: Readonly<
   Record<keyof typeof catalogs, readonly string[]>
 > = {
+  adminAccessibility: [],
+  administration: [],
   adminAnalytics: [],
   adminBalance: [],
   adminModeration: [],

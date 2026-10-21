@@ -6,7 +6,7 @@ import {
   hasAuthorityFeature,
   isKnownAuthorityEngine,
 } from '@/game/authority/versionRegistry';
-import { parseAdminDiagnostics } from '@/pages/admin/diagnostics/adminDiagnosticsParser';
+import { parseAdminDiagnostics } from '@/features/administration/domain/diagnostics/adminDiagnosticsParser';
 import { AccountProgressionService } from '@/services/accountProgressionService';
 import { RepositoryContainer } from '@/services/container/RepositoryContainer';
 import {
@@ -199,7 +199,10 @@ describeLive('repositories against migrated local Supabase', () => {
 
     const initial = await repository.getPlayer(fixture.userId);
     expect(initial.error).toBeNull();
-    expect(initial.data).toMatchObject({ id: fixture.playerId, total_candies: 250 });
+    expect(initial.data).toMatchObject({
+      id: fixture.playerId,
+      total_candies: 250,
+    });
 
     const updated = await repository.updateProfile(fixture.userId, {
       display_name: `Integrated ${fixture.suffix}`.slice(0, 100),
@@ -324,7 +327,11 @@ describeLive('repositories against migrated local Supabase', () => {
     const player = await service.loadPlayer(scope);
     expect(player).toMatchObject({
       status: 'loaded',
-      data: { id: fixture.playerId, user_id: fixture.userId, total_candies: 250 },
+      data: {
+        id: fixture.playerId,
+        user_id: fixture.userId,
+        total_candies: 250,
+      },
     });
     const progression = await service.loadEnhancements(scope);
     expect(progression.status).toBe('loaded');
@@ -350,7 +357,9 @@ describeLive('repositories against migrated local Supabase', () => {
         status: 'loaded',
         data: [],
       });
-      const progression = await service.loadEnhancements({ userId: fixture.userId });
+      const progression = await service.loadEnhancements({
+        userId: fixture.userId,
+      });
       expect(progression).toEqual({
         status: 'loaded',
         data: { states: new Map(), masteries: [] },
@@ -405,11 +414,16 @@ describeLive('repositories against migrated local Supabase', () => {
       expect.arrayContaining([expect.objectContaining({ stat_name: 'total_players' })]),
     );
     expect(players.error).toBeNull();
-    expect(players.data).toMatchObject({ id: fixture.playerId, total_candies: 250 });
+    expect(players.data).toMatchObject({
+      id: fixture.playerId,
+      total_candies: 250,
+    });
     expect(runs.error).toBeNull();
     expect(runs.data).toMatchObject({
       id: fixture.runId,
-      player_display_name: { display_name: expect.stringContaining('Integrated') },
+      player_display_name: {
+        display_name: expect.stringContaining('Integrated'),
+      },
       player_username: { username: expect.stringContaining('repository-') },
     });
     expect(logs.error).toBeNull();
