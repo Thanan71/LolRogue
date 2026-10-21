@@ -1,0 +1,264 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`enhancement graph audit: complete current catalogue > reports blocked IDs and exact causes instead of treating the historical count as a verdict 1`] = `
+[
+  {
+    "causes": [
+      {
+        "code": "unavailable",
+        "nodeId": "assassin_mobility_1",
+        "path": [
+          "assassin_mobility_1",
+        ],
+      },
+    ],
+    "id": "assassin_mobility_1",
+    "role": "Assassin",
+  },
+  {
+    "causes": [
+      {
+        "code": "unavailable",
+        "nodeId": "assassin_mobility_1",
+        "path": [
+          "assassin_mobility_2",
+          "assassin_mobility_1",
+        ],
+      },
+      {
+        "code": "unavailable",
+        "nodeId": "assassin_mobility_2",
+        "path": [
+          "assassin_mobility_2",
+        ],
+      },
+    ],
+    "id": "assassin_mobility_2",
+    "role": "Assassin",
+  },
+  {
+    "causes": [
+      {
+        "code": "unavailable",
+        "nodeId": "assassin_mobility_1",
+        "path": [
+          "assassin_mobility_3",
+          "assassin_mobility_2",
+          "assassin_mobility_1",
+        ],
+      },
+      {
+        "code": "unavailable",
+        "nodeId": "assassin_mobility_2",
+        "path": [
+          "assassin_mobility_3",
+          "assassin_mobility_2",
+        ],
+      },
+      {
+        "code": "unavailable",
+        "nodeId": "assassin_mobility_3",
+        "path": [
+          "assassin_mobility_3",
+        ],
+      },
+    ],
+    "id": "assassin_mobility_3",
+    "role": "Assassin",
+  },
+  {
+    "causes": [
+      {
+        "code": "unavailable",
+        "nodeId": "fighter_duelist_1",
+        "path": [
+          "fighter_duelist_1",
+        ],
+      },
+    ],
+    "id": "fighter_duelist_1",
+    "role": "Fighter",
+  },
+  {
+    "causes": [
+      {
+        "code": "unavailable",
+        "nodeId": "fighter_duelist_1",
+        "path": [
+          "fighter_duelist_2",
+          "fighter_duelist_1",
+        ],
+      },
+    ],
+    "id": "fighter_duelist_2",
+    "role": "Fighter",
+  },
+  {
+    "causes": [
+      {
+        "code": "unavailable",
+        "nodeId": "fighter_duelist_1",
+        "path": [
+          "fighter_duelist_3",
+          "fighter_duelist_2",
+          "fighter_duelist_1",
+        ],
+      },
+    ],
+    "id": "fighter_duelist_3",
+    "role": "Fighter",
+  },
+  {
+    "causes": [
+      {
+        "code": "unavailable",
+        "nodeId": "mage_burst_3",
+        "path": [
+          "mage_burst_3",
+        ],
+      },
+    ],
+    "id": "mage_burst_3",
+    "role": "Mage",
+  },
+  {
+    "causes": [
+      {
+        "code": "unavailable",
+        "nodeId": "marksman_survival_3",
+        "path": [
+          "marksman_survival_3",
+        ],
+      },
+    ],
+    "id": "marksman_survival_3",
+    "role": "Marksman",
+  },
+  {
+    "causes": [
+      {
+        "code": "unavailable",
+        "nodeId": "support_tanky_3",
+        "path": [
+          "support_tanky_3",
+        ],
+      },
+    ],
+    "id": "support_tanky_3",
+    "role": "Support",
+  },
+  {
+    "causes": [
+      {
+        "code": "unavailable",
+        "nodeId": "support_utility_1",
+        "path": [
+          "support_utility_1",
+        ],
+      },
+    ],
+    "id": "support_utility_1",
+    "role": "Support",
+  },
+  {
+    "causes": [
+      {
+        "code": "unavailable",
+        "nodeId": "support_utility_1",
+        "path": [
+          "support_utility_2",
+          "support_utility_1",
+        ],
+      },
+      {
+        "code": "unavailable",
+        "nodeId": "support_utility_2",
+        "path": [
+          "support_utility_2",
+        ],
+      },
+    ],
+    "id": "support_utility_2",
+    "role": "Support",
+  },
+  {
+    "causes": [
+      {
+        "code": "unavailable",
+        "nodeId": "support_utility_1",
+        "path": [
+          "support_utility_3",
+          "support_utility_2",
+          "support_utility_1",
+        ],
+      },
+      {
+        "code": "unavailable",
+        "nodeId": "support_utility_2",
+        "path": [
+          "support_utility_3",
+          "support_utility_2",
+        ],
+      },
+      {
+        "code": "unavailable",
+        "nodeId": "support_utility_3",
+        "path": [
+          "support_utility_3",
+        ],
+      },
+    ],
+    "id": "support_utility_3",
+    "role": "Support",
+  },
+  {
+    "causes": [
+      {
+        "code": "unavailable",
+        "nodeId": "tank_support_1",
+        "path": [
+          "tank_support_1",
+        ],
+      },
+    ],
+    "id": "tank_support_1",
+    "role": "Tank",
+  },
+  {
+    "causes": [
+      {
+        "code": "unavailable",
+        "nodeId": "tank_support_1",
+        "path": [
+          "tank_support_2",
+          "tank_support_1",
+        ],
+      },
+    ],
+    "id": "tank_support_2",
+    "role": "Tank",
+  },
+  {
+    "causes": [
+      {
+        "code": "unavailable",
+        "nodeId": "tank_support_1",
+        "path": [
+          "tank_support_3",
+          "tank_support_2",
+          "tank_support_1",
+        ],
+      },
+      {
+        "code": "unavailable",
+        "nodeId": "tank_support_3",
+        "path": [
+          "tank_support_3",
+        ],
+      },
+    ],
+    "id": "tank_support_3",
+    "role": "Tank",
+  },
+]
+`;
