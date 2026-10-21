@@ -33,6 +33,7 @@ y compris lorsqu'une comparaison échoue. Aucune nouvelle entrée npm publique n
 | Baselines Veigar `config/veigar-run-progression-balance-*` | Identité moteur, scénarios et protocole ; `balance -- veigar generate` | Suivies ; progression et tests | Reproduction via `balance -- veigar check --all`. |
 | Calibration terrain `config/authority-field-calibration-*` | Protocole et générateur terrain ; `balance -- field-baseline generate` | Suivie ; comparaison des campagnes | Reproduction via `balance -- field-baseline check`. Les données humaines ne sont pas remplacées par une simulation. |
 | Matrice `config/champion-combat-matrix-current.json` | Moteur baseline/candidat, seeds et protocole ; `balance -- combat matrix generate` | Suivie ; gates de balance | Reproduction via `balance -- combat matrix check`. |
+| Audit `docs/audits/enhancement-trees.{json,md}` | Catalogue client, textes FR/EN, preuves runtime et migrations SQL ; `testing -- enhancements audit` | Suivis ; [audit TREE-01](enhancement-tree-audit.md), tests et prochain lot de correction | `testing -- enhancements audit --check` compare les octets sans écrire ; hashes des entrées et des 73 migrations, causes par ID et six graphes. La preuve SQL locale reste distincte de la projection hors ligne. |
 | Autres fichiers `config/*.json` | Sources manuelles nommées dans le contrat : rollback, sécurité, scripts, budgets, CSP et readiness | Suivis ; gates dédiés | JSON valide, présence et classification exacte ; les règles métier restent contrôlées par leurs gates existants. |
 | `public/assets/ui/combat-arena.webp` | Illustration authored ; pas de générateur déterministe | Suivie ; CSS combat | Présence et suivi Git. La traiter comme une source graphique, pas comme un cache. |
 
@@ -40,7 +41,7 @@ Les recettes de génération modifient volontairement leurs sorties ; elles serv
 revue. Elles ne sont jamais appelées par `release -- artifacts check`. Le contrôle annonce chaque
 reproduction conditionnelle afin de distinguer intégrité hors ligne et reproduction complète.
 Les autres contrôles existants restent obligatoires : assets source/dist, parité/replay,
-balance, types DB, migrations et clean-room.
+balance, types DB, migrations et clean-room. Le contrôle `testing -- enhancements audit --check` est également obligatoire dans `check:static` ; sa génération reste une commande explicite.
 
 En développement, `publicDir: false` empêchait Vite de servir les portraits et icônes locales.
 Le plugin Riot sert maintenant uniquement les chemins du package de release déclarés dans les
@@ -90,7 +91,7 @@ Les sorties locales restent dans les répertoires déjà ignorés : `performance
 `test-seed-results`, `strict-typecheck-results`, `test-results`, `playwright-report`, `blob-report`,
 `ci-build`, `dist` et le cache brut `public/lol/data`. Les fichiers temporaires des générateurs
 utilisent leur répertoire jetable avec nettoyage. Le contrôle n'ajoute ni snapshot ni rapport au
-backlog actif ; seules les preuves de calibration publiées dans `config` sont versionnées.
+backlog actif. Les preuves de calibration publiées dans `config` et les deux rapports TREE-01 explicitement déclarés dans le contrat sont versionnés.
 
 Le 13 octobre 2026, avant les changements S5, un clone neuf sans `node_modules`, `dist`, cache Riot
 ou cache de génération a passé `npm ci` (4,37 s, cache npm isolé) et le contrôle du build (6,05 s).

@@ -1,11 +1,11 @@
 # TREE — Arbres d'amélioration des champions (Candies)
 
-**Statut : proposé, non implémenté.** Périmètre initial : `src/data/enhancementTrees.ts`, `src/components/EnhancementTree.tsx`, `src/services/enhancementService.ts`, `src/stores/enhancementStore.ts`, `src/game/rules/CombatRuleRuntime.ts`, RPC/repositories Supabase. [Retour au TODO](../../TODO.md).
+**Statut : TREE-01 implémenté ; TREE-02..10 à réaliser.** [Audit et reproduction](../enhancement-tree-audit.md). Périmètre initial : `src/data/enhancementTrees.ts`, `src/components/EnhancementTree.tsx`, `src/services/enhancementService.ts`, `src/stores/enhancementStore.ts`, `src/game/rules/CombatRuleRuntime.ts`, RPC/repositories Supabase. [Retour au TODO](../../TODO.md).
 
 ## Décisions de cadrage non négociables
 
 - Les **Candies** financent l'amélioration/maîtrise ; les **Éclats** financent l'acquisition de champions (`P3-ECO-01`). **Ne pas ajouter une troisième monnaie et ne pas convertir automatiquement l'une dans l'autre.**
-- Le catalogue actuellement contrôlé comporte **6 arbres de rôle / 72 nœuds**. Le précédent audit a signalé **15 nœuds inaccessibles** : Assassin 3, Tank 3, Mage 1, Tireur 1, Combattant 3, Support 4. Ces nombres sont des hypothèses de départ à **recalculer par un test de graphe**, pas des preuves déjà clôturées.
+- Le catalogue actuellement contrôlé comporte **6 arbres de rôle / 72 nœuds**. TREE-01 reproduit **15 nœuds inaccessibles** : Assassin 3, Tank 3, Mage 1, Tireur 1, Combattant 3, Support 4. Leurs causes sont **12 indisponibilités directes et 3 descendants bloqués uniquement par leur parent** ; aucun cycle, parent absent ou seuil de maîtrise impossible. Les attributs des 72 achats concordent avec le catalogue SQL, dont les règles ne vérifient pas cette disponibilité des effets. Voir les [rapports par ID](../audits/enhancement-trees.md).
 - Base par rôle pour les champions existants, puis extension optionnelle par champion : pas de duplication entière des six arbres. Si un champion possède plusieurs rôles, conserver une règle stable explicite pour la sélection.
 - Ne pas confondre progression durable du compte et progression **intra-run** (Veigar `v22`). Les investissements Candies n'accordent jamais de stacks Veigar gratuits ; Daily officiel et replay doivent rester soumis à leurs contrats.
 - Aucun bonus purement textuel : descriptions FR/EN, aperçu, calcul UI, combat et replay doivent utiliser la même mécanique réellement supportée.
@@ -16,26 +16,26 @@
 **Phase 1 — fiabilité (TREE-01..04)** : corriger tous les arbres existants avant toute spécialisation. **Phase 2 — modèles (TREE-05..07)** : préparer extensions et reset. **Phase 3 — UX/mesure (TREE-08..10)** : progression transparente, économie et analyse. Aucun changement majeur de coûts sans mesures et playtests `P2-BAL-01`.
 
 ### TREE-01 — Audit complet des graphes (P1, M)
-- [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Générer la liste stable des 72 nœuds par rôle : ID, libellé FR/EN, rang, branche, Candies, mastery requis, parents, effet, attribut serveur, visibilité.
-  - [ ] Vérifier unicité des IDs, références existantes, cycles, racines, chemins atteignables et coûts possibles sous les plafonds actuels.
-  - [ ] Reproduire/qualifier les 15 blocages signalés (Assassin 3, Tank 3, Mage 1, Tireur 1, Combattant 3, Support 4) ; produire un rapport par ID plutôt que modifier à l'aveugle.
-  - [ ] Représenter chaque arbre en graphe dirigé (ID stable, prérequis, rôles) et distinguer verrou de maîtrise et inaccessibilité structurelle.
-  - [ ] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
-- [ ] **Réaliser les changements et conserver les compatibilités.**
-  - [ ] Couvrir en tests la sélection de rôle/champion ; comparer le graphe visible aux validations `canUnlockNode` et aux RPC.
-  - [ ] Documenter les effets « implémenté », « partiel » ou « purement descriptif » avec responsable et correctif prévu.
-  - [ ] Générer un rapport JSON/Markdown par nœud et par cause d'inaccessibilité plutôt qu'un simple compteur global.
-  - [ ] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
-  - [ ] Tester une branche valide, un cycle volontaire, un parent inconnu, un nœud dupliqué et le seuil de maîtrise maximal.
-  - [ ] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
-  - [ ] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
+- [x] **Définir le contrat et les cas à couvrir.**
+  - [x] Générer la liste stable des 72 nœuds par rôle : ID, libellé FR/EN, rang, branche, Candies, mastery requis, parents, effet, attribut serveur, visibilité.
+  - [x] Vérifier unicité des IDs, références existantes, cycles, racines, chemins atteignables et coûts possibles sous les plafonds actuels.
+  - [x] Reproduire/qualifier les 15 blocages signalés (Assassin 3, Tank 3, Mage 1, Tireur 1, Combattant 3, Support 4) ; produire un rapport par ID plutôt que modifier à l'aveugle.
+  - [x] Représenter chaque arbre en graphe dirigé (ID stable, prérequis, rôles) et distinguer verrou de maîtrise et inaccessibilité structurelle.
+  - [x] Identifier les données d'entrée, les préconditions et la responsabilité de chaque module concerné.
+- [x] **Réaliser les changements et conserver les compatibilités.**
+  - [x] Couvrir en tests la sélection de rôle/champion ; comparer le graphe visible aux validations `canUnlockNode` et aux RPC.
+  - [x] Documenter les effets « implémenté », « partiel » ou « purement descriptif » avec responsable et correctif prévu.
+  - [x] Générer un rapport JSON/Markdown par nœud et par cause d'inaccessibilité plutôt qu'un simple compteur global.
+  - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
+- [x] **Prouver le résultat avant clôture.**
+  - [x] Tester une branche valide, un cycle volontaire, un parent inconnu, un nœud dupliqué et le seuil de maîtrise maximal.
+  - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
+  - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 **DoD :** une matrice exhaustive reproductible, zéro nœud orphelin non documenté, tests échouant sur les cas signalés.
 
 ### TREE-02 — Réparer dépendances et déblocages (P1, L ; dépend TREE-01)
 - [ ] **Définir le contrat et les cas à couvrir.**
-  - [ ] Réparer la topologie des 15 nœuds ou les prérequis incomplets, sans rebaptiser les IDs déjà sauvegardés ; si changement d'ID nécessaire, prévoir migration explicite.
+  - [ ] Résoudre les causes des 15 blocages documentés par TREE-01 (disponibilité des effets et descendants), puis aligner éligibilité client/serveur. L’audit ne trouve pas de défaut topologique ; ne modifier des prérequis que si le contrat fonctionnel le justifie. Conserver les IDs sauvegardés, ou prévoir une migration explicite.
   - [ ] Formaliser verrouillage par niveau de maîtrise, Candies, nœud parent, capacité maximale, branche/rang, choix exclusif et limite de budget.
   - [ ] Assurer qu'un nœud acheté est activable uniquement s'il est réellement atteignable et que ses prérequis sont encore satisfaits.
   - [ ] Définir pour chaque nœud cassé le chemin légal attendu et le sort des comptes ayant déjà acquis ce nœud.

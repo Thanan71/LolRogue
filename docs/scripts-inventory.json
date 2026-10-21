@@ -210,6 +210,8 @@
     "docs/archive/todo-snapshot-2026-08-08-1837.md",
     "docs/archive/todo-snapshot-2026-10-07.md",
     "docs/assets.md",
+    "docs/audits/enhancement-trees.json",
+    "docs/audits/enhancement-trees.md",
     "docs/audits/ui-ux-2026-10-09/after/auth-browser-evidence.json",
     "docs/audits/ui-ux-2026-10-09/after/verification.json",
     "docs/audits/ui-ux-2026-10-09/browser-evidence.json",
@@ -243,6 +245,7 @@
     "docs/dependency-audit.md",
     "docs/domain-data-contracts.md",
     "docs/engine-refactor-contract.md",
+    "docs/enhancement-tree-audit.md",
     "docs/environment-contract.md",
     "docs/feature-combat-contract.md",
     "docs/feature-module-contract.md",
@@ -277,6 +280,7 @@
     "docs/sprint-g-validation-2026-10-07.md",
     "docs/supabase-advisors-review-20261001.md",
     "docs/testing.md",
+    "docs/tree-01-validation-2026-10-21.md",
     "docs/ui-system.md",
     "docs/versioning.md",
     "e2e/accessibility-display.spec.ts",
@@ -328,6 +332,7 @@
     "preload-document-locale.js",
     "scripts/apply-supabase-auth-patch.mjs",
     "scripts/audit-champion-economy.mjs",
+    "scripts/audit-enhancement-trees.mjs",
     "scripts/bash/update-memory.sh",
     "scripts/build-authority-bundle.mjs",
     "scripts/check-authority-content-hash.mjs",
@@ -1138,7 +1143,13 @@
     "tests/englishDynamicContent.test.ts",
     "tests/englishLegacyCopyCoverage.test.ts",
     "tests/englishLegalPage.test.tsx",
+    "tests/enhancementAudit.database.test.ts",
+    "tests/enhancementAuditCli.test.mjs",
+    "tests/enhancementAuditReport.test.ts",
     "tests/enhancementContent.test.ts",
+    "tests/enhancementEffectEvidence.test.ts",
+    "tests/enhancementGraphAudit.test.ts",
+    "tests/enhancementServerEvidence.test.ts",
     "tests/enhancementStoreRecovery.test.ts",
     "tests/enhancementTreeI18n.test.tsx",
     "tests/environmentConfig.test.mjs",
@@ -1319,6 +1330,10 @@
     "tests/vitePlugins.test.ts",
     "tests/vitestConfiguration.test.ts",
     "tests/xpSystem.test.ts",
+    "tooling/enhancements/effectEvidence.ts",
+    "tooling/enhancements/graphAudit.ts",
+    "tooling/enhancements/report.ts",
+    "tooling/enhancements/serverEvidence.ts",
     "tooling/vite/plugins/championCatalog.ts",
     "tooling/vite/plugins/deploymentIdentity.ts",
     "tooling/vite/plugins/pwaAssets.ts",
@@ -1918,7 +1933,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 20,
+          "line": 22,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run assets -- download && npm run assets -- parse && npm run assets -- package\",",
@@ -1926,7 +1941,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 20,
+          "line": 22,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run assets -- download && npm run assets -- parse && npm run assets -- package\",",
@@ -1934,7 +1949,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 20,
+          "line": 22,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run assets -- download && npm run assets -- parse && npm run assets -- package\",",
@@ -1942,7 +1957,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 25,
+          "line": 27,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: raw Data Dragon/Community Dragon cache is ignored; full upstream reproduction needs npm run assets -- download. Static integrity is checked offline.\"",
@@ -1950,7 +1965,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 40,
+          "line": 42,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run assets -- package\",",
@@ -1958,7 +1973,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 77,
+          "line": 79,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run assets -- package\",",
@@ -1966,7 +1981,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 104,
+          "line": 106,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run assets -- package\",",
@@ -2204,7 +2219,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 20,
+          "line": 22,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run assets -- download && npm run assets -- parse && npm run assets -- package\",",
@@ -2212,7 +2227,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 20,
+          "line": 22,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run assets -- download && npm run assets -- parse && npm run assets -- package\",",
@@ -2220,7 +2235,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 20,
+          "line": 22,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run assets -- download && npm run assets -- parse && npm run assets -- package\",",
@@ -2228,7 +2243,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 25,
+          "line": 27,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: raw Data Dragon/Community Dragon cache is ignored; full upstream reproduction needs npm run assets -- download. Static integrity is checked offline.\"",
@@ -2236,7 +2251,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 40,
+          "line": 42,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run assets -- package\",",
@@ -2244,7 +2259,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 77,
+          "line": 79,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run assets -- package\",",
@@ -2252,7 +2267,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 104,
+          "line": 106,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run assets -- package\",",
@@ -3976,7 +3991,7 @@
       "activeCallers": [
         {
           "file": "config/generated-artifacts.json",
-          "line": 136,
+          "line": 138,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run authority:generate\",",
@@ -4024,7 +4039,7 @@
         },
         {
           "file": "tests/generatedArtifacts.test.mjs",
-          "line": 313,
+          "line": 314,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "if (invocation === 'npm run authority:generate') continue;",
@@ -4035,7 +4050,7 @@
       "callers": [
         {
           "file": "config/generated-artifacts.json",
-          "line": 136,
+          "line": 138,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run authority:generate\",",
@@ -4083,7 +4098,7 @@
         },
         {
           "file": "tests/generatedArtifacts.test.mjs",
-          "line": 313,
+          "line": 314,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "if (invocation === 'npm run authority:generate') continue;",
@@ -4334,7 +4349,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 197,
+          "line": 199,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- baseline generate\",",
@@ -4342,7 +4357,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 206,
+          "line": 208,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- baseline check --all\"",
@@ -4350,7 +4365,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 209,
+          "line": 211,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- baseline check --all.\"",
@@ -4358,7 +4373,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 215,
+          "line": 217,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- early-top generate\",",
@@ -4366,7 +4381,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 221,
+          "line": 223,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- early-top check --all\"",
@@ -4374,7 +4389,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 224,
+          "line": 226,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- early-top check --all.\"",
@@ -4382,7 +4397,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 230,
+          "line": 232,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- map-economy generate\",",
@@ -4390,7 +4405,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 239,
+          "line": 241,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- map-economy check\"",
@@ -4398,7 +4413,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 242,
+          "line": 244,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- map-economy check.\"",
@@ -4406,7 +4421,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 251,
+          "line": 253,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- veigar generate\",",
@@ -4414,7 +4429,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 260,
+          "line": 262,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- veigar check --all\"",
@@ -4422,7 +4437,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 263,
+          "line": 265,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- veigar check --all.\"",
@@ -4430,7 +4445,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 272,
+          "line": 274,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- field-baseline generate\",",
@@ -4438,7 +4453,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 281,
+          "line": 283,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- field-baseline check\"",
@@ -4446,7 +4461,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 284,
+          "line": 286,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- field-baseline check.\"",
@@ -4454,7 +4469,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 290,
+          "line": 292,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- combat matrix generate\",",
@@ -4462,7 +4477,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 299,
+          "line": 301,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- combat matrix check\"",
@@ -4470,7 +4485,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 302,
+          "line": 304,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- combat matrix check.\"",
@@ -4945,7 +4960,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 197,
+          "line": 199,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- baseline generate\",",
@@ -4953,7 +4968,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 206,
+          "line": 208,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- baseline check --all\"",
@@ -4961,7 +4976,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 209,
+          "line": 211,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- baseline check --all.\"",
@@ -4969,7 +4984,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 215,
+          "line": 217,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- early-top generate\",",
@@ -4977,7 +4992,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 221,
+          "line": 223,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- early-top check --all\"",
@@ -4985,7 +5000,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 224,
+          "line": 226,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- early-top check --all.\"",
@@ -4993,7 +5008,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 230,
+          "line": 232,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- map-economy generate\",",
@@ -5001,7 +5016,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 239,
+          "line": 241,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- map-economy check\"",
@@ -5009,7 +5024,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 242,
+          "line": 244,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- map-economy check.\"",
@@ -5017,7 +5032,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 251,
+          "line": 253,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- veigar generate\",",
@@ -5025,7 +5040,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 260,
+          "line": 262,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- veigar check --all\"",
@@ -5033,7 +5048,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 263,
+          "line": 265,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- veigar check --all.\"",
@@ -5041,7 +5056,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 272,
+          "line": 274,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- field-baseline generate\",",
@@ -5049,7 +5064,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 281,
+          "line": 283,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- field-baseline check\"",
@@ -5057,7 +5072,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 284,
+          "line": 286,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- field-baseline check.\"",
@@ -5065,7 +5080,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 290,
+          "line": 292,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- combat matrix generate\",",
@@ -5073,7 +5088,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 299,
+          "line": 301,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- combat matrix check\"",
@@ -5081,7 +5096,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 302,
+          "line": 304,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- combat matrix check.\"",
@@ -26094,7 +26109,7 @@
     },
     {
       "name": "check:static",
-      "command": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+      "command": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
       "initial": true,
       "initialCommand": "npm run format:check && npm run lint && npm run csp:styles:check && npm run typecheck && npm run node:contract && npm run release:readiness:check && npm run content:check",
       "commandChanged": true,
@@ -26123,7 +26138,9 @@
         "Repository/dependency/output filesystem access; network access where the selected tool requires it"
       ],
       "arguments": {
-        "fixed": [],
+        "fixed": [
+          "--check"
+        ],
         "supported": [],
         "forwarding": "npm run <name> -- <arguments>; underlying tool validates legacy flags"
       },
@@ -26166,6 +26183,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 77,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:static",
+          "classification": "active"
+        },
+        {
           "file": "tests/toolingTypecheckContract.test.ts",
           "line": 52,
           "kind": "npm-run",
@@ -26199,6 +26224,14 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- `npm run check:static` passe : inventaire, format, lint, styles CSP, trois",
+          "classification": "active"
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 77,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:static",
           "classification": "active"
         },
         {
@@ -27812,7 +27845,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 183,
+          "line": 185,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run database -- types generate\",",
@@ -27820,7 +27853,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 188,
+          "line": 190,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: exact schema reproduction requires the disposable local database and npm run database -- types check; static check does not claim schema parity.\"",
@@ -28008,6 +28041,14 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- indexes check` vérifie les huit définitions retenues, dont l'index de",
+          "classification": "active"
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 85,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run database -- validate --yes",
           "classification": "active"
         },
         {
@@ -28800,7 +28841,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 183,
+          "line": 185,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run database -- types generate\",",
@@ -28808,7 +28849,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 188,
+          "line": 190,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: exact schema reproduction requires the disposable local database and npm run database -- types check; static check does not claim schema parity.\"",
@@ -28996,6 +29037,14 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- indexes check` vérifie les huit définitions retenues, dont l'index de",
+          "classification": "active"
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 85,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run database -- validate --yes",
           "classification": "active"
         },
         {
@@ -31212,7 +31261,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -31224,7 +31273,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -31473,6 +31522,17 @@
           "classification": "active",
           "via": [
             "check",
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 77,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:static",
+          "classification": "active",
+          "via": [
             "check:static"
           ]
         },
@@ -31760,7 +31820,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -31772,7 +31832,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -32021,6 +32081,17 @@
           "classification": "active",
           "via": [
             "check",
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 77,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:static",
+          "classification": "active",
+          "via": [
             "check:static"
           ]
         },
@@ -32328,7 +32399,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -32356,7 +32427,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -32605,6 +32676,17 @@
           "classification": "active",
           "via": [
             "check",
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 77,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:static",
+          "classification": "active",
+          "via": [
             "check:static"
           ]
         },
@@ -33798,7 +33880,7 @@
         },
         {
           "file": "docs/generated-artifacts.md",
-          "line": 96,
+          "line": 97,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "ou cache de génération a passé `npm ci` (4,37 s, cache npm isolé) et le contrôle du build (6,05 s).",
@@ -34205,7 +34287,7 @@
         },
         {
           "file": "docs/generated-artifacts.md",
-          "line": 96,
+          "line": 97,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "ou cache de génération a passé `npm ci` (4,37 s, cache npm isolé) et le contrôle du build (6,05 s).",
@@ -35254,7 +35336,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 160,
+          "line": 162,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run release -- edge bundle\",",
@@ -35666,7 +35748,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -35675,7 +35757,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -35780,7 +35862,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 160,
+          "line": 162,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run release -- edge bundle\",",
@@ -36096,7 +36178,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -36105,7 +36187,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -36552,6 +36634,17 @@
           "classification": "active",
           "via": [
             "check",
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 77,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:static",
+          "classification": "active",
+          "via": [
             "check:static"
           ]
         },
@@ -37172,7 +37265,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -37192,7 +37285,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -37441,6 +37534,17 @@
           "classification": "active",
           "via": [
             "check",
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 77,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:static",
+          "classification": "active",
+          "via": [
             "check:static"
           ]
         },
@@ -40148,6 +40252,7 @@
       "owner": "testing-maintainers",
       "risk": "read-only",
       "inputs": [
+        "Current enhancement trees, localization, effect evidence and committed SQL migrations",
         "Repository checkout and locked Node 24 dependencies",
         "Repository source, tooling configuration and the selected tests or build output"
       ],
@@ -40203,6 +40308,22 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run testing -- security # audit critique/haut et contrôle des exceptions bornées",
+          "classification": "active"
+        },
+        {
+          "file": "config/generated-artifacts.json",
+          "line": 352,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run testing -- enhancements audit\",",
+          "classification": "active"
+        },
+        {
+          "file": "docs/audits/enhancement-trees.md",
+          "line": 3,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "> Généré par `npm run testing -- enhancements audit`. Ne pas modifier ce rapport à la main.",
           "classification": "active"
         },
         {
@@ -40267,6 +40388,22 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- `npm run testing -- security` sans exception haute ou critique ;",
+          "classification": "active"
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 73,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run testing -- enhancements audit",
+          "classification": "active"
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 74,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run testing -- enhancements audit --check",
           "classification": "active"
         },
         {
@@ -40406,6 +40543,30 @@
           "classification": "active"
         },
         {
+          "file": "scripts/audit-enhancement-trees.mjs",
+          "line": 271,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "'Usage: npm run testing -- enhancements audit [--check]\\nGenerate the offline JSON/Markdown enhancement audit, or verify both files without writing.\\n',",
+          "classification": "active"
+        },
+        {
+          "file": "scripts/audit-enhancement-trees.mjs",
+          "line": 283,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "`Enhancement audit: missing ${relative}. Run npm run testing -- enhancements audit.`,",
+          "classification": "active"
+        },
+        {
+          "file": "scripts/audit-enhancement-trees.mjs",
+          "line": 287,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "`Enhancement audit: stale ${relative}. Run npm run testing -- enhancements audit.`,",
+          "classification": "active"
+        },
+        {
           "file": "tests/databaseTestRunner.test.ts",
           "line": 31,
           "kind": "process-arguments",
@@ -40419,6 +40580,14 @@
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(matrix).toContain('npm run testing -- security');",
+          "classification": "active"
+        },
+        {
+          "file": "tests/enhancementAuditCli.test.mjs",
+          "line": 201,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "expect(messages.join('')).toContain('npm run testing -- enhancements audit [--check]');",
           "classification": "active"
         },
         {
@@ -40494,11 +40663,19 @@
           "classification": "active"
         },
         {
+          "file": "tooling/enhancements/report.ts",
+          "line": 234,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "'> Généré par `npm run testing -- enhancements audit`. Ne pas modifier ce rapport à la main.',",
+          "classification": "active"
+        },
+        {
           "file": "package.json",
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -40507,7 +40684,16 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "parent": "check:static",
+          "classification": "active"
+        },
+        {
+          "file": "package.json",
+          "line": 37,
+          "kind": "npm-run",
+          "source": "npm-chain",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -40574,6 +40760,22 @@
           "classification": "active"
         },
         {
+          "file": "config/generated-artifacts.json",
+          "line": 352,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"generator\": \"npm run testing -- enhancements audit\",",
+          "classification": "active"
+        },
+        {
+          "file": "docs/audits/enhancement-trees.md",
+          "line": 3,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "> Généré par `npm run testing -- enhancements audit`. Ne pas modifier ce rapport à la main.",
+          "classification": "active"
+        },
+        {
           "file": "docs/content-admission.md",
           "line": 4,
           "kind": "npm-run",
@@ -40635,6 +40837,22 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- `npm run testing -- security` sans exception haute ou critique ;",
+          "classification": "active"
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 73,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run testing -- enhancements audit",
+          "classification": "active"
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 74,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run testing -- enhancements audit --check",
           "classification": "active"
         },
         {
@@ -40778,7 +40996,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -40787,7 +41005,16 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "parent": "check:static",
+          "classification": "active"
+        },
+        {
+          "file": "package.json",
+          "line": 37,
+          "kind": "npm-run",
+          "source": "npm-chain",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -40819,6 +41046,30 @@
           "classification": "active"
         },
         {
+          "file": "scripts/audit-enhancement-trees.mjs",
+          "line": 271,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "'Usage: npm run testing -- enhancements audit [--check]\\nGenerate the offline JSON/Markdown enhancement audit, or verify both files without writing.\\n',",
+          "classification": "active"
+        },
+        {
+          "file": "scripts/audit-enhancement-trees.mjs",
+          "line": 283,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "`Enhancement audit: missing ${relative}. Run npm run testing -- enhancements audit.`,",
+          "classification": "active"
+        },
+        {
+          "file": "scripts/audit-enhancement-trees.mjs",
+          "line": 287,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "`Enhancement audit: stale ${relative}. Run npm run testing -- enhancements audit.`,",
+          "classification": "active"
+        },
+        {
           "file": "tests/databaseTestRunner.test.ts",
           "line": 31,
           "kind": "process-arguments",
@@ -40832,6 +41083,14 @@
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(matrix).toContain('npm run testing -- security');",
+          "classification": "active"
+        },
+        {
+          "file": "tests/enhancementAuditCli.test.mjs",
+          "line": 201,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "expect(messages.join('')).toContain('npm run testing -- enhancements audit [--check]');",
           "classification": "active"
         },
         {
@@ -40904,6 +41163,14 @@
           "kind": "npm-run",
           "source": "test",
           "excerpt": "{ aliases: ['compile'], path: ['compile'], replacement: 'npm run testing -- compile' },",
+          "classification": "active"
+        },
+        {
+          "file": "tooling/enhancements/report.ts",
+          "line": 234,
+          "kind": "npm-run",
+          "source": "script",
+          "excerpt": "'> Généré par `npm run testing -- enhancements audit`. Ne pas modifier ce rapport à la main.',",
           "classification": "active"
         }
       ],
@@ -41243,6 +41510,17 @@
           ]
         },
         {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 77,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:static",
+          "classification": "active",
+          "via": [
+            "check:static"
+          ]
+        },
+        {
           "file": "docs/operations.md",
           "line": 60,
           "kind": "npm-run",
@@ -41501,6 +41779,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 76,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run typecheck",
+          "classification": "active"
+        },
+        {
           "file": "docs/testing.md",
           "line": 129,
           "kind": "npm-run",
@@ -41529,7 +41815,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         }
@@ -41553,6 +41839,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 76,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run typecheck",
+          "classification": "active"
+        },
+        {
           "file": "docs/testing.md",
           "line": 129,
           "kind": "npm-run",
@@ -41565,7 +41859,7 @@
           "line": 37,
           "kind": "npm-run",
           "source": "npm-chain",
-          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
+          "excerpt": "npm run scripts:inventory:check && node scripts/check-business-boundaries.mjs && npm run release -- artifacts check && npm run testing -- enhancements audit --check && npm run format:check && npm run lint && npm run testing -- styles check && npm run typecheck && npm run node:contract && npm run release -- readiness check && npm run testing -- content check",
           "parent": "check:static",
           "classification": "active"
         },
@@ -41830,6 +42124,17 @@
           "classification": "active",
           "via": [
             "check",
+            "check:static"
+          ]
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 77,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:static",
+          "classification": "active",
+          "via": [
             "check:static"
           ]
         },
@@ -42392,6 +42697,29 @@
           "classification": "active",
           "via": [
             "check",
+            "check:static",
+            "typecheck"
+          ]
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 76,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run typecheck",
+          "classification": "active",
+          "via": [
+            "typecheck"
+          ]
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 77,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:static",
+          "classification": "active",
+          "via": [
             "check:static",
             "typecheck"
           ]
@@ -43039,6 +43367,29 @@
           ]
         },
         {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 76,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run typecheck",
+          "classification": "active",
+          "via": [
+            "typecheck"
+          ]
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 77,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:static",
+          "classification": "active",
+          "via": [
+            "check:static",
+            "typecheck"
+          ]
+        },
+        {
           "file": "docs/operations.md",
           "line": 60,
           "kind": "npm-run",
@@ -43644,6 +43995,29 @@
           "classification": "active",
           "via": [
             "check",
+            "check:static",
+            "typecheck"
+          ]
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 76,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run typecheck",
+          "classification": "active",
+          "via": [
+            "typecheck"
+          ]
+        },
+        {
+          "file": "docs/enhancement-tree-audit.md",
+          "line": 77,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:static",
+          "classification": "active",
+          "via": [
             "check:static",
             "typecheck"
           ]
