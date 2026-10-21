@@ -35,7 +35,7 @@ Sources à revalider avant chaque release :
 | Global public | alias/pseudonyme, avatar facultatif, niveau, victoires et taux | classement global | public tant que non opt-out | vie du compte ou opt-out |
 | Modération | score signalé, auteur, motif assaini, décision | intégrité du classement | modérateurs | ouverts jusqu'à décision ; traités 365 jours après revue, puis purge quotidienne |
 | Audit de modération | acteur administratif, cible, action, justification assainie et date | justifier les décisions et empêcher leur répétition | administrateurs via projection minimale | décisions 365 jours, rejets 30 jours, puis purge quotidienne |
-| Diagnostic | opération, durée, erreur nettoyée | disponibilité et sécurité | utilisateur concerné/opérateurs | 14 jours maximum |
+| Diagnostic | opération, durée bornée, erreur nettoyée et identifiants minimaux de corrélation | diagnostic et sécurité | envoi authentifié ; lecture administrateur par projection minimale | lecture limitée à 14 jours ; purge existante |
 | Support incident | références minimales du dossier, statut serveur, décision et audit d'un éventuel geste | assistance et prévention du double crédit | support/opérateurs habilités, canal privé requis | 90 jours après clôture, sauf exception motivée et datée |
 | Performance | Web Vitals et métadonnées techniques de navigation collectées par Vercel Speed Insights | mesurer et améliorer les performances | Vercel / exploitant | selon la configuration et les conditions Vercel en vigueur |
 | Audience web | télémétrie de navigation du composant Vercel Web Analytics intégré dans `src/main.tsx` | mesure d'audience du site | Vercel / exploitant | configuration distante, durée et information utilisateur à vérifier avant bêta |
@@ -53,7 +53,7 @@ décisions expirent après 365 jours ; rejets et compteurs après 30 jours. Les
 données sont supprimées physiquement lors de la purge quotidienne suivante.
 Les anciens signalements ouverts ne sont pas exclus de la file. La façade
 publique reste réservée au `service_role` pour une intervention
-contrôlée. Le purgeur de logs existant conserve au maximum 14 jours.
+contrôlée. Le purgeur de logs existant conserve au maximum 14 jours. La projection ADM-S6 exclut aussi les logs expirés avant la prochaine purge, masque les textes libres et ne rattache une tentative qu’au même propriétaire. Les buffers et corrélations locaux sont remis à zéro au changement d’identité ; aucun nouveau transport global ni collecte automatique n’est activé.
 
 Cette description est celle du schéma du dépôt. **Validation live requise** :
 aucun nouveau relevé de production n'est attesté par cette mise à jour. Avant de

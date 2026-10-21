@@ -3,16 +3,34 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   rpc: vi.fn(),
+  setHeader: vi.fn(),
+  abortSignal: vi.fn(),
 }));
 
 vi.mock('@/services/supabaseClient', () => ({
   supabase: {
     auth: { getSession: mocks.getSession },
-    rpc: mocks.rpc,
+    rpc: (...args: unknown[]) => {
+      const response = mocks.rpc(...args);
+      return {
+        setHeader: (name: string, value: string) => {
+          mocks.setHeader(name, value);
+          return {
+            abortSignal: (signal: AbortSignal) => {
+              mocks.abortSignal(signal);
+              return response;
+            },
+          };
+        },
+      };
+    },
   },
 }));
 
 import { DatabaseLogger } from '@/utils/dbLogger';
+
+const sessionA = { user: { id: 'account-a' }, access_token: 'test-session-a' };
+const sessionB = { user: { id: 'account-b' }, access_token: 'test-session-b' };
 
 function createLogger(maxRetries = 2) {
   return new DatabaseLogger({
@@ -30,8 +48,10 @@ function createLogger(maxRetries = 2) {
 
 describe('DatabaseLogger', () => {
   beforeEach(() => {
-    mocks.getSession.mockReset().mockResolvedValue({ data: { session: { user: {} } } });
+    mocks.getSession.mockReset().mockResolvedValue({ data: { session: sessionA } });
     mocks.rpc.mockReset().mockResolvedValue({ data: 1, error: null });
+    mocks.setHeader.mockReset();
+    mocks.abortSignal.mockReset();
   });
 
   it('sends a recursively sanitized payload without caller-controlled identity', async () => {
@@ -106,7 +126,7 @@ describe('DatabaseLogger', () => {
     mocks.getSession.mockImplementation(
       () =>
         new Promise((resolve) => {
-          releaseSession = () => resolve({ data: { session: { user: {} } } });
+          releaseSession = () => resolve({ data: { session: sessionA } });
         }),
     );
     const logger = createLogger();
@@ -140,5 +160,91 @@ describe('DatabaseLogger', () => {
     expect(logger.getBufferSize()).toBe(3);
     logger.clearHistory();
     logger.destroy();
+  });
+
+  it('clears another account’s pending logs, history and diagnostic session identity', async () => {
+    const logger = createLogger();
+    const oldSession = logger.getSessionId();
+    logger.info('Repository', 'accountA', 'old diagnostic');
+    logger.resetSession();
+    expect(logger.getBufferSize()).toBe(0);
+    expect(logger.getHistory()).toEqual([]);
+    expect(logger.getSessionId()).not.toBe(oldSession);
+
+    mocks.getSession.mockResolvedValue({ data: { session: sessionB } });
+    logger.info('Repository', 'accountB', 'new diagnostic');
+    await logger.flushBuffer();
+
+    expect(mocks.rpc).toHaveBeenCalledOnce();
+    expect(mocks.rpc.mock.calls[0][1].p_logs).toHaveLength(1);
+    expect(mocks.rpc.mock.calls[0][1].p_logs[0].method).toBe('accountB');
+    expect(mocks.setHeader).toHaveBeenCalledWith('Authorization', 'Bearer test-session-b');
+    expect(JSON.stringify(mocks.rpc.mock.calls)).not.toContain('test-session-b');
+    logger.destroy();
+  });
+
+  it('ignores an old session lookup without consuming the next account’s buffer', async () => {
+    let resolveSession: ((value: unknown) => void) | undefined;
+    mocks.getSession.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveSession = resolve;
+        }),
+    );
+    const logger = createLogger();
+    logger.info('Repository', 'accountA', 'old diagnostic');
+    const oldFlush = logger.flushBuffer();
+    logger.resetSession();
+    logger.info('Repository', 'accountB', 'new diagnostic');
+    resolveSession?.({ data: { session: sessionA } });
+    await oldFlush;
+    expect(mocks.rpc).not.toHaveBeenCalled();
+    expect(logger.getBufferSize()).toBe(1);
+
+    mocks.getSession.mockResolvedValue({ data: { session: sessionB } });
+    await logger.flushBuffer();
+    expect(mocks.rpc.mock.calls[0][1].p_logs[0].method).toBe('accountB');
+    logger.destroy();
+  });
+
+  it('aborts an in-flight upload and prevents a late failure from restoring old logs', async () => {
+    let rejectUpload: ((reason: Error) => void) | undefined;
+    mocks.rpc.mockImplementationOnce(
+      () =>
+        new Promise((_resolve, reject) => {
+          rejectUpload = reject;
+        }),
+    );
+    const logger = createLogger();
+    logger.info('Repository', 'accountA', 'old diagnostic');
+    const upload = logger.flushBuffer();
+    await vi.waitFor(() => expect(mocks.abortSignal).toHaveBeenCalledOnce());
+    const signal = mocks.abortSignal.mock.calls[0][0];
+    logger.resetSession();
+    expect(signal.aborted).toBe(true);
+    rejectUpload?.(new Error('Failed to fetch'));
+    await upload;
+    expect(logger.getBufferSize()).toBe(0);
+    expect(logger.getHistory()).toEqual([]);
+    expect(mocks.setHeader).toHaveBeenCalledWith('Authorization', 'Bearer test-session-a');
+    logger.destroy();
+  });
+
+  it('does not transmit when disabled or when the current session is absent or anonymous', async () => {
+    const disabled = new DatabaseLogger({ enabled: false });
+    disabled.info('Repository', 'method', 'disabled');
+    await disabled.flushBuffer();
+    expect(mocks.getSession).not.toHaveBeenCalled();
+    disabled.destroy();
+
+    for (const session of [null, { ...sessionA, user: { ...sessionA.user, is_anonymous: true } }]) {
+      mocks.getSession.mockResolvedValue({ data: { session } });
+      const logger = createLogger();
+      logger.info('Repository', 'method', 'anonymous');
+      await logger.flushBuffer();
+      expect(logger.getBufferSize()).toBe(0);
+      logger.destroy();
+    }
+    expect(mocks.rpc).not.toHaveBeenCalled();
   });
 });

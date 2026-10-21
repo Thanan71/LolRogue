@@ -8,33 +8,11 @@ import {
   SOLO_GAREN_COMPOSITION_HASH,
 } from '@/game/balance/fieldCalibrationComparison';
 import { getAdminFieldCalibrationCopy } from '@/i18n/adminFieldCalibration';
-import { AdminAuthorityPanel } from '@/pages/admin/AdminAuthorityPanel';
 import { AdminErrorNotice } from '@/pages/admin/AdminErrorNotice';
 import { AdminFieldCalibrationPanel } from '@/pages/admin/AdminFieldCalibrationPanel';
 import { AdminTabList } from '@/pages/admin/AdminTabList';
-import { loadAllAdminSections } from '@/pages/admin/useAdminData';
 
 describe('admin data feedback', () => {
-  it('does not complete initial loading before every admin request settles', async () => {
-    let resolveLogs: (() => void) | undefined;
-    const logs = new Promise<void>((resolve) => {
-      resolveLogs = resolve;
-    });
-    const completed = vi.fn();
-    const loading = loadAllAdminSections([
-      () => Promise.resolve(),
-      () => logs,
-      () => Promise.resolve(),
-      () => Promise.resolve(),
-    ]).then(completed);
-
-    await Promise.resolve();
-    expect(completed).not.toHaveBeenCalled();
-    resolveLogs?.();
-    await loading;
-    expect(completed).toHaveBeenCalledOnce();
-  });
-
   it('shows an actionable retry and disables it while retrying', () => {
     const retry = vi.fn();
     const { rerender } = render(
@@ -57,68 +35,6 @@ describe('admin data feedback', () => {
     fireEvent.keyDown(dashboard, { key: 'ArrowRight' });
     expect(select).toHaveBeenCalledWith('authority');
   });
-
-  it.each([
-    ['run-engine-v13', 13, '13'],
-    ['run-engine-0.2.0', 23, '0.2.0'],
-  ] as const)(
-    'shows authority alerts and public gameplay labels for %s',
-    (engineVersion, gameplayRulesetVersion, label) => {
-      render(
-        <AdminAuthorityPanel
-          aggregates={[
-            {
-              windowStartedAt: new Date().toISOString(),
-              engineVersion,
-              gameplayRulesetVersion,
-              rejectionCode: 'pending_choice',
-              attemptCount: 5,
-              startedCount: 0,
-              finishedCount: 0,
-              verifiedCount: 0,
-              rejectedCount: 5,
-              expiredCount: 0,
-            },
-          ]}
-          signals={[
-            {
-              engineVersion,
-              gameplayRulesetVersion,
-              attemptCount: 5,
-              rejectedCount: 5,
-              rejectionRate: 1,
-              rejectionCodes: ['pending_choice'],
-              unknownCodes: [],
-              reasons: ['rejection_rate'],
-            },
-          ]}
-          rejections={[
-            {
-              attemptId: '11111111-1111-4111-8111-111111111111',
-              rejectedAt: '2026-08-09T12:10:00.000Z',
-              engineVersion,
-              gameplayRulesetVersion,
-              rejectionCode: 'pending_choice',
-            },
-          ]}
-          loading={false}
-          error={null}
-          onRefresh={vi.fn()}
-        />,
-      );
-
-      expect(screen.getByRole('alert')).toHaveTextContent(/100,0\s*% de rejets/u);
-      expect(
-        screen.getByRole('table', { name: 'Derniers rejets de vérification de l’autorité' }),
-      ).toHaveTextContent('11111111-1111-4111-8111-111111111111');
-      expect(screen.getAllByText('pending_choice')).toHaveLength(1);
-      expect(screen.getByRole('alert')).toHaveTextContent(`v${label}`);
-      expect(screen.getByRole('cell', { name: `v${label}` })).toBeInTheDocument();
-      expect(
-        screen.queryByText(getAdminFieldCalibrationCopy('fr-FR').title),
-      ).not.toBeInTheDocument();
-    },
-  );
 
   it('shows interval-aware simulation and field comparisons without authorizing tuning', () => {
     render(

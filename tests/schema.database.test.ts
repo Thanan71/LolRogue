@@ -236,6 +236,7 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20261017070341_admin_temporal_analytics.sql',
       '../supabase/migrations/20261018073001_admin_balance_workspace.sql',
       '../supabase/migrations/20261018082740_admin_audited_moderation.sql',
+      '../supabase/migrations/20261018100541_admin_technical_diagnostics.sql',
     ]);
   });
 

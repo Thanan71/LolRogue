@@ -5,6 +5,12 @@ import { act } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fr } from '@/i18n/fr';
 import type { Player } from '@/types/models';
+import {
+  getTechnicalEvents,
+  recordTechnicalEvent,
+  resetTechnicalEvents,
+  setTechnicalCorrelation,
+} from '@/utils/observability';
 
 const mocks = vi.hoisted(() => ({
   signIn: vi.fn(),
@@ -147,6 +153,33 @@ describe('auth identity lifecycle', () => {
     mocks.initializeEnhancements.mockResolvedValue(undefined);
     mocks.signOut.mockResolvedValue(undefined);
     resetStore();
+    resetTechnicalEvents();
+  });
+
+  it('clears diagnostic history and correlation at the signed-out identity boundary', async () => {
+    readyAccount(session('a'));
+    const unsubscribe = useAuthStore.getState().subscribeToAuthChanges();
+    setTechnicalCorrelation({ attemptId: 'aaaa1111-bbbb-4ccc-8ddd-eeeeeeeeeeee', runId: 'run-a' });
+    recordTechnicalEvent({ type: 'retry', operation: 'save', attempt: 1 });
+    expect(getTechnicalEvents()).toHaveLength(1);
+
+    await act(async () => {
+      mocks.listener?.('SIGNED_OUT', null);
+    });
+    expect(getTechnicalEvents()).toEqual([]);
+    recordTechnicalEvent({ type: 'retry', operation: 'save', attempt: 1 });
+    expect(getTechnicalEvents()[0].correlation).not.toHaveProperty('attemptId');
+    expect(getTechnicalEvents()[0].correlation.runId).toBeUndefined();
+    unsubscribe();
+  });
+
+  it('keeps current-session diagnostics across a token refresh for the same account', () => {
+    readyAccount(session('a'));
+    const unsubscribe = useAuthStore.getState().subscribeToAuthChanges();
+    recordTechnicalEvent({ type: 'retry', operation: 'save', attempt: 1 });
+    mocks.listener?.('TOKEN_REFRESHED', session('a'));
+    expect(getTechnicalEvents()).toHaveLength(1);
+    unsubscribe();
   });
 
   it('does not authenticate a session before its durable profile is ready', async () => {

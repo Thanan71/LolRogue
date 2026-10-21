@@ -67,7 +67,9 @@ class DatabaseLogger {
   private history: LogEntry[] = [];
   private performanceTimers = new Map<string, number>();
   private logBuffer: BufferedLog[] = [];
-  private readonly sessionId: string;
+  private sessionId: string;
+  private sessionGeneration = 0;
+  private flushAbort: AbortController | null = null;
   private flushTimer: ReturnType<typeof setInterval> | null = null;
   private isFlushing = false;
 
@@ -91,7 +93,7 @@ class DatabaseLogger {
 
   configure(config: Partial<LoggerConfig>): void {
     this.config = { ...this.config, ...config };
-    if (config.enabled === false || config.logToDatabase === false) this.logBuffer = [];
+    if (config.enabled === false || config.logToDatabase === false) this.resetSession();
     this.logBuffer = this.logBuffer.slice(-this.config.maxBufferSize);
     this.startBatchTimer();
   }
@@ -162,38 +164,76 @@ class DatabaseLogger {
     if (this.logBuffer.length >= this.config.batchSize) void this.flushBuffer();
   }
 
-  private async isAuthenticated(): Promise<boolean> {
+  /** Clear pending diagnostics before another identity can inherit them. */
+  resetSession(): void {
+    this.sessionGeneration += 1;
+    this.flushAbort?.abort();
+    this.logBuffer = [];
+    this.history = [];
+    this.performanceTimers.clear();
+    this.sessionId = crypto.randomUUID();
+  }
+
+  private async getLoggingSession() {
     try {
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      return session !== null;
+      return session &&
+        typeof session.access_token === 'string' &&
+        session.access_token.length > 0 &&
+        typeof session.user?.id === 'string' &&
+        session.user.is_anonymous !== true
+        ? session
+        : null;
     } catch {
-      return false;
+      return null;
     }
   }
 
   async flushBuffer(): Promise<void> {
-    if (this.isFlushing || this.logBuffer.length === 0 || !this.config.enabled) return;
+    if (
+      this.isFlushing ||
+      this.logBuffer.length === 0 ||
+      !this.config.enabled ||
+      !this.config.logToDatabase
+    )
+      return;
 
     this.isFlushing = true;
+    const generation = this.sessionGeneration;
+    const controller = new AbortController();
+    this.flushAbort = controller;
     let logsToSend: BufferedLog[] = [];
     try {
-      if (!(await this.isAuthenticated())) {
+      const session = await this.getLoggingSession();
+      if (generation !== this.sessionGeneration || controller.signal.aborted) return;
+      if (!session) {
         this.logBuffer = [];
         return;
       }
       logsToSend = this.logBuffer.splice(0, Math.min(this.config.batchSize, 10));
       if (logsToSend.length === 0) return;
-      const { error } = await supabase.rpc('submit_client_logs', {
-        p_logs: logsToSend.map(({ payload }) => payload),
-      });
-      if (error) this.retryIfTransient(logsToSend, error.message);
+      const { error } = await supabase
+        .rpc('submit_client_logs', {
+          p_logs: logsToSend.map(({ payload }) => payload),
+        })
+        // Bind this batch to the checked session even if Auth changes while
+        // the SDK prepares its fetch. The token is never retained in a log.
+        .setHeader('Authorization', `Bearer ${session.access_token}`)
+        .abortSignal(controller.signal);
+      if (error && generation === this.sessionGeneration && !controller.signal.aborted)
+        this.retryIfTransient(logsToSend, error.message);
     } catch (error) {
-      if (logsToSend.length > 0) {
+      if (
+        logsToSend.length > 0 &&
+        generation === this.sessionGeneration &&
+        !controller.signal.aborted
+      ) {
         this.retryIfTransient(logsToSend, error instanceof Error ? error.message : String(error));
       }
     } finally {
+      if (this.flushAbort === controller) this.flushAbort = null;
       this.isFlushing = false;
     }
   }

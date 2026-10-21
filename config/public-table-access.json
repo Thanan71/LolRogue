@@ -106,8 +106,9 @@
     },
     {
       "name": "logs",
-      "exposure": "client-data-api",
-      "reason": "Lecture et purge administratives sous RLS ; ingestion minimisée via submit_client_logs."
+      "exposure": "server-only",
+      "reason": "Diagnostics minimisés via admin_diagnostics après contrôle administrateur vivant ; ingestion opt-in via submit_client_logs, rétention de 14 jours.",
+      "apiPolicy": "deny-all"
     },
     {
       "name": "player_patch_note_state",

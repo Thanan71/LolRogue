@@ -1,169 +1,123 @@
 import { getAuthorityGameplayVersionLabel } from '@/game/authority/versionRegistry';
-import { fr } from '@/i18n/fr';
-import type {
-  AuthorityAttemptAggregate,
-  AuthorityRejectionSignal,
-} from '@/observability/authorityRejectionMonitor';
-import { AUTHORITY_REJECTION_ALERT_POLICY } from '@/observability/authorityRejectionMonitor';
+import { getAdminDiagnosticsCopy } from '@/i18n/adminDiagnostics';
+import { locale } from '@/i18n/fr';
+import { Button } from '@/shared/ui/Controls';
+import { formatAdminNumber } from '../adminPageUtils';
 import {
-  formatAdminCount,
-  formatAdminDate,
-  formatAdminNumber,
-  formatAdminPercent,
-} from '../adminPageUtils';
-import { AdminErrorNotice } from './AdminErrorNotice';
-import { AdminSectionFeedback } from './AdminSectionFeedback';
-import type { AdminAuthorityRejection } from './useAdminData';
-import type { AdminSectionFeedback as Feedback } from './useAdminSection';
+  diagnosticsDate,
+  DiagnosticsPagination,
+  DiagnosticsSection,
+  DiagnosticsTable,
+} from './diagnostics/DiagnosticsSection';
+import type { AdminDiagnostics } from './diagnostics/useAdminDiagnostics';
+import { diagnosticsRejectionCategory } from './diagnostics/adminDiagnosticsIncidents';
 
-interface AdminAuthorityPanelProps {
-  aggregates: AuthorityAttemptAggregate[];
-  signals: AuthorityRejectionSignal[];
-  rejections: AdminAuthorityRejection[];
-  loading: boolean;
-  error: string | null;
-  onRefresh: () => void;
-  state?: Feedback;
-}
-
-export function AdminAuthorityPanel({
-  aggregates,
-  signals,
-  rejections,
-  loading,
-  error,
-  onRefresh,
-  state,
-}: AdminAuthorityPanelProps) {
-  const totals = aggregates.reduce(
-    (sum, aggregate) => ({
-      attempts: sum.attempts + aggregate.attemptCount,
-      started: sum.started + aggregate.startedCount,
-      finished: sum.finished + aggregate.finishedCount,
-      verified: sum.verified + aggregate.verifiedCount,
-      rejected: sum.rejected + aggregate.rejectedCount,
-      expired: sum.expired + aggregate.expiredCount,
-    }),
-    { attempts: 0, started: 0, finished: 0, verified: 0, rejected: 0, expired: 0 },
-  );
-  const authorityStats = [
-    [fr.admin.attempts, totals.attempts],
-    [fr.admin.started, totals.started],
-    [fr.admin.awaitingVerification, totals.finished],
-    [fr.admin.verified, totals.verified],
-    [fr.admin.rejected, totals.rejected],
-    [fr.admin.expired, totals.expired],
-  ] as const;
-
+/** Authority keeps its existing entry point and server source; no parallel rejection channel. */
+export function AdminAuthorityPanel({ diagnostics }: { diagnostics: AdminDiagnostics }) {
+  const copy = getAdminDiagnosticsCopy(locale);
+  const state = diagnostics.authority;
+  const data = state.data?.data;
+  const enabled = diagnostics.enabled && !state.loading && !state.stale;
   return (
-    <section
-      className="authority-tab"
-      role="tabpanel"
-      id="admin-panel-authority"
-      aria-labelledby="admin-tab-authority"
+    <DiagnosticsSection
+      id="diagnostics-authority"
+      title={copy.attempts}
+      help={copy.attemptsHelp}
+      state={state}
+      enabled={diagnostics.enabled}
     >
-      <AdminErrorNotice message={error} onRetry={onRefresh} retrying={loading} />
-      {state && <AdminSectionFeedback state={state} />}
-      <div className="authority-header">
-        <div>
-          <h3>{fr.admin.authorityTitle}</h3>
-          <p>
-            {fr.admin.authorityWindowIntro}{' '}
-            {formatAdminCount(
-              AUTHORITY_REJECTION_ALERT_POLICY.windowMinutes,
-              fr.admin.minute,
-              fr.admin.minutes,
-            )}
-            {fr.admin.authorityWindowSuffix}
-          </p>
-        </div>
-        <button type="button" onClick={onRefresh} disabled={loading}>
-          {fr.admin.refresh}
-        </button>
-      </div>
-
-      {loading && !state?.hasData ? (
-        <div className="loading">{fr.admin.loadingAuthority}</div>
-      ) : error && !state?.hasData ? null : (
+      {data && (
         <>
-          {signals.length > 0 ? (
-            <div className="authority-alerts" role="alert">
-              <strong>{fr.admin.authorityAlert}</strong>
-              {signals.map((signal) => (
-                <p key={`${signal.engineVersion}-${signal.gameplayRulesetVersion}`}>
-                  {signal.engineVersion} / {fr.admin.gameplay} {fr.admin.versionShort}
-                  {getAuthorityGameplayVersionLabel(signal.gameplayRulesetVersion)} :{' '}
-                  {formatAdminPercent(signal.rejectionRate)} {fr.admin.rejectionRate} (
-                  {formatAdminNumber(signal.rejectedCount)}/{formatAdminNumber(signal.attemptCount)}
-                  ) — {signal.reasons.map((reason) => fr.admin.authorityReasons[reason]).join(', ')}
-                  {signal.unknownCodes.length > 0
-                    ? ` — ${fr.admin.newCodes} : ${signal.unknownCodes.join(', ')}`
-                    : ''}
-                </p>
-              ))}
-            </div>
-          ) : (
-            <p className="authority-ok" role="status">
-              {fr.admin.authorityNoAlert}
-            </p>
-          )}
-
-          <div className="stats-grid authority-stats">
-            {authorityStats.map(([label, value]) => (
-              <div className="stat-card" key={label}>
-                <div className="stat-value">{formatAdminNumber(value)}</div>
-                <div className="stat-label">{label}</div>
+          <dl className="admin-diagnostics__metrics">
+            {Object.entries(data.counts).map(([status, count]) => (
+              <div key={status}>
+                <dt>
+                  {status === 'started'
+                    ? copy.started
+                    : status === 'finished'
+                      ? copy.finished
+                      : status === 'verified'
+                        ? copy.verified
+                        : status === 'rejected'
+                          ? copy.rejected
+                          : copy.expired}
+                </dt>
+                <dd>{formatAdminNumber(count)}</dd>
               </div>
             ))}
-          </div>
-
-          <div className="authority-rejections-header">
-            <h4>
-              {formatAdminNumber(20)} {fr.admin.latestRejections}
-            </h4>
-            <span>
-              {formatAdminCount(
-                rejections.length,
-                fr.admin.displayedRejection,
-                fr.admin.displayedRejections,
-              )}
-            </span>
-          </div>
-          <div className="runs-table-container">
-            <table className="runs-table">
-              <caption className="sr-only">{fr.admin.authorityRejectionsCaption}</caption>
+          </dl>
+          <DiagnosticsPagination
+            section="authority"
+            page={diagnostics.authorityPage}
+            total={data.total}
+            displayed={data.rows.length}
+            next={data.nextCursor !== null}
+            diagnostics={{ ...diagnostics, enabled }}
+          />
+          {data.rows.length === 0 ? (
+            <p role="status">{copy.noAttempts}</p>
+          ) : (
+            <DiagnosticsTable label={copy.attemptsTable}>
               <thead>
                 <tr>
-                  <th scope="col">{fr.admin.date}</th>
-                  <th scope="col">{fr.admin.attempt}</th>
-                  <th scope="col">{fr.admin.engine}</th>
-                  <th scope="col">{fr.admin.gameplay}</th>
-                  <th scope="col">{fr.admin.code}</th>
+                  {[
+                    copy.createdAt,
+                    copy.attemptId,
+                    copy.status,
+                    copy.engine,
+                    copy.ruleset,
+                    copy.code,
+                  ].map((label) => (
+                    <th key={label} scope="col">
+                      {label}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {rejections.map((rejection) => (
-                  <tr key={rejection.attemptId}>
-                    <td>{formatAdminDate(rejection.rejectedAt)}</td>
+                {data.rows.map((row) => (
+                  <tr key={row.id}>
+                    <td>{diagnosticsDate(row.startedAt)}</td>
                     <td>
-                      <code>{rejection.attemptId}</code>
+                      <code>{row.id}</code>
+                      <Button
+                        variant="secondary"
+                        disabled={!enabled}
+                        onClick={() => diagnostics.select(row.id)}
+                      >
+                        {copy.correlate}
+                      </Button>
                     </td>
-                    <td>{rejection.engineVersion}</td>
                     <td>
-                      {fr.admin.versionShort}
-                      {getAuthorityGameplayVersionLabel(rejection.gameplayRulesetVersion)}
+                      <span
+                        className={`admin-diagnostics__badge admin-diagnostics__badge--${row.status}`}
+                      >
+                        {copy[row.status]}
+                      </span>
                     </td>
+                    <td>{row.engineVersion}</td>
+                    <td>{getAuthorityGameplayVersionLabel(row.gameplayRulesetVersion)}</td>
                     <td>
-                      <code>{rejection.rejectionCode}</code>
+                      <code>{row.rejectionCode ?? copy.unavailable}</code>
+                      {row.status === 'rejected' && (
+                        <p>
+                          {diagnosticsRejectionCategory(row.rejectionCode) === 'technical'
+                            ? copy.technical
+                            : diagnosticsRejectionCategory(row.rejectionCode) === 'contract'
+                              ? copy.contract
+                              : diagnosticsRejectionCategory(row.rejectionCode) === 'missing'
+                                ? copy.missingCode
+                                : copy.unknownCode}
+                        </p>
+                      )}
                     </td>
                   </tr>
                 ))}
               </tbody>
-            </table>
-            {rejections.length === 0 && <div className="no-data">{fr.admin.noRejections}</div>}
-          </div>
+            </DiagnosticsTable>
+          )}
         </>
       )}
-    </section>
+    </DiagnosticsSection>
   );
 }

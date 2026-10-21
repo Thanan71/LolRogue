@@ -184,6 +184,7 @@
     "docs/accessibility.md",
     "docs/admin-analytics.md",
     "docs/admin-balance.md",
+    "docs/admin-diagnostics.md",
     "docs/admin-explorer.md",
     "docs/admin-metrics.md",
     "docs/admin-moderation.md",
@@ -192,6 +193,7 @@
     "docs/admin-s3-validation-2026-10-17.md",
     "docs/admin-s4-validation-2026-10-18.md",
     "docs/admin-s5-validation-2026-10-18.md",
+    "docs/admin-s6-validation-2026-10-18.md",
     "docs/administration.md",
     "docs/architecture-s2-validation-2026-10-11.md",
     "docs/architecture-s3-validation-2026-10-11.md",
@@ -282,6 +284,8 @@
     "e2e/admin-balance-connected.spec.ts",
     "e2e/admin-balance.spec.ts",
     "e2e/admin-data-reliability.spec.ts",
+    "e2e/admin-diagnostics-connected.spec.ts",
+    "e2e/admin-diagnostics.spec.ts",
     "e2e/admin-moderation-connected.spec.ts",
     "e2e/admin-moderation.spec.ts",
     "e2e/admin-players-explorer.spec.ts",
@@ -674,6 +678,7 @@
     "src/hooks/useRunImagePreload.ts",
     "src/i18n/adminAnalytics.ts",
     "src/i18n/adminBalance.ts",
+    "src/i18n/adminDiagnostics.ts",
     "src/i18n/adminErrorContent.ts",
     "src/i18n/adminExplorer.ts",
     "src/i18n/adminExportContent.ts",
@@ -741,7 +746,6 @@
     "src/pages/admin/AdminTabList.tsx",
     "src/pages/admin/adminMetrics.ts",
     "src/pages/admin/adminMutationRequest.ts",
-    "src/pages/admin/adminTableQueries.ts",
     "src/pages/admin/analytics/AdminAnalyticsChart.tsx",
     "src/pages/admin/analytics/AdminAnalyticsContext.tsx",
     "src/pages/admin/analytics/AdminAnalyticsFilters.tsx",
@@ -778,6 +782,19 @@
     "src/pages/admin/balance/adminBalanceValidation.ts",
     "src/pages/admin/balance/balanceTypes.ts",
     "src/pages/admin/balance/useAdminBalance.ts",
+    "src/pages/admin/diagnostics/AdminDiagnosticsWorkspace.tsx",
+    "src/pages/admin/diagnostics/DiagnosticsCorrelation.tsx",
+    "src/pages/admin/diagnostics/DiagnosticsFilters.tsx",
+    "src/pages/admin/diagnostics/DiagnosticsIncidents.tsx",
+    "src/pages/admin/diagnostics/DiagnosticsLogs.tsx",
+    "src/pages/admin/diagnostics/DiagnosticsSection.tsx",
+    "src/pages/admin/diagnostics/DiagnosticsService.tsx",
+    "src/pages/admin/diagnostics/adminDiagnosticsClient.ts",
+    "src/pages/admin/diagnostics/adminDiagnosticsIncidents.ts",
+    "src/pages/admin/diagnostics/adminDiagnosticsParser.ts",
+    "src/pages/admin/diagnostics/adminDiagnosticsTypes.ts",
+    "src/pages/admin/diagnostics/adminDiagnosticsValidation.ts",
+    "src/pages/admin/diagnostics/useAdminDiagnostics.ts",
     "src/pages/admin/explorer/AdminPagination.tsx",
     "src/pages/admin/explorer/adminExplorerClient.ts",
     "src/pages/admin/explorer/adminExplorerTypes.ts",
@@ -950,6 +967,11 @@
     "tests/adminBalanceUi.test.tsx",
     "tests/adminCsv.test.ts",
     "tests/adminData.test.tsx",
+    "tests/adminDiagnostics.database.test.ts",
+    "tests/adminDiagnosticsClient.test.ts",
+    "tests/adminDiagnosticsContracts.test.ts",
+    "tests/adminDiagnosticsIncidents.test.ts",
+    "tests/adminDiagnosticsUi.test.tsx",
     "tests/adminExplorer.database.test.ts",
     "tests/adminExplorerPage.test.tsx",
     "tests/adminExplorerPrivileges.database.test.ts",
@@ -970,7 +992,6 @@
     "tests/adminRunContracts.test.ts",
     "tests/adminRunExplorer.test.tsx",
     "tests/adminRunExport.test.ts",
-    "tests/adminTableQueries.test.ts",
     "tests/ancillaryStorage.test.ts",
     "tests/applicationRollback.test.mjs",
     "tests/architectureResponsibilities.test.ts",
@@ -1113,6 +1134,8 @@
     "tests/generatedArtifacts.test.mjs",
     "tests/helpers/adminAnalyticsFixtures.ts",
     "tests/helpers/adminBalanceFixtures.ts",
+    "tests/helpers/adminDiagnosticsFixtures.ts",
+    "tests/helpers/adminDiagnosticsUiFixtures.ts",
     "tests/helpers/adminExplorerFixtures.ts",
     "tests/helpers/adminModerationDatabaseFixtures.ts",
     "tests/helpers/adminModerationFixtures.ts",
@@ -1981,7 +2004,7 @@
         },
         {
           "file": "docs/feature-status.md",
-          "line": 48,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "| Assets Riot hors ligne au build | manifest SHA-256 et paquet `public/assets/riot` | `assetDelivery.test.ts`, `npm run assets -- clean-build`, `npm run assets -- verify --dist` | Livré : 227 fichiers versionnés, dont 40",
@@ -1989,7 +2012,7 @@
         },
         {
           "file": "docs/feature-status.md",
-          "line": 48,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "| Assets Riot hors ligne au build | manifest SHA-256 et paquet `public/assets/riot` | `assetDelivery.test.ts`, `npm run assets -- clean-build`, `npm run assets -- verify --dist` | Livré : 227 fichiers versionnés, dont 40",
@@ -2267,7 +2290,7 @@
         },
         {
           "file": "docs/feature-status.md",
-          "line": 48,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "| Assets Riot hors ligne au build | manifest SHA-256 et paquet `public/assets/riot` | `assetDelivery.test.ts`, `npm run assets -- clean-build`, `npm run assets -- verify --dist` | Livré : 227 fichiers versionnés, dont 40",
@@ -2275,7 +2298,7 @@
         },
         {
           "file": "docs/feature-status.md",
-          "line": 48,
+          "line": 49,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "| Assets Riot hors ligne au build | manifest SHA-256 et paquet `public/assets/riot` | `assetDelivery.test.ts`, `npm run assets -- clean-build`, `npm run assets -- verify --dist` | Livré : 227 fichiers versionnés, dont 40",
@@ -27707,7 +27730,7 @@
         },
         {
           "file": "docs/administration.md",
-          "line": 135,
+          "line": 138,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`service_role`. `npm run database -- security` compare les ACL réelles à ce manifest et",
@@ -27971,7 +27994,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 164,
+          "line": 171,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- comparer les ACL `SECURITY DEFINER` au manifest avec `npm run database -- security` et",
@@ -27979,7 +28002,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 182,
+          "line": 189,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
@@ -27987,7 +28010,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 182,
+          "line": 189,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
@@ -27995,7 +28018,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 187,
+          "line": 194,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run database -- migrations check --linked --project-ref <project-ref>",
@@ -28003,7 +28026,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 245,
+          "line": 252,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "horodatée et la tester avec `npm run database -- validate --yes`.",
@@ -28011,7 +28034,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 247,
+          "line": 254,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- migrations check --linked --project-ref <project-ref>`. Cette commande est en lecture seule et bloque",
@@ -28695,7 +28718,7 @@
         },
         {
           "file": "docs/administration.md",
-          "line": 135,
+          "line": 138,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`service_role`. `npm run database -- security` compare les ACL réelles à ce manifest et",
@@ -28959,7 +28982,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 164,
+          "line": 171,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- comparer les ACL `SECURITY DEFINER` au manifest avec `npm run database -- security` et",
@@ -28967,7 +28990,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 182,
+          "line": 189,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
@@ -28975,7 +28998,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 182,
+          "line": 189,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "dans la fiche de release privée. `npm run database -- security` et `npm run database -- validate --yes`",
@@ -28983,7 +29006,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 187,
+          "line": 194,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run database -- migrations check --linked --project-ref <project-ref>",
@@ -28991,7 +29014,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 245,
+          "line": 252,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "horodatée et la tester avec `npm run database -- validate --yes`.",
@@ -28999,7 +29022,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 247,
+          "line": 254,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- migrations check --linked --project-ref <project-ref>`. Cette commande est en lecture seule et bloque",
@@ -33646,7 +33669,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 321,
+          "line": 345,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "configuration privée, sous Node 24 après `npm ci` avec un cache initialement vide.",
@@ -34053,7 +34076,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 321,
+          "line": 345,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "configuration privée, sous Node 24 après `npm ci` avec un cache initialement vide.",
@@ -35298,7 +35321,7 @@
         },
         {
           "file": "docs/incident-runbooks.md",
-          "line": 109,
+          "line": 118,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- edge bundle`, déployer la fonction, puis activer le nouveau ruleset.",
@@ -35322,7 +35345,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 254,
+          "line": 261,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "moteur. `npm run release -- edge bundle` recalcule les hashes et échoue si le client, le",
@@ -35330,7 +35353,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 260,
+          "line": 267,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes` constitue le chemin normal de publication complète. Il",
@@ -35338,7 +35361,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 272,
+          "line": 279,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "1. `npm run release -- deploy --project-ref <project-ref> --yes` publie le vérificateur compatible avec les anciennes et",
@@ -35346,7 +35369,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 282,
+          "line": 289,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "immuables et sont contrôlés par `npm run release -- edge bundle`.",
@@ -35824,7 +35847,7 @@
         },
         {
           "file": "docs/incident-runbooks.md",
-          "line": 109,
+          "line": 118,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- edge bundle`, déployer la fonction, puis activer le nouveau ruleset.",
@@ -35848,7 +35871,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 254,
+          "line": 261,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "moteur. `npm run release -- edge bundle` recalcule les hashes et échoue si le client, le",
@@ -35856,7 +35879,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 260,
+          "line": 267,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes` constitue le chemin normal de publication complète. Il",
@@ -35864,7 +35887,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 272,
+          "line": 279,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "1. `npm run release -- deploy --project-ref <project-ref> --yes` publie le vérificateur compatible avec les anciennes et",
@@ -35872,7 +35895,7 @@
         },
         {
           "file": "docs/operations.md",
-          "line": 282,
+          "line": 289,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "immuables et sont contrôlés par `npm run release -- edge bundle`.",
@@ -38454,7 +38477,7 @@
         },
         {
           "file": "docs/observability.md",
-          "line": 124,
+          "line": 135,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "avec rollback et fixtures expirées/en attente/récentes : `npm run test:db` l'inclut",
@@ -38571,7 +38594,7 @@
         },
         {
           "file": "docs/observability.md",
-          "line": 124,
+          "line": 135,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "avec rollback et fixtures expirées/en attente/récentes : `npm run test:db` l'inclut",
@@ -39107,7 +39130,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 176,
+          "line": 200,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:e2e:production` sans `continue-on-error` : ce contrôle est donc",
@@ -39177,7 +39200,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 176,
+          "line": 200,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:e2e:production` sans `continue-on-error` : ce contrôle est donc",
@@ -40067,7 +40090,7 @@
         },
         {
           "file": "docs/feature-status.md",
-          "line": 50,
+          "line": 51,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "| Audit des dépendances | `check-dependency-audit.mjs` | `npm run testing -- security` | Gate disponible ; résultat courant à exécuter sur le SHA candidat |",
@@ -40075,7 +40098,7 @@
         },
         {
           "file": "docs/feature-status.md",
-          "line": 51,
+          "line": 52,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "| Budgets de performance | plafond global 670 Ko gzip, marge minimale 10 %, six budgets par chunk et Web Vitals lab sur preview Auth | `npm run testing -- performance budgets`, `npm run testing -- performance preview` | ",
@@ -40083,7 +40106,7 @@
         },
         {
           "file": "docs/feature-status.md",
-          "line": 51,
+          "line": 52,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "| Budgets de performance | plafond global 670 Ko gzip, marge minimale 10 %, six budgets par chunk et Web Vitals lab sur preview Auth | `npm run testing -- performance budgets`, `npm run testing -- performance preview` | ",
@@ -40091,7 +40114,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 101,
+          "line": 125,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`performance-report/preview-report.json` par `npm run testing -- performance preview`.",
@@ -40099,7 +40122,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 168,
+          "line": 192,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Web Vitals restent inchangés. `npm run testing -- performance budgets` reste bloquant ;",
@@ -40435,7 +40458,7 @@
         },
         {
           "file": "docs/feature-status.md",
-          "line": 50,
+          "line": 51,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "| Audit des dépendances | `check-dependency-audit.mjs` | `npm run testing -- security` | Gate disponible ; résultat courant à exécuter sur le SHA candidat |",
@@ -40443,7 +40466,7 @@
         },
         {
           "file": "docs/feature-status.md",
-          "line": 51,
+          "line": 52,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "| Budgets de performance | plafond global 670 Ko gzip, marge minimale 10 %, six budgets par chunk et Web Vitals lab sur preview Auth | `npm run testing -- performance budgets`, `npm run testing -- performance preview` | ",
@@ -40451,7 +40474,7 @@
         },
         {
           "file": "docs/feature-status.md",
-          "line": 51,
+          "line": 52,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "| Budgets de performance | plafond global 670 Ko gzip, marge minimale 10 %, six budgets par chunk et Web Vitals lab sur preview Auth | `npm run testing -- performance budgets`, `npm run testing -- performance preview` | ",
@@ -40459,7 +40482,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 101,
+          "line": 125,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`performance-report/preview-report.json` par `npm run testing -- performance preview`.",
@@ -40467,7 +40490,7 @@
         },
         {
           "file": "docs/frontend-performance.md",
-          "line": 168,
+          "line": 192,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Web Vitals restent inchangés. `npm run testing -- performance budgets` reste bloquant ;",

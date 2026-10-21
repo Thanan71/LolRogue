@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { Database, Json } from '@/types/database';
+import { explorerSql } from './helpers/adminExplorerFixtures';
 
 const supabaseUrl = process.env.VITE_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
@@ -212,8 +213,15 @@ describeLive('public data and client log live security', () => {
 
     const ownRead = await first.client.from('logs').select('id').eq('id', stored.data!.id);
     const otherRead = await second.client.from('logs').select('id').eq('id', stored.data!.id);
-    expect(ownRead.data).toHaveLength(1);
-    expect(otherRead.data).toHaveLength(0);
+    expect(ownRead).toMatchObject({ data: null, error: { code: '42501' } });
+    expect(otherRead).toMatchObject({ data: null, error: { code: '42501' } });
+    const promoted = await admin
+      .from('players')
+      .update({ is_admin: true })
+      .eq('user_id', first.userId);
+    expect(promoted.error).toBeNull();
+    const administratorRead = await first.client.from('logs').select('*').eq('id', stored.data!.id);
+    expect(administratorRead).toMatchObject({ data: null, error: { code: '42501' } });
 
     const anonymous = createClient<Database>(supabaseUrl!, anonKey!, {
       auth: { autoRefreshToken: false, persistSession: false },
@@ -263,24 +271,21 @@ describeLive('public data and client log live security', () => {
     createdUserIds.push(player.userId);
     const profile = await admin.from('players').select('id').eq('user_id', player.userId).single();
     const oldId = randomUUID();
-    const inserted = await admin.from('logs').insert({
-      id: oldId,
-      created_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1_000).toISOString(),
-      level: 'info',
-      repository: 'RetentionTest',
-      method: 'purge',
-      operation: 'delete',
-      details: {},
-      user_id: player.userId,
-      player_id: profile.data!.id,
-      session_id: randomUUID(),
-    });
-    expect(inserted.error).toBeNull();
+    expect(profile.error).toBeNull();
+    // Historical fixtures belong to the local SQL operator. API callers never
+    // acquire access to the private index helper or arbitrary log ingestion.
+    explorerSql(`INSERT INTO public.logs(id,created_at,level,repository,method,operation,details,user_id,player_id,session_id)
+      VALUES('${oldId}',clock_timestamp()-interval '15 days','info','RetentionTest','purge','delete','{}'::jsonb,
+      '${player.userId}','${profile.data!.id}','${randomUUID()}');`);
+    const beforePurge = await admin.from('logs').select('id').eq('id', oldId);
+    expect(beforePurge.error).toBeNull();
+    expect(beforePurge.data).toEqual([{ id: oldId }]);
 
     const purged = await admin.rpc('purge_expired_logs');
     expect(purged.error).toBeNull();
     expect(purged.data).toBeGreaterThanOrEqual(1);
     const remaining = await admin.from('logs').select('id').eq('id', oldId);
+    expect(remaining.error).toBeNull();
     expect(remaining.data).toHaveLength(0);
   });
 });

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { PATCH_NOTES } from '@/data/patchNotes';
 import { adminAnalyticsContent } from '@/i18n/adminAnalytics';
 import { getAdminBalanceCopy } from '@/i18n/adminBalance';
+import { getAdminDiagnosticsCopy } from '@/i18n/adminDiagnostics';
 import { adminExportContent } from '@/i18n/adminExportContent';
 import { getAdminFieldCalibrationCopy } from '@/i18n/adminFieldCalibration';
 import { getAdminModerationCopy } from '@/i18n/adminModeration';
@@ -34,6 +35,10 @@ const catalogs = {
   adminBalance: {
     'fr-FR': getAdminBalanceCopy('fr-FR'),
     'en-US': getAdminBalanceCopy('en-US'),
+  },
+  adminDiagnostics: {
+    'fr-FR': getAdminDiagnosticsCopy('fr-FR'),
+    'en-US': getAdminDiagnosticsCopy('en-US'),
   },
   adminModeration: {
     'fr-FR': getAdminModerationCopy('fr-FR'),
@@ -81,6 +86,7 @@ const catalogModules = {
   'adminAnalytics.ts': 'adminAnalytics',
   'adminBalance.ts': 'adminBalance',
   'adminModeration.ts': 'adminModeration',
+  'adminDiagnostics.ts': 'adminDiagnostics',
   'adminExplorer.ts': 'main',
   'adminRunExplorer.ts': 'main',
   'adminExportContent.ts': 'adminExport',
@@ -140,6 +146,19 @@ const intentionallyIdenticalPaths: Readonly<
   // Shared standalone terms, the established product term Runs and the UTC standard.
   adminBalance: ['$.mode', '$.champion', '$.runes', '$.augments', '$.active', '$.runs', '$.utc'],
   adminModeration: ['$.action', '$.page', '$.utc'],
+  // Shared technical units and standalone terms have the same spelling in both locales.
+  adminDiagnostics: [
+    '$.code',
+    '$.createdAt',
+    '$.tableName',
+    '$.ruleset',
+    '$.source',
+    '$.page',
+    '$.utc',
+    '$.milliseconds',
+    '$.minutes',
+    '$.info',
+  ],
   authRecovery: [],
   adminFieldCalibration: [
     '$.biome.base',
@@ -226,6 +245,7 @@ const intentionallyIdenticalFunctionPaths: Readonly<
   adminAnalytics: [],
   adminBalance: [],
   adminModeration: [],
+  adminDiagnostics: [],
   adminExport: [],
   authRecovery: [],
   adminFieldCalibration: [],

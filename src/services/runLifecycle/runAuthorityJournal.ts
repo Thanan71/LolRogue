@@ -24,6 +24,7 @@ export function createRunAuthorityJournal(
       if (appended.authorityAttempt !== state.authorityAttempt) {
         set({ authorityAttempt: appended.authorityAttempt });
         setTechnicalCorrelation({
+          attemptId: appended.authorityAttempt?.attemptId,
           runId: state.runId,
           commandId:
             appended.authorityAttempt?.commands[appended.authorityAttempt.commands.length - 1]

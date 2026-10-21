@@ -74,6 +74,7 @@ describe('public table boundary manifest', () => {
       'daily_challenge_rulesets',
       'daily_score_invalidation_audit',
       'daily_score_reports',
+      'logs',
       'progression_commands',
       'progression_enhancement_security_baselines',
     ]);

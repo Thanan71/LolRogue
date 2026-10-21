@@ -426,6 +426,30 @@
       "level": "INFO",
       "justification": "Index ADM-S5 utilisé sur une file de 20 000 dossiers par les statuts traités et les filtres UTC ; JSON inchangé, lecture traitée 23,136 à 9,921 ms. Le reset précède les tests. Preuve dans docs/admin-s5-validation-2026-10-18.md.",
       "expiresAt": "2026-10-31"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_logs_logs_diagnostic_order",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "ADM-S6 : pagination stable (created_at,id) en 0,025 ms sur 20 000 logs locaux avec EXPLAIN ANALYZE ; index utilisé sans tri ni disque temporaire. Les statistiques du reset frais ne reflètent pas ces essais transactionnels annulés.",
+      "expiresAt": "2026-10-31"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_logs_logs_diagnostic_session_order",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "ADM-S6 : filtre exact session_id et pagination en 0,388 ms sur 20 000 logs locaux avec EXPLAIN ANALYZE ; index utilisé sans disque temporaire. Les statistiques du reset frais ne reflètent pas ces essais transactionnels annulés.",
+      "expiresAt": "2026-10-31"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_logs_logs_diagnostic_attempt_order",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "ADM-S6 : corrélation attemptId exacte et contrôle propriétaire en 0,193 ms sur 20 000 logs locaux avec EXPLAIN ANALYZE ; index expression et PK de tentative utilisés. Les statistiques du reset frais ne reflètent pas ces essais transactionnels annulés.",
+      "expiresAt": "2026-10-31"
     }
   ]
 }

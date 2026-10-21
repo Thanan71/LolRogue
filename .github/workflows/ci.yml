@@ -296,7 +296,7 @@ jobs:
           VITE_PUBLIC_SUPABASE_ANON_KEY="$E2E_SUPABASE_ANON_KEY" \
           SUPABASE_SERVICE_ROLE_KEY="$E2E_SUPABASE_SERVICE_ROLE_KEY" \
           SUPABASE_DB_URL="$E2E_SUPABASE_DB_URL" \
-          npx playwright test e2e/connected-daily.spec.ts e2e/connected-sprint-g.spec.ts e2e/champion-economy-connected.spec.ts e2e/admin-analytics-connected.spec.ts e2e/admin-balance-connected.spec.ts e2e/admin-moderation-connected.spec.ts --project=chromium
+          npx playwright test e2e/connected-daily.spec.ts e2e/connected-sprint-g.spec.ts e2e/champion-economy-connected.spec.ts e2e/admin-analytics-connected.spec.ts e2e/admin-balance-connected.spec.ts e2e/admin-moderation-connected.spec.ts e2e/admin-diagnostics-connected.spec.ts --project=chromium
 
       - name: Run production browser matrix
         run: npm run test:e2e:production

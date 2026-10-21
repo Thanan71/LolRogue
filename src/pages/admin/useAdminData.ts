@@ -4,16 +4,8 @@ import type {
   VerifiedFieldCalibrationCohort,
   VerifiedFieldChampionCohort,
 } from '@/game/balance/fieldCalibrationComparison';
-import {
-  AUTHORITY_REJECTION_ALERT_POLICY,
-  type AuthorityAttemptAggregate,
-  type AuthorityRejectionSignal,
-  evaluateAuthorityRejectionAlerts,
-} from '@/observability/authorityRejectionMonitor';
 import { supabase } from '@/services/supabaseClient';
 import type { Database, Json } from '@/types/database';
-import type { Log } from '@/types/models';
-import { type AdminLogFilter, type AdminTablePage, fetchAdminLogsPage } from './adminTableQueries';
 import { useAdminExplorerScope } from './explorer/useAdminExplorerScope';
 import { useAdminSection } from './useAdminSection';
 
@@ -26,16 +18,8 @@ export type AdminTab =
   | 'analytics'
   | 'balance'
   | 'moderation';
-export type AdminDataSection = 'stats' | 'authority' | 'logs';
+export type AdminDataSection = 'stats';
 export type AdminDataErrors = Record<AdminDataSection, string | null>;
-
-export interface AdminAuthorityRejection {
-  attemptId: string;
-  rejectedAt: string;
-  engineVersion: string;
-  gameplayRulesetVersion: number;
-  rejectionCode: string;
-}
 
 type FieldCohortRow = Database['public']['Views']['admin_verified_field_cohorts']['Row'];
 type FieldChampionRow = Database['public']['Views']['admin_verified_field_champion_cohorts']['Row'];
@@ -237,38 +221,14 @@ export function mapVerifiedFieldAugment(row: FieldAugmentRow): VerifiedFieldAugm
   };
 }
 
-export async function loadAllAdminSections(
-  loaders: ReadonlyArray<() => Promise<unknown>>,
-): Promise<void> {
-  await Promise.all(loaders.map((load) => load()));
-}
-
 type AdminStats = Record<string, string | null>;
-interface AuthorityData {
-  aggregates: AuthorityAttemptAggregate[];
-  signals: AuthorityRejectionSignal[];
-  rejections: AdminAuthorityRejection[];
-}
 const EMPTY_STATS: AdminStats = {};
-const EMPTY_AUTHORITY: AuthorityData = {
-  aggregates: [],
-  signals: [],
-  rejections: [],
-};
-const EMPTY_LOGS: AdminTablePage<Log> = { rows: [], total: 0 };
 const emptyStats = (data: AdminStats) => Object.keys(data).length === 0;
-const emptyAuthority = (data: AuthorityData) =>
-  data.aggregates.length === 0 && data.rejections.length === 0;
-const emptyTable = (data: { rows: unknown[] }) => data.rows.length === 0;
 
+/** Dashboard data only. Diagnostics own their lazy, permission-scoped RPC reads. */
 export function useAdminData(isAdmin: boolean) {
   const { enabled, scope, captureScope } = useAdminExplorerScope(isAdmin);
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
-  const [logFilter, setLogFilter] = useState<AdminLogFilter>({
-    level: 'all',
-    operation: 'all',
-    limit: 100,
-  });
   const loadStats = useCallback(async (signal: AbortSignal): Promise<AdminStats> => {
     const { data, error } = await supabase.from('admin_stats').select('*').abortSignal(signal);
     if (error) throw error;
@@ -279,123 +239,22 @@ export function useAdminData(isAdmin: boolean) {
     }
     return result;
   }, []);
-  const loadAuthority = useCallback(async (signal: AbortSignal): Promise<AuthorityData> => {
-    const windowStart = new Date(
-      Date.now() - AUTHORITY_REJECTION_ALERT_POLICY.windowMinutes * 60_000,
-    ).toISOString();
-    const [aggregatesResult, rejectionsResult] = await Promise.all([
-      supabase
-        .from('authority_attempt_aggregates')
-        .select('*')
-        .gte('window_started_at', windowStart)
-        .abortSignal(signal),
-      supabase.from('authority_recent_rejections').select('*').abortSignal(signal),
-    ]);
-    if (aggregatesResult.error) throw aggregatesResult.error;
-    if (rejectionsResult.error) throw rejectionsResult.error;
-
-    const aggregates = (aggregatesResult.data ?? []).flatMap((row) => {
-      if (
-        !row.window_started_at ||
-        !row.engine_version ||
-        row.gameplay_ruleset_version === null ||
-        row.attempt_count === null ||
-        row.started_count === null ||
-        row.finished_count === null ||
-        row.verified_count === null ||
-        row.rejected_count === null ||
-        row.expired_count === null
-      ) {
-        return [];
-      }
-      return [
-        {
-          windowStartedAt: row.window_started_at,
-          engineVersion: row.engine_version,
-          gameplayRulesetVersion: row.gameplay_ruleset_version,
-          rejectionCode: row.rejection_code,
-          attemptCount: row.attempt_count,
-          startedCount: row.started_count,
-          finishedCount: row.finished_count,
-          verifiedCount: row.verified_count,
-          rejectedCount: row.rejected_count,
-          expiredCount: row.expired_count,
-        },
-      ];
-    });
-    const rejections = (rejectionsResult.data ?? []).flatMap((row) => {
-      if (
-        !row.attempt_id ||
-        !row.rejected_at ||
-        !row.engine_version ||
-        row.gameplay_ruleset_version === null ||
-        !row.rejection_code
-      ) {
-        return [];
-      }
-      return [
-        {
-          attemptId: row.attempt_id,
-          rejectedAt: row.rejected_at,
-          engineVersion: row.engine_version,
-          gameplayRulesetVersion: row.gameplay_ruleset_version,
-          rejectionCode: row.rejection_code,
-        },
-      ];
-    });
-
-    return {
-      aggregates,
-      signals: evaluateAuthorityRejectionAlerts(aggregates),
-      rejections,
-    };
-  }, []);
-  const loadLogs = useCallback(
-    (signal: AbortSignal) => fetchAdminLogsPage(logFilter, signal),
-    [logFilter],
-  );
-  const common = { enabled, scope, captureScope };
   const stats = useAdminSection({
-    ...common,
+    enabled,
+    scope,
+    captureScope,
     initialData: EMPTY_STATS,
     load: loadStats,
     isEmpty: emptyStats,
   });
-  const authority = useAdminSection({
-    ...common,
-    initialData: EMPTY_AUTHORITY,
-    load: loadAuthority,
-    isEmpty: emptyAuthority,
-  });
-  const logs = useAdminSection({
-    ...common,
-    queryKey: JSON.stringify(logFilter),
-    initialData: EMPTY_LOGS,
-    load: loadLogs,
-    isEmpty: emptyTable,
-  });
-  const sections = { stats, authority, logs };
   return {
     activeTab,
     setActiveTab,
     stats: stats.data,
-    authorityAggregates: authority.data.aggregates,
-    authoritySignals: authority.data.signals,
-    authorityRejections: authority.data.rejections,
-    logs: logs.data.rows,
-    logsTotal: logs.hasData ? logs.data.total : null,
-    loading: Object.values(sections).some((section) => section.loading),
+    loading: stats.loading,
     statsLoading: stats.loading,
-    authorityLoading: authority.loading,
-    logsLoading: logs.loading,
-    sections,
-    errors: Object.fromEntries(
-      Object.entries(sections).map(([key, value]) => [key, value.error]),
-    ) as AdminDataErrors,
-    logFilter,
-    setLogFilter,
+    sections: { stats },
+    errors: { stats: stats.error },
     fetchStats: stats.reload,
-    fetchAuthorityObservability: authority.reload,
-    fetchLogs: logs.reload,
   };
 }

@@ -111,7 +111,11 @@ export function createRunFinalizationOrchestrator(
       if (state.completedRunSnapshot?.runId === state.runId) {
         recordTechnicalEvent(
           { type: 'retry', operation: 'run_finalization', attempt: 1 },
-          { runId: state.runId, commandId: state.authorityAttempt?.finishCommandId },
+          {
+            runId: state.runId,
+            attemptId: state.authorityAttempt?.attemptId,
+            commandId: state.authorityAttempt?.finishCommandId,
+          },
         );
       }
 
@@ -247,7 +251,10 @@ export function createRunFinalizationOrchestrator(
     })();
 
     dependencies.lifecycle.trackFinalization(requestedRunId, operation);
-    const finishTransition = measureTransition('run_finalization', { runId: requestedRunId });
+    const finishTransition = measureTransition('run_finalization', {
+      runId: requestedRunId,
+      attemptId: get().authorityAttempt?.attemptId,
+    });
     try {
       const succeeded = await operation;
       finishTransition(succeeded ? 'ok' : 'error');
@@ -269,7 +276,11 @@ export function createRunFinalizationOrchestrator(
       finishTransition('error');
       recordTechnicalEvent(
         { type: 'save_failure', reason: message, retryable: true },
-        { runId: requestedRunId, commandId: get().authorityAttempt?.finishCommandId },
+        {
+          runId: requestedRunId,
+          attemptId: get().authorityAttempt?.attemptId,
+          commandId: get().authorityAttempt?.finishCommandId,
+        },
       );
       logger.error('[runStore.endRun] Unexpected finalization failure:', error);
       if (get().runId !== requestedRunId) {

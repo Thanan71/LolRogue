@@ -78,6 +78,15 @@ de rollback applicatif : il ne connaît ni les attempts v22 ni leurs compteurs.
 Conserver un déploiement sain compatible v22 et relever son identifiant avant
 de promouvoir les versions suivantes.
 
+Pour ADM-S6, la lecture directe des logs est retirée au navigateur. Le checkpoint
+pré-S6 `968c0b3a` n’est plus compatible avec cette surface admin. Le candidat de
+maintenance `f812673f8ed35afe8ff31fdc421e3c34112e8309`, schéma `20261018100541`,
+comprend le client RPC et son interface ; son build indépendant et ses 10 probes
+SQL passent localement. Cela ne démontre pas qu’un déploiement de production
+correspondant est sain. Préparer et tester ce déploiement avant promotion,
+consigner son identifiant, et conserver les protections d’accès de la migration.
+Ce candidat ne rétablit pas le comportement brut pré-S6.
+
 Critères : rollback si Auth, démarrage, reprise ou finalisation d'une run échoue au
 smoke test, si le taux d'erreur critique augmente durablement, ou si une migration
 et son client ne peuvent être rendus compatibles en 30 minutes. Après rollback,
