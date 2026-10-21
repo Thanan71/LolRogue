@@ -5,6 +5,11 @@
   "requiredFiles": ["tests/repositoryIntegration.database.test.ts"],
   "skipAllowlist": [
     {
+      "file": "tests/enhancementAudit.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only in generic unit runs without disposable loopback Supabase API and SQL credentials; DB_TEST_REQUIRED fails instead of skipping."
+    },
+    {
       "file": "tests/adminVolume.database.test.ts",
       "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
       "reason": "Skip only in generic unit runs without disposable loopback Supabase API and SQL credentials; DB_TEST_REQUIRED fails instead of skipping."
