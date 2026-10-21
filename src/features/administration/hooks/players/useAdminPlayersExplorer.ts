@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useAdministrationForm } from '../useAdministrationForm';
+import type { AdministrationNavigation } from '../useAdministrationNavigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
   AdminExplorerCursor,
   AdminExplorerPage,
@@ -30,14 +32,25 @@ interface Navigation {
 const emptyPage = (page: AdminExplorerPage<AdminPlayerListItem> | null) => page?.items.length === 0;
 const emptyProfile = (profile: AdminPlayerDetail | null) => profile === null;
 
-export function useAdminPlayersExplorer() {
+function validatePlayerFilters(filters: AdminPlayerFilters) {
+  if (!adminPlayerDatesValid(filters)) throw new Error('Invalid player dates.');
+}
+
+export function useAdminPlayersExplorer(active = true, navigation?: AdministrationNavigation) {
   const access = useAdminExplorerScope();
   const { scope } = access;
   const [draft, setDraft] = useState({
     scope,
     filters: DEFAULT_ADMIN_PLAYER_FILTERS,
   });
-  const filters = draft.scope === scope ? draft.filters : DEFAULT_ADMIN_PLAYER_FILTERS;
+  const controlled = useAdministrationForm(
+    navigation,
+    'players',
+    DEFAULT_ADMIN_PLAYER_FILTERS,
+    validatePlayerFilters,
+  );
+  const filters =
+    controlled ?? (draft.scope === scope ? draft.filters : DEFAULT_ADMIN_PLAYER_FILTERS);
   const [debounced, setDebounced] = useState({ scope, search: '' });
   useEffect(() => {
     const timer = setTimeout(
@@ -49,19 +62,24 @@ export function useAdminPlayersExplorer() {
   const searchPending =
     debounced.scope !== scope ? filters.search !== '' : filters.search !== debounced.search;
   const [size, setSize] = useState({ scope, value: 50 });
-  const pageSize = size.scope === scope ? size.value : 50;
+  const pageSize = navigation
+    ? Number(navigation.location.contexts.players?.pageSize ?? '50')
+    : size.scope === scope
+      ? size.value
+      : 50;
   const filterKey = JSON.stringify([filters, pageSize]);
-  const [navigation, setNavigation] = useState<Navigation>({
+  const [pageNavigation, setNavigation] = useState<Navigation>({
     scope,
     filterKey,
     index: 0,
     cursors: [null],
     snapshot: null,
   });
-  const currentNavigation = navigation.scope === scope && navigation.filterKey === filterKey;
-  const index = currentNavigation ? navigation.index : 0;
-  const cursor = currentNavigation ? navigation.cursors[index] : null;
-  const snapshot = currentNavigation ? navigation.snapshot : null;
+  const currentNavigation =
+    pageNavigation.scope === scope && pageNavigation.filterKey === filterKey;
+  const index = currentNavigation ? pageNavigation.index : 0;
+  const cursor = currentNavigation ? pageNavigation.cursors[index] : null;
+  const snapshot = currentNavigation ? pageNavigation.snapshot : null;
   const [refreshVersion, setRefreshVersion] = useState(0);
   const datesValid = adminPlayerDatesValid(filters);
   const loadPage = useCallback(
@@ -70,7 +88,8 @@ export function useAdminPlayersExplorer() {
   );
   const list = useAdminSection<AdminExplorerPage<AdminPlayerListItem> | null>({
     ...access,
-    enabled: access.enabled && !searchPending && datesValid,
+    enabled: access.enabled && active && !searchPending && datesValid,
+    reuseSettled: true,
     initialData: null,
     queryKey: JSON.stringify([filterKey, cursor, snapshot, refreshVersion]),
     load: loadPage,
@@ -82,8 +101,17 @@ export function useAdminPlayersExplorer() {
     id: string;
     snapshot: string;
   } | null>(null);
-  const selected =
-    selection?.scope === scope && selection.filterKey === filterKey ? selection : null;
+  const selected = useMemo(() => {
+    const local =
+      selection?.scope === scope && selection.filterKey === filterKey ? selection : null;
+    if (!navigation) return local;
+    const id = navigation.location.player;
+    return id
+      ? local?.id === id
+        ? local
+        : { scope, filterKey, id, snapshot: new Date().toISOString() }
+      : null;
+  }, [selection, scope, filterKey, navigation?.location.player, Boolean(navigation)]);
   const loadDetail = useCallback(
     (signal: AbortSignal) => {
       if (!selected) return Promise.resolve(null);
@@ -93,7 +121,8 @@ export function useAdminPlayersExplorer() {
   );
   const detail = useAdminSection<AdminPlayerDetail | null>({
     ...access,
-    enabled: access.enabled && selected !== null,
+    enabled: access.enabled && active && selected !== null,
+    reuseSettled: true,
     initialData: null,
     queryKey: selected ? JSON.stringify([selected.id, selected.snapshot]) : '',
     load: loadDetail,
@@ -101,6 +130,20 @@ export function useAdminPlayersExplorer() {
   });
   const setFilter = useCallback(
     <K extends keyof AdminPlayerFilters>(key: K, value: AdminPlayerFilters[K]) => {
+      if (navigation) {
+        navigation.update(
+          (previous) => ({
+            ...previous,
+            player: null,
+            contexts: {
+              ...previous.contexts,
+              players: { ...filters, [key]: value, pageSize: String(pageSize) },
+            },
+          }),
+          true,
+        );
+        return;
+      }
       setDraft((previous) => ({
         scope,
         filters: {
@@ -109,17 +152,27 @@ export function useAdminPlayersExplorer() {
         },
       }));
     },
-    [scope],
+    [scope, navigation, filters, pageSize],
   );
-  const resetFilters = useCallback(
-    () => setDraft({ scope, filters: DEFAULT_ADMIN_PLAYER_FILTERS }),
-    [scope],
-  );
+  const resetFilters = useCallback(() => {
+    if (navigation)
+      navigation.update((previous) => ({
+        ...previous,
+        player: null,
+        contexts: {
+          ...previous.contexts,
+          players: { ...DEFAULT_ADMIN_PLAYER_FILTERS, pageSize: String(pageSize) },
+        },
+      }));
+    else setDraft({ scope, filters: DEFAULT_ADMIN_PLAYER_FILTERS });
+  }, [scope, navigation, pageSize]);
   const changePageSize = useCallback(
     (value: number) => {
-      if (Number.isInteger(value) && value >= 1 && value <= 100) setSize({ scope, value });
+      if (!Number.isInteger(value) || value < 1 || value > 100) return;
+      if (navigation) navigation.setContext('players', { ...filters, pageSize: String(value) });
+      else setSize({ scope, value });
     },
-    [scope],
+    [scope, navigation, filters],
   );
   const previous = useCallback(() => {
     if (index <= 0 || list.loading) return;
@@ -133,7 +186,7 @@ export function useAdminPlayersExplorer() {
       filterKey,
       index: index + 1,
       cursors: [
-        ...(currentNavigation ? navigation.cursors.slice(0, index + 1) : [null]),
+        ...(currentNavigation ? pageNavigation.cursors.slice(0, index + 1) : [null]),
         page.nextCursor,
       ],
       snapshot: page.snapshotAt,
@@ -146,7 +199,7 @@ export function useAdminPlayersExplorer() {
     filterKey,
     index,
     currentNavigation,
-    navigation.cursors,
+    pageNavigation.cursors,
   ]);
   const refresh = useCallback(() => {
     setNavigation({
@@ -168,8 +221,9 @@ export function useAdminPlayersExplorer() {
       )
         return;
       setSelection({ scope, filterKey, id, snapshot: list.data.snapshotAt });
+      navigation?.selectPlayer(id);
     },
-    [scope, filterKey, list.data, list.loading, list.stale],
+    [scope, filterKey, list.data, list.loading, list.stale, navigation],
   );
   return {
     enabled: access.enabled,
@@ -188,7 +242,10 @@ export function useAdminPlayersExplorer() {
     detail,
     selectedId: selected?.id ?? null,
     openProfile,
-    closeProfile: () => setSelection(null),
+    closeProfile: () => {
+      setSelection(null);
+      navigation?.selectPlayer(null);
+    },
   };
 }
 

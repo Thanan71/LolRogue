@@ -1,3 +1,5 @@
+import { useAdministrationForm } from '../useAdministrationForm';
+import type { AdministrationNavigation } from '../useAdministrationNavigation';
 import { useCallback, useMemo, useState } from 'react';
 import { getAdminBalanceCopy } from '@/i18n/adminBalance';
 import { locale } from '@/i18n/fr';
@@ -37,7 +39,11 @@ const EMPTY_SELECTION = {
   pickSegmentId: '',
 };
 
-export function useAdminBalance(active = true) {
+export function useAdminBalance(
+  active = true,
+  navigation?: AdministrationNavigation,
+  view: 'reports' | 'calibration' = 'reports',
+) {
   const access = useAdminExplorerScope();
   const [selectionState, setSelectionState] = useState({
     scope: access.scope,
@@ -63,9 +69,17 @@ export function useAdminBalance(active = true) {
     const draft = defaultAdminBalanceDraft();
     return { draft, filters: adminBalanceAppliedFilters(draft) };
   }, [access.scope]);
+  const controlledDraft = useAdministrationForm(
+    navigation,
+    'balance',
+    defaults.draft,
+    adminBalanceAppliedFilters,
+  );
+  const contextKey = JSON.stringify(controlledDraft);
   const [draftState, setDraftState] = useState({
     scope: access.scope,
-    value: defaults.draft,
+    value: controlledDraft ?? defaults.draft,
+    contextKey,
   });
   const [appliedState, setAppliedState] = useState({
     scope: access.scope,
@@ -76,9 +90,21 @@ export function useAdminBalance(active = true) {
     scope: object;
     value: string | null;
   }>({ scope: access.scope, value: null });
-  const draft = draftState.scope === access.scope ? draftState.value : defaults.draft;
-  const filters = appliedState.scope === access.scope ? appliedState.filters : defaults.filters;
-  const appliedDraft = appliedState.scope === access.scope ? appliedState.draft : defaults.draft;
+  const appliedDraft =
+    controlledDraft ?? (appliedState.scope === access.scope ? appliedState.draft : defaults.draft);
+  const draft =
+    draftState.scope === access.scope && draftState.contextKey === contextKey
+      ? draftState.value
+      : appliedDraft;
+  const filters = useMemo(
+    () =>
+      controlledDraft
+        ? adminBalanceAppliedFilters(controlledDraft)
+        : appliedState.scope === access.scope
+          ? appliedState.filters
+          : defaults.filters,
+    [controlledDraft, appliedState, access.scope, defaults.filters],
+  );
   const queryKey = JSON.stringify(filters);
   const read = useCallback(
     async <T>(load: () => Promise<T>, signal: AbortSignal): Promise<T> => {
@@ -116,7 +142,7 @@ export function useAdminBalance(active = true) {
     (signal: AbortSignal) => read(() => fetchAdminBalanceField(filters, signal), signal),
     [filters, read],
   );
-  const common = { ...access, enabled };
+  const common = { ...access, enabled: enabled && (!navigation || view === 'reports') };
   const champions = useAdminSection<BalanceChampionReport | null>({
     ...common,
     queryKey,
@@ -138,7 +164,8 @@ export function useAdminBalance(active = true) {
     isEmpty: emptyConfig,
   });
   const field = useAdminSection<AdminBalanceFieldData | null>({
-    ...common,
+    ...access,
+    enabled: enabled && (!navigation || view === 'calibration'),
     queryKey,
     initialData: null,
     load: loadField,
@@ -148,19 +175,29 @@ export function useAdminBalance(active = true) {
     <K extends keyof AdminBalanceDraft>(key: K, value: AdminBalanceDraft[K]) => {
       setDraftState((previous) => ({
         scope: access.scope,
+        contextKey,
         value: {
-          ...(previous.scope === access.scope ? previous.value : defaults.draft),
+          ...(previous.scope === access.scope && previous.contextKey === contextKey
+            ? previous.value
+            : appliedDraft),
           [key]: value,
         },
       }));
       setErrorState({ scope: access.scope, value: null });
     },
-    [access.scope, defaults.draft],
+    [access.scope, contextKey, appliedDraft],
   );
   const apply = useCallback(() => {
     try {
       const filters = adminBalanceAppliedFilters(draft);
-      setAppliedState({ scope: access.scope, draft: { ...draft }, filters });
+      if (navigation)
+        setDraftState({
+          scope: access.scope,
+          contextKey: JSON.stringify(draft),
+          value: { ...draft },
+        });
+      if (navigation) navigation.setContext('balance', draft);
+      else setAppliedState({ scope: access.scope, draft: { ...draft }, filters });
       setErrorState({ scope: access.scope, value: null });
     } catch {
       setErrorState({
@@ -168,17 +205,18 @@ export function useAdminBalance(active = true) {
         value: getAdminBalanceCopy(locale).invalid,
       });
     }
-  }, [access.scope, draft]);
+  }, [access.scope, draft, navigation]);
   const reset = useCallback(() => {
     const value = defaultAdminBalanceDraft();
-    setDraftState({ scope: access.scope, value });
+    setDraftState({ scope: access.scope, contextKey, value });
+    navigation?.setContext('balance', value);
     setAppliedState({
       scope: access.scope,
       draft: value,
       filters: adminBalanceAppliedFilters(value),
     });
     setErrorState({ scope: access.scope, value: null });
-  }, [access.scope]);
+  }, [access.scope, contextKey, navigation]);
   const refresh = useCallback(() => {
     if (!enabled) return;
     void champions.reload();

@@ -1,15 +1,22 @@
 import { getAdminModerationCopy } from '@/i18n/adminModeration';
 import { locale } from '@/i18n/fr';
 import { Button } from '@/shared/ui/Controls';
+import { useAdminModeration } from '../../hooks/moderation/useAdminModeration';
+import type { AdministrationNavigation } from '../../hooks/useAdministrationNavigation';
 import { ModerationCase } from './ModerationCase';
 import { ModerationDecisionReceipt } from './ModerationDecisionReceipt';
 import { ModerationFilters } from './ModerationFilters';
 import { ModerationQueue } from './ModerationQueue';
-import { useAdminModeration } from '../../hooks/moderation/useAdminModeration';
 import '@/styles/admin-moderation.css';
 
-export default function AdminModerationWorkspace({ active = true }: { active?: boolean }) {
-  const moderation = useAdminModeration(active);
+export default function AdminModerationWorkspace({
+  active = true,
+  navigation,
+}: {
+  active?: boolean;
+  navigation?: AdministrationNavigation;
+}) {
+  const moderation = useAdminModeration(active, navigation);
   const copy = getAdminModerationCopy(locale);
   return (
     <section

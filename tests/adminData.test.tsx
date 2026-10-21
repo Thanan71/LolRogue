@@ -10,7 +10,7 @@ import {
 import { getAdminFieldCalibrationCopy } from '@/i18n/adminFieldCalibration';
 import { AdminErrorNotice } from '@/features/administration/ui/AdminErrorNotice';
 import { AdminFieldCalibrationPanel } from '@/features/administration/ui/AdminFieldCalibrationPanel';
-import { AdminTabList } from '@/features/administration/ui/AdminTabList';
+import { AdminTabList, AdministrationSubTabs } from '@/features/administration/ui/AdminTabList';
 
 describe('admin data feedback', () => {
   it('shows an actionable retry and disables it while retrying', () => {
@@ -28,12 +28,29 @@ describe('admin data feedback', () => {
 
   it('moves between tabs with arrows and exposes the tab/panel relationship', () => {
     const select = vi.fn();
-    render(<AdminTabList activeTab="dashboard" onSelect={select} />);
-    const dashboard = screen.getByRole('tab', { name: /Tableau de bord/i });
-    expect(dashboard).toHaveAttribute('aria-controls', 'admin-panel-dashboard');
+    render(<AdminTabList group="overview" onSelect={select} />);
+    const dashboard = screen.getByRole('tab', { name: /Vue globale/i });
+    expect(dashboard).toHaveAttribute('aria-controls', 'admin-group-panel-overview');
     expect(screen.getAllByRole('tab', { name: /Équilibrage/ })).toHaveLength(1);
     fireEvent.keyDown(dashboard, { key: 'ArrowRight' });
-    expect(select).toHaveBeenCalledWith('authority');
+    expect(select).toHaveBeenCalledWith('players');
+  });
+
+  it('offers six groups and keyboard navigation within monitoring subsections', () => {
+    const select = vi.fn();
+    const { unmount } = render(<AdminTabList group="overview" onSelect={select} />);
+    expect(screen.getAllByRole('tab')).toHaveLength(6);
+    expect(screen.getByRole('tab', { name: 'Vue globale' })).toHaveAttribute('tabindex', '0');
+    fireEvent.keyDown(screen.getByRole('tab', { name: 'Vue globale' }), { key: 'End' });
+    expect(select).toHaveBeenLastCalledWith('monitoring');
+    unmount();
+    render(<AdministrationSubTabs group="monitoring" view="logs" onSelect={select} />);
+    const logs = screen.getByRole('tab', { name: 'Journaux' });
+    expect(logs).toHaveAttribute('aria-controls', 'admin-panel-logs');
+    fireEvent.keyDown(logs, { key: 'ArrowLeft' });
+    expect(select).toHaveBeenLastCalledWith('service');
+    fireEvent.keyDown(logs, { key: 'Home' });
+    expect(select).toHaveBeenLastCalledWith('logs');
   });
 
   it('shows interval-aware simulation and field comparisons without authorizing tuning', () => {

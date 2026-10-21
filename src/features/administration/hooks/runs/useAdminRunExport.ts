@@ -12,7 +12,7 @@ import {
 } from '../../domain/runs/adminRunExport';
 import { downloadAdminExplorerCsv } from '../../infrastructure/runs/adminRunDownload';
 import type { AdminRunPopulation } from '../../domain/runs/adminRunFilters';
-import { type AdminRunListItem } from '../../domain/runs/adminRunContracts';
+import type { AdminRunListItem } from '../../domain/runs/adminRunContracts';
 import { fetchAdminRunExport } from '../../infrastructure/runs/adminRunQueries';
 
 export function useAdminRunExport({

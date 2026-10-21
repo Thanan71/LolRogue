@@ -1,3 +1,5 @@
+import { useAdministrationForm } from '../useAdministrationForm';
+import type { AdministrationNavigation } from '../useAdministrationNavigation';
 import { useCallback, useMemo, useState } from 'react';
 import { getAdminAnalyticsCopy } from '@/i18n/adminAnalytics';
 import { locale } from '@/i18n/fr';
@@ -34,7 +36,7 @@ export type AdminAnalyticsMetric =
   | 'dailyStarts'
   | 'dailyVerifiedFinishes';
 
-export function useAdminAnalytics(active: boolean) {
+export function useAdminAnalytics(active: boolean, navigation?: AdministrationNavigation) {
   const access = useAdminExplorerScope();
   const [metricState, setMetricState] = useState<{
     scope: object;
@@ -43,12 +45,22 @@ export function useAdminAnalytics(active: boolean) {
     scope: access.scope,
     value: 'acquisitions',
   });
-  const metric = metricState.scope === access.scope ? metricState.value : 'acquisitions';
+  const metric =
+    (navigation?.location.contexts.analytics?.metric as AdminAnalyticsMetric | undefined) ??
+    (metricState.scope === access.scope ? metricState.value : 'acquisitions');
   const selectMetric = useCallback(
     (value: AdminAnalyticsMetric) => {
-      setMetricState({ scope: access.scope, value });
+      if (navigation)
+        navigation.update((previous) => ({
+          ...previous,
+          contexts: {
+            ...previous.contexts,
+            analytics: { ...previous.contexts.analytics, metric: value },
+          },
+        }));
+      else setMetricState({ scope: access.scope, value });
     },
-    [access.scope],
+    [access.scope, navigation],
   );
   const [deniedScope, setDeniedScope] = useState<object | null>(null);
   const permissionDenied = deniedScope === access.scope;
@@ -60,9 +72,17 @@ export function useAdminAnalytics(active: boolean) {
       filters: adminAnalyticsAppliedFilters(draft),
     };
   }, [access.scope]);
+  const controlledDraft = useAdministrationForm(
+    navigation,
+    'analytics',
+    defaults.draft,
+    adminAnalyticsAppliedFilters,
+  );
+  const contextKey = JSON.stringify(controlledDraft);
   const [draftState, setDraftState] = useState({
     scope: access.scope,
-    value: defaults.draft,
+    contextKey,
+    value: controlledDraft ?? defaults.draft,
   });
   const [appliedState, setAppliedState] = useState({
     scope: access.scope,
@@ -76,9 +96,21 @@ export function useAdminAnalytics(active: boolean) {
     scope: access.scope,
     value: null,
   });
-  const draft = draftState.scope === access.scope ? draftState.value : defaults.draft;
-  const filters = appliedState.scope === access.scope ? appliedState.value : defaults.filters;
-  const appliedDraft = appliedState.scope === access.scope ? appliedState.draft : defaults.draft;
+  const appliedDraft =
+    controlledDraft ?? (appliedState.scope === access.scope ? appliedState.draft : defaults.draft);
+  const draft =
+    draftState.scope === access.scope && draftState.contextKey === contextKey
+      ? draftState.value
+      : appliedDraft;
+  const filters = useMemo(
+    () =>
+      controlledDraft
+        ? adminAnalyticsAppliedFilters(controlledDraft)
+        : appliedState.scope === access.scope
+          ? appliedState.value
+          : defaults.filters,
+    [controlledDraft, appliedState, access.scope, defaults.filters],
+  );
   const {
     from,
     to,
@@ -181,19 +213,29 @@ export function useAdminAnalytics(active: boolean) {
     <K extends keyof AdminAnalyticsDraft>(key: K, value: AdminAnalyticsDraft[K]) => {
       setDraftState((previous) => ({
         scope: access.scope,
+        contextKey,
         value: {
-          ...(previous.scope === access.scope ? previous.value : defaults.draft),
+          ...(previous.scope === access.scope && previous.contextKey === contextKey
+            ? previous.value
+            : appliedDraft),
           [key]: value,
         },
       }));
       setErrorState({ scope: access.scope, value: null });
     },
-    [access.scope, defaults.draft],
+    [access.scope, contextKey, appliedDraft],
   );
   const apply = useCallback(() => {
     try {
       const value = adminAnalyticsAppliedFilters(draft);
-      setAppliedState({ scope: access.scope, value, draft: { ...draft } });
+      if (navigation)
+        setDraftState({
+          scope: access.scope,
+          contextKey: JSON.stringify(draft),
+          value: { ...draft },
+        });
+      if (navigation) navigation.setContext('analytics', { ...draft, metric });
+      else setAppliedState({ scope: access.scope, value, draft: { ...draft } });
       setErrorState({ scope: access.scope, value: null });
     } catch {
       setErrorState({
@@ -201,17 +243,18 @@ export function useAdminAnalytics(active: boolean) {
         value: getAdminAnalyticsCopy(locale).invalidFilters,
       });
     }
-  }, [access.scope, draft]);
+  }, [access.scope, draft, navigation, metric]);
   const reset = useCallback(() => {
     const value = defaultAdminAnalyticsDraft();
-    setDraftState({ scope: access.scope, value });
+    setDraftState({ scope: access.scope, contextKey, value });
+    navigation?.setContext('analytics', { ...value, metric });
     setAppliedState({
       scope: access.scope,
       value: adminAnalyticsAppliedFilters(value),
       draft: value,
     });
     setErrorState({ scope: access.scope, value: null });
-  }, [access.scope]);
+  }, [access.scope, contextKey, navigation, metric]);
   const refresh = useCallback(() => {
     if (!enabled) return;
     void series.reload();

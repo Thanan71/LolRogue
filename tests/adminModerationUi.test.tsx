@@ -10,6 +10,8 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
+import { useAdministrationNavigation } from '@/features/administration/hooks/useAdministrationNavigation';
 import { getAdminModerationCopy } from '@/i18n/adminModeration';
 import AdminModerationWorkspace from '@/features/administration/ui/moderation/AdminModerationWorkspace';
 import {
@@ -565,5 +567,62 @@ describe('moderation accessible action preparation', () => {
       expect(value.invalidateScope).not.toBe(value.dismissScope);
       expect(value.unknown).toMatch(/UUID|request|demande/);
     }
+  });
+});
+
+describe('moderation URL applied context', () => {
+  it('hydrates, applies once and restores matching first-page filters with browser history', async () => {
+    const row = moderationQueueRowFixture();
+    const cursor = { createdAt: row.createdAt, id: row.reportId };
+    mocks.queue.mockImplementation(async (request) =>
+      moderationQueueFixture({
+        status: request.status,
+        total: 101,
+        nextCursor: request.cursor ? null : cursor,
+      }),
+    );
+    const initial = `/admin?group=moderation&view=queue&moderation=${encodeURIComponent(JSON.stringify({ status: 'open' }))}`;
+    const { result } = renderHook(
+      () => {
+        const navigation = useAdministrationNavigation();
+        return {
+          navigation,
+          history: useNavigate(),
+          moderation: useAdminModeration(true, navigation),
+        };
+      },
+      {
+        wrapper: ({ children }) => (
+          <MemoryRouter initialEntries={[initial]}>{children}</MemoryRouter>
+        ),
+      },
+    );
+    const resource = {
+      get current() {
+        return result.current.moderation;
+      },
+    };
+    await ready(resource);
+    expect(mocks.queue).toHaveBeenCalledOnce();
+    act(() => result.current.moderation.navigateQueue('next'));
+    await ready(resource);
+    expect(result.current.moderation.queuePage).toBe(2);
+    act(() => result.current.moderation.changeDraft('status', 'dismissed'));
+    act(() => result.current.moderation.apply());
+    await ready(resource);
+    expect(result.current.navigation.location.contexts.moderation?.status).toBe('dismissed');
+    expect(mocks.queue).toHaveBeenCalledTimes(3);
+    act(() => result.current.moderation.navigateQueue('next'));
+    await ready(resource);
+    expect(mocks.queue.mock.lastCall?.[0]).toMatchObject({ status: 'dismissed', cursor });
+    act(() => result.current.history(-1));
+    await ready(resource);
+    expect(mocks.queue.mock.lastCall?.[0]).toMatchObject({
+      status: 'open',
+      cursor: null,
+      snapshotAt: null,
+    });
+    expect(result.current.moderation.queuePage).toBe(1);
+    expect(result.current.moderation.draft.status).toBe('open');
   });
 });

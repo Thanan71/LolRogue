@@ -31,6 +31,7 @@ export function useAdminSection<T>({
   initialData,
   load,
   isEmpty,
+  reuseSettled = false,
 }: {
   enabled: boolean;
   scope: object;
@@ -39,6 +40,7 @@ export function useAdminSection<T>({
   initialData: T;
   load: (signal: AbortSignal) => Promise<T>;
   isEmpty: (data: T) => boolean;
+  reuseSettled?: boolean;
 }) {
   const [state, setState] = useState<SectionState<T>>({
     scope,
@@ -49,6 +51,7 @@ export function useAdminSection<T>({
     error: null,
     updatedAt: null,
   });
+  const settled = useRef<{ scope: object; queryKey: string } | null>(null);
   const generation = useRef(0);
   const controller = useRef<AbortController | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -62,6 +65,7 @@ export function useAdminSection<T>({
   const reload = useCallback(async (): Promise<boolean> => {
     cancel();
     if (!enabled) return false;
+    settled.current = null;
     const requestGeneration = generation.current;
     const request = new AbortController();
     controller.current = request;
@@ -96,6 +100,7 @@ export function useAdminSection<T>({
     try {
       const data = await Promise.race([load(request.signal), aborted]);
       if (!isCurrent()) return false;
+      settled.current = { scope, queryKey };
       setState({
         scope,
         queryKey,
@@ -126,9 +131,16 @@ export function useAdminSection<T>({
   }, [cancel, enabled, scope, captureScope, queryKey, initialData, load]);
 
   useEffect(() => {
+    if (
+      enabled &&
+      reuseSettled &&
+      settled.current?.scope === scope &&
+      settled.current.queryKey === queryKey
+    )
+      return cancel;
     void reload();
     return cancel;
-  }, [reload, cancel]);
+  }, [reload, cancel, enabled, reuseSettled, scope, queryKey]);
 
   const current = enabled && state.scope === scope && state.queryKey === queryKey;
   const data = current ? state.data : initialData;
@@ -151,6 +163,7 @@ export function useAdminSection<T>({
               : 'ready';
   const reportError = useCallback(
     (message: string | null) => {
+      if (message) settled.current = null;
       setState((previous) =>
         previous.scope === scope && previous.queryKey === queryKey
           ? { ...previous, error: message }

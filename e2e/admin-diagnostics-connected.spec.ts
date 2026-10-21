@@ -89,6 +89,7 @@ test('diagnostics connectés : Auth, projection minimale, corrélation et révoc
     );
     await page.reload();
     await page.getByRole('button', { name: "Panneau d'administration", exact: true }).click();
+    await page.getByRole('tab', { name: /Surveillance/ }).click();
     await page.getByRole('tab', { name: /Journaux/ }).click();
     const panel = page.locator('#admin-panel-logs');
     await expect(panel.getByRole('table').first()).toBeVisible();

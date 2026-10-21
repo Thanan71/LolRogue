@@ -13,7 +13,7 @@ import { enterAdminExplorer } from './helpers/admin-explorer';
 // Real authorization, filters and concurrency are checked in the migrated database suite.
 async function enterAdmin(page: Page, language: 'fr-FR' | 'en-US' = 'fr-FR') {
   await enterAdminExplorer(page, language);
-  await page.getByRole('tab', { name: language === 'fr-FR' ? /Parties/ : /Runs/ }).click();
+  await page.getByRole('tab', { name: /Runs/ }).click();
 }
 
 async function backend(page: Page) {
@@ -125,7 +125,7 @@ test('saved run filters, keyset return, safe detail and confirmed complete UTF-8
 }) => {
   const api = await backend(page);
   await enterAdmin(page);
-  const panel = page.getByRole('tabpanel', { name: /Parties/ });
+  const panel = page.getByRole('tabpanel', { name: /Runs/ });
   await expect(panel.getByRole('row')).toHaveCount(51);
   await panel.getByRole('combobox', { name: 'Difficulté', exact: true }).selectOption('hard');
   await panel.getByLabel('Depuis (UTC, inclus)').fill('2026-10-17T00:00');
@@ -150,7 +150,7 @@ test('saved run filters, keyset return, safe detail and confirmed complete UTF-8
   await expect(panel.getByRole('combobox', { name: 'Difficulté', exact: true })).toHaveValue(
     'hard',
   );
-  await expect(page).toHaveURL('/admin');
+  await expect(page).toHaveURL(/\/admin(?:\?|$)/);
   await panel.getByRole('button', { name: 'Exporter tous les résultats filtrés' }).click();
   const dialog = page.getByRole('dialog', { name: 'Confirmer l’export filtré' });
   await expect(dialog).toContainText('1 001');
@@ -178,7 +178,8 @@ test('English attempts stay separate, show rejection and export only the selecte
   const api = await backend(page);
   await enterAdmin(page, 'en-US');
   const panel = page.getByRole('tabpanel', { name: /Runs/ });
-  await panel.getByRole('radio', { name: 'Authority attempts' }).check();
+  await panel.getByRole('radio', { name: 'Authority attempts' }).click();
+  await expect(panel.getByRole('radio', { name: 'Authority attempts' })).toBeChecked();
   await expect(panel.getByLabel('Minimum waves')).toBeDisabled();
   await expect(panel.getByRole('combobox', { name: 'Biome', exact: true })).toBeDisabled();
   await expect(panel.getByRole('row')).toHaveCount(2);
@@ -195,5 +196,5 @@ test('English attempts stay separate, show rejection and export only the selecte
   expect(accessibility.violations).toEqual([]);
   await page.getByRole('button', { name: 'Cancel', exact: true }).click();
   expect(api.exports).toBe(0);
-  await expect(page).toHaveURL('/admin');
+  await expect(page).toHaveURL(/\/admin(?:\?|$)/);
 });

@@ -1,3 +1,5 @@
+import { useAdministrationForm } from '../useAdministrationForm';
+import type { AdministrationNavigation } from '../useAdministrationNavigation';
 import { useCallback, useMemo, useState } from 'react';
 import { getAdminModerationCopy } from '@/i18n/adminModeration';
 import { locale } from '@/i18n/fr';
@@ -30,7 +32,7 @@ interface Page<T> {
 const FIRST_QUEUE: Page<ModerationCursor>[] = [{ cursor: null, snapshotAt: null }];
 const FIRST_HISTORY: Page<ModerationHistoryCursor>[] = [{ cursor: null, snapshotAt: null }];
 
-export function useAdminModeration(active = true) {
+export function useAdminModeration(active = true, navigation?: AdministrationNavigation) {
   const access = useAdminExplorerScope();
   const [deniedScope, setDeniedScope] = useState<object | null>(null);
   const permissionDenied = deniedScope === access.scope;
@@ -40,45 +42,73 @@ export function useAdminModeration(active = true) {
     scope: access.scope,
     draft: EMPTY_MODERATION_DRAFT,
     applied: EMPTY_MODERATION_DRAFT,
+    draftKey: '',
     pages: FIRST_QUEUE,
     historyPages: FIRST_HISTORY,
     selected: null as ModerationQueueRow | null,
     error: null as string | null,
     revision: 0,
   });
-  const current =
+  const localCurrent =
     state.scope === access.scope
       ? state
       : {
           scope: access.scope,
           draft: EMPTY_MODERATION_DRAFT,
           applied: EMPTY_MODERATION_DRAFT,
+          draftKey: '',
           pages: FIRST_QUEUE,
           historyPages: FIRST_HISTORY,
           selected: null,
           error: null,
           revision: 0,
         };
+  const controlled = useAdministrationForm(
+    navigation,
+    'moderation',
+    EMPTY_MODERATION_DRAFT,
+    appliedModerationFilters,
+  );
+  const appliedKey = JSON.stringify(controlled ?? localCurrent.applied);
+  const controlledNavigation = navigation !== undefined;
+  const project = useCallback(
+    (value: typeof localCurrent) => {
+      const applied = controlled ?? value.applied;
+      const key = JSON.stringify(applied);
+      const changed = controlledNavigation && JSON.stringify(value.applied) !== key;
+      return {
+        ...value,
+        ...(changed ? { pages: FIRST_QUEUE, historyPages: FIRST_HISTORY, selected: null } : {}),
+        applied,
+        draft: controlledNavigation && value.draftKey !== key ? applied : value.draft,
+      };
+    },
+    [controlled, controlledNavigation],
+  );
+  const current = project(localCurrent);
   const update = useCallback(
     (transform: (value: typeof current) => typeof current) => {
       setState((previous) =>
         transform(
-          previous.scope === access.scope
-            ? previous
-            : {
-                scope: access.scope,
-                draft: EMPTY_MODERATION_DRAFT,
-                applied: EMPTY_MODERATION_DRAFT,
-                pages: FIRST_QUEUE,
-                historyPages: FIRST_HISTORY,
-                selected: null,
-                error: null,
-                revision: 0,
-              },
+          project(
+            previous.scope === access.scope
+              ? previous
+              : {
+                  scope: access.scope,
+                  draft: EMPTY_MODERATION_DRAFT,
+                  applied: EMPTY_MODERATION_DRAFT,
+                  draftKey: '',
+                  pages: FIRST_QUEUE,
+                  historyPages: FIRST_HISTORY,
+                  selected: null,
+                  error: null,
+                  revision: 0,
+                },
+          ),
         ),
       );
     },
-    [access.scope],
+    [access.scope, project],
   );
   const deny = useCallback(() => setDeniedScope(access.scope), [access.scope]);
   const read = useCallback(
@@ -187,24 +217,37 @@ export function useAdminModeration(active = true) {
       update((previous) => ({
         ...previous,
         draft: { ...previous.draft, [key]: value },
+        draftKey: appliedKey,
         error: null,
       }));
     },
-    [update],
+    [update, current.draft, appliedKey],
   );
   const apply = useCallback(() => {
     if (!enabled || decision.locked) return;
     try {
       appliedModerationFilters(current.draft);
+      if (navigation) {
+        navigation.setContext('moderation', current.draft);
+        update((value) => ({
+          ...value,
+          draft: { ...current.draft },
+          draftKey: JSON.stringify(current.draft),
+          error: null,
+        }));
+        decision.clear();
+        return;
+      }
       decision.clear();
       update((value) => ({
         ...value,
         applied: { ...value.draft },
+        draftKey: JSON.stringify(value.draft),
         pages: FIRST_QUEUE,
         historyPages: FIRST_HISTORY,
         selected: null,
         error: null,
-        revision: value.revision + 1,
+        revision: value.revision + (navigation ? 0 : 1),
       }));
     } catch {
       update((value) => ({
@@ -212,21 +255,36 @@ export function useAdminModeration(active = true) {
         error: getAdminModerationCopy(locale).invalidFilters,
       }));
     }
-  }, [enabled, decision.locked, decision.clear, current.draft, update]);
+  }, [enabled, decision.locked, decision.clear, current.draft, update, navigation]);
   const reset = useCallback(() => {
     if (!enabled || decision.locked) return;
+    if (navigation) {
+      navigation.setContext('moderation', EMPTY_MODERATION_DRAFT);
+      decision.clear();
+      update((value) => ({
+        ...value,
+        draft: EMPTY_MODERATION_DRAFT,
+        draftKey: JSON.stringify(EMPTY_MODERATION_DRAFT),
+        error: null,
+        ...(JSON.stringify(value.applied) === JSON.stringify(EMPTY_MODERATION_DRAFT)
+          ? { pages: FIRST_QUEUE, historyPages: FIRST_HISTORY, selected: null }
+          : {}),
+      }));
+      return;
+    }
     decision.clear();
     update((value) => ({
       ...value,
       draft: EMPTY_MODERATION_DRAFT,
       applied: EMPTY_MODERATION_DRAFT,
+      draftKey: '',
       pages: FIRST_QUEUE,
       historyPages: FIRST_HISTORY,
       selected: null,
       error: null,
-      revision: value.revision + 1,
+      revision: value.revision + (navigation ? 0 : 1),
     }));
-  }, [enabled, decision.locked, decision.clear, update]);
+  }, [enabled, decision.locked, decision.clear, update, navigation]);
   const select = useCallback(
     (row: ModerationQueueRow | null) => {
       if (!enabled || decision.locked) return;

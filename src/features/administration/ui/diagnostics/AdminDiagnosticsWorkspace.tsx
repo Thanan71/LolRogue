@@ -1,23 +1,26 @@
 import { getAdminDiagnosticsCopy } from '@/i18n/adminDiagnostics';
 import { locale } from '@/i18n/fr';
 import { dbLogger } from '@/utils/dbLogger';
+import { useAdminDiagnostics } from '../../hooks/diagnostics/useAdminDiagnostics';
+import type { AdministrationNavigation } from '../../hooks/useAdministrationNavigation';
 import { AdminAuthorityPanel } from '../AdminAuthorityPanel';
 import { DiagnosticsCorrelation } from './DiagnosticsCorrelation';
 import { DiagnosticsFilters } from './DiagnosticsFilters';
-import { DiagnosticsLogs } from './DiagnosticsLogs';
 import { DiagnosticsIncidents } from './DiagnosticsIncidents';
+import { DiagnosticsLogs } from './DiagnosticsLogs';
 import { DiagnosticsService } from './DiagnosticsService';
-import { useAdminDiagnostics } from '../../hooks/diagnostics/useAdminDiagnostics';
 import '@/styles/admin-diagnostics.css';
 
 export default function AdminDiagnosticsWorkspace({
   active = true,
   tab,
+  navigation,
 }: {
   active?: boolean;
-  tab: 'logs' | 'authority';
+  tab: 'logs' | 'authority' | 'service';
+  navigation?: AdministrationNavigation;
 }) {
-  const diagnostics = useAdminDiagnostics(active, tab);
+  const diagnostics = useAdminDiagnostics(active, tab, navigation);
   const copy = getAdminDiagnosticsCopy(locale);
   const logging = dbLogger.getConfig();
   return (
@@ -27,7 +30,9 @@ export default function AdminDiagnosticsWorkspace({
       aria-labelledby={`admin-tab-${tab}`}
       className="admin-diagnostics"
     >
-      <h2>{tab === 'logs' ? copy.logsTitle : copy.authorityTitle}</h2>
+      <h2>
+        {tab === 'logs' ? copy.logsTitle : tab === 'authority' ? copy.authorityTitle : copy.service}
+      </h2>
       <p>{copy.intro}</p>
       <p className="admin-diagnostics__notice">{copy.privacy}</p>
       <p>
@@ -48,6 +53,8 @@ export default function AdminDiagnosticsWorkspace({
           <div hidden={tab !== 'authority'}>
             <AdminAuthorityPanel diagnostics={diagnostics} />
             <DiagnosticsIncidents diagnostics={diagnostics} />
+          </div>
+          <div hidden={tab !== 'service'}>
             <DiagnosticsService diagnostics={diagnostics} />
           </div>
           <DiagnosticsCorrelation diagnostics={diagnostics} active={active} />

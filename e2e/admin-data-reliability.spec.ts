@@ -189,6 +189,7 @@ test('admin sections recover independently and distinguish absent metrics, exact
   await expect(players.getByRole('row')).toHaveCount(51);
   await expect(players.getByRole('status')).toContainText(/Affichées : 50.*Total filtré : 1\s001/);
 
+  await page.getByRole('tab', { name: /Surveillance/ }).click();
   await page.getByRole('tab', { name: /Journaux/ }).click();
   const logs = page.getByRole('tabpanel', { name: /Journaux/ });
   const diagnosticsCopy = getAdminDiagnosticsCopy('fr-FR');
@@ -202,7 +203,7 @@ test('admin sections recover independently and distinguish absent metrics, exact
   expect(api.reads.get('admin_search_players')).toBe(1);
   expect(api.reads.get('admin_stats')).toBe(1);
 
-  await page.getByRole('tab', { name: /Tableau de bord/ }).click();
+  await page.getByRole('tab', { name: /Vue globale/ }).click();
   api.statsFail = true;
   await dashboard.getByRole('button', { name: 'Actualiser les statistiques' }).click();
   await expect(dashboard.getByRole('alert')).toBeVisible();
@@ -235,6 +236,8 @@ test('English admin definitions and a true empty count remain usable at 320px', 
   await captureAdminPage(page, testInfo, 'admin-mobile-en');
   await page.getByRole('tab', { name: /Players/ }).click();
   const players = page.getByRole('tabpanel', { name: /Players/ });
-  await expect(players.getByRole('status')).toContainText(/Filtered total\s*:\s*0/);
+  await expect(
+    players.getByRole('navigation', { name: 'Admin results pagination' }).getByRole('status'),
+  ).toContainText(/Filtered total\s*:\s*0/);
   await expect(players.getByText(/No players/)).toBeVisible();
 });

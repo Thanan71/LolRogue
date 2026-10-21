@@ -12,6 +12,8 @@ import {
   within,
 } from '@testing-library/react';
 import { useState } from 'react';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
+import { useAdministrationNavigation } from '@/features/administration/hooks/useAdministrationNavigation';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getAdminAnalyticsCopy } from '@/i18n/adminAnalytics';
 import { AdminAnalyticsPanel } from '@/features/administration/ui/analytics/AdminAnalyticsPanel';
@@ -494,5 +496,63 @@ describe('analytics presentation and honest uncertainty', () => {
     expect(document.querySelector('svg')).toBeNull();
     for (const button of screen.getAllByRole('button')) expect(button).toBeDisabled();
     for (const field of screen.getAllByRole('combobox')) expect(field).toBeDisabled();
+  });
+});
+
+describe('analytics URL request ownership', () => {
+  it('hydrates applied filters once, changes metrics without another RPC and restores filters with history', async () => {
+    const initial = `/admin?group=overview&view=analytics&analytics=${encodeURIComponent(JSON.stringify({ from: '2026-10-01', to: '2026-10-16', granularity: 'day', mode: 'daily' }))}`;
+    const { result } = renderHook(
+      () => {
+        const navigation = useAdministrationNavigation();
+        return {
+          navigation,
+          history: useNavigate(),
+          analytics: useAdminAnalytics(true, navigation),
+        };
+      },
+      {
+        wrapper: ({ children }) => (
+          <MemoryRouter initialEntries={[initial]}>{children}</MemoryRouter>
+        ),
+      },
+    );
+    await ready(
+      {
+        get current() {
+          return result.current.analytics;
+        },
+      },
+      '2026-10-01',
+    );
+    expect(mocks.series).toHaveBeenCalledOnce();
+    act(() => result.current.analytics.selectMetric('starts'));
+    expect(result.current.analytics.metric).toBe('starts');
+    expect(mocks.series).toHaveBeenCalledOnce();
+    expect(mocks.retention).toHaveBeenCalledOnce();
+    expect(mocks.funnel).toHaveBeenCalledOnce();
+    act(() => result.current.analytics.changeDraft('from', '2026-10-02'));
+    act(() => result.current.analytics.apply());
+    await ready(
+      {
+        get current() {
+          return result.current.analytics;
+        },
+      },
+      '2026-10-02',
+    );
+    expect(result.current.navigation.location.contexts.analytics?.from).toBe('2026-10-02');
+    expect(mocks.series).toHaveBeenCalledTimes(2);
+    act(() => result.current.history(-1));
+    await ready(
+      {
+        get current() {
+          return result.current.analytics;
+        },
+      },
+      '2026-10-01',
+    );
+    expect(mocks.series).toHaveBeenCalledTimes(3);
+    expect(result.current.analytics.draft.from).toBe('2026-10-01');
   });
 });

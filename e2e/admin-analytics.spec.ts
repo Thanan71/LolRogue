@@ -120,7 +120,7 @@ test('French UTC charts preserve the chosen metric across filters, tabs and an i
   expect(api.retention).toHaveLength(retentionCount);
   expect(api.funnel).toHaveLength(funnelCount);
   await expect(series.getByLabel('Indicateur affiché')).toHaveValue('starts');
-  await page.getByRole('tab', { name: /Tableau de bord/ }).click();
+  await page.getByRole('tab', { name: /Vue globale/ }).click();
   await page.getByRole('tab', { name: /Analyses temporelles/ }).click();
   await expect(series.getByLabel('Indicateur affiché')).toHaveValue('starts');
   await expect(panel.getByLabel('Date de début incluse (UTC)')).toHaveValue('2026-10-01');

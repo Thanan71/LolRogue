@@ -1,3 +1,5 @@
+import { useAdministrationForm } from '../useAdministrationForm';
+import type { AdministrationNavigation } from '../useAdministrationNavigation';
 import { useCallback, useMemo, useState } from 'react';
 import { getAdminDiagnosticsCopy } from '@/i18n/adminDiagnostics';
 import { locale } from '@/i18n/fr';
@@ -106,7 +108,18 @@ function useDiagnosticResource<S extends DiagnosticsSection>(
   });
 }
 
-export function useAdminDiagnostics(active: boolean, tab: 'logs' | 'authority') {
+function validateDiagnosticsDraft(value: DiagnosticsDraft) {
+  const applied = filters(value);
+  validateDiagnosticsRequest({ section: 'logs', filters: applied.logs });
+  validateDiagnosticsRequest({ section: 'authority', filters: applied.authority });
+  validateDiagnosticsRequest({ section: 'service', filters: applied.service });
+}
+
+export function useAdminDiagnostics(
+  active: boolean,
+  tab: 'logs' | 'authority' | 'service',
+  navigation?: AdministrationNavigation,
+) {
   const access = useAdminExplorerScope();
   const [deniedScope, setDeniedScope] = useState<object | null>(null);
   const permissionDenied = deniedScope === access.scope;
@@ -116,6 +129,7 @@ export function useAdminDiagnostics(active: boolean, tab: 'logs' | 'authority') 
       scope: access.scope,
       draft: defaultDiagnosticsDraft(),
       applied: defaultDiagnosticsDraft(),
+      draftKey: '',
       logsPages: FIRST,
       authorityPages: FIRST,
       correlationPages: FIRST,
@@ -127,12 +141,39 @@ export function useAdminDiagnostics(active: boolean, tab: 'logs' | 'authority') 
   );
   const [state, setState] = useState(create);
   const defaults = useMemo(create, [create]);
-  const current = state.scope === access.scope ? state : defaults;
+  const controlled = useAdministrationForm(
+    navigation,
+    'diagnostics',
+    defaults.applied,
+    validateDiagnosticsDraft,
+  );
+  const localCurrent = state.scope === access.scope ? state : defaults;
+  const appliedKey = JSON.stringify(controlled ?? localCurrent.applied);
+  const controlledNavigation = navigation !== undefined;
+  const project = useCallback(
+    (value: typeof localCurrent) => {
+      const applied = controlled ?? value.applied;
+      const key = JSON.stringify(applied);
+      const changed = controlledNavigation && JSON.stringify(value.applied) !== key;
+      return {
+        ...value,
+        ...(changed
+          ? { logsPages: FIRST, authorityPages: FIRST, correlationPages: FIRST, selected: null }
+          : {}),
+        applied,
+        draft: controlledNavigation && value.draftKey !== key ? applied : value.draft,
+      };
+    },
+    [controlled, controlledNavigation],
+  );
+  const current = project(localCurrent);
   const update = useCallback(
     (transform: (value: typeof current) => typeof current) => {
-      setState((previous) => transform(previous.scope === access.scope ? previous : create()));
+      setState((previous) =>
+        transform(project(previous.scope === access.scope ? previous : create())),
+      );
     },
-    [access.scope, create],
+    [access.scope, create, project],
   );
   const read = useCallback(
     async <T>(operation: () => Promise<T>, signal: AbortSignal): Promise<T> => {
@@ -182,7 +223,7 @@ export function useAdminDiagnostics(active: boolean, tab: 'logs' | 'authority') 
   );
   const service = useDiagnosticResource(
     access,
-    enabled && tab === 'authority',
+    enabled && (tab === 'service' || (!navigation && tab === 'authority')),
     'service',
     applied.service,
     FIRST[0],
@@ -203,9 +244,10 @@ export function useAdminDiagnostics(active: boolean, tab: 'logs' | 'authority') 
       update((previous) => ({
         ...previous,
         draft: { ...previous.draft, [key]: value },
+        draftKey: appliedKey,
         error: null,
       })),
-    [update],
+    [update, current.draft, appliedKey],
   );
   const apply = useCallback(() => {
     if (!enabled) return;
@@ -220,15 +262,26 @@ export function useAdminDiagnostics(active: boolean, tab: 'logs' | 'authority') 
         section: 'service',
         filters: values.service,
       });
+      if (navigation) {
+        navigation.setContext('diagnostics', current.draft);
+        update((value) => ({
+          ...value,
+          draft: { ...current.draft },
+          draftKey: JSON.stringify(current.draft),
+          error: null,
+        }));
+        return;
+      }
       update((value) => ({
         ...value,
         applied: { ...value.draft },
+        draftKey: JSON.stringify(value.draft),
         logsPages: FIRST,
         authorityPages: FIRST,
         correlationPages: FIRST,
         selected: null,
         error: null,
-        revision: value.revision + 1,
+        revision: value.revision + (navigation ? 0 : 1),
       }));
     } catch {
       update((value) => ({
@@ -236,10 +289,26 @@ export function useAdminDiagnostics(active: boolean, tab: 'logs' | 'authority') 
         error: getAdminDiagnosticsCopy(locale).invalidFilters,
       }));
     }
-  }, [enabled, current.draft, update]);
+  }, [enabled, current.draft, update, navigation]);
   const reset = useCallback(() => {
-    if (enabled) update((value) => ({ ...create(), revision: value.revision + 1 }));
-  }, [enabled, update, create]);
+    if (enabled) {
+      if (navigation) {
+        const draft = defaultDiagnosticsDraft();
+        navigation.setContext('diagnostics', draft);
+        update((value) => ({
+          ...value,
+          draft,
+          draftKey: JSON.stringify(draft),
+          error: null,
+          ...(JSON.stringify(value.applied) === JSON.stringify(draft)
+            ? { logsPages: FIRST, authorityPages: FIRST, correlationPages: FIRST, selected: null }
+            : {}),
+        }));
+        return;
+      }
+      update((value) => ({ ...create(), revision: value.revision + 1 }));
+    }
+  }, [enabled, update, create, navigation]);
   const select = useCallback(
     (id: string | null) => {
       const resource = tab === 'logs' ? logs : authority;

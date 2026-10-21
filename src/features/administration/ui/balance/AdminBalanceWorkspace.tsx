@@ -1,6 +1,8 @@
 import { getAdminBalanceCopy } from '@/i18n/adminBalance';
 import { locale } from '@/i18n/fr';
 import { Button } from '@/shared/ui/Controls';
+import { useAdminBalance } from '../../hooks/balance/useAdminBalance';
+import type { AdministrationNavigation } from '../../hooks/useAdministrationNavigation';
 import { AdminFieldCalibrationPanel } from '../AdminFieldCalibrationPanel';
 import { AdminBalanceBuilds } from './AdminBalanceBuilds';
 import { AdminBalanceChampions } from './AdminBalanceChampions';
@@ -8,11 +10,18 @@ import { AdminBalanceConfig } from './AdminBalanceConfig';
 import { AdminBalanceFilters } from './AdminBalanceFilters';
 import { AdminBalanceProvenance } from './AdminBalanceProvenance';
 import { AdminBalanceSection } from './AdminBalanceSection';
-import { useAdminBalance } from '../../hooks/balance/useAdminBalance';
 import '@/styles/admin-balance.css';
 
-export default function AdminBalanceWorkspace({ active = true }: { active?: boolean }) {
-  const balance = useAdminBalance(active);
+export default function AdminBalanceWorkspace({
+  active = true,
+  navigation,
+  view,
+}: {
+  active?: boolean;
+  navigation?: AdministrationNavigation;
+  view?: 'reports' | 'calibration';
+}) {
+  const balance = useAdminBalance(active, navigation, view ?? 'reports');
   const copy = getAdminBalanceCopy(locale);
   const loading =
     balance.champions.loading ||
@@ -22,12 +31,12 @@ export default function AdminBalanceWorkspace({ active = true }: { active?: bool
   return (
     <section
       role="tabpanel"
-      id="admin-panel-balance"
-      aria-labelledby="admin-tab-balance"
+      id={view === 'calibration' ? 'admin-panel-calibration' : 'admin-panel-balance'}
+      aria-labelledby={view === 'calibration' ? 'admin-tab-calibration' : 'admin-tab-balance'}
       className="admin-balance"
     >
       <div className="admin-balance__heading">
-        <h2>{copy.title}</h2>
+        <h2>{view === 'calibration' ? copy.field : copy.title}</h2>
         <Button onClick={balance.refresh} disabled={!balance.enabled || loading}>
           {copy.refresh}
         </Button>
@@ -74,75 +83,81 @@ export default function AdminBalanceWorkspace({ active = true }: { active?: bool
           ))}
         </dl>
       </details>
-      <AdminBalanceSection
-        id="admin-balance-champions"
-        title={copy.champions}
-        help={copy.championHelp}
-        state={balance.champions}
-        disabled={!balance.enabled}
-      >
-        {balance.champions.data && (
-          <AdminBalanceChampions
-            report={balance.champions.data}
-            contextSelection={{
-              value: balance.selection.championContextId,
-              onChange: (value) => balance.changeSelection('championContextId', value),
-            }}
-            pickSelection={{
-              value: balance.selection.pickSegmentId,
-              onChange: (value) => balance.changeSelection('pickSegmentId', value),
-            }}
-          />
-        )}
-      </AdminBalanceSection>
-      <AdminBalanceSection
-        id="admin-balance-builds"
-        title={copy.builds}
-        help={copy.buildHelp}
-        state={balance.builds}
-        disabled={!balance.enabled}
-      >
-        {balance.builds.data && (
-          <AdminBalanceBuilds
-            report={balance.builds.data}
-            selection={{
-              value: balance.selection.buildContextId,
-              onChange: (value) => balance.changeSelection('buildContextId', value),
-            }}
-          />
-        )}
-      </AdminBalanceSection>
-      <AdminBalanceSection
-        id="admin-balance-config"
-        title={copy.configuration}
-        help={copy.configurationHelp}
-        state={balance.config}
-        disabled={!balance.enabled}
-      >
-        {balance.config.data && <AdminBalanceConfig config={balance.config.data} />}
-      </AdminBalanceSection>
-      <section className="admin-balance__panel" aria-labelledby="admin-balance-trees-heading">
-        <h3 id="admin-balance-trees-heading">{copy.treeTitle}</h3>
-        <p>{copy.treeDependency}</p>
-      </section>
-      <AdminBalanceSection
-        id="admin-balance-field"
-        title={copy.field}
-        help={copy.fieldHelp}
-        state={balance.field}
-        disabled={!balance.enabled}
-      >
-        {balance.field.data &&
-          (balance.field.data.supported ? (
-            <AdminFieldCalibrationPanel
-              fieldCohorts={balance.field.data.cohorts}
-              championCohorts={balance.field.data.champions}
-              augmentCohorts={balance.field.data.augments}
-            />
-          ) : (
-            <p role="status">{copy.fieldScope}</p>
-          ))}
-      </AdminBalanceSection>
+      {view !== 'calibration' && (
+        <>
+          <AdminBalanceSection
+            id="admin-balance-champions"
+            title={copy.champions}
+            help={copy.championHelp}
+            state={balance.champions}
+            disabled={!balance.enabled}
+          >
+            {balance.champions.data && (
+              <AdminBalanceChampions
+                report={balance.champions.data}
+                contextSelection={{
+                  value: balance.selection.championContextId,
+                  onChange: (value) => balance.changeSelection('championContextId', value),
+                }}
+                pickSelection={{
+                  value: balance.selection.pickSegmentId,
+                  onChange: (value) => balance.changeSelection('pickSegmentId', value),
+                }}
+              />
+            )}
+          </AdminBalanceSection>
+          <AdminBalanceSection
+            id="admin-balance-builds"
+            title={copy.builds}
+            help={copy.buildHelp}
+            state={balance.builds}
+            disabled={!balance.enabled}
+          >
+            {balance.builds.data && (
+              <AdminBalanceBuilds
+                report={balance.builds.data}
+                selection={{
+                  value: balance.selection.buildContextId,
+                  onChange: (value) => balance.changeSelection('buildContextId', value),
+                }}
+              />
+            )}
+          </AdminBalanceSection>
+          <AdminBalanceSection
+            id="admin-balance-config"
+            title={copy.configuration}
+            help={copy.configurationHelp}
+            state={balance.config}
+            disabled={!balance.enabled}
+          >
+            {balance.config.data && <AdminBalanceConfig config={balance.config.data} />}
+          </AdminBalanceSection>
+          <section className="admin-balance__panel" aria-labelledby="admin-balance-trees-heading">
+            <h3 id="admin-balance-trees-heading">{copy.treeTitle}</h3>
+            <p>{copy.treeDependency}</p>
+          </section>
+        </>
+      )}
+      {view !== 'reports' && (
+        <AdminBalanceSection
+          id="admin-balance-field"
+          title={copy.field}
+          help={copy.fieldHelp}
+          state={balance.field}
+          disabled={!balance.enabled}
+        >
+          {balance.field.data &&
+            (balance.field.data.supported ? (
+              <AdminFieldCalibrationPanel
+                fieldCohorts={balance.field.data.cohorts}
+                championCohorts={balance.field.data.champions}
+                augmentCohorts={balance.field.data.augments}
+              />
+            ) : (
+              <p role="status">{copy.fieldScope}</p>
+            ))}
+        </AdminBalanceSection>
+      )}
       <AdminBalanceProvenance />
     </section>
   );

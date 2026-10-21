@@ -14,7 +14,7 @@ export function DiagnosticsFilters({
   tab,
 }: {
   diagnostics: AdminDiagnostics;
-  tab: 'logs' | 'authority';
+  tab: 'logs' | 'authority' | 'service';
 }) {
   const copy = getAdminDiagnosticsCopy(locale);
   const { draft, change } = diagnostics;

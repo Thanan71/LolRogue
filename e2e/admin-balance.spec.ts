@@ -102,11 +102,13 @@ test('balance has one dedicated tab, versioned populations and independent stale
   await form.getByRole('button', { name: 'Appliquer les filtres', exact: true }).click();
   const champions = panel.locator('#admin-balance-champions');
   await expect(champions).toHaveAttribute('aria-busy', 'false');
-  expect(api.champions.at(-1)).toMatchObject({
-    from: '2026-10-01',
-    to: '2026-10-17',
-    difficulty: 'hard',
-  });
+  await expect
+    .poll(() => api.champions.at(-1))
+    .toMatchObject({
+      from: '2026-10-01',
+      to: '2026-10-17',
+      difficulty: 'hard',
+    });
   expect(api.builds.at(-1)).toEqual(api.champions.at(-1));
   await expect(champions).toContainText('run-engine-0.2.5');
   await expect(champions).toContainText(/moins de 30 comptes/);
@@ -125,10 +127,15 @@ test('balance has one dedicated tab, versioned populations and independent stale
   await expect(champions).toHaveAttribute('aria-busy', 'false');
   expect(api.builds).toHaveLength(buildReads);
   expect(api.configReads).toBe(configReads);
+  await page.getByRole('tab', { name: /Surveillance/ }).click();
   await page.getByRole('tab', { name: /Autorité/ }).click();
   await expect(page.locator('#admin-panel-authority .field-calibration')).toHaveCount(0);
   await page.getByRole('tab', { name: /Équilibrage/ }).click();
-  await expect(panel.locator('.field-calibration')).toHaveCount(1);
+  await expect(panel.locator('.field-calibration')).toHaveCount(0);
+  await page.getByRole('tab', { name: 'Calibration terrain', exact: true }).click();
+  const calibration = page.locator('#admin-panel-calibration');
+  await expect(calibration.locator('.field-calibration')).toHaveCount(1);
+  await page.getByRole('tab', { name: 'Rapports', exact: true }).click();
   await expect(form.getByRole('combobox', { name: 'Difficulté', exact: true })).toHaveValue('hard');
   await captureLoadedAdminPage(page, info, 'admin-balance-desktop-fr');
 });

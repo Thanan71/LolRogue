@@ -11,7 +11,7 @@ export const adminRunExplorerContent = {
       'Tentatives en cours, à vérifier, vérifiées, rejetées ou expirées. Une tentative vérifiée peut être liée à une run sauvegardée ; ces populations ne s’additionnent pas.',
     filters: 'Filtres serveur',
     player: 'Identifiant joueur',
-    playerHelp: 'Identifiant interne du profil, conservé uniquement dans cet écran.',
+    playerHelp: 'Identifiant interne du profil.',
     from: 'Depuis (UTC, inclus)',
     to: 'Jusqu’au (UTC, exclu)',
     difficulty: 'Difficulté',
@@ -110,7 +110,7 @@ export const adminRunExplorerContent = {
     last: 'Fin',
     actionCount: 'Actions dans le journal sûr',
     privacy:
-      'Les filtres et le détail restent dans cet écran ; aucune donnée joueur n’est ajoutée à l’URL.',
+      'Le lien conserve les filtres appliqués et les identifiants internes des profils et des runs. Il ne contient ni email ni identifiant d’authentification.',
   },
   'en-US': {
     title: 'Run explorer',
@@ -121,7 +121,7 @@ export const adminRunExplorerContent = {
       'In progress, awaiting verification, verified, rejected or expired attempts. A verified attempt may link to a saved run; these populations must not be added together.',
     filters: 'Server filters',
     player: 'Player ID',
-    playerHelp: 'Internal profile ID, kept only within this screen.',
+    playerHelp: 'Internal profile ID.',
     from: 'From (UTC, inclusive)',
     to: 'Until (UTC, exclusive)',
     difficulty: 'Difficulty',
@@ -219,7 +219,8 @@ export const adminRunExplorerContent = {
     first: 'Started',
     last: 'Finished',
     actionCount: 'Actions in the safe journal',
-    privacy: 'Filters and details stay within this screen; no player data is added to the URL.',
+    privacy:
+      'The link preserves applied filters and internal profile and run IDs. It contains no email or authentication ID.',
   },
 };
 

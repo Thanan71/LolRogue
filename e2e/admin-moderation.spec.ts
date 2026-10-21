@@ -207,7 +207,7 @@ test('la file conserve les anciens dossiers et rend le 101e accessible par curse
     p_from: '2021-01-01',
     p_cursor: null,
   });
-  await page.getByRole('tab', { name: /Tableau de bord/ }).click();
+  await page.getByRole('tab', { name: /Vue globale/ }).click();
   await page.getByRole('tab', { name: /Modération/ }).click();
   await expect(panel.getByLabel('Signalé depuis (UTC, inclus)')).toHaveValue('2021-01-01');
   await panel.getByRole('button', { name: 'Réinitialiser', exact: true }).click();

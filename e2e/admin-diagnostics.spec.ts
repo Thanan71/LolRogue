@@ -155,6 +155,7 @@ async function diagnosticsBackend(page: Page) {
 }
 async function openLogs(page: Page, language: 'fr-FR' | 'en-US' = 'fr-FR') {
   await enterAdminExplorer(page, language);
+  await page.getByRole('tab', { name: /Monitoring|Surveillance/ }).click();
   await page.getByRole('tab', { name: /Logs|Journaux/ }).click();
   const panel = page.locator('#admin-panel-logs');
   await expect(panel.getByRole('table').first()).toBeVisible();
@@ -215,8 +216,10 @@ test('diagnostics : erreur indépendante, données périmées puis réessai', as
   await page.getByRole('tab', { name: /Authority|Autorité/ }).click();
   const authority = page.locator('#admin-panel-authority');
   await expect(authority.getByText('Investigation à ouvrir')).toBeVisible();
-  await expect(authority.getByText('Non instrumenté')).toHaveCount(3);
-  await expect(authority.getByText('Aucun signal instrumenté pour cette période.')).toBeVisible();
+  await page.getByRole('tab', { name: /État du service/ }).click();
+  const service = page.locator('#admin-panel-service');
+  await expect(service.getByText('Non instrumenté')).toHaveCount(3);
+  await expect(service.getByText('Aucun signal instrumenté pour cette période.')).toBeVisible();
 });
 
 test('diagnostics EN 320px : clavier, régions défilantes et accessibilité', async ({ page }) => {
@@ -229,7 +232,7 @@ test('diagnostics EN 320px : clavier, régions défilantes et accessibilité', a
     panel.getByRole('region', { name: 'Technical logs, horizontal scroll' }),
   ).toBeFocused();
   await page.getByRole('tab', { name: /Logs|Journaux/ }).focus();
-  await page.keyboard.press('ArrowLeft');
+  await page.keyboard.press('ArrowRight');
   const authority = page.locator('#admin-panel-authority');
   await expect(authority.getByText('Verification and incidents')).toBeVisible();
   await expect(page.getByRole('tab', { name: /Authority|Autorité/ })).toBeFocused();

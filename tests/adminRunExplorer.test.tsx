@@ -2,6 +2,8 @@
 
 import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
+import { useAdministrationNavigation } from '@/features/administration/hooks/useAdministrationNavigation';
 import { AdminRunsPanel } from '@/features/administration/ui/runs/AdminRunsPanel';
 import { downloadAdminExplorerCsv } from '@/features/administration/infrastructure/runs/adminRunDownload';
 import {
@@ -386,5 +388,102 @@ describe('admin run export lifecycle', () => {
     });
     expect(download).not.toHaveBeenCalled();
     expect(exportAll.mock.lastCall?.[0].signal.aborted).toBe(true);
+  });
+});
+
+describe('run URL and request ownership', () => {
+  it('hydrates a deep link once, keeps sort and page size, and returns from detail without a duplicate list request', async () => {
+    const initial = `/admin?group=runs&view=list&runFilters=${encodeURIComponent(JSON.stringify({ playerId: adminRunFixture().playerId, sortOrder: 'asc', difficulty: 'hard' }))}&runOptions=${encodeURIComponent(JSON.stringify({ population: 'runs', pageSize: '25' }))}`;
+    const { result } = renderHook(
+      () => {
+        const navigation = useAdministrationNavigation();
+        return {
+          navigation,
+          history: useNavigate(),
+          explorer: useAdminRunExplorer(true, true, navigation),
+        };
+      },
+      {
+        wrapper: ({ children }) => (
+          <MemoryRouter initialEntries={[initial]}>{children}</MemoryRouter>
+        ),
+      },
+    );
+    await waitFor(() => expectReadyList(result.current.explorer));
+    expect(search).toHaveBeenCalledOnce();
+    expect(search.mock.lastCall?.[0]).toMatchObject({
+      pageSize: 25,
+      filters: { playerId: adminRunFixture().playerId, sortOrder: 'asc', difficulty: 'hard' },
+    });
+    act(() => result.current.explorer.openDetail(adminRunFixture().id));
+    await waitFor(() => expect(result.current.explorer.detail.hasData).toBe(true));
+    act(() => result.current.history(-1));
+    await waitFor(() => expectReadyList(result.current.explorer));
+    expect(search).toHaveBeenCalledOnce();
+    expect(result.current.explorer.selectedId).toBeNull();
+    expect(result.current.explorer.filters.sortOrder).toBe('asc');
+    act(() => result.current.history(1));
+    await waitFor(() => expect(result.current.explorer.selectedId).toBe(adminRunFixture().id));
+  });
+  it('applies URL filters with one request and restores their form values on Back', async () => {
+    const { result } = renderHook(
+      () => {
+        const navigation = useAdministrationNavigation();
+        return { history: useNavigate(), explorer: useAdminRunExplorer(true, true, navigation) };
+      },
+      {
+        wrapper: ({ children }) => (
+          <MemoryRouter initialEntries={['/admin?group=runs&view=list']}>{children}</MemoryRouter>
+        ),
+      },
+    );
+    await waitFor(() => expectReadyList(result.current.explorer));
+    act(() =>
+      result.current.explorer.changeDraft({
+        ...result.current.explorer.draft,
+        difficulty: 'hard',
+        sortOrder: 'asc',
+      }),
+    );
+    act(() => result.current.explorer.apply());
+    await waitFor(() => expect(search.mock.lastCall?.[0].filters.difficulty).toBe('hard'));
+    await waitFor(() => expectReadyList(result.current.explorer));
+    expect(search).toHaveBeenCalledTimes(2);
+    act(() => result.current.history(-1));
+    await waitFor(() => expectReadyList(result.current.explorer));
+    expect(result.current.explorer.filters.difficulty).toBe('all');
+    expect(result.current.explorer.draft.difficulty).toBe('all');
+    expect(result.current.explorer.draft.sortOrder).toBe('desc');
+    expect(search).toHaveBeenCalledTimes(3);
+  });
+  it('aborts a pending masked list and performs only one request for explicit refresh', async () => {
+    const pending = deferred<ReturnType<typeof adminRunPageFixture>>();
+    search.mockReturnValueOnce(pending.promise);
+    const { result } = renderHook(
+      () => {
+        const navigation = useAdministrationNavigation();
+        return useAdminRunExplorer(true, true, navigation);
+      },
+      {
+        wrapper: ({ children }) => (
+          <MemoryRouter initialEntries={['/admin?group=runs&view=list']}>{children}</MemoryRouter>
+        ),
+      },
+    );
+    await waitFor(() => expect(search).toHaveBeenCalledOnce());
+    const oldSignal = search.mock.calls[0][0].signal;
+    act(() => result.current.openDetail(adminRunFixture().id));
+    expect(oldSignal.aborted).toBe(true);
+    await act(async () => pending.resolve(adminRunPageFixture()));
+    act(() => result.current.closeDetail());
+    await waitFor(() => expectReadyList(result.current));
+    const count = search.mock.calls.length;
+    const refreshed = deferred<ReturnType<typeof adminRunPageFixture>>();
+    search.mockReturnValueOnce(refreshed.promise);
+    act(() => result.current.refresh());
+    await waitFor(() => expect(search.mock.calls.length).toBe(count + 1));
+    await act(async () => refreshed.resolve(adminRunPageFixture()));
+    await waitFor(() => expectReadyList(result.current));
+    expect(search.mock.calls.length).toBe(count + 1);
   });
 });

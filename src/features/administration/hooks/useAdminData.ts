@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import type { AdminStats, AdminTab } from '../domain/adminDataContracts';
+import type { AdminStats } from '../domain/adminDataContracts';
 import { fetchAdminStats } from '../infrastructure/adminDashboardQueries';
 import { useAdminExplorerScope } from './explorer/useAdminExplorerScope';
 import { useAdminSection } from './useAdminSection';
@@ -8,11 +7,10 @@ const EMPTY_STATS: AdminStats = {};
 const emptyStats = (data: AdminStats) => Object.keys(data).length === 0;
 
 /** Dashboard data only. Diagnostics own their lazy, permission-scoped RPC reads. */
-export function useAdminData(isAdmin: boolean) {
+export function useAdminData(isAdmin: boolean, active = true) {
   const { enabled, scope, captureScope } = useAdminExplorerScope(isAdmin);
-  const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   const stats = useAdminSection({
-    enabled,
+    enabled: enabled && active,
     scope,
     captureScope,
     initialData: EMPTY_STATS,
@@ -20,8 +18,6 @@ export function useAdminData(isAdmin: boolean) {
     isEmpty: emptyStats,
   });
   return {
-    activeTab,
-    setActiveTab,
     stats: stats.data,
     loading: stats.loading,
     statsLoading: stats.loading,

@@ -11,6 +11,8 @@ import {
   within,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
+import { useAdministrationNavigation } from '@/features/administration/hooks/useAdministrationNavigation';
 import { getAdminDiagnosticsCopy } from '@/i18n/adminDiagnostics';
 import AdminDiagnosticsWorkspace from '@/features/administration/ui/diagnostics/AdminDiagnosticsWorkspace';
 import type {
@@ -338,11 +340,15 @@ describe('diagnostics interface', () => {
     await screen.findByText(copy.noLogs);
   });
   it('keeps empty service windows unknown and request SLIs noninstrumented', async () => {
-    render(<AdminDiagnosticsWorkspace tab="authority" />);
-    await screen.findByText(copy.noService);
-    expect(screen.getAllByText(copy.notInstrumented)).toHaveLength(3);
+    const { rerender } = render(<AdminDiagnosticsWorkspace tab="authority" />);
+    await screen.findByText(copy.unknown);
     expect(screen.getByText(copy.unknown)).toBeVisible();
     expect(screen.queryByText(copy.stable)).not.toBeInTheDocument();
+    rerender(<AdminDiagnosticsWorkspace tab="service" />);
+    await screen.findByText(copy.noService);
+    expect(
+      screen.getAllByText(copy.notInstrumented).filter((node) => !node.closest('[hidden]')),
+    ).toHaveLength(3);
     expect(screen.getByText(copy.sloHelp)).toBeVisible();
   });
   it('distinguishes nonterminal bucket attempts from the aged sealed backlog', async () => {
@@ -367,7 +373,7 @@ describe('diagnostics interface', () => {
       result.data.pendingBacklog = 0;
       return result;
     });
-    render(<AdminDiagnosticsWorkspace tab="authority" />);
+    render(<AdminDiagnosticsWorkspace tab="service" />);
     const table = await screen.findByRole('table', { name: copy.serviceTable });
     const headers = within(table).getAllByRole('columnheader');
     const pendingColumn = headers.findIndex(
@@ -434,5 +440,67 @@ describe('diagnostics interface', () => {
     expect(en.serviceHelp).toMatch(/remain unknown/);
     expect(en.sloHelp).toMatch(/does not measure verifier/);
     expect(en.noSignalRecovery).toMatch(/does not close/);
+  });
+});
+
+describe('diagnostics URL context', () => {
+  it('applies filters once to the URL, resets foreign cursors on Back and reads service independently', async () => {
+    const cursor = { at: '2026-10-18T12:10:00.123456Z', id: DIAGNOSTICS_TEST_UUID };
+    mocks.read.mockImplementation((request: DiagnosticsRequest) =>
+      request.section === 'logs'
+        ? diagnosticsResponse(request, {
+            rows: [diagnosticsLog()],
+            total: 1001,
+            nextCursor: request.cursor ? null : cursor,
+          })
+        : response(request),
+    );
+    const initial = `/admin?group=monitoring&view=logs&diagnostics=${encodeURIComponent(JSON.stringify({ from: '2026-10-18', to: '2026-10-18', level: 'info' }))}`;
+    const { result } = renderHook(
+      () => {
+        const navigation = useAdministrationNavigation();
+        const tab = navigation.location.view === 'service' ? 'service' : 'logs';
+        return {
+          navigation,
+          history: useNavigate(),
+          diagnostics: useAdminDiagnostics(true, tab, navigation),
+        };
+      },
+      {
+        wrapper: ({ children }) => (
+          <MemoryRouter initialEntries={[initial]}>{children}</MemoryRouter>
+        ),
+      },
+    );
+    const resource = {
+      get current() {
+        return result.current.diagnostics;
+      },
+    };
+    await ready(resource);
+    expect(mocks.read).toHaveBeenCalledOnce();
+    act(() => result.current.diagnostics.navigate('logs', 'next'));
+    await ready(resource);
+    expect(result.current.diagnostics.logsPage).toBe(2);
+    act(() => result.current.diagnostics.change('level', 'error'));
+    act(() => result.current.diagnostics.apply());
+    await ready(resource);
+    expect(result.current.navigation.location.contexts.diagnostics?.level).toBe('error');
+    expect(mocks.read).toHaveBeenCalledTimes(3);
+    act(() => result.current.diagnostics.navigate('logs', 'next'));
+    await ready(resource);
+    expect(mocks.read.mock.lastCall?.[0]).toMatchObject({ cursor, filters: { level: 'error' } });
+    act(() => result.current.history(-1));
+    await ready(resource);
+    expect(mocks.read.mock.lastCall?.[0]).toMatchObject({
+      cursor: null,
+      snapshotAt: null,
+      filters: { level: 'info' },
+    });
+    expect(result.current.diagnostics.logsPage).toBe(1);
+    const count = mocks.read.mock.calls.length;
+    act(() => result.current.navigation.select('monitoring', 'service'));
+    await ready(resource, 'service');
+    expect(mocks.read.mock.calls.slice(count).map((call) => call[0].section)).toEqual(['service']);
   });
 });
