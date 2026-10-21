@@ -1,8 +1,15 @@
 # Validation ADM-S6 — 18 octobre 2026
 
-Parent : `4abb2b2806bcf3fbcba6700abad004a5444f5e1c` (`dev`, après PR #228 et #229).
+Parent des mesures initiales : `4abb2b2806bcf3fbcba6700abad004a5444f5e1c`
+(`dev`, après PR #228 et #229).
 Branche : `feat/adm-s6-technical-diagnostics`. Application **0.2.12**, patch notes
 FR/EN publication **17**. PR vers `dev`, sans fusion ni opération distante manuelle.
+
+La branche intègre également `dev` au 21 octobre
+(`c46ca5c72f56374c502e4ca1b875144295ee4b81`, PR #236) : cinq anciens verifiers sont
+archivés avec leurs octets conservés. Les preuves finales de CI et du clone
+indépendant du commit livré sont dans la PR ; les mesures locales ci-dessous
+conservent leur référence historique.
 
 ## Périmètre livré
 
@@ -23,8 +30,9 @@ de statut ; les logs optionnels ne constituent jamais un journal exhaustif.
 Une migration créée par la CLI : `20261018100541_admin_technical_diagnostics.sql`,
 soit **73 migrations**. Les 72 précédentes ne sont pas modifiées. Le moteur
 `run-engine-0.2.5`, gameplay 24, le hash
-`9009950fe0b1c6944a26486e65b0bb0f1379129b42d7499f2bf1c0a8ce3391fa`, le registre
-et les 24 archives restent identiques au parent.
+`9009950fe0b1c6944a26486e65b0bb0f1379129b42d7499f2bf1c0a8ce3391fa` et les octets
+des bundles historiques restent inchangés. Le registre et le classement des
+archives suivent le parent actuel `c46ca5c7`.
 
 La façade publique est invoker ; le seul nouveau definer privé directement
 autorisé est `private.admin_diagnostics(text,jsonb,jsonb,timestamptz,integer)`.
@@ -116,3 +124,5 @@ maintenance compatible**, pas un retour au comportement brut pré-S6 ni un
 déploiement de production déjà sain. Un opérateur doit préparer et vérifier un
 déploiement sain correspondant avant promotion ; le probe local ne remplace pas
 ce smoke test. La migration n’est pas inversée pour rétablir un ancien accès.
+Ce candidat concerne le frontend ; les redéploiements Edge conservent le registre
+actuel avec les cinq anciens moteurs archivés et non supportés.

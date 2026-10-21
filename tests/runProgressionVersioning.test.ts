@@ -157,7 +157,7 @@ describe('run progression capability and historical replay', () => {
     'preserves the exact frozen v22 %s assist trace while enabling the new reward',
     async (tier, reward) => {
       const frozen = await importInstrumentedAuthorityBundle(
-        resolve(process.cwd(), 'supabase/functions/verify-run/run-authority-v22.bundle.ts'),
+        resolve(process.cwd(), 'supabase/authority-archive/run-authority-v22.bundle.ts'),
       );
       const historical = assistBattle(frozen as unknown as BattleRuntime, LEGACY_ENGINE, tier);
       expect(assistBattle(liveRuntime, LEGACY_ENGINE, tier)).toEqual(historical);
@@ -173,7 +173,7 @@ describe('run progression capability and historical replay', () => {
 
   it('pins the immutable v22 bytes and replays its existing Veigar combat without new assist rewards', async () => {
     const bytes = readFileSync(
-      resolve(process.cwd(), 'supabase/functions/verify-run/run-authority-v22.bundle.ts'),
+      resolve(process.cwd(), 'supabase/authority-archive/run-authority-v22.bundle.ts'),
     );
     expect(createHash('sha256').update(bytes).digest('hex')).toBe(
       '0e158380fddc7e9174530e0e35915baa153abfa9646032bcd0a902b444fe1951',

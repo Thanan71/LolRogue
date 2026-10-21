@@ -12,7 +12,7 @@ const migration = readFileSync(
   'utf8',
 );
 const archivedV20 = readFileSync(
-  new URL('../supabase/functions/verify-run/run-authority-v20.bundle.ts', import.meta.url),
+  new URL('../supabase/authority-archive/run-authority-v20.bundle.ts', import.meta.url),
 );
 const verifyRunSource = readFileSync(
   new URL('../supabase/functions/verify-run/index.ts', import.meta.url),

@@ -1,5 +1,3 @@
-import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import type { AuthorityCohortRuntime } from '@/game/balance/authorityCohort';
 import {
@@ -12,25 +10,18 @@ import {
 } from '@/game/balance/authorityCohortBaseline';
 import { createAuthorityCohortBaselineV20Fixture } from '@/game/balance/authorityCohortBaselineV20Fixture';
 import type { AuthorityCohortExecutionReportGroup } from '@/game/balance/authorityCohortExecution';
+import { resolveRegisteredAuthorityVerifier } from './helpers/authorityBundleResolver';
 import type { AuthorityCohortReport } from '@/game/balance/authorityCohortReport';
 
 const v20Identity = {
   engineVersion: 'run-engine-v20',
   contentHash: '8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91',
 } as const;
-const resolverUrl = pathToFileURL(
-  resolve(process.cwd(), 'supabase/functions/verify-run/authority-version-resolver.generated.ts'),
-).href;
-const edgeResolver = (await import(/* @vite-ignore */ resolverUrl)) as {
-  resolveAuthorityVerifier: (
-    engine: string,
-    hash: string,
-  ) => Promise<AuthorityCohortRuntime | undefined>;
-};
-const v20Authority = await edgeResolver.resolveAuthorityVerifier(
+// Cohort acceptance replays archived v20 offline; the production Edge resolver must not load it.
+const v20Authority = (await resolveRegisteredAuthorityVerifier(
   v20Identity.engineVersion,
   v20Identity.contentHash,
-);
+)) as AuthorityCohortRuntime | undefined;
 if (!v20Authority) throw new Error('The archived v20 cohort authority is unavailable.');
 const fixture = createAuthorityCohortBaselineV20Fixture(v20Authority);
 const baselineEntry = Object.values(fixture.document.entries)[0]!;

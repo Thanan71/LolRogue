@@ -4295,7 +4295,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 196,
+          "line": 197,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- baseline generate\",",
@@ -4303,7 +4303,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 205,
+          "line": 206,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- baseline check --all\"",
@@ -4311,7 +4311,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 208,
+          "line": 209,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- baseline check --all.\"",
@@ -4319,7 +4319,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 214,
+          "line": 215,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- early-top generate\",",
@@ -4327,7 +4327,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 220,
+          "line": 221,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- early-top check --all\"",
@@ -4335,7 +4335,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 223,
+          "line": 224,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- early-top check --all.\"",
@@ -4343,7 +4343,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 229,
+          "line": 230,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- map-economy generate\",",
@@ -4351,7 +4351,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 238,
+          "line": 239,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- map-economy check\"",
@@ -4359,7 +4359,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 241,
+          "line": 242,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- map-economy check.\"",
@@ -4367,7 +4367,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 250,
+          "line": 251,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- veigar generate\",",
@@ -4375,7 +4375,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 259,
+          "line": 260,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- veigar check --all\"",
@@ -4383,7 +4383,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 262,
+          "line": 263,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- veigar check --all.\"",
@@ -4391,7 +4391,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 271,
+          "line": 272,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- field-baseline generate\",",
@@ -4399,7 +4399,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 280,
+          "line": 281,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- field-baseline check\"",
@@ -4407,7 +4407,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 283,
+          "line": 284,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- field-baseline check.\"",
@@ -4415,7 +4415,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 289,
+          "line": 290,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- combat matrix generate\",",
@@ -4423,7 +4423,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 298,
+          "line": 299,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- combat matrix check\"",
@@ -4431,7 +4431,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 301,
+          "line": 302,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- combat matrix check.\"",
@@ -4906,7 +4906,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 196,
+          "line": 197,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- baseline generate\",",
@@ -4914,7 +4914,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 205,
+          "line": 206,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- baseline check --all\"",
@@ -4922,7 +4922,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 208,
+          "line": 209,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- baseline check --all.\"",
@@ -4930,7 +4930,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 214,
+          "line": 215,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- early-top generate\",",
@@ -4938,7 +4938,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 220,
+          "line": 221,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- early-top check --all\"",
@@ -4946,7 +4946,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 223,
+          "line": 224,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- early-top check --all.\"",
@@ -4954,7 +4954,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 229,
+          "line": 230,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- map-economy generate\",",
@@ -4962,7 +4962,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 238,
+          "line": 239,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- map-economy check\"",
@@ -4970,7 +4970,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 241,
+          "line": 242,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- map-economy check.\"",
@@ -4978,7 +4978,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 250,
+          "line": 251,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- veigar generate\",",
@@ -4986,7 +4986,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 259,
+          "line": 260,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- veigar check --all\"",
@@ -4994,7 +4994,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 262,
+          "line": 263,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- veigar check --all.\"",
@@ -5002,7 +5002,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 271,
+          "line": 272,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- field-baseline generate\",",
@@ -5010,7 +5010,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 280,
+          "line": 281,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- field-baseline check\"",
@@ -5018,7 +5018,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 283,
+          "line": 284,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- field-baseline check.\"",
@@ -5026,7 +5026,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 289,
+          "line": 290,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run balance -- combat matrix generate\",",
@@ -5034,7 +5034,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 298,
+          "line": 299,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run balance -- combat matrix check\"",
@@ -5042,7 +5042,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 301,
+          "line": 302,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: static check validates classification/JSON/presence; expensive deterministic reports are reproduced by npm run balance -- combat matrix check.\"",
@@ -27714,7 +27714,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 182,
+          "line": 183,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run database -- types generate\",",
@@ -27722,7 +27722,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 187,
+          "line": 188,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: exact schema reproduction requires the disposable local database and npm run database -- types check; static check does not claim schema parity.\"",
@@ -28702,7 +28702,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 182,
+          "line": 183,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run database -- types generate\",",
@@ -28710,7 +28710,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 187,
+          "line": 188,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproduction\": \"conditional: exact schema reproduction requires the disposable local database and npm run database -- types check; static check does not claim schema parity.\"",
@@ -35121,7 +35121,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 159,
+          "line": 160,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run release -- edge bundle\",",
@@ -35647,7 +35647,7 @@
         },
         {
           "file": "config/generated-artifacts.json",
-          "line": 159,
+          "line": 160,
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"generator\": \"npm run release -- edge bundle\",",
