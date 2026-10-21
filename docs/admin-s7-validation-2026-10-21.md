@@ -8,7 +8,7 @@ Les commits de travail sont `3077e6d` (ADM-32), `bc64c5e` (ADM-33 amendé) et
 de livraison.
 
 **Statut : S7 implémenté en code et couvert par les contrôles automatisés locaux ;
-revue humaine VoiceOver/NVDA ouverte.** La PR doit cibler `dev`, sans fusion
+validation humaine du parcours demandé confirmée par l’utilisateur.** La PR doit cibler `dev`, sans fusion
 implicite. Les résultats unitaires complets, le clone
 indépendant, la CI et la Preview doivent être rattachés au SHA final dans cette PR.
 Le build candidat local, les contrôles de sécurité et le typecheck passent.
@@ -21,7 +21,7 @@ attestée par cette validation.
 | --- | --- |
 | ADM-32 | 97 modules migrés vers un module `features/administration` avec couches domain/infrastructure/hooks/ui, wrapper de route, entrée publique et garde d’imports |
 | ADM-33 | Six groupes, sous-vues et contexte appliqué dans l’URL ; liens directs, historique, filtres validés et sélections joueur/run indépendantes |
-| ADM-34 | Colonnes essentielles, détails, focus, clavier, FR/EN, 320 px et zoom natif 200–400 % validés automatiquement ; lecture humaine NVDA/VoiceOver non exécutée |
+| ADM-34 | Colonnes essentielles, détails, focus, clavier, FR/EN, 320 px et zoom natif 200–400 % validés automatiquement ; parcours humain demandé confirmé par l’utilisateur sur la Preview |
 | ADM-35 | Matrice locale SQL/Auth/UI/E2E, populations aux seuils de pagination, rôles réels et reprise après interruption |
 | ADM-36 | [Contrat d’interface](admin-interface.md), contrats KPI/rôles réutilisés, restauration et limites des preuves documentées |
 
@@ -115,8 +115,11 @@ si la cible ou les paramètres manquent. Les jobs de la PR doivent identifier le
 SHA, la version Node, la cible locale, les commandes, compteurs et liens d’artefacts.
 CI, Preview, fusion et déploiement restent des étapes distinctes.
 
-- [ ] Exécuter le parcours humain NVDA/Firefox et VoiceOver/Safari ; noter
-  appareil, versions, langue, parcours, résultat et anomalies dans la PR.
+- [x] Vérification humaine demandée sur la Preview : retour utilisateur positif
+  le 21 octobre (« la verification humaine est ok »), pour le commit `7c157b4`.
+  Outil, appareil, versions et annonces détaillées non renseignés ; il s’agit
+  d’un retour déclaré, pas d’une exécution VoiceOver/NVDA observée par l’agent.
+  La suite P3-A11Y-01 du jeu entier reste indépendante de cette validation admin.
 Avant fusion, vérifier dans la PR les résultats unitaires complets, la
 reconstruction indépendante, les checks CI et le smoke test Preview du SHA final.
 Ces preuves complètent le présent relevé local daté.

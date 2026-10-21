@@ -1,6 +1,6 @@
 # ADM — Administration fiable et exploitable
 
-**Statut : ADM-S1 à S3 implémentés ; ADM-S4 implémenté hors ADM-20, en attente de TREE-10 ; ADM-S5 et ADM-S6 implémentés ; ADM-S7 est implémenté en code et automatisation locale ; vérification humaine NVDA/VoiceOver ADM-34 ouverte.** 7 sprints, **36 tâches** (`ADM-01` à `ADM-36`). Cible : wrapper `src/pages/AdminPage.tsx`, module `src/features/administration`, vues/RPC PostgreSQL et `docs/administration.md`. [Retour au TODO](../../TODO.md) · [Architecture](architecture-maintenance.md).
+**Statut : ADM-S1 à S3 implémentés ; ADM-S4 implémenté hors ADM-20, en attente de TREE-10 ; ADM-S5 et ADM-S6 implémentés ; ADM-S7 est implémenté en code et automatisation locale ; validation humaine ADM-34 confirmée par l’utilisateur le 21 octobre.** 7 sprints, **36 tâches** (`ADM-01` à `ADM-36`). Cible : wrapper `src/pages/AdminPage.tsx`, module `src/features/administration`, vues/RPC PostgreSQL et `docs/administration.md`. [Retour au TODO](../../TODO.md) · [Architecture](architecture-maintenance.md).
 
 ## État initial et frontières
 
@@ -500,8 +500,8 @@ fusion et déploiement restent distincts de cette clôture code.
 ## ADM-S7 — UI, architecture et preuves (P2 ; ADM-32..36)
 
 **Application 0.2.13 : ADM-32, 33, 35 et 36 réalisés en code et preuves locales.**
-ADM-34 est couvert automatiquement ; sa vérification humaine NVDA/VoiceOver
-reste ouverte. [Contrat d’interface](../admin-interface.md) ·
+ADM-34 est couvert automatiquement ; le parcours humain demandé a été validé
+par l’utilisateur sur la Preview le 21 octobre (voir le rapport de validation). [Contrat d’interface](../admin-interface.md) ·
 [validation du 21 octobre](../admin-s7-validation-2026-10-21.md).
 Le build candidat local passe ; la reconstruction indépendante finale, les
 checks CI/Preview et le SHA livré sont à joindre à la PR vers `dev`. Aucune fusion, livraison distante, migration, activation ou
@@ -544,9 +544,9 @@ notification n’est implicite. ADM-20 reste dépendant de TREE-10.
   - [x] Navigation clavier, focus, tableaux avec en-têtes, contrastes et messages FR/EN cohérents avec `P0-I18N-01` ; sémantique vérifiée automatiquement.
   - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
   - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
   - [x] Automatisé : 320 px, zoom natif Chromium 200 %/400 %, clavier, focus, FR/EN et axe sans violation.
-  - [ ] Manuel : exécuter NVDA/Firefox et VoiceOver/Safari ; consigner versions, appareil, parcours et résultat. Aucun de ces lecteurs n’a été exécuté pour S7.
+  - [x] Manuel : parcours lecteur d’écran demandé sur la Preview `7c157b4`, confirmé par l’utilisateur le 21 octobre : « la verification humaine est ok ». Retour déclaré ; outil, appareil et versions non renseignés, aucune exécution distincte des deux lecteurs attribuée à l’agent.
   - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
   - [x] Documenter requêtes, jeux de données, résultats locaux et modèle de preuve à joindre à la PR, sans activer de nouvelles actions en production.
 

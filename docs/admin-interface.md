@@ -67,11 +67,14 @@ maintiennent le focus. Les règles d’échappement CSV et la limite de 5 000 li
 restent celles du [contrat d’exploration](admin-explorer.md).
 
 Les essais automatisés couvrent FR/EN, clavier, focus, 320 px et le zoom natif
-Chromium à 200 % et 400 %, avec axe sans violation. **VoiceOver et NVDA n’ont pas
-été exécutés.** Leur parcours humain reste requis dans ADM-34 et
-[P3-A11Y-01](../TODO.md#p3-a11y-01--validation-humaine-avant-bêta).
+Chromium à 200 % et 400 %, avec axe sans violation. Le parcours humain demandé
+pour ADM-34 a été confirmé par l’utilisateur le 21 octobre sur la Preview
+`7c157b4` : « la verification humaine est ok ». Ce retour ne précise ni outil,
+ni appareil, ni versions ; aucune exécution de lecteur d’écran par l’agent n’est
+revendiquée. La matrice complète du jeu
+[P3-A11Y-01](../TODO.md#p3-a11y-01--validation-humaine-avant-bêta) reste distincte.
 
-## Parcours humain lecteur d’écran restant
+## Parcours humain lecteur d’écran
 
 Sur le SHA candidat de la PR, utiliser un compte administrateur existant dans
 l’environnement de test et consigner appareil, versions du navigateur/lecteur,
@@ -90,8 +93,8 @@ langue et résultat. Aucun rôle n’est accordé par ce parcours.
    chargements, erreurs et reprises sur une panne réseau de test contrôlée.
 
 Un audit axe ou une inspection de l’arbre d’accessibilité ne valide pas ces
-étapes humaines. Reporter les anomalies et leur reproduction dans la PR avant
-de cocher la preuve manuelle ADM-34.
+étapes humaines. Consigner le retour et les éventuelles anomalies dans la PR ;
+le retour positif de l’utilisateur pour ADM-34 figure dans le rapport S7.
 
 ## Frontières de code
 
