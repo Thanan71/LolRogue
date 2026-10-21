@@ -1,14 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { getAdminRunExplorerCopy } from '@/i18n/adminRunExplorer';
 import { locale } from '@/i18n/fr';
+import { isAdminSavedRun } from '../../domain/runs/adminRunContracts';
+import { ADMIN_RUN_EXPORT_CAP } from '../../domain/runs/adminRunExport';
+import type { AdminRunExplorer } from '../../hooks/runs/useAdminRunExplorer';
+import { AdminResponsiveTable } from '../AdminResponsiveTable';
 import { AdminPagination } from '../explorer/AdminPagination';
 import { AdminRunDetail } from './AdminRunDetail';
 import { AdminRunExportDialog } from './AdminRunExportDialog';
 import { AdminRunFilters } from './AdminRunFilterForm';
 import { adminRunChampion, adminRunDate, adminRunNumber } from './adminRunDisplay';
-import { ADMIN_RUN_EXPORT_CAP } from '../../domain/runs/adminRunExport';
-import { isAdminSavedRun } from '../../domain/runs/adminRunContracts';
-import type { AdminRunExplorer } from '../../hooks/runs/useAdminRunExplorer';
 
 export function AdminRunsPanel({ explorer }: { explorer: AdminRunExplorer }) {
   const copy = getAdminRunExplorerCopy(locale);
@@ -144,11 +145,9 @@ export function AdminRunsPanel({ explorer }: { explorer: AdminRunExplorer }) {
                 {page.items.length === 0 ? (
                   <p>{copy.empty}</p>
                 ) : (
-                  <div
+                  <AdminResponsiveTable
                     className="runs-table-container"
-                    role="region"
-                    aria-label={explorer.population === 'runs' ? copy.persisted : copy.attempts}
-                    tabIndex={0}
+                    label={explorer.population === 'runs' ? copy.persisted : copy.attempts}
                   >
                     <table className="runs-table">
                       <caption className="sr-only">
@@ -156,20 +155,30 @@ export function AdminRunsPanel({ explorer }: { explorer: AdminRunExplorer }) {
                       </caption>
                       <thead>
                         <tr>
-                          <th scope="col">{copy.date}</th>
+                          <th scope="col" className="admin-table-secondary">
+                            {copy.date}
+                          </th>
                           <th scope="col">{copy.playerColumn}</th>
                           <th scope="col">{copy.status}</th>
-                          <th scope="col">{copy.level}</th>
-                          <th scope="col">{copy.waves}</th>
-                          <th scope="col">{copy.team}</th>
-                          <th scope="col">{copy.engine}</th>
+                          <th scope="col" className="admin-table-secondary">
+                            {copy.level}
+                          </th>
+                          <th scope="col" className="admin-table-secondary">
+                            {copy.waves}
+                          </th>
+                          <th scope="col" className="admin-table-secondary">
+                            {copy.team}
+                          </th>
+                          <th scope="col" className="admin-table-secondary">
+                            {copy.engine}
+                          </th>
                           <th scope="col">{copy.detail}</th>
                         </tr>
                       </thead>
                       <tbody>
                         {page.items.map((item) => (
                           <tr key={item.id}>
-                            <td>
+                            <td className="admin-table-secondary">
                               {adminRunDate(
                                 isAdminSavedRun(item) ? item.completedAt : item.startedAt,
                                 copy.unavailable,
@@ -189,17 +198,17 @@ export function AdminRunsPanel({ explorer }: { explorer: AdminRunExplorer }) {
                                 copy[item.status]
                               )}
                             </td>
-                            <td>
+                            <td className="admin-table-secondary">
                               {isAdminSavedRun(item)
                                 ? adminRunNumber(item.runLevel, copy.unavailable)
                                 : copy.unavailable}
                             </td>
-                            <td>
+                            <td className="admin-table-secondary">
                               {isAdminSavedRun(item)
                                 ? adminRunNumber(item.wavesCompleted, copy.unavailable)
                                 : copy.unavailable}
                             </td>
-                            <td>
+                            <td className="admin-table-secondary">
                               {(isAdminSavedRun(item)
                                 ? item.team.map((member) => member.championId)
                                 : item.initialTeam
@@ -207,7 +216,9 @@ export function AdminRunsPanel({ explorer }: { explorer: AdminRunExplorer }) {
                                 .map(adminRunChampion)
                                 .join(' · ')}
                             </td>
-                            <td>{item.engineVersion ?? copy.unavailable}</td>
+                            <td className="admin-table-secondary">
+                              {item.engineVersion ?? copy.unavailable}
+                            </td>
                             <td>
                               <button
                                 type="button"
@@ -228,7 +239,7 @@ export function AdminRunsPanel({ explorer }: { explorer: AdminRunExplorer }) {
                         ))}
                       </tbody>
                     </table>
-                  </div>
+                  </AdminResponsiveTable>
                 )}
                 <AdminPagination
                   pageIndex={explorer.pageIndex}

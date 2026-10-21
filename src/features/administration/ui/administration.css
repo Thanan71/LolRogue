@@ -1,0 +1,90 @@
+/* Administration layout rules shared by eager and deferred workspaces. */
+.admin-page,
+.admin-content,
+.admin-responsive-table {
+  min-width: 0;
+}
+
+.admin-page :is(button, summary),
+.admin-responsive-table__options label {
+  min-height: 44px;
+}
+
+.admin-page :is(p, dd, dt, h2, h3, h4, code, button) {
+  overflow-wrap: anywhere;
+}
+
+.admin-subnav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  max-width: 100%;
+  margin-block: var(--space-3);
+  padding: var(--space-2);
+}
+
+.admin-subnav button {
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font: inherit;
+}
+
+.admin-subnav button[aria-selected="true"] {
+  color: #031311;
+  background: var(--color-secondary);
+}
+
+.admin-responsive-table__options {
+  display: none;
+}
+
+@media (max-width: 46rem) {
+  .admin-responsive-table__options {
+    display: grid;
+    gap: var(--space-2);
+    margin-block: var(--space-3);
+  }
+
+  .admin-responsive-table__options label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .admin-responsive-table__options p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .admin-responsive-table[data-columns="essential"] .admin-table-secondary {
+    display: none;
+  }
+
+  .admin-responsive-table[data-columns="essential"] table {
+    min-width: 0;
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .admin-responsive-table[data-columns="essential"] :is(th, td) {
+    padding: 0.5rem 0.3rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    letter-spacing: 0;
+  }
+
+  .admin-responsive-table[data-columns="essential"] :is(button, .player-name) {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .admin-responsive-table[data-columns="essential"] button {
+    padding-inline: 0.35rem;
+  }
+}

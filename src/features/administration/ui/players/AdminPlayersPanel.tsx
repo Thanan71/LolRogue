@@ -1,13 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { fr } from '@/i18n/fr';
 import { Button } from '@/shared/ui/Controls';
-import { AdminErrorNotice } from '../AdminErrorNotice';
-import { AdminSectionFeedback } from '../AdminSectionFeedback';
 import { formatAdminMetric } from '../../domain/adminMetrics';
-import { AdminPagination } from '../explorer/AdminPagination';
-import { AdminPlayerProfile } from './AdminPlayerProfile';
 import type { AdminPlayerFilters } from '../../domain/players/adminPlayerTypes';
 import type { AdminPlayersExplorer } from '../../hooks/players/useAdminPlayersExplorer';
+import { AdminErrorNotice } from '../AdminErrorNotice';
+import { AdminResponsiveTable } from '../AdminResponsiveTable';
+import { AdminSectionFeedback } from '../AdminSectionFeedback';
+import { AdminPagination } from '../explorer/AdminPagination';
+import { AdminPlayerProfile } from './AdminPlayerProfile';
 
 export function AdminPlayersPanel({
   explorer,
@@ -37,12 +38,12 @@ export function AdminPlayersPanel({
       id="admin-panel-players"
       aria-labelledby="admin-tab-players"
     >
+      <h2>{copy.title}</h2>
       {explorer.selectedId ? (
         <AdminPlayerProfile explorer={explorer} onOpenRuns={onOpenRuns} />
       ) : (
         <>
           <div className="admin-explorer-heading">
-            <h3>{copy.title}</h3>
             <Button
               onClick={explorer.refresh}
               disabled={explorer.list.loading || explorer.searchPending || !explorer.datesValid}
@@ -57,7 +58,7 @@ export function AdminPlayersPanel({
                 id={searchId}
                 type="search"
                 value={explorer.filters.search}
-                maxLength={100}
+                maxLength={80}
                 onChange={(event) => explorer.setFilter('search', event.target.value)}
                 aria-describedby="admin-player-search-hint"
               />
@@ -151,12 +152,7 @@ export function AdminPlayersPanel({
             onPageSizeChange={explorer.changePageSize}
           />
           {page && (
-            <div
-              className="players-table-container"
-              tabIndex={0}
-              role="region"
-              aria-label={copy.caption}
-            >
+            <AdminResponsiveTable className="players-table-container" label={copy.caption}>
               <table className="players-table">
                 <caption className="sr-only">{copy.caption}</caption>
                 <thead>
@@ -170,8 +166,12 @@ export function AdminPlayersPanel({
                       copy.lastLoginAt,
                       copy.createdAt,
                       copy.openProfile,
-                    ].map((label) => (
-                      <th scope="col" key={label}>
+                    ].map((label, index) => (
+                      <th
+                        scope="col"
+                        key={label}
+                        className={[0, 2, 7].includes(index) ? undefined : 'admin-table-secondary'}
+                      >
                         {label}
                       </th>
                     ))}
@@ -188,12 +188,12 @@ export function AdminPlayersPanel({
                           {copy.publicId}: {player.id}
                         </small>
                       </td>
-                      <td>{metric(player.level)}</td>
+                      <td className="admin-table-secondary">{metric(player.level)}</td>
                       <td>{metric(player.verifiedRuns)}</td>
-                      <td>{metric(player.verifiedWins)}</td>
-                      <td>{metric(player.candiesBalance)}</td>
-                      <td>{timestamp(player.lastLoginAt)}</td>
-                      <td>{timestamp(player.createdAt)}</td>
+                      <td className="admin-table-secondary">{metric(player.verifiedWins)}</td>
+                      <td className="admin-table-secondary">{metric(player.candiesBalance)}</td>
+                      <td className="admin-table-secondary">{timestamp(player.lastLoginAt)}</td>
+                      <td className="admin-table-secondary">{timestamp(player.createdAt)}</td>
                       <td>
                         <Button
                           id={`admin-player-open-${player.id}`}
@@ -210,7 +210,7 @@ export function AdminPlayersPanel({
                 </tbody>
               </table>
               {page.items.length === 0 && <p className="no-data">{copy.noResults}</p>}
-            </div>
+            </AdminResponsiveTable>
           )}
         </>
       )}

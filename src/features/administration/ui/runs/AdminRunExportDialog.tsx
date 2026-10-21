@@ -18,13 +18,21 @@ export function AdminRunExportDialog({
   const dialog = useRef<HTMLDialogElement>(null);
   const confirm = useRef<HTMLButtonElement>(null);
   const cancel = useRef<HTMLButtonElement>(null);
+  const previousFocus = useRef<HTMLElement | null>(null);
   useEffect(() => {
-    const previousFocus = document.activeElement;
-    if (dialog.current?.showModal) dialog.current.showModal();
-    else dialog.current?.setAttribute('open', '');
+    // Preserve the opener across StrictMode's repeated effect setup.
+    if (previousFocus.current === null && document.activeElement instanceof HTMLElement)
+      previousFocus.current = document.activeElement;
+    const currentDialog = dialog.current;
+    if (currentDialog?.showModal) currentDialog.showModal();
+    else currentDialog?.setAttribute('open', '');
     confirm.current?.focus();
     return () => {
-      if (previousFocus instanceof HTMLElement) previousFocus.focus();
+      // React removes the modal after effect cleanup; focus can leave its top layer afterwards.
+      queueMicrotask(() => {
+        if (!currentDialog?.isConnected && previousFocus.current?.isConnected)
+          previousFocus.current.focus();
+      });
     };
   }, []);
   return (
