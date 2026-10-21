@@ -8,7 +8,7 @@ import type {
   DiagnosticsResponse,
   DiagnosticsSection,
   DiagnosticsServiceMetrics,
-} from '@/pages/admin/diagnostics/adminDiagnosticsTypes';
+} from '@/features/administration/domain/diagnostics/adminDiagnosticsTypes';
 
 export const DIAGNOSTICS_TEST_SNAPSHOT = '2026-10-18T12:15:30.123456Z';
 export const DIAGNOSTICS_TEST_UUID = '00000000-0000-4000-8000-000000000002';

@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fetchAdminAnalyticsSeries } from '@/features/administration/infrastructure/analytics/adminAnalyticsClient';
 import {
-  fetchAdminAnalyticsSeries,
   parseAdminAnalyticsFunnel,
   parseAdminAnalyticsRetention,
   parseAdminAnalyticsSeries,
-  validateAdminAnalyticsFilters,
-} from '@/pages/admin/analytics/adminAnalyticsClient';
-import { analyticsTimestampUs } from '@/pages/admin/analytics/adminAnalyticsValidation';
+} from '@/features/administration/domain/analytics/adminAnalyticsParser';
+import { validateAdminAnalyticsFilters } from '@/features/administration/domain/analytics/adminAnalyticsValidation';
+import { analyticsTimestampUs } from '@/features/administration/domain/analytics/adminAnalyticsValidation';
 import {
   analyticsFunnelFixture,
   analyticsRetentionFixture,
@@ -15,12 +15,17 @@ import {
 } from './fixtures/adminAnalytics';
 
 const transport = vi.hoisted(() => ({ rpc: vi.fn(), abortSignal: vi.fn() }));
-vi.mock('@/services/supabaseClient', () => ({ supabase: { rpc: transport.rpc } }));
+vi.mock('@/services/supabaseClient', () => ({
+  supabase: { rpc: transport.rpc },
+}));
 
 beforeEach(() => {
   vi.clearAllMocks();
   transport.rpc.mockReturnValue({ abortSignal: transport.abortSignal });
-  transport.abortSignal.mockResolvedValue({ data: analyticsSeriesFixture(), error: null });
+  transport.abortSignal.mockResolvedValue({
+    data: analyticsSeriesFixture(),
+    error: null,
+  });
 });
 
 describe('admin analytics UTC window validation', () => {
@@ -154,7 +159,10 @@ describe('admin analytics complete series projections', () => {
     excessive.segments = Array(33).fill(excessive.segments[0]);
     expect(() => parseAdminAnalyticsSeries(excessive)).toThrow();
     expect(() =>
-      parseAdminAnalyticsSeries({ ...analyticsSeriesFixture(), user_id: 'AUTH-SECRET' }),
+      parseAdminAnalyticsSeries({
+        ...analyticsSeriesFixture(),
+        user_id: 'AUTH-SECRET',
+      }),
     ).toThrow();
   });
 });

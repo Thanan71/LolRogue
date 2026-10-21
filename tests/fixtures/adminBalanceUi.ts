@@ -4,7 +4,7 @@ import type {
   BalanceConfig,
   BalanceFilters,
   BalanceReportBase,
-} from '@/pages/admin/balance/balanceTypes';
+} from '@/features/administration/domain/balance/balanceTypes';
 
 const CONTEXT_ID = 'b'.repeat(32);
 

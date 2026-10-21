@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { parseAdminDiagnostics } from '@/pages/admin/diagnostics/adminDiagnosticsParser';
+import { parseAdminDiagnostics } from '@/features/administration/domain/diagnostics/adminDiagnosticsParser';
 import {
   diagnosticsTimestampUs,
   isDiagnosticsAccessDenied,
   validateDiagnosticsRequest,
-} from '@/pages/admin/diagnostics/adminDiagnosticsValidation';
+} from '@/features/administration/domain/diagnostics/adminDiagnosticsValidation';
 import type {
   DiagnosticsRequest,
   DiagnosticsSection,
-} from '@/pages/admin/diagnostics/adminDiagnosticsTypes';
+} from '@/features/administration/domain/diagnostics/adminDiagnosticsTypes';
 import {
   DIAGNOSTICS_TEST_SNAPSHOT,
   DIAGNOSTICS_TEST_UUID,

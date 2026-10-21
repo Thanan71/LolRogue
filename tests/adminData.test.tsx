@@ -8,9 +8,9 @@ import {
   SOLO_GAREN_COMPOSITION_HASH,
 } from '@/game/balance/fieldCalibrationComparison';
 import { getAdminFieldCalibrationCopy } from '@/i18n/adminFieldCalibration';
-import { AdminErrorNotice } from '@/pages/admin/AdminErrorNotice';
-import { AdminFieldCalibrationPanel } from '@/pages/admin/AdminFieldCalibrationPanel';
-import { AdminTabList } from '@/pages/admin/AdminTabList';
+import { AdminErrorNotice } from '@/features/administration/ui/AdminErrorNotice';
+import { AdminFieldCalibrationPanel } from '@/features/administration/ui/AdminFieldCalibrationPanel';
+import { AdminTabList } from '@/features/administration/ui/AdminTabList';
 
 describe('admin data feedback', () => {
   it('shows an actionable retry and disables it while retrying', () => {

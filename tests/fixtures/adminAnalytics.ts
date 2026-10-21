@@ -4,7 +4,7 @@ import type {
   AnalyticsRetention,
   AnalyticsSeries,
   AnalyticsSeriesBucket,
-} from '@/pages/admin/analytics/analyticsTypes';
+} from '@/features/administration/domain/analytics/analyticsTypes';
 
 export function analyticsBaseFixture(): AnalyticsBase {
   return {
@@ -81,9 +81,27 @@ export function analyticsRetentionFixture(): AnalyticsRetention {
         cohortSize: 10,
         covered: true,
         horizons: [
-          { day: 1, mature: true, eligibleN: 10, returnedAny: 6, returnedSame: 5 },
-          { day: 7, mature: true, eligibleN: 10, returnedAny: 4, returnedSame: 3 },
-          { day: 30, mature: false, eligibleN: 0, returnedAny: 0, returnedSame: 0 },
+          {
+            day: 1,
+            mature: true,
+            eligibleN: 10,
+            returnedAny: 6,
+            returnedSame: 5,
+          },
+          {
+            day: 7,
+            mature: true,
+            eligibleN: 10,
+            returnedAny: 4,
+            returnedSame: 3,
+          },
+          {
+            day: 30,
+            mature: false,
+            eligibleN: 0,
+            returnedAny: 0,
+            returnedSame: 0,
+          },
         ],
       },
     ],

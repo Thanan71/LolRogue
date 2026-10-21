@@ -6,7 +6,7 @@ import type {
   AnalyticsRetention,
   AnalyticsSeries,
   RetentionCohort,
-} from '../../src/pages/admin/analytics/analyticsTypes';
+} from '../../src/features/administration/domain/analytics/analyticsTypes';
 
 const DAY = 86_400_000;
 const instant = (time: number) => new Date(time).toISOString();

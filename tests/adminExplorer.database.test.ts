@@ -1,9 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { parseAdminExplorerPage } from '@/pages/admin/explorer/adminExplorerClient';
-import { parseAdminPlayerDetail } from '@/pages/admin/players/adminPlayerProjection';
-import { parseAdminAttemptItem, parseAdminRunItem } from '@/pages/admin/runs/adminRunContracts';
-import { parseAdminRunDetail } from '@/pages/admin/runs/adminRunQueries';
+import { parseAdminExplorerPage } from '@/features/administration/domain/explorer/adminExplorerClient';
+import { parseAdminPlayerDetail } from '@/features/administration/domain/players/adminPlayerProjection';
+import {
+  parseAdminAttemptItem,
+  parseAdminRunItem,
+} from '@/features/administration/domain/runs/adminRunContracts';
+import { parseAdminRunDetail } from '@/features/administration/infrastructure/runs/adminRunQueries';
 import {
   cleanupExplorer,
   type ExplorerAccount,
@@ -35,7 +38,9 @@ describeDatabase('admin explorer exact server projections', () => {
   beforeAll(async () => {
     service = explorerClient('service');
     admin = await explorerAccount(service, users, { admin: true });
-    owner = await explorerAccount(service, users, { name: "Élodie_%(Jean), O'Connor" });
+    owner = await explorerAccount(service, users, {
+      name: "Élodie_%(Jean), O'Connor",
+    });
     verified = await explorerAccount(service, users);
     seedExplorerRuns(owner, 1005, prefix);
     saved = await seedExplorerAttempt(verified);
@@ -46,15 +51,24 @@ describeDatabase('admin explorer exact server projections', () => {
 
   it('searches all registered players literally, with Unicode NFC and case folding', async () => {
     for (const search of ['e\u0301LODIE', "O'Connor", '%(Jean)', owner.playerId]) {
-      const page = await rpcData(admin.client, 'admin_search_players', { p_filters: { search } });
+      const page = await rpcData(admin.client, 'admin_search_players', {
+        p_filters: { search },
+      });
       expect(page.items.map((row: { id: string }) => row.id)).toContain(owner.playerId);
     }
     const injected = await rpcData(admin.client, 'admin_search_players', {
       p_filters: { search: "x'),id.neq.0 --" },
     });
-    expect(injected).toMatchObject({ items: [], total: 0, hasMore: false, nextCursor: null });
+    expect(injected).toMatchObject({
+      items: [],
+      total: 0,
+      hasMore: false,
+      nextCursor: null,
+    });
     expect(
-      await rpcData(admin.client, 'admin_search_players', { p_filters: { accountState: 'guest' } }),
+      await rpcData(admin.client, 'admin_search_players', {
+        p_filters: { accountState: 'guest' },
+      }),
     ).toMatchObject({ items: [], total: 0 });
   });
 
@@ -79,7 +93,11 @@ describeDatabase('admin explorer exact server projections', () => {
 
   it('filters dates, verified activity and actual account population on the server', async () => {
     const some = await rpcData(admin.client, 'admin_search_players', {
-      p_filters: { search: verified.playerId, verifiedRuns: 'some', accountState: 'registered' },
+      p_filters: {
+        search: verified.playerId,
+        verifiedRuns: 'some',
+        accountState: 'registered',
+      },
     });
     expect(some.items[0]).toMatchObject({ verifiedRuns: 1, verifiedWins: 1 });
     expect(
@@ -92,14 +110,20 @@ describeDatabase('admin explorer exact server projections', () => {
     expect(
       (
         await rpcData(admin.client, 'admin_search_players', {
-          p_filters: { search: owner.playerId, registeredTo: '2025-01-01T00:00:00Z' },
+          p_filters: {
+            search: owner.playerId,
+            registeredTo: '2025-01-01T00:00:00Z',
+          },
         })
       ).total,
     ).toBe(0);
     expect(
       (
         await rpcData(admin.client, 'admin_search_players', {
-          p_filters: { search: owner.playerId, activeFrom: '2020-01-01T00:00:00Z' },
+          p_filters: {
+            search: owner.playerId,
+            activeFrom: '2020-01-01T00:00:00Z',
+          },
         })
       ).total,
     ).toBe(0);
@@ -187,7 +211,10 @@ describeDatabase('admin explorer exact server projections', () => {
       },
     });
     expect(page.total).toBe(1);
-    expect(page.items[0]).toMatchObject({ id: saved.runId, verificationStatus: 'verified' });
+    expect(page.items[0]).toMatchObject({
+      id: saved.runId,
+      verificationStatus: 'verified',
+    });
     expect(
       (
         await rpcData(admin.client, 'admin_search_runs', {
@@ -198,7 +225,12 @@ describeDatabase('admin explorer exact server projections', () => {
     expect(
       (
         await rpcData(admin.client, 'admin_search_runs', {
-          p_filters: { playerId: owner.playerId, biome: 'top_lane', minWaves: 0, maxWaves: 16 },
+          p_filters: {
+            playerId: owner.playerId,
+            biome: 'top_lane',
+            minWaves: 0,
+            maxWaves: 16,
+          },
         })
       ).total,
     ).toBe(1005);
@@ -217,9 +249,15 @@ describeDatabase('admin explorer exact server projections', () => {
       p_snapshot: exported.snapshotAt,
     });
     expect(again).toEqual(exported);
-    const capped = await admin.client.rpc('admin_export_runs', { ...args, p_max_rows: 1000 });
+    const capped = await admin.client.rpc('admin_export_runs', {
+      ...args,
+      p_max_rows: 1000,
+    });
     expect(capped.data).toBeNull();
-    expect(capped.error).toMatchObject({ code: '22023', message: 'admin_export_limit_exceeded' });
+    expect(capped.error).toMatchObject({
+      code: '22023',
+      message: 'admin_export_limit_exceeded',
+    });
   });
 
   it('separates authority attempts, exports the selected population and rejects unsupported dimensions', async () => {
@@ -234,10 +272,17 @@ describeDatabase('admin explorer exact server projections', () => {
     const page = await rpcData(admin.client, 'admin_search_attempts', args);
     expect(page.total).toBe(1);
     expect(parseAdminExplorerPage(page, parseAdminAttemptItem).items[0].id).toBe(saved.attemptId);
-    expect(page.items[0]).toMatchObject({ id: saved.attemptId, resultRunId: saved.runId });
+    expect(page.items[0]).toMatchObject({
+      id: saved.attemptId,
+      resultRunId: saved.runId,
+    });
     expect(
-      (await rpcData(admin.client, 'admin_export_runs', { ...args, p_population: 'attempts' }))
-        .items,
+      (
+        await rpcData(admin.client, 'admin_export_runs', {
+          ...args,
+          p_population: 'attempts',
+        })
+      ).items,
     ).toEqual(page.items);
     for (const key of ['biome', 'minWaves', 'result', 'ledgerVersion', 'sortBy']) {
       const invalid = await admin.client.rpc('admin_search_attempts', {
@@ -272,7 +317,10 @@ describeDatabase('admin explorer exact server projections', () => {
         (row: { sequence: number }) => row.sequence,
       ),
     ).toEqual([1, 2, 3, 4, 5]);
-    expect(second.items[0]).toMatchObject({ kind: 'unsupported', nodeId: null });
+    expect(second.items[0]).toMatchObject({
+      kind: 'unsupported',
+      nodeId: null,
+    });
     expect(third).toMatchObject({ hasMore: false, nextCursor: null });
     const serialized = JSON.stringify([first, second, third]);
     for (const secret of [
@@ -306,7 +354,9 @@ describeDatabase('admin explorer exact server projections', () => {
     explorerSql(
       `UPDATE public.run_attempts SET status='rejected',finish_command_id=gen_random_uuid(),finished_at=NOW(),rejected_at=NOW(),rejection_code='invalid_command' WHERE id='${id}'`,
     );
-    const detail = await rpcData(admin.client, 'admin_get_attempt_detail', { p_attempt_id: id });
+    const detail = await rpcData(admin.client, 'admin_get_attempt_detail', {
+      p_attempt_id: id,
+    });
     expect(detail).toMatchObject({
       run: null,
       attempt: { rejectionCode: 'invalid_command' },
@@ -317,11 +367,17 @@ describeDatabase('admin explorer exact server projections', () => {
       `SELECT id FROM public.runs WHERE player_id='${owner.playerId}' LIMIT 1`,
     );
     expect(
-      await rpcData(admin.client, 'admin_get_run_detail', { p_run_id: legacyId }),
+      await rpcData(admin.client, 'admin_get_run_detail', {
+        p_run_id: legacyId,
+      }),
     ).toMatchObject({
       attempt: null,
       items: [],
-      run: { engineVersion: null, difficulty: null, verificationStatus: 'legacy' },
+      run: {
+        engineVersion: null,
+        difficulty: null,
+        verificationStatus: 'legacy',
+      },
     });
   });
 
@@ -355,7 +411,12 @@ describeDatabase('admin explorer exact server projections', () => {
     const actual = await rpcData(admin.client, 'admin_get_player_detail', {
       p_player_id: verified.playerId,
     });
-    expect(actual.verifiedStats).toMatchObject({ runs: 1, wins: 1, waves: 3, candiesEarned: '7' });
+    expect(actual.verifiedStats).toMatchObject({
+      runs: 1,
+      wins: 1,
+      waves: 3,
+      candiesEarned: '7',
+    });
     expect(JSON.stringify(profile)).not.toContain(owner.userId);
   });
 
@@ -390,7 +451,11 @@ describeDatabase('admin explorer exact server projections', () => {
       expect(history).toMatchObject({ total: 51, hasMore: true });
       expect(history.items).toHaveLength(50);
     }
-    expect(detail.shards).toMatchObject({ balance: '51', ledgerBalance: '51', reconciled: true });
+    expect(detail.shards).toMatchObject({
+      balance: '51',
+      ledgerBalance: '51',
+      reconciled: true,
+    });
     expect(detail.candies).toMatchObject({
       balance: '51',
       refundedSinceLedger: '51',
@@ -430,14 +495,25 @@ describeDatabase('admin explorer exact server projections', () => {
         '22023',
       );
     expect(
-      (await admin.client.rpc('admin_get_player_detail', { p_player_id: randomUUID() })).error,
+      (
+        await admin.client.rpc('admin_get_player_detail', {
+          p_player_id: randomUUID(),
+        })
+      ).error,
     ).toMatchObject({ code: 'P0002', message: 'admin_player_not_found' });
     expect(
-      (await admin.client.rpc('admin_get_run_detail', { p_run_id: randomUUID() })).error?.code,
+      (
+        await admin.client.rpc('admin_get_run_detail', {
+          p_run_id: randomUUID(),
+        })
+      ).error?.code,
     ).toBe('P0002');
     expect(
-      (await admin.client.rpc('admin_get_attempt_detail', { p_attempt_id: randomUUID() })).error
-        ?.code,
+      (
+        await admin.client.rpc('admin_get_attempt_detail', {
+          p_attempt_id: randomUUID(),
+        })
+      ).error?.code,
     ).toBe('P0002');
   });
 });

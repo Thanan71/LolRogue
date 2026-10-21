@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { parseAdminDiagnostics } from '@/pages/admin/diagnostics/adminDiagnosticsParser';
-import type { DiagnosticsSection } from '@/pages/admin/diagnostics/adminDiagnosticsTypes';
+import { parseAdminDiagnostics } from '@/features/administration/domain/diagnostics/adminDiagnosticsParser';
+import type { DiagnosticsSection } from '@/features/administration/domain/diagnostics/adminDiagnosticsTypes';
 import {
   cloneDiagnosticAttempt,
   diagnosticDay,
@@ -167,7 +167,10 @@ describeDatabase('bounded administrative technical diagnostics', () => {
     'accepts the exact safe authentication method %s from the real SQL projection',
     async (method) => {
       const fixture = seedDiagnosticLogs(player, { method });
-      const result = await query('logs', { ...period, correlationId: fixture.sessionId });
+      const result = await query('logs', {
+        ...period,
+        correlationId: fixture.sessionId,
+      });
       expect(result.data.rows).toHaveLength(1);
       expect(result.data.rows[0].method).toBe(method);
     },
@@ -446,7 +449,9 @@ describeDatabase('bounded administrative technical diagnostics', () => {
     expect(reference).toBe('t');
   });
   it('keeps overdue sealed backlog visible when it predates the selected service period', async () => {
-    const target = cloneDiagnosticAttempt(player, template, { engine: 'run-engine-old-backlog' });
+    const target = cloneDiagnosticAttempt(player, template, {
+      engine: 'run-engine-old-backlog',
+    });
     explorerSql(
       `UPDATE public.run_attempts SET status='finished',expired_at=NULL,finished_at='2024-03-01T00:00:00Z',finish_command_id=gen_random_uuid(),sealed_sequence=0,sealed_journal_hash=repeat('a',64) WHERE id='${target}'`,
     );
@@ -512,7 +517,10 @@ describeDatabase('bounded administrative technical diagnostics', () => {
         engine,
         code: 'unsafe:code',
       });
-    const result = await query('authority', { from: '1900-01-01', to: '1900-01-01' });
+    const result = await query('authority', {
+      from: '1900-01-01',
+      to: '1900-01-01',
+    });
     const aggregate = result.data.alerts.aggregates.find(
       (item: { engineVersion: string; rejectionCode: string }) =>
         item.engineVersion === 'unknown' && item.rejectionCode === 'unknown',

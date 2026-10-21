@@ -5,7 +5,7 @@ import type {
   ModerationQueueRow,
   ModerationReceipt,
   ModerationTarget,
-} from '../../src/pages/admin/moderation/moderationTypes';
+} from '../../src/features/administration/domain/moderation/moderationTypes';
 
 /** Synthetic safe IDs only; the connected fixture must use its persisted database IDs. */
 export const moderationFixtureIds = {

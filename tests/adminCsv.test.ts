@@ -4,8 +4,8 @@ import {
   buildRunsCsv,
   buildRunsExportFilename,
   escapeCsvCell,
-  formatAdminDate,
-} from '@/pages/adminPageUtils';
+} from '@/features/administration/domain/adminCsv';
+import { formatAdminDate } from '@/features/administration/domain/adminFormatting';
 
 describe('admin CSV export', () => {
   it.each(['=2+2', ' +SUM(A1:A2)', '\t-10+20', '\n@IMPORT', '  @cmd'])(

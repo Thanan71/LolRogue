@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { describeAdminAnalyticsRate } from '@/pages/admin/analytics/adminAnalyticsStatistics';
+import { describeAdminAnalyticsRate } from '@/features/administration/domain/analytics/adminAnalyticsStatistics';
 
 describe('descriptive admin analytics rates', () => {
   it('distinguishes no sample from a measured zero rate', () => {

@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page, test } from '@playwright/test';
-import type { BalanceFilters } from '../src/pages/admin/balance/balanceTypes';
+import type { BalanceFilters } from '../src/features/administration/domain/balance/balanceTypes';
 import {
   balanceBuildFixture,
   balanceChampionFixture,
@@ -28,7 +28,10 @@ async function balanceBackend(page: Page) {
       if (name === 'admin_balance_champions') {
         api.champions.push(filters);
         if (api.denyChampions) {
-          await route.fulfill({ status: 403, json: { code: '42501', message: 'Admin required' } });
+          await route.fulfill({
+            status: 403,
+            json: { code: '42501', message: 'Admin required' },
+          });
           return;
         }
         if (api.failChampions) {
@@ -59,7 +62,10 @@ async function balanceBackend(page: Page) {
     }
     await route.fulfill({
       json: [],
-      headers: { 'access-control-expose-headers': 'content-range', 'content-range': '*/0' },
+      headers: {
+        'access-control-expose-headers': 'content-range',
+        'content-range': '*/0',
+      },
     });
   });
   return api;
@@ -67,7 +73,11 @@ async function balanceBackend(page: Page) {
 
 async function openBalance(page: Page, language: 'fr-FR' | 'en-US' = 'fr-FR') {
   await enterAdminExplorer(page, language);
-  await page.getByRole('tab', { name: language === 'fr-FR' ? /Équilibrage/ : /Balance/ }).click();
+  await page
+    .getByRole('tab', {
+      name: language === 'fr-FR' ? /Équilibrage/ : /Balance/,
+    })
+    .click();
   const panel = page.locator('#admin-panel-balance');
   await expect(panel.locator('#admin-balance-final-champions table')).toBeVisible();
   await expect(panel.locator('#admin-balance-picks table')).toBeVisible();
@@ -83,7 +93,9 @@ test('balance has one dedicated tab, versioned populations and independent stale
   const api = await balanceBackend(page);
   const panel = await openBalance(page);
   await expect(page.getByRole('tab', { name: /Équilibrage/ })).toHaveCount(1);
-  const form = panel.getByRole('form', { name: 'Équilibrage : période et population' });
+  const form = panel.getByRole('form', {
+    name: 'Équilibrage : période et population',
+  });
   await form.getByLabel('Début inclus (UTC)', { exact: true }).fill('2026-10-01');
   await form.getByLabel('Fin incluse (UTC)', { exact: true }).fill('2026-10-17');
   await form.getByRole('combobox', { name: 'Difficulté', exact: true }).selectOption('hard');
@@ -127,7 +139,9 @@ test('English balance reflows at320px with keyboard tables, honest missing metri
   await page.setViewportSize({ width: 320, height: 780 });
   await balanceBackend(page);
   const panel = await openBalance(page, 'en-US');
-  const form = panel.getByRole('form', { name: 'Balance: period and population' });
+  const form = panel.getByRole('form', {
+    name: 'Balance: period and population',
+  });
   await form.getByRole('combobox', { name: 'Difficulty', exact: true }).selectOption('easy');
   await form.getByRole('button', { name: 'Apply filters', exact: true }).focus();
   await page.keyboard.press('Enter');

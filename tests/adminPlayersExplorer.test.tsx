@@ -13,15 +13,15 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getAdminPlayersContent } from '@/i18n/adminExplorer';
 import { fr } from '@/i18n/fr';
-import { AdminPlayersPanel } from '@/pages/admin/players/AdminPlayersPanel';
+import { AdminPlayersPanel } from '@/features/administration/ui/players/AdminPlayersPanel';
 import {
   parseAdminPlayerDetail,
   parseAdminPlayerItem,
-} from '@/pages/admin/players/adminPlayerProjection';
+} from '@/features/administration/domain/players/adminPlayerProjection';
 import {
   type AdminPlayersExplorer,
   useAdminPlayersExplorer,
-} from '@/pages/admin/players/useAdminPlayersExplorer';
+} from '@/features/administration/hooks/players/useAdminPlayersExplorer';
 import { useAuthStore } from '@/stores/authStore';
 import {
   ADMIN_PLAYER_SNAPSHOT,
@@ -31,7 +31,7 @@ import {
 } from './fixtures/adminPlayerExplorer';
 
 const mocks = vi.hoisted(() => ({ page: vi.fn(), detail: vi.fn() }));
-vi.mock('@/pages/admin/players/adminPlayerQueries', () => ({
+vi.mock('@/features/administration/infrastructure/players/adminPlayerQueries', () => ({
   fetchAdminPlayerPage: mocks.page,
   fetchAdminPlayerDetail: mocks.detail,
 }));
@@ -59,8 +59,14 @@ async function waitForPlayerList(
     expect(result.current.list.data?.items[0].id).toBe(firstPlayerId);
   });
 }
-const accountA = { user: { id: 'admin-a' } as User, session: { access_token: 'a' } as Session };
-const accountB = { user: { id: 'admin-b' } as User, session: { access_token: 'b' } as Session };
+const accountA = {
+  user: { id: 'admin-a' } as User,
+  session: { access_token: 'a' } as Session,
+};
+const accountB = {
+  user: { id: 'admin-b' } as User,
+  session: { access_token: 'b' } as Session,
+};
 
 beforeEach(() => {
   mocks.page.mockReset().mockResolvedValue(page());
@@ -286,17 +292,23 @@ describe('player explorer presentation', () => {
       'date',
     );
     expect(
-      screen.getByRole('combobox', { name: fr.admin.playerExplorer.accountState }),
+      screen.getByRole('combobox', {
+        name: fr.admin.playerExplorer.accountState,
+      }),
     ).toBeInTheDocument();
     expect(screen.getByRole('navigation')).toHaveTextContent('123');
     fireEvent.click(
-      screen.getByRole('button', { name: `${fr.admin.playerExplorer.openProfile} — Élise%_,.()` }),
+      screen.getByRole('button', {
+        name: `${fr.admin.playerExplorer.openProfile} — Élise%_,.()`,
+      }),
     );
     await screen.findByRole('heading', {
       name: `${fr.admin.playerExplorer.profileTitle} — Élise%_,.()`,
     });
     expect(screen.getByText(fr.admin.playerExplorer.historyIncomplete)).toBeInTheDocument();
-    const shards = screen.getByRole('region', { name: fr.admin.playerExplorer.shards });
+    const shards = screen.getByRole('region', {
+      name: fr.admin.playerExplorer.shards,
+    });
     expect(within(shards).getAllByText(fr.admin.unavailable)).toHaveLength(4);
     expect(screen.getByText('arcane_power: 1')).toBeInTheDocument();
     expect(screen.getByText(fr.admin.playerExplorer.legacy_grant)).toBeInTheDocument();
@@ -315,9 +327,14 @@ describe('player explorer presentation', () => {
     });
     await waitFor(() => expect(openProfile).toBeEnabled());
     mocks.page.mockResolvedValueOnce(page(1, 50, 0));
-    fireEvent.change(screen.getByRole('combobox', { name: fr.admin.playerExplorer.accountState }), {
-      target: { value: 'guest' },
-    });
+    fireEvent.change(
+      screen.getByRole('combobox', {
+        name: fr.admin.playerExplorer.accountState,
+      }),
+      {
+        target: { value: 'guest' },
+      },
+    );
     await screen.findByText(fr.admin.playerExplorer.noResults);
     expect(
       screen.getByText(fr.admin.playerExplorer.guestHint, { exact: false }),

@@ -12,17 +12,17 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getAdminDiagnosticsCopy } from '@/i18n/adminDiagnostics';
-import AdminDiagnosticsWorkspace from '@/pages/admin/diagnostics/AdminDiagnosticsWorkspace';
+import AdminDiagnosticsWorkspace from '@/features/administration/ui/diagnostics/AdminDiagnosticsWorkspace';
 import type {
   DiagnosticsRequest,
   DiagnosticsResponse,
   DiagnosticsSection,
-} from '@/pages/admin/diagnostics/adminDiagnosticsTypes';
+} from '@/features/administration/domain/diagnostics/adminDiagnosticsTypes';
 import {
   defaultDiagnosticsDraft,
   useAdminDiagnostics,
   type AdminDiagnostics,
-} from '@/pages/admin/diagnostics/useAdminDiagnostics';
+} from '@/features/administration/hooks/diagnostics/useAdminDiagnostics';
 import { useAuthStore } from '@/stores/authStore';
 import {
   diagnosticsAggregate,
@@ -34,7 +34,7 @@ import {
 } from './helpers/adminDiagnosticsUiFixtures';
 
 const mocks = vi.hoisted(() => ({ read: vi.fn() }));
-vi.mock('@/pages/admin/diagnostics/adminDiagnosticsClient', () => ({
+vi.mock('@/features/administration/infrastructure/diagnostics/adminDiagnosticsClient', () => ({
   fetchAdminDiagnostics: mocks.read,
 }));
 const copy = getAdminDiagnosticsCopy('fr-FR');
@@ -142,7 +142,10 @@ describe('diagnostics read boundaries', () => {
     expect(mocks.read.mock.calls.filter((call) => call[0].section === 'service')).toHaveLength(1);
   });
   it('uses exact server count and microsecond cursor, including back navigation', async () => {
-    const cursor = { at: '2026-10-18T12:10:00.123456Z', id: DIAGNOSTICS_TEST_UUID };
+    const cursor = {
+      at: '2026-10-18T12:10:00.123456Z',
+      id: DIAGNOSTICS_TEST_UUID,
+    };
     mocks.read.mockImplementation((request: DiagnosticsRequest) =>
       diagnosticsResponse(request, {
         rows: [diagnosticsLog()],
@@ -212,7 +215,10 @@ describe('diagnostics read boundaries', () => {
       diagnosticsResponse(request, {
         rows: [diagnosticsLog()],
         total: 1001,
-        nextCursor: { at: '2026-10-18T12:10:00.123456Z', id: DIAGNOSTICS_TEST_UUID },
+        nextCursor: {
+          at: '2026-10-18T12:10:00.123456Z',
+          id: DIAGNOSTICS_TEST_UUID,
+        },
       }),
     );
     const { result } = renderHook(() => useAdminDiagnostics(true, 'logs'));
@@ -265,7 +271,10 @@ describe('diagnostics read boundaries', () => {
     mocks.read.mockImplementation((request: DiagnosticsRequest) =>
       request.section === 'service'
         ? late.promise
-        : diagnosticsResponse(request, { rows: [diagnosticsAttempt()], total: 1 }),
+        : diagnosticsResponse(request, {
+            rows: [diagnosticsAttempt()],
+            total: 1,
+          }),
     );
     const { result } = renderHook(() => useAdminDiagnostics(true, 'authority'));
     await ready(result, 'authority');
@@ -380,7 +389,13 @@ describe('diagnostics interface', () => {
         ? diagnosticsResponse(request, {
             rows: [diagnosticsAttempt({ rejectionCode: 'unsupported_engine' })],
             total: 1,
-            counts: { started: 0, finished: 0, verified: 0, rejected: 1, expired: 0 },
+            counts: {
+              started: 0,
+              finished: 0,
+              verified: 0,
+              rejected: 1,
+              expired: 0,
+            },
             alerts: {
               from: '2026-10-18T12:00:00Z',
               to: '2026-10-18T12:15:00Z',

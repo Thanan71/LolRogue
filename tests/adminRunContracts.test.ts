@@ -3,9 +3,12 @@ import {
   parseAdminAttemptItem,
   parseAdminRunAction,
   parseAdminRunItem,
-} from '@/pages/admin/runs/adminRunContracts';
-import { buildAdminRunExplorerCsv } from '@/pages/admin/runs/adminRunCsv';
-import { adminRunRpcFilters, DEFAULT_ADMIN_RUN_FILTERS } from '@/pages/admin/runs/adminRunFilters';
+} from '@/features/administration/domain/runs/adminRunContracts';
+import { buildAdminRunExplorerCsv } from '@/features/administration/domain/runs/adminRunCsv';
+import {
+  adminRunRpcFilters,
+  DEFAULT_ADMIN_RUN_FILTERS,
+} from '@/features/administration/domain/runs/adminRunFilters';
 import { adminAttemptFixture, adminRunFixture } from './helpers/adminRunExplorerFixtures';
 
 describe('admin run explorer projection', () => {
@@ -28,11 +31,17 @@ describe('admin run explorer projection', () => {
 
   it('fails closed on absent values, unsafe integers, mixed populations and invalid teams', () => {
     expect(() =>
-      parseAdminRunItem({ ...adminRunFixture(), totalDamageDealt: 9007199254740993 }),
+      parseAdminRunItem({
+        ...adminRunFixture(),
+        totalDamageDealt: 9007199254740993,
+      }),
     ).toThrow();
     expect(() => parseAdminRunItem({ ...adminRunFixture(), wavesCompleted: null })).toThrow();
     expect(() =>
-      parseAdminRunItem({ ...adminRunFixture(), team: Array(6).fill(adminRunFixture().team[0]) }),
+      parseAdminRunItem({
+        ...adminRunFixture(),
+        team: Array(6).fill(adminRunFixture().team[0]),
+      }),
     ).toThrow();
     expect(() => parseAdminRunItem(adminAttemptFixture())).toThrow();
     expect(() => parseAdminAttemptItem({ ...adminAttemptFixture(), status: 'banned' })).toThrow();

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fetchAdminDiagnostics } from '@/pages/admin/diagnostics/adminDiagnosticsClient';
+import { fetchAdminDiagnostics } from '@/features/administration/infrastructure/diagnostics/adminDiagnosticsClient';
 import {
   diagnosticsRequest,
   diagnosticsResponse,
@@ -38,7 +38,10 @@ describe('read-only guarded diagnostics RPC client', () => {
   );
   it('preserves exact microsecond cursor, filters and snapshot on a later server page', async () => {
     const request = {
-      ...diagnosticsRequest('logs', { level: 'error', correlationId: DIAGNOSTICS_TEST_UUID }),
+      ...diagnosticsRequest('logs', {
+        level: 'error',
+        correlationId: DIAGNOSTICS_TEST_UUID,
+      }),
       cursor: { at: '2026-10-18T12:00:00.000001Z', id: DIAGNOSTICS_TEST_UUID },
       snapshotAt: DIAGNOSTICS_TEST_SNAPSHOT,
       limit: 50,
@@ -84,7 +87,9 @@ describe('read-only guarded diagnostics RPC client', () => {
     const abort = new DOMException('Aborted', 'AbortError');
     const controller = new AbortController();
     controller.abort();
-    mocks.rpc.mockReturnValueOnce({ abortSignal: vi.fn().mockRejectedValue(abort) });
+    mocks.rpc.mockReturnValueOnce({
+      abortSignal: vi.fn().mockRejectedValue(abort),
+    });
     await expect(
       fetchAdminDiagnostics(diagnosticsRequest('authority'), controller.signal),
     ).rejects.toBe(abort);

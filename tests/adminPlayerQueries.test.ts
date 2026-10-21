@@ -2,16 +2,16 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   parseAdminPlayerDetail,
   parseAdminPlayerItem,
-} from '@/pages/admin/players/adminPlayerProjection';
+} from '@/features/administration/domain/players/adminPlayerProjection';
 import {
   fetchAdminPlayerDetail,
   fetchAdminPlayerPage,
-} from '@/pages/admin/players/adminPlayerQueries';
+} from '@/features/administration/infrastructure/players/adminPlayerQueries';
 import {
   adminPlayerDateBoundary,
   adminPlayerDatesValid,
   DEFAULT_ADMIN_PLAYER_FILTERS,
-} from '@/pages/admin/players/adminPlayerTypes';
+} from '@/features/administration/domain/players/adminPlayerTypes';
 import {
   ADMIN_PLAYER_SNAPSHOT,
   adminPlayerDetailFixture,
@@ -40,7 +40,10 @@ describe('admin player projections', () => {
     expect(item.verifiedRuns).toBe('0');
     expect(item.candiesBalance).toBe('9007199254740993');
     expect(JSON.stringify(item)).not.toMatch(/private|email|user_id/);
-    const detail = parseAdminPlayerDetail({ ...adminPlayerDetailFixture(), secret: 'private' });
+    const detail = parseAdminPlayerDetail({
+      ...adminPlayerDetailFixture(),
+      secret: 'private',
+    });
     expect(detail.shards.balance).toBeNull();
     expect(detail.candies.unattributedSinceLedger).toBe('-2');
     expect(detail.mastery.items[0].totalCandies).toBe('125');
@@ -49,7 +52,10 @@ describe('admin player projections', () => {
   });
   it('rejects unsafe rounded numbers and malformed dates instead of inventing a value', () => {
     expect(() =>
-      parseAdminPlayerItem({ ...adminPlayerFixture(), candiesBalance: 9007199254740993 }),
+      parseAdminPlayerItem({
+        ...adminPlayerFixture(),
+        candiesBalance: 9007199254740993,
+      }),
     ).toThrow();
     expect(() => parseAdminPlayerItem({ ...adminPlayerFixture(), createdAt: 'invalid' })).toThrow();
     expect(() =>
@@ -60,12 +66,19 @@ describe('admin player projections', () => {
     const detail = adminPlayerDetailFixture();
     expect(() => parseAdminPlayerDetail({ ...detail, mastery: null })).toThrow();
     expect(() =>
-      parseAdminPlayerDetail({ ...detail, purchases: { ...detail.purchases, total: 2 } }),
+      parseAdminPlayerDetail({
+        ...detail,
+        purchases: { ...detail.purchases, total: 2 },
+      }),
     ).toThrow();
     expect(() =>
       parseAdminPlayerDetail({
         ...detail,
-        mastery: { ...detail.mastery, items: Array(201).fill(detail.mastery.items[0]), total: 201 },
+        mastery: {
+          ...detail.mastery,
+          items: Array(201).fill(detail.mastery.items[0]),
+          total: 201,
+        },
       }),
     ).toThrow();
   });
@@ -132,7 +145,11 @@ describe('admin player RPC boundary', () => {
     ).rejects.toThrow();
     await expect(
       fetchAdminPlayerPage(
-        { ...DEFAULT_ADMIN_PLAYER_FILTERS, activeFrom: '2026-10-20', activeTo: '2026-10-17' },
+        {
+          ...DEFAULT_ADMIN_PLAYER_FILTERS,
+          activeFrom: '2026-10-20',
+          activeTo: '2026-10-17',
+        },
         null,
         null,
         50,
@@ -147,7 +164,10 @@ describe('admin player RPC boundary', () => {
     await expect(
       fetchAdminPlayerDetail(adminPlayerFixture().id, null, new AbortController().signal),
     ).rejects.toEqual(denied);
-    mock.abort.mockResolvedValueOnce({ data: adminPlayerDetailFixture(2), error: null });
+    mock.abort.mockResolvedValueOnce({
+      data: adminPlayerDetailFixture(2),
+      error: null,
+    });
     await expect(
       fetchAdminPlayerDetail(adminPlayerFixture().id, null, new AbortController().signal),
     ).rejects.toThrow();

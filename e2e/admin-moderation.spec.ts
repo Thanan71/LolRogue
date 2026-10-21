@@ -4,7 +4,7 @@ import type {
   ModerationDecisionRequest,
   ModerationQueueRow,
   ModerationStatus,
-} from '../src/pages/admin/moderation/moderationTypes';
+} from '../src/features/administration/domain/moderation/moderationTypes';
 import {
   moderationFixtureIds,
   moderationHistoryFixture,
@@ -80,7 +80,9 @@ async function moderationBackend(page: Page) {
       return;
     }
     if (name === 'admin_moderation_history') {
-      await route.fulfill({ json: moderationHistoryFixture({ rows: [], total: 0 }) });
+      await route.fulfill({
+        json: moderationHistoryFixture({ rows: [], total: 0 }),
+      });
       return;
     }
     if (name === 'admin_moderation_decide') {
@@ -110,7 +112,9 @@ async function moderationBackend(page: Page) {
         return;
       }
       await route.fulfill({
-        json: moderationReceiptFixture(input, { outcome: replayed ? 'replayed' : 'applied' }),
+        json: moderationReceiptFixture(input, {
+          outcome: replayed ? 'replayed' : 'applied',
+        }),
       });
       return;
     }
@@ -128,7 +132,10 @@ async function moderationBackend(page: Page) {
     }
     await route.fulfill({
       json: [],
-      headers: { 'access-control-expose-headers': 'content-range', 'content-range': '*/0' },
+      headers: {
+        'access-control-expose-headers': 'content-range',
+        'content-range': '*/0',
+      },
     });
   });
   return api;
@@ -196,7 +203,10 @@ test('la file conserve les anciens dossiers et rend le 101e accessible par curse
   await panel.getByLabel('Signalé depuis (UTC, inclus)').fill('2021-01-01');
   await panel.getByRole('button', { name: 'Appliquer les filtres', exact: true }).click();
   await expect(panel).toContainText('Aucun signalement ne correspond aux filtres appliqués.');
-  expect(api.reads.at(-1)).toMatchObject({ p_from: '2021-01-01', p_cursor: null });
+  expect(api.reads.at(-1)).toMatchObject({
+    p_from: '2021-01-01',
+    p_cursor: null,
+  });
   await page.getByRole('tab', { name: /Tableau de bord/ }).click();
   await page.getByRole('tab', { name: /Modération/ }).click();
   await expect(panel.getByLabel('Signalé depuis (UTC, inclus)')).toHaveValue('2021-01-01');
@@ -225,7 +235,10 @@ test('English moderation remains usable at320px with keyboard and explicit targe
     .getByLabel('Decision reason')
     .fill('The report was reviewed and the evidence supports dismissal.');
   await panel.getByRole('button', { name: 'Prepare decision', exact: true }).click();
-  const confirm = panel.getByRole('button', { name: 'Confirm and record decision', exact: true });
+  const confirm = panel.getByRole('button', {
+    name: 'Confirm and record decision',
+    exact: true,
+  });
   await expect(confirm).toBeDisabled();
   const target = panel.getByLabel('Type the exact score identifier to confirm');
   await target.fill('wrong-target');
@@ -240,7 +253,10 @@ test('English moderation remains usable at320px with keyboard and explicit targe
   expect(accessibility.violations).toEqual([]);
   if (process.env.E2E_CAPTURE_UI === '1') {
     await panel
-      .getByRole('heading', { name: 'Review the decision before sending', exact: true })
+      .getByRole('heading', {
+        name: 'Review the decision before sending',
+        exact: true,
+      })
       .scrollIntoViewIfNeeded();
     await page.screenshot({
       path: test.info().outputPath('moderation-mobile-confirmation.png'),

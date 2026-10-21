@@ -3,8 +3,8 @@ import { expect, type Page, test } from '@playwright/test';
 import type {
   DiagnosticsRequest,
   DiagnosticsSection,
-} from '../src/pages/admin/diagnostics/adminDiagnosticsTypes';
-import { validateDiagnosticsFilters } from '../src/pages/admin/diagnostics/adminDiagnosticsValidation';
+} from '../src/features/administration/domain/diagnostics/adminDiagnosticsTypes';
+import { validateDiagnosticsFilters } from '../src/features/administration/domain/diagnostics/adminDiagnosticsValidation';
 import {
   diagnosticsAggregate,
   diagnosticsAttempt,
@@ -22,7 +22,12 @@ async function diagnosticsBackend(page: Page) {
       method: index === 0 ? 'oldestLog' : 'sealRunAttempt',
     }),
   ).reverse();
-  const api = { logs, reads: [] as Record<string, unknown>[], failLogs: false, deny: false };
+  const api = {
+    logs,
+    reads: [] as Record<string, unknown>[],
+    failLogs: false,
+    deny: false,
+  };
   await page.route('**/rest/v1/**', async (route) => {
     const name = new URL(route.request().url()).pathname.split('/').pop();
     if (name !== 'admin_diagnostics') {
@@ -39,14 +44,20 @@ async function diagnosticsBackend(page: Page) {
       else
         await route.fulfill({
           json: [],
-          headers: { 'access-control-expose-headers': 'content-range', 'content-range': '*/0' },
+          headers: {
+            'access-control-expose-headers': 'content-range',
+            'content-range': '*/0',
+          },
         });
       return;
     }
     const input = route.request().postDataJSON() as Record<string, unknown>;
     api.reads.push(input);
     if (api.deny) {
-      await route.fulfill({ status: 403, json: { code: '42501', message: 'permission denied' } });
+      await route.fulfill({
+        status: 403,
+        json: { code: '42501', message: 'permission denied' },
+      });
       return;
     }
     const section = input.p_section as DiagnosticsSection;
@@ -61,7 +72,10 @@ async function diagnosticsBackend(page: Page) {
     }
     if (section === 'logs') {
       if (api.failLogs) {
-        await route.fulfill({ status: 503, json: { code: 'XX000', message: 'fixture failure' } });
+        await route.fulfill({
+          status: 503,
+          json: { code: 'XX000', message: 'fixture failure' },
+        });
         return;
       }
       const req = request('logs');
@@ -103,7 +117,13 @@ async function diagnosticsBackend(page: Page) {
       const result = diagnosticsResponse(req, {
         rows,
         total: rows.length,
-        counts: { started: 0, finished: 0, verified: 0, rejected: rows.length, expired: 0 },
+        counts: {
+          started: 0,
+          finished: 0,
+          verified: 0,
+          rejected: rows.length,
+          expired: 0,
+        },
       });
       result.data.alerts = {
         from: '2026-10-18T12:00:00Z',
@@ -122,7 +142,12 @@ async function diagnosticsBackend(page: Page) {
     await route.fulfill({
       json: diagnosticsResponse(request('correlation'), {
         attempt: diagnosticsAttempt(),
-        logs: { rows: [diagnosticsLog()], total: 1, nextCursor: null, retentionDays: 14 },
+        logs: {
+          rows: [diagnosticsLog()],
+          total: 1,
+          nextCursor: null,
+          retentionDays: 14,
+        },
       }),
     });
   });
@@ -148,7 +173,10 @@ test('diagnostics : pagination serveur complète, corrélation et filtres UTC ex
   expect(api.reads.filter((read) => read.p_section === 'logs')).toHaveLength(5);
   await panel.getByRole('button', { name: 'Diagnostiquer cette tentative' }).click();
   await expect(
-    panel.getByRole('heading', { name: 'Corrélation d’une tentative', level: 2 }),
+    panel.getByRole('heading', {
+      name: 'Corrélation d’une tentative',
+      level: 2,
+    }),
   ).toBeFocused();
   await expect(panel.getByText('Journal client facultatif, couverture partielle')).toBeVisible();
   await panel.getByRole('button', { name: 'Fermer le diagnostic' }).click();
@@ -225,7 +253,10 @@ test('diagnostics : retrait des droits purge journaux, tentative et corrélation
   const panel = await openLogs(page);
   await panel.getByRole('button', { name: 'Diagnostiquer cette tentative' }).first().click();
   await expect(
-    panel.getByRole('heading', { name: 'Corrélation d’une tentative', level: 2 }),
+    panel.getByRole('heading', {
+      name: 'Corrélation d’une tentative',
+      level: 2,
+    }),
   ).toBeVisible();
   api.deny = true;
   await panel.getByRole('button', { name: 'Actualiser', exact: true }).first().click();

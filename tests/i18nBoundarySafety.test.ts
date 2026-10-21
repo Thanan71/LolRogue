@@ -42,7 +42,7 @@ describe('localized presentation boundaries', () => {
 
   it('never connects raw store or PostgREST prose to presentation state', () => {
     const shopSource = readFileSync('src/pages/ShopPage.tsx', 'utf8');
-    const adminSource = readFileSync('src/pages/admin/useAdminData.ts', 'utf8');
+    const adminSource = readFileSync('src/features/administration/hooks/useAdminData.ts', 'utf8');
 
     expect(shopSource).not.toMatch(/setCommandError\(result\.error/u);
     expect(shopSource.match(/localizeShopMutationError\(result\.code\)/gu)).toHaveLength(2);

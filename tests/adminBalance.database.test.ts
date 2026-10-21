@@ -1,10 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { parseAdminBalanceConfig } from '../src/pages/admin/balance/adminBalanceConfigParser';
+import { parseAdminBalanceConfig } from '../src/features/administration/domain/balance/adminBalanceConfigParser';
 import {
   parseAdminBalanceBuilds,
   parseAdminBalanceChampions,
-} from '../src/pages/admin/balance/adminBalanceReportParser';
+} from '../src/features/administration/domain/balance/adminBalanceReportParser';
 import { analyticsAttempt } from './helpers/adminAnalyticsFixtures';
 import {
   balanceFilters,
@@ -136,10 +136,18 @@ describeDatabase('read-only verified balance populations', () => {
     expect(value.population).toEqual({ verifiedRuns: 0, uniquePlayers: 0 });
     expect(value.contexts).toEqual([]);
     expect(value.rows).toEqual([]);
-    expect(value.selections.population).toEqual({ starts: 2, uniquePlayers: 2 });
+    expect(value.selections.population).toEqual({
+      starts: 2,
+      uniquePlayers: 2,
+    });
     expect(
       value.selections.rows.find((r: { championId: string }) => r.championId === 'Garen'),
-    ).toMatchObject({ cohortStarts: 2, cohortPlayers: 2, starts: 2, players: 2 });
+    ).toMatchObject({
+      cohortStarts: 2,
+      cohortPlayers: 2,
+      starts: 2,
+      players: 2,
+    });
     expect(
       value.selections.rows.find((r: { championId: string }) => r.championId === 'Ashe'),
     ).toMatchObject({ cohortStarts: 2, starts: 1, players: 1 });
@@ -171,14 +179,21 @@ describeDatabase('read-only verified balance populations', () => {
       initial_team: ['Ashe'],
       difficulty: 'hard',
     });
-    const selected = { ...balanceFilters, championId: 'Ashe', difficulty: 'normal' as const };
+    const selected = {
+      ...balanceFilters,
+      championId: 'Ashe',
+      difficulty: 'normal' as const,
+    };
     const value = balanceScenario(
       admin,
       [a],
       first.sql + second.sql,
       balanceRpc('champions', selected),
     );
-    expect(value.selections.population).toEqual({ starts: 1, uniquePlayers: 1 });
+    expect(value.selections.population).toEqual({
+      starts: 1,
+      uniquePlayers: 1,
+    });
     expect(value.selections.rows).toHaveLength(1);
     expect(value.selections.rows[0]).toMatchObject({
       championId: 'Ashe',
@@ -231,7 +246,10 @@ describeDatabase('read-only verified balance populations', () => {
       balanceRpc('champions', { ...balanceFilters, championId: 'Garen' }),
     );
     expect(value.population).toEqual({ verifiedRuns: 1005, uniquePlayers: 1 });
-    expect(value.selections.population).toEqual({ starts: 1005, uniquePlayers: 1 });
+    expect(value.selections.population).toEqual({
+      starts: 1005,
+      uniquePlayers: 1,
+    });
     expect(value.selections.rows[0]).toMatchObject({
       starts: 1005,
       players: 1,

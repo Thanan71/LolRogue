@@ -7,7 +7,7 @@ import {
   mapVerifiedFieldAugment,
   mapVerifiedFieldChampion,
   mapVerifiedFieldCohort,
-} from '@/pages/admin/useAdminData';
+} from '@/features/administration/domain/adminFieldCalibration';
 import type { Database } from '@/types/database';
 
 type FieldRow = Database['public']['Views']['admin_verified_field_cohorts']['Row'];
@@ -55,7 +55,12 @@ describe('admin field calibration row mapping', () => {
       deathBiomeCounts: { top_lane: 18 },
     });
     expect(mapVerifiedFieldCohort({ ...row, sample_size: null })).toBeNull();
-    expect(mapVerifiedFieldCohort({ ...row, death_biome_counts: { top_lane: '18' } })).toBeNull();
+    expect(
+      mapVerifiedFieldCohort({
+        ...row,
+        death_biome_counts: { top_lane: '18' },
+      }),
+    ).toBeNull();
   });
 
   it('maps champion and augment conditionals with their explicit denominators', () => {
