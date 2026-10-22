@@ -52,13 +52,31 @@ describe('enhancement audit CLI', () => {
     const second = await generateEnhancementAudit({ root });
     expect(second).toEqual(first);
     const report = JSON.parse(first.json);
-    expect(report.summary).toMatchObject({ treeCount: 6, nodeCount: 72, blockedNodes: 15 });
+    expect(report.summary).toMatchObject({
+      treeCount: 6,
+      nodeCount: 88,
+      roleNodeCount: 72,
+      specializationNodeCount: 16,
+      blockedNodes: 31,
+    });
     expect(report.provenance.inputsSha256).toMatch(/^[a-f0-9]{64}$/);
-    expect(report.provenance.migrations).toHaveLength(73);
+    expect(report.provenance.migrations).toContain(
+      'supabase/migrations/20261022161216_enhancement_contract_v4_purchases.sql',
+    );
+    expect(report.provenance.migrations).toContain(
+      'supabase/migrations/20261022162313_enhancement_atomic_resets.sql',
+    );
+    expect(report.provenance.migrations).toEqual([...report.provenance.migrations].sort());
     const inputPaths = report.provenance.inputs.map(({ path: file }) => file);
     expect(inputPaths).toContain('src/game/rules/CombatRuleRuntime.ts');
     expect(inputPaths).toContain('src/components/EnhancementTree.tsx');
     expect(inputPaths).toContain('src/stores/enhancementStore.ts');
+    expect(inputPaths).toContain('src/game/enhancements/bonuses.ts');
+    expect(inputPaths).toContain('src/features/enhancements/ui/EnhancementNodeCard.tsx');
+    expect(inputPaths).toContain('src/features/enhancements/ui/enhancements.css');
+    expect(inputPaths).toContain('src/data/enhancementSpecializations.ts');
+    expect(inputPaths).toContain('tooling/enhancements/economySimulation.ts');
+    expect(inputPaths).toContain('tests/enhancementBattleParity.test.ts');
     expect(inputPaths).toContain('src/data/generated/champions-parsed.json');
     expect(inputPaths).toContain('tooling/enhancements/effectEvidence.ts');
     expect(inputPaths).toEqual([...inputPaths].sort());
@@ -126,6 +144,23 @@ describe('enhancement audit CLI', () => {
     });
     await expect(runEnhancementAudit([], { root, outputRoot, snapshot, stdout })).rejects.toThrow(
       'concurrent change detected: src/game/rules/CombatRuleRuntime.ts',
+    );
+    expect(await readdir(outputRoot)).toEqual([]);
+  });
+
+  it('tracks UI styles even when the offline report does not import them', async () => {
+    const outputRoot = await outputDirectory();
+    let reads = 0;
+    const snapshot = createArtifactSnapshot(root, {
+      readBytes: async (absolute) => {
+        const bytes = await readFile(absolute);
+        if (absolute.endsWith('/src/features/enhancements/ui/enhancements.css') && ++reads > 1)
+          return Buffer.concat([bytes, Buffer.from('\n/* concurrent style edit */\n')]);
+        return bytes;
+      },
+    });
+    await expect(runEnhancementAudit([], { root, outputRoot, snapshot, stdout })).rejects.toThrow(
+      'concurrent change detected: src/features/enhancements/ui/enhancements.css',
     );
     expect(await readdir(outputRoot)).toEqual([]);
   });

@@ -297,14 +297,16 @@ describe('TREE-03: verified effect descriptions and calculations', () => {
   it('Combustion changes AP only, while Canalisation grants ten flat haste points', () => {
     const base = { ...calculateStats(championDB.getById('Veigar')!.stats, 1), abilityPower: 100 };
     const combustion = enhancementService.calculateStatBonuses(ENHANCEMENT_TREES_BY_ROLE.Mage, {
+      mage_burst_1: 1,
       mage_burst_2: 1,
     });
     const result = applyEnhancementBonuses(base, combustion);
     expect(combustion.percent).toEqual({ abilityPower: 0.15 });
     expect(combustion.effects).toEqual([]);
-    expect(result.abilityPower).toBeCloseTo(base.abilityPower * 1.15);
+    expect(result.abilityPower).toBeCloseTo((base.abilityPower + 8) * 1.15);
     expect(result.attackDamage).toBe(base.attackDamage);
     const channeling = enhancementService.calculateStatBonuses(ENHANCEMENT_TREES_BY_ROLE.Mage, {
+      mage_control_1: 1,
       mage_control_2: 1,
     });
     const runtime = new CombatRuleRuntime({

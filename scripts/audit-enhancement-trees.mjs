@@ -15,6 +15,10 @@ const staticInputs = [
   'scripts/lib/artifact-snapshot.mjs',
   'scripts/lib/critical-command.mjs',
   'src/components/EnhancementTree.tsx',
+  'src/game/enhancements/bonuses.ts',
+  'tests/helpers/enhancementSpecializationComparison.ts',
+  'tests/enhancementSpecializationComparison.test.ts',
+  'tests/__snapshots__/enhancementSpecializationComparison.test.ts.snap',
   'src/services/enhancementService.ts',
   'src/services/interfaces/IEnhancementRepository.ts',
   'src/services/repositories/SupabaseEnhancementRepository.ts',
@@ -101,6 +105,8 @@ export async function generateEnhancementAudit({
     file.endsWith('.ts'),
   );
   for (const file of toolingFiles) inputs.add(file);
+  const uiFiles = await snapshot.list('src/features/enhancements/ui');
+  for (const file of uiFiles) if (/\.(?:ts|tsx|css)$/.test(file)) inputs.add(file);
   const migrations = (await snapshot.list('supabase/migrations')).filter((file) =>
     file.endsWith('.sql'),
   );
@@ -110,7 +116,7 @@ export async function generateEnhancementAudit({
   for (const file of toolingFiles) {
     const source = (await snapshot.read(file)).toString('utf8');
     for (const match of source.matchAll(
-      /['"]((?:src|supabase)\/[^'"\r\n]+\.(?:ts|tsx|sql))['"]/g,
+      /['"]((?:src|supabase|tests)\/[^'"\r\n]+\.(?:ts|tsx|sql))['"]/g,
     )) {
       inputs.add(artifactPath(match[1]));
     }

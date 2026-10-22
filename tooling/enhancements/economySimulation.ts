@@ -192,7 +192,7 @@ export function compareEnhancementResetFees(
 }
 
 export function createEnhancementEconomyReport(
-  cohortSize = ENHANCEMENT_ECONOMY_ASSUMPTIONS.cohortSize,
+  cohortSize: number = ENHANCEMENT_ECONOMY_ASSUMPTIONS.cohortSize,
 ) {
   const graph = auditEnhancementGraphs(Object.values(ENHANCEMENT_TREES_BY_ROLE), {
     maxMasteryLevel: MAX_MASTERY_LEVEL,

@@ -51,7 +51,9 @@ const resolver: EnhancementEvidenceSource = {
   symbol: 'resolveBattleRuleEffect',
 };
 const statSources: readonly EnhancementEvidenceSource[] = [
-  { path: 'src/services/enhancementService.ts', symbol: 'EnhancementService._processNodes' },
+  { path: 'src/game/enhancements/bonuses.ts', symbol: 'aggregateEnhancementBonuses' },
+  { path: 'src/services/enhancementService.ts', symbol: 'EnhancementService.calculateStatBonuses' },
+  { path: 'src/game/enhancements/eligibility.ts', symbol: 'getActiveEnhancementRanks' },
   { path: 'src/utils/statCalculator.ts', symbol: 'enhancementModifiers' },
   { path: 'src/game/stats/statContract.ts', symbol: 'applyCanonicalModifiers' },
   { path: 'src/game/ChampionInstance.ts', symbol: 'ChampionInstance.getStatsWithEnhancements' },
@@ -299,11 +301,16 @@ export const ENHANCEMENT_SHARED_EFFECT_CONTRACTS = [
   {
     id: 'rank-aggregation',
     behavior:
-      'calculateStatBonuses additionne stat × rang ; les effets sont copiés une fois par nœud sans multiplier value par rang. Les émissions numériques créées par CombatRuleRuntime.effect sont bornées et arrondies par max(0, round(amount)) avant leur résolution.',
+      'calculateStatBonuses filtre les rangs possédés via getActiveEnhancementRanks avant aggregateEnhancementBonuses : stats × rang, effets copiés une fois par nœud. Le helper agrégateur refuse les rangs hors entier sûr 1..maxRanks. Les émissions numériques runtime utilisent max(0, round(amount)).',
     limit:
-      'Ce calcul ne valide ni prérequis, ni indisponibilité, ni plafond du rang ; il ne prouve pas qu’un achat est légal.',
+      'Le service conserve les IDs et la dépense historique, mais exclut des bonus les ancêtres désactivés, exigences non satisfaites et conflits. Il ouvre explicitement la capacité des spécialisations déjà attestées ; le gate d’achat courant reste contrôlé séparément par le serveur. Le helper seul ne prouve pas un achat légal.',
     evidence: [
-      { path: 'src/services/enhancementService.ts', symbol: 'EnhancementService._processNodes' },
+      { path: 'src/game/enhancements/bonuses.ts', symbol: 'aggregateEnhancementBonuses' },
+      {
+        path: 'src/services/enhancementService.ts',
+        symbol: 'EnhancementService.calculateStatBonuses',
+      },
+      { path: 'src/game/enhancements/eligibility.ts', symbol: 'getActiveEnhancementRanks' },
       runtime('effect'),
     ],
   },
@@ -334,9 +341,9 @@ export const ENHANCEMENT_SHARED_EFFECT_CONTRACTS = [
   {
     id: 'ui-source-and-parity',
     behavior:
-      'L’arbre et le combat affichent la même description FR/EN du nœud. L’aperçu secondaire et le runtime partagent les contributions en points ainsi que les facteurs de recharge et de ténacité. Les fixtures comparent manuel, autoplay, replay et restauration des commandes avec les mêmes seed, équipe et rangs ; l’Edge est comparé au moteur source pour son hash exact.',
+      'L’arbre et le combat affichent la même description FR/EN du nœud. L’aperçu secondaire et le runtime partagent les contributions en points ainsi que les facteurs de recharge et de ténacité. Les fixtures source comparent manuel, autoplay, replay et restauration avec les mêmes seed, équipe et rangs. La comparaison Edge nécessite séparément le bundle généré et son hash final.',
     limit:
-      'Les cinq rôles jouables sont exercés par Garen, Annie, Ashe, Leona et Soraka ; Veigar ajoute une preuve de séparation des compteurs intra-run. Aucun kit maintenu n’a Assassin comme premier rôle : les effets Assassin ont des fixtures moteur isolées, sans prétendre prouver une run publique Assassin. Le moteur 0.2.5 conserve ses octets et son résultat de référence.',
+      'Les cinq rôles jouables sont exercés par Garen, Annie, Ashe, Leona et Soraka ; Veigar ajoute une preuve de séparation des compteurs intra-run. Aucun kit maintenu n’a Assassin comme premier rôle : les effets Assassin ont des fixtures moteur isolées, sans prétendre prouver une run publique Assassin. La conservation des octets et la reprise du moteur 0.2.5 ont leurs propres tests ; ce rapport hors ligne ne les exécute pas.',
     evidence: [
       {
         path: 'src/features/combat/presentation/combatPresenter.ts',
@@ -369,9 +376,9 @@ export const ENHANCEMENT_SHARED_EFFECT_CONTRACTS = [
   {
     id: 'authority-validation',
     behavior:
-      'validateRunAttempt contrôle champion disponible, ID du nœud, entier sûr de 0 à maxRanks et chaque parent acquis au moins au rang 1 ; le moteur utilise le même buildCombatRuleLoadout.',
+      'Le validateur authority interprète le snapshot attesté ; le moteur construit ses règles via buildCombatRuleLoadout. Les tests de contrat couvrent entiers, rangs, exigences AND/OR, exclusions et ancêtres indisponibles.',
     limit:
-      'La validation d’une forme et de parents ne démontre pas la parité de chaque effet manuel/autoplay/Edge. TREE-04 doit fournir ces fixtures.',
+      'Les tests du contrat source ne certifient pas à eux seuls que le bundle Edge final applique la même validation ; la preuve exige le moteur enregistré, ses dimensions figées et son hash exact.',
     evidence: [
       { path: 'src/game/authority/RunCommandValidator.ts', symbol: 'validateRunAttempt' },
       { path: 'src/game/authority/AuthorityRunEngine.ts', symbol: 'AuthorityReplayState' },

@@ -1,14 +1,12 @@
-# TREE-01 — Audit des arbres d’amélioration
+# Arbres d’amélioration — audit courant et limites des preuves
 
-L’audit couvre les six arbres de rôle et leurs 72 nœuds. Il décrit le comportement actuel, sans modifier les achats, les effets, les arbres sauvegardés ou les règles de combat. Les corrections appartiennent à TREE-02, TREE-03 et TREE-04.
+Le [rapport Markdown généré](audits/enhancement-trees.md) et le [JSON exhaustif](audits/enhancement-trees.json) couvrent **72 nœuds de rôle + 16 spécialisations**, soit **88 IDs dans le catalogue SQL 4**. Le schéma déclaratif portable est versionné séparément en `schemaVersion: 1`. La [validation initiale TREE-01](tree-01-validation-2026-10-21.md) reste un relevé historique du catalogue 3 ; ses divergences SQL et effets anciens ne décrivent plus le code courant.
 
-Le [rapport détaillé Markdown](audits/enhancement-trees.md) contient six graphes dirigés et une fiche par ID. Le [rapport JSON](audits/enhancement-trees.json) fournit les mêmes données et les empreintes des entrées, avec textes FR/EN, rangs, branche, coûts, maîtrise, parents, visibilité, attributs SQL, consommateurs runtime, responsables et suites prévues.
+## Catalogue, disponibilité et possessions
 
-## Résultat et causes
+Les six graphes de rôle conservent leurs 72 IDs. Ils n’ont aucun cycle, parent inconnu, doublon ou seuil supérieur au plafond réel de maîtrise 4. **57 nœuds de rôle ont un chemin légal ; 12 sont explicitement désactivés pour mécanique non supportée ; 3 autres héritent d’un parent désactivé.** Le modèle SQL extrait des migrations et le validateur client concordent sur les 88 définitions et leurs chemins publiés. Cette concordance de sources ne prouve pas un état déployé.
 
-**57 nœuds sont achetables par le client, 15 sont bloqués.** Aucun cycle, parent absent, ID dupliqué ou nœud structurellement inaccessible n’est présent dans le catalogue courant. Aucun seuil de maîtrise ne dépasse le plafond réel de niveau 4. La maîtrise et la structure sont vérifiées séparément de la disponibilité des effets.
-
-| Rôle | Indisponibilité directe | Descendants bloqués uniquement par leur parent |
+| Rôle | Désactivés directement | Blocages hérités uniquement |
 | --- | --- | --- |
 | Assassin | `assassin_mobility_1`, `assassin_mobility_2`, `assassin_mobility_3` | — |
 | Combattant | `fighter_duelist_1` | `fighter_duelist_2`, `fighter_duelist_3` |
@@ -17,74 +15,69 @@ Le [rapport détaillé Markdown](audits/enhancement-trees.md) contient six graph
 | Support | `support_tanky_3`, `support_utility_1`, `support_utility_2`, `support_utility_3` | — |
 | Tank | `tank_support_1`, `tank_support_3` | `tank_support_2` |
 
-Un nœud directement indisponible peut aussi hériter du blocage d’un parent. Les catégories du tableau sont disjointes : 12 directs et 3 uniquement hérités. Chaque fiche conserve tous les chemins de cause ; leur nombre ne doit pas être confondu avec le nombre de nœuds.
+Les motifs restent précis : absence de déplacement, broussailles, invisibilité, proximité, interception ou répétition de sort selon le nœud. Les trois descendants restent présents dans le catalogue ; leur achat et leur activation sont refusés même si l’ancien parent désactivé apparaît dans les rangs possédés. Les IDs et leurs reçus ne sont pas supprimés : un remboursement exige la dépense attestée.
 
-Le composant affiche les nœuds centraux et ceux de la branche sélectionnée, y compris les nœuds indisponibles ; son bouton suit `canUnlockNode`. Le test de sélection couvre tous les champions exposés par `championDB.getAll()`, identifie les 11 kits maintenus et contrôle la sélection du premier tag, le repli Combattant et la concordance avec le rôle principal SQL. Un champion à plusieurs rôles conserve cette règle existante.
+Le premier tag du champion choisit le rôle ; les tags secondaires ne changent pas cet arbre. Le repli client reste Fighter, sans autoriser un champion absent du catalogue serveur. Garen, Annie, Soraka et Jinx ont chacun deux voies de spécialisation de deux nœuds ; une extension ne s’applique que si le rôle sélectionné correspond au rôle rédigé pour ce champion. Les 16 extensions sont **publiées mais leur gate d’achat serveur reste fermé** avant validation humaine.
 
-Les coûts sont constants à chaque rang, les parents doivent posséder au moins le rang 1 et chaque nœud a son propre maximum. Le coût minimal d’un achat depuis un état vide déduplique les ancêtres partagés et respecte tous les parents. Le rapport calcule aussi le coût du rang maximal et le total du catalogue ; aucun budget global ou choix de branche exclusif n’existe actuellement. `candyBudget: null` exprime cette absence de règle, sans présumer le solde d’un joueur.
+Les spécialisations coûtent 80 puis 120 Candies, demandent maîtrise 2 puis 3, possèdent un rang et excluent les deux nœuds de la voie opposée. Le JSON expose séparément le refus actuel et le chemin conditionnel si la gate est ouverte. Fermer les nouveaux achats ne révoque pas une possession déjà attestée ni un snapshot de run figé. Pour calculer ces possessions, le service ouvre explicitement cette capacité puis filtre les rangs et leurs ancêtres avec le contrat commun.
 
-## Catalogue et preuve SQL
+## Contrat, agrégation et effets
 
-Les **72 IDs, rôles, coûts, rangs maximaux, seuils de maîtrise et listes de parents** concordent entre les données client et le catalogue serveur actif, version 3, reconstruit à partir des migrations commises. Cette projection hors ligne ne prouve aucun état distant.
+`src/game/enhancements/contract.ts` valide la forme JSON, les IDs, rangs, cycles, exigences AND/OR, rangs minimaux et exclusions symétriques. `eligibility.ts` décide l’éligibilité, les rangs actifs et le plan minimal déterministe. Un budget éventuel utilise la dépense historique `totalCandiesSpent`, jamais le prix actuel recomposé. Aucun plafond global de Candies n’est actuellement publié.
 
-La RPC d’achat n’applique pas le filtre de disponibilité des effets du client. Le modèle SQL trouve donc un chemin pour les 72 nœuds ; les 15 blocages client produisent autant de divergences d’éligibilité depuis un état vide. Les tests sur une base locale jetable appliquant les 73 migrations confirment l’éligibilité des 72 achats, avec leurs parents déjà possédés. Ce dernier test isole les conditions de la RPC : il ne prétend pas exécuter 72 parcours complets depuis zéro. Une séquence légale de trois achats Garen depuis zéro est testée séparément.
+`EnhancementService.calculateStatBonuses` filtre les possessions via `getActiveEnhancementRanks` puis appelle **`aggregateEnhancementBonuses` dans `src/game/enhancements/bonuses.ts`**. L’ancien `_processNodes` n’existe plus. L’agrégateur additionne les stats fois le rang, copie chaque effet une fois et refuse les rangs hors entier sûr `1..maxRanks`. Le helper seul n’atteste pas un achat légal.
 
-Ces tests contrôlent également huit refus atomiques, l’absence de dépense et de ledger après refus, la concurrence de deux commandes, leur rejeu idempotent, les droits d’accès et le snapshot figé au départ d’une run. Un administrateur achète pour son propre compte avec les mêmes contraintes. Les rôles SQL `anon` et `service_role` n’ont pas le droit d’exécuter cette RPC publique. Les comptes invités locaux ne déclenchent aucune dépense serveur. La connexion anonyme Supabase est désactivée dans la configuration locale testée ; la fonction SQL ne contient pas de filtre spécifique `is_anonymous`, ce qui reste une limite conditionnelle si cette configuration change.
+Les textes et consommateurs corrigés sont décrits contribution par contribution dans le JSON : Tir Déchirant tire sa probabilité de 15 % et répartit les dégâts vrais ; le bouclier Phénix traverse le résolveur de combat ; Combustion augmente la puissance ; Canalisation utilise dix points de hâte ; l’identité de formation et le camp distinguent les cibles miroirs. Les effets de proximité et de déplacement absents restent descriptifs et désactivés. L’aperçu secondaire et le runtime partagent les unités de pénétration, vol de vie, omnivampirisme, ténacité et hâte.
 
-Aucune base distante n’est interrogée ou modifiée. Les migrations, le schéma, les permissions et les historiques sont inchangés.
+Les nouveaux nœuds utilisent seulement les mécanismes existants : durabilité/exécution Garen, burst/hâte et défense Annie, soin/protection d’équipe Soraka, initiative/dégâts conditionnels Jinx. L’attaque rapide n’ajoute pas d’action ; l’aura Soraka concerne toute l’équipe avec porteur vivant ; le burst Annie ne multiplie que R ; l’exécution ne modifie aucun seuil d’ultime. Ces limites sont conservées dans les descriptions et les tests.
 
-## Effets et suites
+## Économie et comparaison reproductible
 
-La disponibilité d’un achat et la qualité de son effet sont deux axes différents. Chaque contribution est classée `implemented`, `partial` ou `descriptive` avec une observation concrète, un consommateur et un responsable. Un bonus statistique peut être implémenté mais inaccessible à cause de son parent.
+Le rapport inclut `createEnhancementEconomyReport()` et ses hypothèses de cohortes, seed, fréquence, durée supposée et probabilités de victoire. Il s’agit de scénarios d’épargne indépendants, pas de rétention mesurée ; un même portefeuille ne peut pas financer simultanément tous les objectifs rapportés. Voir la [décision économique](enhancement-economy.md) : prix conservés et réinitialisations répétées gratuites avec remboursement audité.
 
-| Observation reproduite | Suite |
-| --- | --- |
-| Phénix : le runtime émet un bouclier de survie, mais le chemin de dégâts du combat ne consomme pas cet effet instantané. L’utilisation est consommée une fois par combat ; le délai de 60 secondes décrit n’est pas appliqué. | TREE-03 / TREE-04 : définir le contrat et aligner le consommateur du bouclier |
-| Tir Déchirant : le saignement s’applique à chaque attaque de base éligible avec dégâts aux PV, sans tirage à 15 %. Arrondis, dégâts vrais, durée en tours et instances cumulées sont testés. | TREE-03 / TREE-04 : choisir puis vérifier la formule, la probabilité et le cumul |
-| Combustion : le bonus actuel augmente la puissance de 15 %, sans constituer un multiplicateur général de dégâts. | TREE-03 : harmoniser texte et calcul |
-| Canalisation : `0.1` dans `percentBonuses.abilityHaste` devient 10 points ; cette statistique secondaire n’est pas montrée dans l’aperçu. | TREE-03 / TREE-04 : clarifier unités et aperçu |
-| Effets non supportés et descendants | TREE-02 / TREE-03 : décider de leur activation ou de leur désactivation explicite, puis aligner le serveur |
+| Rôle | `supportedRanksMaximumCandies` | `reachableMaximumCandies` |
+| --- | ---: | --- |
+| Assassin | 650 | null |
+| Combattant | 650 | null |
+| Mage | 780 | null |
+| Tireur | 780 | null |
+| Support | 500 | null |
+| Tank | 750 | null |
 
-Le rapport couvre aussi résurrection, renvoi, auras, caps, conditions, contrôles, rangs et absence de proximité. Huit contrats transversaux relient agrégation des rangs, aperçu/combat, snapshot, authority, Daily officiel, moteurs historiques et séparation de la progression intra-run de Veigar et identité des combattants. Un test de combat miroir reproduit aussi un saignement appliqué au mauvais camp lorsque les deux combattants partagent le même identifiant de champion ; cette collision relève de TREE-04. Les tests constatent les divergences ; ils ne les corrigent pas dans ce lot.
+Le premier champ additionne les rangs supportés et cumulables du rôle. Le second répond à une autre question : tous les nœuds de ce rôle peuvent-ils être acquis ? Il reste null car chaque rôle comporte au moins un chemin fermé. Les voies spécialisées exclusives ne sont pas additionnées comme un build légal.
 
-L’authority reste `run-engine-0.2.5`, gameplay 24, hash `9009950fe0b1c6944a26486e65b0bb0f1379129b42d7499f2bf1c0a8ce3391fa`. Les bundles historiques, leurs identités et le catalogue SQL version 3 sont conservés.
+La fixture `tests/helpers/enhancementSpecializationComparison.ts` compare **48 combats autoplay** : quatre champions, quatre builds, trois seeds, niveau 5 et budget de 200 Candies. Elle utilise les kits réels et produit dégâts par tour, soins, excès de soin, dégâts reçus, survie et durée. Les 48 combats de cet échantillon se terminent par une défaite. Certains gains conditionnels ne s’observent pas dans ce scénario. Ce résultat ne démontre ni équilibre global, ni taux de victoire, ni qualité de la progression ; il ne remplace pas l’essai humain requis pour ouvrir la gate.
 
-## Entrées, responsabilités et erreurs
+## Preuves SQL et remboursements
 
-| Module | Responsabilité |
-| --- | --- |
-| `src/data/enhancementTrees.ts`, contenu i18n | Catalogue client et libellés FR/EN |
-| `EnhancementService`, `EnhancementTree`, store | Sélection du rôle, disponibilité, affichage et orchestration d’achat |
-| `tooling/enhancements/graphAudit.ts` | Analyse pure, causes et plans d’achat ; entrées invalides explicites |
-| `tooling/enhancements/effectEvidence.ts` | Matrice des comportements observés, consommateurs et correctifs à suivre |
-| `tooling/enhancements/serverEvidence.ts` | Extraction SQL délibérément limitée aux migrations connues, comparaison des attributs et conditions d’achat |
-| `tooling/enhancements/report.ts` | Projection exhaustive et rendu Markdown, sans effet sur le jeu |
-| `scripts/audit-enhancement-trees.mjs` | Capture des sources et répertoires, empreintes, génération et contrôle des deux sorties |
+L’extracteur part des 72 lignes du seed, contrôle les copies 1→2→3 puis projette la copie 3→4 et l’expansion SQL de huit voies sur deux rangs. Il ne maintient pas une seconde copie des 88 définitions. Les paramètres d’achat, motifs de désactivation, portée champion, conditions, exclusions, gate et budget sont comparés au client. Toute nouvelle mutation de catalogue ou de configuration privée non reconnue échoue explicitement.
 
-Le générateur exige toutes les données attendues. Un parent inconnu, un cycle, un ID dupliqué, un coût/rang invalide ou un seuil impossible est représenté par une cause testée. Une mutation SQL non reconnue échoue explicitement et impose de revoir l’extracteur plutôt que de supposer une concordance. Une entrée manquante, une option inconnue, un rapport absent/périmé ou une source modifiée pendant le contrôle produit une sortie non nulle.
+Les migrations suivies incluent :
 
-La génération capture les octets des imports et des migrations, ainsi que la liste des migrations. Elle vérifie leur stabilité avant publication, prépare les deux fichiers et restaure les sorties précédentes si la publication échoue. La commande de contrôle compare exactement les octets, sans écrire. Les empreintes sont déterministes ; aucune date de génération ou identité de commit auto-référente n’est injectée.
+- `20261022161216_enhancement_contract_v4_purchases.sql` : catalogue 4, comptes enregistrés, gate privée fermée, révision et contrat d’achat.
+- `20261022162313_enhancement_atomic_resets.sql` : exigences récursives avec maîtrise/rangs, catalogue attendu, devis et remboursement atomique.
+- `20261022164033_admin_enhancement_analytics.sql` : métriques agrégées de dépenses, remboursements et cohortes de runs figées, sans identifiants de joueurs dans la sortie admin.
 
-## Reproduction
+La RPC v2 exige rang, révision et catalogue attendus. Le wrapper historique à quatre paramètres utilise la même implémentation privée. Les verrous joueur, arbre et catalogue protègent l’écriture ; les commandes idempotentes conservent leur réponse et ne débitent qu’une fois. Les invités, sessions Auth anonymes, rôles `anon` et `service_role` ne peuvent pas utiliser ces RPC comme un compte enregistré. Les administrateurs restent soumis aux mêmes règles pour leurs achats personnels.
 
-Avec la version Node du dépôt et les dépendances installées :
+Le devis de reset suit les reçus d’achat complets de la génération courante ; après l’introduction du ledger, chaque coût doit correspondre au débit exact. Un historique incomplet ne devient jamais un remboursement estimé. Un arbre vide, un dépassement de solde ou une révision/politique périmée est refusé. Le reset préserve maîtrise, Shards, propriété des champions et snapshots figés ; il incrémente révision et compteur de resets. L’association entre un build figé et des résultats de runs est descriptive et ne prouve aucun effet causal.
+
+## Exécution et provenance
 
 ```sh
 npm run testing -- enhancements audit
 npm run testing -- enhancements audit --check
-npx vitest run tests/enhancementGraphAudit.test.ts tests/enhancementEffectEvidence.test.ts tests/enhancementServerEvidence.test.ts tests/enhancementAuditReport.test.ts tests/enhancementAuditCli.test.mjs
-npm run typecheck
-npm run check:static
+npx vitest run tests/enhancementGraphAudit.test.ts tests/enhancementEffectEvidence.test.ts tests/enhancementServerEvidence.test.ts tests/enhancementAuditReport.test.ts tests/enhancementAuditCli.test.mjs tests/enhancementEconomySimulation.test.ts
 ```
 
-La génération ne requiert ni réseau, ni connexion, ni identifiants Supabase. Les deux rapports sont suivis et déclarés dans le contrat des artefacts. Le contrôle exact est intégré à `check:static`, sans ajouter d’alias npm public.
+La génération reste locale et ne requiert ni réseau ni identifiants. Elle capture les imports, les sources physiques citées, les composants et styles de l’UI, ainsi que tous les fichiers et la liste des migrations. Les SHA-256 sont stables, sans timestamp ou commit auto-référent. Une modification concurrente invalide la génération ; la publication des deux rapports passe par une étape temporaire avec restauration en cas d’erreur. `--check` compare les octets sans écrire.
 
-La preuve transactionnelle nécessite Docker et la base locale jetable :
+Les tests transactionnels utilisent une base locale jetable :
 
 ```sh
 npm run database -- validate --yes
 ```
 
-Cette commande réinitialise la base locale puis exécute lint, contrôle des types et tous les tests SQL ; ne pas la diriger vers une base distante. Les scénarios synthétiques couvrent branche valide, ancêtres partagés, cycle, référence manquante, doublon, budget et maîtrise maximale. Les tests de CLI couvrent déterminisme, contrôle sans écriture, modification concurrente des sources et restauration des deux sorties.
+Ils comparent les 88 lignes réelles au modèle, vérifient 57 achats autorisés et 31 refus correspondant aux 12 désactivations, 3 héritages et 16 gates, puis contrôlent permissions, refus atomiques, concurrence, idempotence et snapshot figé. Des suites séparées vérifient exigences déclaratives, resets, reçus et confidentialité des métriques. Décrire ces assertions ne prétend pas qu’une invocation courante de ce générateur les a exécutées.
 
-Le diff avant/après est un ajout d’audit : 72 fiches et six graphes vérifiés remplacent une hypothèse globale de 15 blocages. Les arbres, validations et effets de jeu restent identiques. Voir la [validation TREE-01](tree-01-validation-2026-10-21.md) ; les résultats CI, Preview et le SHA final sont consignés séparément dans la PR.
+Les preuves de tests source, reprise réelle du moteur historique, bundle Edge exact, parcours navigateur, CI et validation humaine sont consignées séparément lors de leur exécution. Ce rapport ne certifie aucun déploiement, état distant ni approbation humaine. Les bundles et hashes historiques sont des artefacts immuables ; leur présence dans les sources ne suffit pas à prouver un rejeu.

@@ -14,19 +14,24 @@ describe('TREE-01 exhaustive reproducible report', () => {
   it('keeps topology, availability, mastery and SQL eligibility separate for every ID', () => {
     expect(report.summary).toMatchObject({
       treeCount: 6,
-      nodeCount: 72,
+      nodeCount: 88,
+      roleNodeCount: 72,
+      specializationNodeCount: 16,
+      specializationGatedNodes: 16,
+      conditionallyReachableSpecializationNodes: 16,
+      serverDisabledNodes: 12,
       structurallyAffectedNodes: 0,
       reachableNodes: 57,
-      blockedNodes: 15,
+      blockedNodes: 31,
       directlyUnavailableNodes: 12,
       transitivelyBlockedNodes: 3,
       masteryBlockedNodes: 0,
       serverCatalogueMismatchNodes: 0,
       serverExtraNodeIds: [],
-      clientServerEligibilityDifferences: 15,
+      clientServerEligibilityDifferences: 0,
     });
-    expect(nodes.filter((node) => node.server.fromEmpty.serverAllowed)).toHaveLength(72);
-    expect(nodes.filter((node) => node.server.withOwnedParents.clientAllowed)).toHaveLength(60);
+    expect(nodes.filter((node) => node.server.fromEmpty.serverAllowed)).toHaveLength(57);
+    expect(nodes.filter((node) => node.server.withOwnedParents.clientAllowed)).toHaveLength(57);
     expect(
       nodes.filter((node) => !node.firstRank.reachable).every((node) => node.findings.length > 0),
     ).toBe(true);
@@ -49,7 +54,31 @@ describe('TREE-01 exhaustive reproducible report', () => {
     }
     expect(report.evidence).toBe('offline-repository');
     expect(report.policy).toEqual({ maxMasteryLevel: 4, candyBudget: null });
-    expect(Object.values(report.summary.effects).reduce((sum, count) => sum + count, 0)).toBe(72);
+    expect(Object.values(report.summary.effects).reduce((sum, count) => sum + count, 0)).toBe(88);
+  });
+
+  it('separates gated extensions and mutually exclusive paths from supported role spending', () => {
+    expect(report.specializations).toHaveLength(4);
+    const extensions = report.specializations.flatMap((entry) =>
+      entry.branches.flatMap((branch) => branch.nodes),
+    );
+    expect(extensions).toHaveLength(16);
+    for (const node of extensions) {
+      expect(node.server.catalogueDifferences, node.id).toEqual([]);
+      expect(node.fromEmpty).toMatchObject({ clientAllowed: false, serverAllowed: false });
+      expect(node.conditionalGateOpen).toMatchObject({ reachable: true, serverAllowed: true });
+      expect(node.conditionalGateOpen.requiredCandies).toBe(node.prerequisites.length ? 200 : 80);
+      expect(node.exclusiveWith).toHaveLength(2);
+    }
+    for (const inventory of report.economy.inventory) {
+      expect(inventory.reachableMaximumCandies).toBeNull();
+      expect(inventory.supportedRanksMaximumCandies).toBeGreaterThan(0);
+      expect(inventory.supportedRanksMaximumCandies).toBeLessThan(
+        inventory.catalogueMaximumCandies!,
+      );
+    }
+    expect(report.economy.policy.shippedRepeatResetFeeBasisPoints).toBe(0);
+    expect(report.validationLimits.join(' ')).toContain('48 seeded autoplay');
   });
 
   it('compares the full visible champion catalog and explicitly identifies maintained kits', () => {
