@@ -243,56 +243,455 @@ ALTER FUNCTION public.complete_run_verification_pre_champion_economy(UUID,UUID,J
 ALTER FUNCTION private.complete_run_verification_pre_champion_economy(UUID,UUID,JSONB,TEXT) RENAME TO complete_run_verification_before_trees;
 REVOKE ALL ON FUNCTION private.complete_run_verification_before_trees(UUID,UUID,JSONB,TEXT) FROM PUBLIC,anon,authenticated,service_role;
 
+-- Reuse the proven v3 participation algorithm with the real 25/4 identity.
+-- The only temporary compatibility field is engine_version for the existing
+-- v19 ledger normalizer. Gameplay, Daily version, seed and journal never change.
+-- Normal and Daily share this allocator; a neutral Daily loadout does not remove
+-- its ordinary account Candies/mastery rewards. The 23/24 helper above is intact.
 CREATE FUNCTION public.complete_run_verification_pre_champion_economy(
-  p_attempt_id UUID,p_lease_token UUID,p_result JSONB,p_result_hash TEXT)
-RETURNS JSONB LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
-DECLARE attempt public.run_attempts; v_response JSONB; result_hash TEXT; previous public.gameplay_rulesets;
+  p_attempt_id UUID,
+  p_lease_token UUID,
+  p_result JSONB,
+  p_result_hash TEXT
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+DECLARE
+  v_attempt public.run_attempts%ROWTYPE;
+  v_ruleset public.progression_rulesets%ROWTYPE;
+  v_result_hash TEXT;
+  v_legacy_result JSONB;
+  v_legacy_members JSONB;
+  v_legacy_champions JSONB;
+  v_response JSONB;
+  v_member JSONB;
+  v_ledger_member JSONB;
+  v_champion_id TEXT;
+  v_waves_completed INTEGER;
+  v_participated_waves INTEGER;
+  v_participated_biomes TEXT[];
+  v_budget INTEGER := 0;
+  v_legacy_per_champion INTEGER := 0;
+  v_legacy_total INTEGER := 0;
+  v_desired_candies INTEGER;
+  v_allocation JSONB := '{}'::JSONB;
+  v_allocation_total INTEGER := 0;
+  v_run_id UUID;
+  v_summary_champion_stats JSONB;
 BEGIN
-  SELECT * INTO attempt FROM public.run_attempts WHERE id=p_attempt_id FOR UPDATE;
-  IF NOT FOUND THEN RAISE EXCEPTION 'run_attempt_not_found' USING ERRCODE='P0002'; END IF;
-  IF attempt.engine_version<>'run-engine-0.3.0' THEN
-    RETURN private.complete_run_verification_before_trees(p_attempt_id,p_lease_token,p_result,p_result_hash);
+  SELECT * INTO v_attempt
+  FROM public.run_attempts
+  WHERE id = p_attempt_id
+  FOR UPDATE;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'run_attempt_not_found' USING ERRCODE = 'P0002';
   END IF;
-  IF attempt.ruleset_version<>4 OR attempt.gameplay_ruleset_version<>25 OR attempt.command_schema_version<>2
-    OR NOT EXISTS(SELECT 1 FROM public.gameplay_rulesets g WHERE g.version=25 AND g.engine_version=attempt.engine_version
-      AND g.command_schema_version=2 AND g.content_hash=attempt.gameplay_content_hash) THEN
-    RAISE EXCEPTION 'enhancement_run_contract_mismatch' USING ERRCODE='22023'; END IF;
-  IF p_result IS NULL OR jsonb_typeof(p_result) IS DISTINCT FROM 'object' THEN
-    RAISE EXCEPTION 'invalid_verified_result' USING ERRCODE='22023'; END IF;
+
+  IF v_attempt.engine_version <> 'run-engine-0.3.0' THEN
+    RETURN private.complete_run_verification_before_trees(
+      p_attempt_id, p_lease_token, p_result, p_result_hash
+    );
+  END IF;
+
+  IF p_result IS NULL OR JSONB_TYPEOF(p_result) <> 'object' THEN
+    RAISE EXCEPTION 'invalid_verified_result' USING ERRCODE = '22023';
+  END IF;
   IF p_result_hash IS NOT NULL AND p_result_hash !~ '^[0-9a-f]{64}$' THEN
-    RAISE EXCEPTION 'invalid_result_hash' USING ERRCODE='22023'; END IF;
-  result_hash:=encode(extensions.digest(convert_to(p_result::text,'UTF8'),'sha256'),'hex');
-  IF attempt.status='verified' THEN
-    IF attempt.lease_token IS DISTINCT FROM p_lease_token OR attempt.result_hash IS DISTINCT FROM result_hash THEN
-      RAISE EXCEPTION 'verified_result_conflict' USING ERRCODE='22023'; END IF;
-    RETURN jsonb_set(attempt.response,'{replayed}','true'::jsonb,TRUE);
+    RAISE EXCEPTION 'invalid_result_hash' USING ERRCODE = '22023';
   END IF;
-  IF attempt.status='rejected' THEN RETURN COALESCE(attempt.response,jsonb_build_object('attempt_id',attempt.id,
-    'run_uuid',attempt.run_uuid,'status','rejected','accepted',FALSE,'rejection_code',attempt.rejection_code)); END IF;
-  IF attempt.status<>'finished' OR attempt.lease_token IS DISTINCT FROM p_lease_token
-    OR attempt.lease_expires_at<=clock_timestamp() THEN
-    RAISE EXCEPTION 'verification_lease_invalid' USING ERRCODE='55000'; END IF;
-  SELECT * INTO STRICT previous FROM public.gameplay_rulesets WHERE version=24;
-  -- Transaction-local compatibility projection under the attempt row lock. The
-  -- original helper checks every ledger/member/lease and performs the real v3
-  -- largest-remainder allocation. Other transactions can only see final 25/4.
-  -- Any exception rolls back all temporary identities and all reward mutations.
-  -- No snapshot, mastery, journal hash, ownership or historical row is rewritten.
-  UPDATE public.run_attempts SET engine_version=previous.engine_version,gameplay_ruleset_version=24,
-    gameplay_content_hash=previous.content_hash,ruleset_version=3 WHERE id=p_attempt_id;
-  v_response:=private.complete_run_verification_before_trees(p_attempt_id,p_lease_token,p_result,p_result_hash);
-  UPDATE public.run_attempts SET engine_version=attempt.engine_version,gameplay_ruleset_version=attempt.gameplay_ruleset_version,
-    gameplay_content_hash=attempt.gameplay_content_hash,ruleset_version=attempt.ruleset_version WHERE id=p_attempt_id;
-  IF v_response->>'status'='verified' THEN
-    v_response:=v_response||jsonb_build_object('progression_version',4,'gameplay_ruleset_version',25,'engine_version',attempt.engine_version);
-    UPDATE public.runs SET progression_version=4 WHERE id=(v_response->>'run_id')::uuid AND run_attempt_id=p_attempt_id;
-    IF NOT FOUND THEN RAISE EXCEPTION 'verified_run_not_found' USING ERRCODE='P0002'; END IF;
-    UPDATE public.run_attempts SET response=v_response WHERE id=p_attempt_id;
+  v_result_hash := ENCODE(
+    extensions.digest(CONVERT_TO(p_result::TEXT, 'UTF8'), 'sha256'::TEXT),
+    'hex'
+  );
+
+  IF v_attempt.status = 'verified' THEN
+    IF v_attempt.lease_token IS DISTINCT FROM p_lease_token
+      OR v_attempt.result_hash <> v_result_hash THEN
+      RAISE EXCEPTION 'verified_result_conflict' USING ERRCODE = '22023';
+    END IF;
+    RETURN JSONB_SET(v_attempt.response, '{replayed}', 'true'::JSONB, TRUE);
   END IF;
+  IF v_attempt.status = 'rejected' THEN
+    RETURN COALESCE(
+      v_attempt.response,
+      JSONB_BUILD_OBJECT(
+        'attempt_id', v_attempt.id,
+        'run_uuid', v_attempt.run_uuid,
+        'status', 'rejected',
+        'accepted', FALSE,
+        'rejection_code', v_attempt.rejection_code
+      )
+    );
+  END IF;
+
+  IF v_attempt.status <> 'finished'
+    OR v_attempt.lease_token IS DISTINCT FROM p_lease_token
+    OR v_attempt.lease_expires_at <= CLOCK_TIMESTAMP() THEN
+    RAISE EXCEPTION 'verification_lease_invalid' USING ERRCODE = '55000';
+  END IF;
+  IF v_attempt.gameplay_ruleset_version <> 25
+    OR v_attempt.command_schema_version <> 2
+    OR NOT EXISTS (
+      SELECT 1
+      FROM public.gameplay_rulesets
+      WHERE version = v_attempt.gameplay_ruleset_version
+        AND engine_version = v_attempt.engine_version
+        AND command_schema_version = 2
+        AND content_hash = v_attempt.gameplay_content_hash
+    )
+  THEN
+    RAISE EXCEPTION 'gameplay_ruleset_0_3_0_required' USING ERRCODE = '22023';
+  END IF;
+
+  SELECT * INTO v_ruleset
+  FROM public.progression_rulesets
+  WHERE version = v_attempt.ruleset_version;
+  IF NOT FOUND OR v_ruleset.version <> 4 THEN
+    RAISE EXCEPTION 'progression_ruleset_v4_required' USING ERRCODE = '22023';
+  END IF;
+
+  IF JSONB_TYPEOF(p_result -> 'team_members') IS DISTINCT FROM 'array'
+    OR JSONB_TYPEOF(p_result -> 'biomes_visited') IS DISTINCT FROM 'array'
+    OR JSONB_TYPEOF(p_result -> 'ledger') IS DISTINCT FROM 'object'
+    OR p_result -> 'ledger' ->> 'version' <> '2'
+    OR JSONB_TYPEOF(p_result -> 'ledger' -> 'champions') IS DISTINCT FROM 'object'
+  THEN
+    RAISE EXCEPTION 'invalid_verified_participation_ledger' USING ERRCODE = '22023';
+  END IF;
+
+  v_waves_completed := public.progression_integer(
+    p_result -> 'waves_completed',
+    0,
+    0,
+    v_ruleset.max_waves_by_biome[CARDINALITY(v_ruleset.max_waves_by_biome)],
+    'waves_completed'
+  )::INTEGER;
+
+  FOR v_member IN
+    SELECT value
+    FROM JSONB_ARRAY_ELEMENTS(p_result -> 'team_members')
+  LOOP
+    v_champion_id := v_member ->> 'champion_id';
+    v_ledger_member := p_result -> 'ledger' -> 'champions' -> v_champion_id;
+    -- Counters originate in the verified replay, never a client run command.
+    -- Generic JSON validation keeps future counters independent from mastery.
+    IF v_member ? 'run_progress' THEN
+      IF JSONB_TYPEOF(v_member -> 'run_progress') IS DISTINCT FROM 'object' THEN
+        RAISE EXCEPTION 'invalid_verified_run_progress' USING ERRCODE = '22023';
+      END IF;
+      IF EXISTS (
+        SELECT 1 FROM JSONB_EACH(v_member -> 'run_progress') AS counter(key, value)
+        WHERE key !~ '^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$'
+          OR LENGTH(key) > 128
+          OR STRING_TO_ARRAY(key, '.') && ARRAY['__proto__', 'prototype', 'constructor']
+          OR JSONB_TYPEOF(value) IS DISTINCT FROM 'number'
+      ) THEN
+        RAISE EXCEPTION 'invalid_verified_run_progress' USING ERRCODE = '22023';
+      END IF;
+      IF (SELECT COUNT(*) FROM JSONB_EACH(v_member -> 'run_progress')) > 64 THEN
+        RAISE EXCEPTION 'invalid_verified_run_progress' USING ERRCODE = '22023';
+      END IF;
+      IF EXISTS (
+        SELECT 1 FROM JSONB_EACH(v_member -> 'run_progress') AS counter(key, value)
+        WHERE (value::TEXT)::NUMERIC < 0
+          OR (value::TEXT)::NUMERIC > 9007199254740991
+          OR TRUNC((value::TEXT)::NUMERIC) <> (value::TEXT)::NUMERIC
+      ) THEN
+        RAISE EXCEPTION 'invalid_verified_run_progress' USING ERRCODE = '22023';
+      END IF;
+    END IF;
+
+    IF COALESCE(v_champion_id, '') = ''
+      OR JSONB_TYPEOF(v_ledger_member) IS DISTINCT FROM 'object'
+      OR JSONB_TYPEOF(v_member -> 'biomes_participated') IS DISTINCT FROM 'array'
+      OR JSONB_TYPEOF(v_ledger_member -> 'biomes_participated') IS DISTINCT FROM 'array'
+      OR EXISTS (
+        SELECT 1
+        FROM JSONB_ARRAY_ELEMENTS(v_member -> 'biomes_participated') AS biome(value)
+        WHERE JSONB_TYPEOF(value) IS DISTINCT FROM 'string'
+      )
+    THEN
+      RAISE EXCEPTION 'invalid_verified_participation:%', v_champion_id
+        USING ERRCODE = '22023';
+    END IF;
+
+    v_participated_waves := public.progression_integer(
+      v_member -> 'waves_participated',
+      0,
+      0,
+      v_waves_completed + CASE
+        WHEN (p_result ->> 'won')::BOOLEAN THEN 0
+        ELSE 1
+      END,
+      'waves_participated'
+    )::INTEGER;
+    SELECT COALESCE(ARRAY_AGG(value ORDER BY ordinality), ARRAY[]::TEXT[])
+    INTO v_participated_biomes
+    FROM JSONB_ARRAY_ELEMENTS_TEXT(v_member -> 'biomes_participated')
+      WITH ORDINALITY AS biome(value, ordinality);
+
+    IF CARDINALITY(v_participated_biomes)
+        <> CARDINALITY(ARRAY(SELECT DISTINCT UNNEST(v_participated_biomes)))
+      OR CARDINALITY(v_participated_biomes)
+        > JSONB_ARRAY_LENGTH(p_result -> 'biomes_visited')
+      OR CARDINALITY(v_participated_biomes) > v_participated_waves
+      OR EXISTS (
+        SELECT 1
+        FROM UNNEST(v_participated_biomes) AS participated(biome)
+        WHERE NOT EXISTS (
+          SELECT 1
+          FROM JSONB_ARRAY_ELEMENTS_TEXT(p_result -> 'biomes_visited') AS visited(biome)
+          WHERE visited.biome = participated.biome
+        )
+      )
+      OR v_participated_biomes IS DISTINCT FROM ARRAY(
+        SELECT visited.biome
+        FROM JSONB_ARRAY_ELEMENTS_TEXT(p_result -> 'biomes_visited')
+          WITH ORDINALITY AS visited(biome, ordinality)
+        WHERE visited.biome = ANY(v_participated_biomes)
+        ORDER BY visited.ordinality
+      )
+      OR public.progression_integer(
+        v_ledger_member -> 'waves_participated',
+        0,
+        0,
+        v_waves_completed + CASE
+          WHEN (p_result ->> 'won')::BOOLEAN THEN 0
+          ELSE 1
+        END,
+        'ledger.waves_participated'
+      )::INTEGER <> v_participated_waves
+      OR v_ledger_member -> 'biomes_participated'
+        IS DISTINCT FROM v_member -> 'biomes_participated'
+    THEN
+      RAISE EXCEPTION 'verified_participation_ledger_mismatch:%', v_champion_id
+        USING ERRCODE = '22023';
+    END IF;
+  END LOOP;
+
+  SELECT COALESCE(JSONB_AGG(
+    value - 'waves_participated' - 'biomes_participated' - 'run_progress'
+    ORDER BY ordinality
+  ), '[]'::JSONB)
+  INTO v_legacy_members
+  FROM JSONB_ARRAY_ELEMENTS(p_result -> 'team_members')
+    WITH ORDINALITY AS member(value, ordinality);
+
+  SELECT COALESCE(JSONB_OBJECT_AGG(
+    key,
+    value - 'waves_participated' - 'biomes_participated'
+    ORDER BY key
+  ), '{}'::JSONB)
+  INTO v_legacy_champions
+  FROM JSONB_EACH(p_result -> 'ledger' -> 'champions');
+
+  v_legacy_result := JSONB_SET(
+    JSONB_SET(p_result, '{team_members}', v_legacy_members, FALSE),
+    '{ledger}',
+    JSONB_SET(
+      JSONB_SET(p_result -> 'ledger', '{version}', '1'::JSONB, FALSE),
+      '{champions}',
+      v_legacy_champions,
+      FALSE
+    ),
+    FALSE
+  );
+
+  UPDATE public.run_attempts SET engine_version = 'run-engine-v19'
+  WHERE id = p_attempt_id;
+
+  v_response := public.complete_run_verification_v19_contract(
+    p_attempt_id, p_lease_token, v_legacy_result, p_result_hash
+  );
+
+  UPDATE public.run_attempts SET engine_version = v_attempt.engine_version
+  WHERE id = p_attempt_id;
+
+  IF v_response ->> 'status' IS DISTINCT FROM 'verified' THEN
+    RETURN v_response;
+  END IF;
+
+  v_run_id := (v_response ->> 'run_id')::UUID;
+  v_legacy_per_champion := COALESCE((v_response ->> 'candies_per_champion')::INTEGER, 0);
+  v_legacy_total := COALESCE((v_response ->> 'candies_earned')::INTEGER, 0);
+  IF v_waves_completed > 0 THEN
+    v_budget :=
+      v_ruleset.base_candies
+      + v_waves_completed * v_ruleset.candies_per_wave
+      + JSONB_ARRAY_LENGTH(p_result -> 'biomes_visited') * v_ruleset.candies_per_biome
+      + CASE WHEN (p_result ->> 'won')::BOOLEAN THEN v_ruleset.victory_bonus ELSE 0 END;
+  END IF;
+
+  WITH participant_weights AS (
+    SELECT
+      member.value ->> 'champion_id' AS champion_id,
+      LEAST(
+        (member.value ->> 'waves_participated')::INTEGER,
+        v_waves_completed
+      ) * v_ruleset.candies_per_wave
+        + JSONB_ARRAY_LENGTH(member.value -> 'biomes_participated')
+          * v_ruleset.candies_per_biome AS measured_weight
+    FROM JSONB_ARRAY_ELEMENTS(p_result -> 'team_members') AS member(value)
+  ), weighted AS (
+    SELECT
+      champion_id,
+      CASE
+        WHEN SUM(measured_weight) OVER () > 0 THEN measured_weight
+        ELSE 1
+      END::BIGINT AS weight,
+      CASE
+        WHEN SUM(measured_weight) OVER () > 0 THEN SUM(measured_weight) OVER ()
+        ELSE COUNT(*) OVER ()
+      END::BIGINT AS total_weight
+    FROM participant_weights
+  ), raw_shares AS (
+    SELECT
+      champion_id,
+      FLOOR((v_budget::NUMERIC * weight) / total_weight)::INTEGER AS base_share,
+      MOD(v_budget::BIGINT * weight, total_weight) AS remainder
+    FROM weighted
+  ), ranked AS (
+    SELECT
+      champion_id,
+      base_share,
+      remainder,
+      SUM(base_share) OVER ()::INTEGER AS distributed,
+      ROW_NUMBER() OVER (ORDER BY remainder DESC, champion_id COLLATE "C") AS priority
+    FROM raw_shares
+  ), allocations AS (
+    SELECT
+      champion_id,
+      base_share + CASE
+        WHEN priority <= v_budget - distributed THEN 1
+        ELSE 0
+      END AS candies
+    FROM ranked
+  )
+  SELECT
+    COALESCE(JSONB_OBJECT_AGG(champion_id, candies ORDER BY champion_id), '{}'::JSONB),
+    COALESCE(SUM(candies), 0)::INTEGER
+  INTO v_allocation, v_allocation_total
+  FROM allocations;
+
+  IF v_allocation_total <> v_budget THEN
+    RAISE EXCEPTION 'progression_v3_allocation_mismatch' USING ERRCODE = '22023';
+  END IF;
+
+  UPDATE public.players
+  SET total_candies = total_candies - v_legacy_total + v_budget
+  WHERE id = v_attempt.player_id
+    AND total_candies >= v_legacy_total;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'progression_v3_player_candies_mismatch' USING ERRCODE = '22023';
+  END IF;
+
+  UPDATE public.runs
+  SET
+    candies_earned = v_budget,
+    progression_version = v_attempt.ruleset_version,
+    ledger_version = 2,
+    run_ledger = p_result -> 'ledger',
+    progression_payload_hash = v_result_hash
+  WHERE id = v_run_id
+    AND run_attempt_id = p_attempt_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'verified_run_not_found' USING ERRCODE = 'P0002';
+  END IF;
+
+  FOR v_member IN
+    SELECT value
+    FROM JSONB_ARRAY_ELEMENTS(p_result -> 'team_members')
+    ORDER BY value ->> 'champion_id'
+  LOOP
+    v_champion_id := v_member ->> 'champion_id';
+    v_desired_candies := COALESCE((v_allocation ->> v_champion_id)::INTEGER, 0);
+
+    UPDATE public.run_team_members
+    SET
+      waves_participated = (v_member ->> 'waves_participated')::INTEGER,
+      biomes_participated = ARRAY(
+        SELECT JSONB_ARRAY_ELEMENTS_TEXT(v_member -> 'biomes_participated')
+      )
+    WHERE run_id = v_run_id
+      AND champion_id = v_champion_id;
+    IF NOT FOUND THEN
+      RAISE EXCEPTION 'verified_run_member_not_found' USING ERRCODE = 'P0002';
+    END IF;
+
+    IF v_legacy_per_champion > 0 OR v_desired_candies > 0 THEN
+      UPDATE public.champion_mastery
+      SET
+        total_candies = total_candies - v_legacy_per_champion + v_desired_candies,
+        mastery_level = public.mastery_level_from_candies(
+          total_candies - v_legacy_per_champion + v_desired_candies
+        ),
+        current_level_candies = public.mastery_current_level_candies(
+          total_candies - v_legacy_per_champion + v_desired_candies
+        ),
+        unlocked_ids = public.mastery_unlock_ids(
+          total_candies - v_legacy_per_champion + v_desired_candies
+        ),
+        updated_at = NOW()
+      WHERE player_id = v_attempt.player_id
+        AND champion_id = v_champion_id
+        AND total_candies >= v_legacy_per_champion;
+      IF NOT FOUND THEN
+        RAISE EXCEPTION 'progression_v3_mastery_candies_mismatch:%', v_champion_id
+          USING ERRCODE = '22023';
+      END IF;
+    END IF;
+  END LOOP;
+
+  SELECT COALESCE(JSONB_AGG(
+    stat.value || JSONB_BUILD_OBJECT(
+      'waves_participated', (member.value ->> 'waves_participated')::INTEGER,
+      'biomes_participated', member.value -> 'biomes_participated'
+    )
+    ORDER BY stat.value ->> 'champion_id'
+  ), '[]'::JSONB)
+  INTO v_summary_champion_stats
+  FROM JSONB_ARRAY_ELEMENTS(v_response -> 'summary' -> 'champion_stats') AS stat(value)
+  JOIN JSONB_ARRAY_ELEMENTS(p_result -> 'team_members') AS member(value)
+    ON member.value ->> 'champion_id' = stat.value ->> 'champion_id';
+
+  v_response := JSONB_SET(
+    v_response,
+    '{summary,champion_stats}',
+    v_summary_champion_stats,
+    FALSE
+  );
+  v_response := v_response || JSONB_BUILD_OBJECT(
+    'candies_earned', v_budget,
+    'candies_per_champion', 0,
+    'candies_by_champion', v_allocation,
+    'progression_version', v_attempt.ruleset_version,
+    'gameplay_ruleset_version', v_attempt.gameplay_ruleset_version,
+    'engine_version', v_attempt.engine_version,
+    'progression_source', 'verified',
+    'result_hash', v_result_hash
+  );
+
+  UPDATE public.run_attempts
+  SET
+    engine_version = v_attempt.engine_version,
+    result = p_result,
+    result_hash = v_result_hash,
+    response = v_response
+  WHERE id = p_attempt_id
+    AND result_run_id = v_run_id;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'verified_run_attempt_not_found' USING ERRCODE = 'P0002';
+  END IF;
+
   RETURN v_response;
 END;
 $$;
-REVOKE ALL ON FUNCTION public.complete_run_verification_pre_champion_economy(UUID,UUID,JSONB,TEXT) FROM PUBLIC,anon,authenticated,service_role;
+
+REVOKE ALL ON FUNCTION public.complete_run_verification_pre_champion_economy(UUID, UUID, JSONB, TEXT)
+  FROM PUBLIC, anon, authenticated, service_role;
 
 -- Publish gameplay and Daily together after all compatibility and snapshot rules
 -- exist. The champion specialization publication flag remains false by default.
