@@ -178,7 +178,9 @@ export function validateEnhancementContract(value: unknown): {
           );
         if (
           field === 'percentBonuses' &&
-          ['armorPen', 'magicPen', 'lifesteal', 'omnivamp', 'tenacity'].includes(stat)
+          ['armorPen', 'magicPen', 'lifesteal', 'omnivamp', 'tenacity'].includes(
+            normalizeGameplayStatKey(stat) ?? '',
+          )
         ) {
           fail(
             'shape',

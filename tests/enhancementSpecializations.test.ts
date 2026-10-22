@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { championDB } from '@/data/championDatabase';
 import { CHAMPION_ENHANCEMENT_SPECIALIZATIONS } from '@/data/enhancementSpecializations';
 import { ENHANCEMENT_TREES_BY_ROLE } from '@/data/enhancementTrees';
+import { BattleManager } from '@/game/battle/BattleManager';
 import { ActionType } from '@/game/battle/types';
 import { ChampionInstance } from '@/game/ChampionInstance';
 import { DamageType } from '@/game/effects/types';
@@ -298,5 +299,41 @@ describe('four targeted champion specializations', () => {
         amount: 100,
       }).healMultiplier,
     ).toBeCloseTo(1.05);
+  });
+
+  it('caps amplified Soraka W at the ally missing health in the actual combat path', () => {
+    const source = champion('Soraka');
+    const soraka = new ChampionInstance(
+      { ...source, stats: { ...source.stats, moveSpeed: 500 } },
+      5,
+    );
+    const bonuses = pathBonuses('Soraka', 'soraka_healing');
+    soraka.setEnhancementBonuses(bonuses);
+    const garen = new ChampionInstance(champion('Garen'), 5);
+    const enemySource = champion('Darius');
+    const enemy = new ChampionInstance(
+      { ...enemySource, stats: { ...enemySource.stats, moveSpeed: 100 } },
+      5,
+    );
+    const rules = new CombatRuleRuntime(
+      {
+        ...EMPTY_COMBAT_RULE_LOADOUT,
+        enhancementEffects: { Soraka: bonuses.effects },
+        enhancementStats: { Soraka: bonuses },
+      },
+      () => 0.5,
+    );
+    const battle = new BattleManager(
+      { side: 'player', champions: [soraka, garen] },
+      { side: 'enemy', champions: [enemy] },
+      { autoActions: false, random: () => 0.5, rules },
+    );
+    battle.startBattle();
+    const ally = battle.getCombatantState('Garen', 'player')!;
+    ally.currentHp = ally.maxHp - 1;
+    expect(battle.currentCombatant?.champion.id).toBe('Soraka');
+    expect(battle.submitAction({ type: ActionType.SpellW, targetId: 'Garen' })).toBe(true);
+    expect(ally.currentHp).toBe(ally.maxHp);
+    expect(battle.log.some((event) => event.type === 'heal')).toBe(true);
   });
 });
