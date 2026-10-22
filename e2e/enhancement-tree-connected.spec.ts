@@ -30,6 +30,18 @@ function record(value: unknown): Record<string, unknown> {
 function rpcPath(value: string, name: string) {
   return new URL(value).pathname === `/rest/v1/rpc/${name}`;
 }
+function frozenAttempt(attemptId: string) {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(attemptId))
+    throw new Error('Expected a local fixture attempt UUID.');
+  // service_role intentionally cannot SELECT this authority table over HTTP.
+  return record(
+    JSON.parse(
+      explorerSql(`SELECT jsonb_build_object(
+    'enhancement_snapshot',enhancement_snapshot,'mastery_snapshot',mastery_snapshot,
+    'journal_hash',journal_hash) FROM public.run_attempts WHERE id='${attemptId}'::uuid;`),
+    ),
+  );
+}
 async function selectGaren(page: Page) {
   await page.locator('#champion-search').fill('Garen');
   await page.locator('#database-champion-Garen').click();
@@ -189,13 +201,8 @@ test('arbre connecté : achats confirmés, restauration après reload et reset r
     });
     expect(run.error).toBeNull();
     const attemptId = String(record(run.data).attempt_id);
-    const frozenBefore = await service
-      .from('run_attempts')
-      .select('enhancement_snapshot,mastery_snapshot,journal_hash')
-      .eq('id', attemptId)
-      .single();
-    expect(frozenBefore.error).toBeNull();
-    expect(record(record(frozenBefore.data).enhancement_snapshot).Garen).toEqual({
+    const frozenBefore = frozenAttempt(attemptId);
+    expect(record(frozenBefore.enhancement_snapshot).Garen).toEqual({
       fighter_core_1: 1,
       fighter_core_2: 1,
     });
@@ -313,17 +320,12 @@ test('arbre connecté : achats confirmés, restauration après reload et reset r
       .select('*')
       .eq('user_id', userId)
       .single();
-    const frozenAfter = await service
-      .from('run_attempts')
-      .select('enhancement_snapshot,mastery_snapshot,journal_hash')
-      .eq('id', attemptId)
-      .single();
+    const frozenAfter = frozenAttempt(attemptId);
     expect(masteryAfter.error).toBeNull();
     expect(walletAfter.error).toBeNull();
-    expect(frozenAfter.error).toBeNull();
     expect(masteryAfter.data).toEqual(masteryBefore.data);
     expect(walletAfter.data).toEqual(walletBefore.data);
-    expect(frozenAfter.data).toEqual(frozenBefore.data);
+    expect(frozenAfter).toEqual(frozenBefore);
     expect(pageErrors).toEqual([]);
   } finally {
     await actor.auth.signOut();
