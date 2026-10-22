@@ -7,6 +7,7 @@ import { ActionType } from '@/game/battle/types';
 import { ChampionInstance } from '@/game/ChampionInstance';
 import { DamageEffect } from '@/game/effects/DamageEffect';
 import { DamageType } from '@/game/effects/types';
+import { aggregateEnhancementBonuses } from '@/game/enhancements/bonuses';
 import { CombatRuleRuntime } from '@/game/rules/CombatRuleRuntime';
 import type { CombatRuleActor, CombatRuleEvent, CombatRuleLoadout } from '@/game/rules/types';
 import { getEnhancementNodeContent } from '@/i18n/enhancementContent';
@@ -212,9 +213,10 @@ describe('TREE-03: explicit numerical effect contracts', () => {
   it.each([0, 5, 10000])(
     'Canalisation adds ten points to existing haste %s with the same cap and R reduction order',
     (otherHaste) => {
-      const bonuses = enhancementService.calculateStatBonuses(ENHANCEMENT_TREES_BY_ROLE.Mage, {
-        mage_control_2: 1,
-      });
+      const control = ENHANCEMENT_TREES_BY_ROLE.Mage.branches
+        .flatMap((branch) => branch.nodes)
+        .find((node) => node.id === 'mage_control_2')!;
+      const bonuses = aggregateEnhancementBonuses([control], { mage_control_2: 1 });
       bonuses.flat.abilityHaste = (bonuses.flat.abilityHaste ?? 0) + otherHaste;
       const runtime = new CombatRuleRuntime(
         loadout([{ type: 'cdr_ultimate', description: '', value: 0.2 }], {

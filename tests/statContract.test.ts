@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { aggregateEnhancementBonuses } from '@/game/enhancements/bonuses';
 import { getEnhancementTreeForRole } from '../src/data/enhancementTrees';
 import { getEnhancementNodeUnavailableReasons } from '../src/game/rules/catalogSupport';
 import {
@@ -8,7 +9,6 @@ import {
   normalizeGameplayStatKey,
   normalizeStatKey,
 } from '../src/game/stats/statContract';
-import { enhancementService } from '../src/services/enhancementService';
 import { getStatBonusForLevel } from '../src/services/masteryService';
 import type { ChampionTag } from '../src/types';
 import type { CalculatedStats } from '../src/utils/champion';
@@ -96,7 +96,8 @@ describe('canonical stat contract', () => {
       (candidate) => getEnhancementNodeUnavailableReasons(candidate).length === 0,
     )) {
       it(`${role}/${node.id} contributes every authored bonus exactly once per rank`, () => {
-        const bonuses = enhancementService.calculateStatBonuses(tree, { [node.id]: 1 });
+        // Authored arithmetic is independent of eligibility; activation is covered separately.
+        const bonuses = aggregateEnhancementBonuses(nodes, { [node.id]: 1 });
         for (const [rawStat, value] of Object.entries(node.statBonuses ?? {})) {
           const stat = normalizeGameplayStatKey(rawStat);
           expect(stat).not.toBeNull();

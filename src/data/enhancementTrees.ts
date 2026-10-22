@@ -5,6 +5,8 @@
  * with three branches focusing on different playstyle aspects.
  */
 
+import { adaptLegacyEnhancementTree } from '@/game/enhancements/contract';
+import { previewEnhancementPurchase } from '@/game/enhancements/eligibility';
 import { getEnhancementNodeUnavailableReasons } from '@/game/rules/catalogSupport';
 import type {
   ChampionEnhancementTree,
@@ -15,7 +17,10 @@ import type {
 // ─── Helper Functions ────────────────────────────────────────────────────────
 
 function createNode(data: Omit<EnhancementNode, 'id'> & { id: string }): EnhancementNode {
-  return data as EnhancementNode;
+  return {
+    ...data,
+    enabled: data.enabled ?? getEnhancementNodeUnavailableReasons(data).length === 0,
+  };
 }
 
 function createBranch(
@@ -1293,69 +1298,44 @@ export function getLockReason(
   masteryLevel: number,
   availableCandies: number,
 ): LockReason | null {
-  const unavailableReasons = getEnhancementNodeUnavailableReasons(node);
-  if (unavailableReasons.length > 0) {
-    return {
-      type: 'unavailable',
-      message: 'Indisponible dans ce mode',
-      details: unavailableReasons.join(', '),
-    };
-  }
-  // Check if already maxed
-  const maxRanks = node.maxRanks || 1;
-  const currentRank = unlockedNodes[node.id] || 0;
-  if (currentRank >= maxRanks) {
-    return {
-      type: 'maxed',
-      message: 'Maximum atteint',
-      details: `Ce nœud est déjà au niveau maximum (${maxRanks}/${maxRanks})`,
-    };
-  }
-
-  // Check mastery level requirement
-  if (masteryLevel < node.requiredMasteryLevel) {
-    return {
-      type: 'mastery_level',
-      message: 'Niveau de maîtrise insuffisant',
-      details: `Requis: Niveau ${node.requiredMasteryLevel} (actuel: Niveau ${masteryLevel})`,
-    };
-  }
-
-  // Check candy cost
-  if (availableCandies < node.candyCost) {
-    return {
-      type: 'candies',
-      message: 'Bonbons insuffisants',
-      details: `Requis: ${node.candyCost} 🍬 (actuel: ${availableCandies} 🍬)`,
-    };
-  }
-
-  // Check prerequisites
-  for (const prereqId of node.prerequisites) {
-    const prereqRank = unlockedNodes[prereqId] || 0;
-    if (prereqRank === 0) {
-      // Find the prerequisite node name and its requirements for better messaging
-      const tree = getTreeForNode(prereqId);
-      const prereqNode = tree ? findNodeInTree(tree, prereqId) : null;
-      const prereqName = prereqNode?.name || prereqId;
-      const prereqMasteryReq = prereqNode?.requiredMasteryLevel || 0;
-      const prereqCost = prereqNode?.candyCost || 0;
-
-      let details = `📌 ${prereqName}`;
-      if (prereqMasteryReq > 0) {
-        details += ` (Maîtrise ${prereqMasteryReq} requise)`;
-      }
-      details += ` - ${prereqCost} 🍬`;
-
+  const tree = getTreeForNode(node.id);
+  const reason = previewEnhancementPurchase(node, {
+    unlockedNodes,
+    masteryLevel,
+    availableCandies,
+    contract: tree ? adaptLegacyEnhancementTree(tree) : undefined,
+  }).reason;
+  if (!reason) return null;
+  switch (reason.code) {
+    case 'maxed':
+      return {
+        type: 'maxed',
+        message: 'Maximum atteint',
+        details: `${node.maxRanks ?? 1}/${node.maxRanks ?? 1}`,
+      };
+    case 'mastery_level':
+      return {
+        type: 'mastery_level',
+        message: 'Niveau de maîtrise insuffisant',
+        details: `Requis: Niveau ${node.requiredMasteryLevel} (actuel: Niveau ${masteryLevel})`,
+      };
+    case 'candies':
+      return {
+        type: 'candies',
+        message: 'Bonbons insuffisants',
+        details: `Requis: ${node.candyCost} 🍬 (actuel: ${availableCandies} 🍬)`,
+      };
+    case 'prerequisite':
       return {
         type: 'prerequisite',
         message: 'Prérequis non débloqué',
-        details: details,
+        details: reason.nodeIds
+          .map((id) => getTreeForNode(id)?.coreNodes.find((parent) => parent.id === id)?.name ?? id)
+          .join(', '),
       };
-    }
+    default:
+      return { type: 'unavailable', message: 'Indisponible dans ce mode', details: reason.code };
   }
-
-  return null;
 }
 
 /**

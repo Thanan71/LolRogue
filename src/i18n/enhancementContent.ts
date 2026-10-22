@@ -1,3 +1,7 @@
+import {
+  getSpecializationNodeContent,
+  getSpecializationBranchContent,
+} from './enhancementSpecializations';
 import type { GameplayStatKey } from '@/game/stats/statContract';
 
 export type EnhancementContentLocale = 'fr-FR' | 'en-US';
@@ -1082,7 +1086,10 @@ export function getEnhancementNodeContent(
   nodeId: string,
 ): EnhancementCopy {
   const catalog = enhancementContent[locale];
-  const copy = catalog.coreNodes[nodeId] ?? catalog.nodes[nodeId];
+  const copy =
+    catalog.coreNodes[nodeId] ??
+    catalog.nodes[nodeId] ??
+    getSpecializationNodeContent(locale, nodeId);
   if (!copy) throw new Error(`Missing enhancement node content: ${nodeId}`);
   return copy;
 }
@@ -1091,7 +1098,9 @@ export function getEnhancementBranchContent(
   locale: EnhancementContentLocale,
   branchId: string,
 ): EnhancementCopy {
-  const copy = enhancementContent[locale].branches[branchId];
+  const copy =
+    enhancementContent[locale].branches[branchId] ??
+    getSpecializationBranchContent(locale, branchId);
   if (!copy) throw new Error(`Missing enhancement branch content: ${branchId}`);
   return copy;
 }
