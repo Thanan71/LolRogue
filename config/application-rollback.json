@@ -1,7 +1,12 @@
 {
   "version": 1,
-  "applicationSha": "f812673f8ed35afe8ff31fdc421e3c34112e8309",
-  "lastApplicationMigrationVersion": "20261018100541",
-  "requiredCurrentMigrationVersion": "20261018100541",
-  "probe": "tests/repositoryIntegration.database.test.ts"
+  "applicationSha": "f5a3fed3587c34a61d7a8d70d18f01d9ebc464b8",
+  "lastApplicationMigrationVersion": "20261022164730",
+  "requiredCurrentMigrationVersion": "20261022164730",
+  "probe": "tests/repositoryIntegration.database.test.ts",
+  "additionalProbes": [
+    "tests/enhancementPurchases.database.test.ts",
+    "tests/enhancementReset.database.test.ts",
+    "tests/enhancementAuthority.database.test.ts"
+  ]
 }

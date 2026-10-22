@@ -100,7 +100,23 @@ export function parseAdminBalanceConfig(value: unknown): BalanceConfig {
     )
       return invalidBalance();
   }
-  const trees = analyticsRecord(row.trees, ['status', 'dependency']);
+  const trees = analyticsRecord(row.trees);
+  let treeConfig: BalanceConfig['trees'];
+  if (trees.status === 'available') {
+    analyticsRecord(trees, ['status', 'catalogVersion', 'contractSchemaVersion']);
+    if (trees.contractSchemaVersion !== 1) return invalidBalance();
+    treeConfig = {
+      status: 'available',
+      catalogVersion: balanceVersion(trees.catalogVersion),
+      contractSchemaVersion: 1,
+    };
+  } else {
+    analyticsRecord(trees, ['status', 'dependency']);
+    treeConfig = {
+      status: balanceLiteral(trees.status, 'dependency_unavailable'),
+      dependency: balanceLiteral(trees.dependency, 'TREE-10'),
+    };
+  }
   const unsupported = analyticsArray(row.unsupportedMetrics, 3);
   if (
     JSON.stringify(unsupported) !==
@@ -113,10 +129,7 @@ export function parseAdminBalanceConfig(value: unknown): BalanceConfig {
     gameplayRulesets,
     progressionRulesets,
     championEconomy,
-    trees: {
-      status: balanceLiteral(trees.status, 'dependency_unavailable'),
-      dependency: balanceLiteral(trees.dependency, 'TREE-10'),
-    },
+    trees: treeConfig,
     unsupportedMetrics: ['dps', 'crowd_control_duration', 'item_exposure'],
     minimumSampleSize: 30,
   };

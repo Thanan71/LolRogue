@@ -6,8 +6,13 @@ import {
   getRotationForInstant,
   PERMANENT_FREE_CHAMPION_IDS,
 } from '../src/domain/championEconomy';
+import { CURRENT_AUTHORITY_VERSION } from '../src/game/authority/versionRegistry';
 import { en } from '../src/i18n/en';
 import { fr } from '../src/i18n/fr';
+import {
+  ENHANCEMENT_CATALOG_VERSION,
+  ENHANCEMENT_CONTRACT_SCHEMA_VERSION,
+} from '../src/services/enhancementContract';
 
 const ATTEMPT_ID = '11111111-1111-4111-8111-111111111111';
 const RUN_ID = '22222222-2222-4222-8222-222222222222';
@@ -26,7 +31,7 @@ declare global {
 // No request in these scenarios reaches a real account or database.
 async function mockSavedRunBackend(page: Page) {
   const now = new Date().toISOString();
-  const rotation = getRotationForInstant(now, 22);
+  const rotation = getRotationForInstant(now, CURRENT_AUTHORITY_VERSION.gameplay);
   const requests = { start: 0, append: 0, seal: 0, verify: 0, status: 0 };
   const unexpectedRequests: string[] = [];
   const history: Array<Record<string, unknown>> = [];
@@ -82,9 +87,9 @@ async function mockSavedRunBackend(page: Page) {
   const attempt = {
     attempt_id: ATTEMPT_ID,
     run_uuid: RUN_ID,
-    ruleset_version: 3,
-    gameplay_ruleset_version: 22,
-    engine_version: 'run-engine-v22',
+    ruleset_version: CURRENT_AUTHORITY_VERSION.progression,
+    gameplay_ruleset_version: CURRENT_AUTHORITY_VERSION.gameplay,
+    engine_version: CURRENT_AUTHORITY_VERSION.engine,
     seed: 3,
     difficulty: 'normal',
     mode: 'normal',
@@ -119,7 +124,7 @@ async function mockSavedRunBackend(page: Page) {
     candies_earned: 20,
     candies_by_champion: { Annie: 10, Ashe: 10 },
     candies_per_champion: 10,
-    progression_version: 3,
+    progression_version: CURRENT_AUTHORITY_VERSION.progression,
     progression_source: 'verified',
     shards_earned: 25,
     shards_balance: 200,
@@ -173,12 +178,21 @@ async function mockSavedRunBackend(page: Page) {
     )
       return reply([]);
     if (path.endsWith('/rpc/touch_player_last_login')) return reply(now);
+    if (path.endsWith('/rpc/get_enhancement_contract')) {
+      return reply({
+        catalog_version: ENHANCEMENT_CATALOG_VERSION,
+        contract_schema_version: ENHANCEMENT_CONTRACT_SCHEMA_VERSION,
+        champion_specializations_enabled: false,
+        repeat_reset_fee_basis_points: 0,
+        reset_policy_version: 1,
+      });
+    }
     if (path.endsWith('/rpc/get_champion_economy_snapshot')) {
       return reply({
         enabled: true,
         economyVersion: CHAMPION_ECONOMY_VERSION,
         catalogVersion: CHAMPION_CATALOG_VERSION,
-        gameplayRulesetVersion: 22,
+        gameplayRulesetVersion: CURRENT_AUTHORITY_VERSION.gameplay,
         serverNow: now,
         rotation,
         catalog: [...CHAMPION_ECONOMY_CATALOG],
@@ -244,8 +258,8 @@ async function mockSavedRunBackend(page: Page) {
           difficulty: 'normal',
           mode: 'normal',
           engine_version: attempt.engine_version,
-          gameplay_ruleset_version: 22,
-          ruleset_version: 3,
+          gameplay_ruleset_version: attempt.gameplay_ruleset_version,
+          ruleset_version: attempt.ruleset_version,
         },
       });
       shardLedger.push({ attemptId: ATTEMPT_ID, amount: 25 });

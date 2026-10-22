@@ -25,6 +25,34 @@ const verifyRunEdge = readFileSync(
 );
 
 describe('SECURITY DEFINER privilege contract', () => {
+  it('keeps the guarded admin tree invoker outside the definer-only manifest', () => {
+    const treeMigration = readFileSync(
+      new URL(
+        '../supabase/migrations/20261022164033_admin_enhancement_analytics.sql',
+        import.meta.url,
+      ),
+      'utf8',
+    );
+    expect(treeMigration).toMatch(
+      /CREATE FUNCTION public\.admin_balance_trees\([^;]+SECURITY INVOKER/,
+    );
+    expect(treeMigration).toContain(
+      'GRANT EXECUTE ON FUNCTION public.admin_balance_trees(JSONB,TIMESTAMPTZ) TO authenticated;',
+    );
+    expect(
+      manifest.functions.find(
+        (entry) =>
+          entry.signature === 'public.admin_balance_trees(jsonb, timestamp with time zone)',
+      ),
+    ).toBeUndefined();
+    expect(
+      manifest.functions.find(
+        (entry) =>
+          entry.signature === 'private.admin_balance(text, jsonb, timestamp with time zone)',
+      )?.roles,
+    ).toEqual(['authenticated']);
+  });
+
   it('revokes every privileged function before granting the manifest surface', () => {
     expect(migration).toContain('AND function_proc.prosecdef');
     expect(migration).toContain(

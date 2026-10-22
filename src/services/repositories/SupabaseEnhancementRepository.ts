@@ -6,7 +6,15 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import {
+  ENHANCEMENT_CATALOG_VERSION,
+  ENHANCEMENT_CONTRACT_SCHEMA_VERSION,
+  enhancementResetFailureKind,
+} from '@/services/enhancementContract';
 import type {
+  EnhancementContractState,
+  EnhancementResetPreview,
+  EnhancementResetResult,
   IEnhancementRepository,
   UnlockNodeResult,
 } from '@/services/interfaces/IEnhancementRepository';
@@ -14,6 +22,7 @@ import { supabase } from '@/services/supabaseClient';
 import type { Database, Json } from '@/types/database';
 import type { PlayerEnhancementState } from '@/types/enhancementTree';
 import { logger } from '@/utils/logger';
+import { parseEnhancementResetPreview } from './enhancementResetParser';
 
 export const ENHANCEMENT_REPOSITORY_ERROR_CODES = {
   rpcFailed: 'ENHANCEMENT_UNLOCK_RPC_FAILED',
@@ -44,6 +53,13 @@ function isNonNegativeInteger(value: unknown): value is number {
   return typeof value === 'number' && Number.isInteger(value) && value >= 0;
 }
 
+function versionFields(value: { revision?: unknown; reset_count?: unknown }) {
+  return {
+    ...(isNonNegativeInteger(value.revision) ? { revision: value.revision } : {}),
+    ...(isNonNegativeInteger(value.reset_count) ? { resetCount: value.reset_count } : {}),
+  };
+}
+
 /**
  * Database schema for champion enhancements
  */
@@ -64,6 +80,98 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
   private static readonly TABLE_NAME = 'champion_enhancements';
 
   constructor(private readonly client: SupabaseClient<Database> = supabase) {}
+
+  async getContractState(): Promise<EnhancementContractState> {
+    const { data, error } = await this.client.rpc('get_enhancement_contract');
+    if (error) throw error;
+    const row = data as Record<string, unknown> | null;
+    if (
+      !row ||
+      !isNonNegativeInteger(row.catalog_version) ||
+      row.catalog_version !== ENHANCEMENT_CATALOG_VERSION ||
+      row.contract_schema_version !== ENHANCEMENT_CONTRACT_SCHEMA_VERSION ||
+      typeof row.champion_specializations_enabled !== 'boolean' ||
+      !isNonNegativeInteger(row.repeat_reset_fee_basis_points) ||
+      row.repeat_reset_fee_basis_points > 10000 ||
+      !isNonNegativeInteger(row.reset_policy_version) ||
+      row.reset_policy_version < 1
+    ) {
+      throw new Error('ENHANCEMENT_CONTRACT_INVALID_RESPONSE');
+    }
+    return {
+      catalogVersion: row.catalog_version,
+      contractSchemaVersion: 1,
+      enabledGates: { champion_specializations: row.champion_specializations_enabled },
+      repeatResetFeeBasisPoints: row.repeat_reset_fee_basis_points,
+      resetPolicyVersion: row.reset_policy_version,
+    };
+  }
+
+  async previewReset(authUserId: string, championId: string): Promise<EnhancementResetPreview> {
+    if (!authUserId) throw new Error('authentication_required');
+    const { data, error } = await this.client.rpc('get_enhancement_reset_preview', {
+      p_champion_id: championId,
+    });
+    if (error) throw error;
+    return parseEnhancementResetPreview(data, championId);
+  }
+
+  async resetTree(
+    authUserId: string,
+    championId: string,
+    expectedRevision: number,
+    commandId: string,
+    expectedPolicyVersion: number,
+  ): Promise<EnhancementResetResult> {
+    const { data, error } = await this.client.rpc('reset_champion_enhancements', {
+      p_champion_id: championId,
+      p_expected_revision: expectedRevision,
+      p_command_id: commandId,
+      p_expected_policy_version: expectedPolicyVersion,
+    });
+    const failure = async (
+      message: string,
+      sqlState?: string,
+    ): Promise<EnhancementResetResult> => ({
+      success: false,
+      newState: (await this.getEnhancementState(authUserId, championId)) ?? {
+        unlockedNodes: {},
+        totalCandiesSpent: 0,
+      },
+      error: message,
+      failureKind: enhancementResetFailureKind(message, sqlState),
+    });
+    if (error) return failure(error.message, error.code);
+    try {
+      const parsed = parseEnhancementResetPreview(data, championId);
+      const row = data as Record<string, unknown>;
+      if (
+        row.command_id !== commandId ||
+        row.new_revision !== expectedRevision + 1 ||
+        typeof row.replayed !== 'boolean' ||
+        row.total_candies_spent !== 0 ||
+        Object.keys(parsed.unlockedNodes).length > 0
+      ) {
+        return failure('ENHANCEMENT_RESET_INVALID_RESPONSE');
+      }
+      const current = row.replayed ? await this.getEnhancementState(authUserId, championId) : null;
+      return {
+        success: true,
+        newState: current ?? {
+          unlockedNodes: {},
+          totalCandiesSpent: 0,
+          ...versionFields({ revision: row.new_revision, reset_count: parsed.resetCount }),
+        },
+        remainingCandies: parsed.remainingCandies,
+        refundAmount: parsed.refundAmount,
+        feeAmount: parsed.feeAmount,
+        commandId,
+        replayed: row.replayed,
+      };
+    } catch {
+      return failure('ENHANCEMENT_RESET_INVALID_RESPONSE');
+    }
+  }
 
   /**
    * Get enhancement state for an authenticated account/champion pair.
@@ -92,6 +200,7 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
       return {
         unlockedNodes: toNumberRecord(data.unlocked_nodes),
         totalCandiesSpent: data.total_candies_spent || 0,
+        ...versionFields(data as typeof data & { revision?: number; reset_count?: number }),
       };
     } catch (error) {
       logger.error('[SupabaseEnhancementRepository] Unexpected error:', error);
@@ -108,13 +217,34 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
     nodeId: string,
     expectedRank: number,
     commandId: string,
+    expectedRevision?: number,
+    expectedCatalogVersion?: number,
   ): Promise<UnlockNodeResult> {
-    const { data, error } = await this.client.rpc('unlock_champion_enhancement', {
+    if (expectedRevision !== undefined && expectedCatalogVersion !== ENHANCEMENT_CATALOG_VERSION)
+      return {
+        success: false,
+        newState: (await this.getEnhancementState(authUserId, championId)) ?? {
+          unlockedNodes: {},
+          totalCandiesSpent: 0,
+        },
+        candyCost: 0,
+        nodeId,
+        error: 'ENHANCEMENT_CONTRACT_UNSUPPORTED',
+      };
+    const request = {
       p_champion_id: championId,
       p_node_id: nodeId,
       p_expected_rank: expectedRank,
       p_command_id: commandId,
-    });
+    };
+    const { data, error } =
+      expectedRevision === undefined
+        ? await this.client.rpc('unlock_champion_enhancement', request)
+        : await this.client.rpc('unlock_champion_enhancement_v2', {
+            ...request,
+            p_expected_revision: expectedRevision,
+            p_expected_catalog_version: expectedCatalogVersion ?? 0,
+          });
     const result = data as {
       command_id?: string;
       champion_id?: string;
@@ -127,6 +257,8 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
       remaining_candies?: number;
       catalog_version?: number;
       replayed?: boolean;
+      revision?: number;
+      reset_count?: number;
     } | null;
 
     if (error || !result) {
@@ -160,7 +292,9 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
       !isNonNegativeInteger(result.remaining_candies) ||
       !isNonNegativeInteger(result.catalog_version) ||
       result.catalog_version === 0 ||
-      typeof result.replayed !== 'boolean'
+      (expectedRevision !== undefined && result.catalog_version !== expectedCatalogVersion) ||
+      typeof result.replayed !== 'boolean' ||
+      (expectedRevision !== undefined && !isNonNegativeInteger(result.revision))
     ) {
       return {
         success: false,
@@ -174,11 +308,15 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
       };
     }
 
+    const canonicalState = result.replayed
+      ? await this.getEnhancementState(authUserId, championId)
+      : null;
     return {
       success: true,
-      newState: {
+      newState: canonicalState ?? {
         unlockedNodes: toNumberRecord(result.unlocked_nodes),
         totalCandiesSpent: result.total_candies_spent,
+        ...versionFields(result),
       },
       candyCost,
       nodeId,
@@ -188,6 +326,7 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
       catalogVersion: result.catalog_version,
       replayed: result.replayed,
       commandId: result.command_id,
+      ...(isNonNegativeInteger(result.revision) ? { revision: result.revision } : {}),
     };
   }
 
@@ -214,6 +353,7 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
         states.set(row.champion_id, {
           unlockedNodes: toNumberRecord(row.unlocked_nodes),
           totalCandiesSpent: row.total_candies_spent || 0,
+          ...versionFields(row as typeof row & { revision?: number; reset_count?: number }),
         });
       }
 

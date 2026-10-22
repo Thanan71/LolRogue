@@ -3,10 +3,11 @@ import { DamageEffect } from '../effects/DamageEffect';
 import { ShieldEffect } from '../effects/ShieldEffect';
 import { CCType, DamageType } from '../effects/types';
 import type { CombatRuleInstantEffect } from '../rules/types';
-import type { BattleEvent, CombatantState } from './types';
+import { capCrowdControlDuration } from './crowdControlRules';
+import type { BattleEvent, CombatantState, TeamSide } from './types';
 
 interface BattleRuleEffectHost {
-  findCombatantByChampionId: (championId: string) => CombatantState | undefined;
+  findCombatantByTargetId: (targetId: string, side: TeamSide) => CombatantState | undefined;
   applyHeal: (source: CombatantState, target: CombatantState, amount: number) => void;
   applyDamageToTarget: (
     source: CombatantState,
@@ -18,6 +19,9 @@ interface BattleRuleEffectHost {
     triggerRules: boolean,
   ) => void;
   syncEffectState: (combatant: CombatantState) => void;
+  getAppliedControlDurationMultiplier?: (source: CombatantState) => number;
+  getControlDurationMultiplier?: (target: CombatantState) => number;
+  getShieldMultiplier?: (source: CombatantState, target: CombatantState, amount: number) => number;
   emit: (event: BattleEvent) => void;
 }
 
@@ -26,9 +30,14 @@ export function resolveBattleRuleEffect(
   host: BattleRuleEffectHost,
   effect: CombatRuleInstantEffect,
 ): void {
-  const source = host.findCombatantByChampionId(effect.sourceId);
-  const target = host.findCombatantByChampionId(effect.targetId);
-  if (!source || !target || effect.amount <= 0) return;
+  if (
+    !['player', 'enemy'].includes(effect.sourceSide) ||
+    !['player', 'enemy'].includes(effect.targetSide)
+  )
+    return;
+  const source = host.findCombatantByTargetId(effect.sourceId, effect.sourceSide);
+  const target = host.findCombatantByTargetId(effect.targetId, effect.targetSide);
+  if (!source || !target || !Number.isFinite(effect.amount) || effect.amount <= 0) return;
   if (effect.type === 'heal') {
     host.applyHeal(source, target, effect.amount);
   } else if (effect.type === 'damage') {
@@ -36,13 +45,17 @@ export function resolveBattleRuleEffect(
   } else if (effect.type === 'mana') {
     target.currentMp = Math.min(target.maxMp, target.currentMp + effect.amount);
   } else if (effect.type === 'shield' && !target.isDefeated) {
+    const amount = Math.max(
+      0,
+      Math.round(effect.amount * (host.getShieldMultiplier?.(source, target, effect.amount) ?? 1)),
+    );
     target.effectManager.apply(
       new ShieldEffect({
         name: 'Rule shield',
         sourceId: source.targetId,
         targetId: target.targetId,
-        magnitude: effect.amount,
-        duration: 2,
+        magnitude: amount,
+        duration: Math.max(1, Math.round(effect.duration ?? 2)),
       }),
     );
     host.syncEffectState(target);
@@ -50,7 +63,7 @@ export function resolveBattleRuleEffect(
       type: 'shield',
       source: source.champion.id,
       target: target.champion.id,
-      amount: effect.amount,
+      amount,
       countsAsShield: true,
       sourceCombatantId: source.targetId,
       targetCombatantId: target.targetId,
@@ -67,11 +80,18 @@ export function resolveBattleRuleEffect(
         damageType: DamageType.True,
         duration: Math.max(1, Math.round(effect.duration ?? 1)),
         canCrit: false,
+        preserveTotal: true,
+        sourceSide: source.side,
       }),
     );
   } else if ((effect.type === 'slow' || effect.type === 'snare') && !target.isDefeated) {
     const ccType = effect.type === 'slow' ? CCType.Slow : CCType.Snare;
-    const duration = Math.max(1, Math.round(effect.duration ?? 1));
+    const duration = capCrowdControlDuration(
+      ccType,
+      (effect.duration ?? 1) *
+        (host.getAppliedControlDurationMultiplier?.(source) ?? 1) *
+        (host.getControlDurationMultiplier?.(target) ?? 1),
+    );
     target.effectManager.apply(
       new CCEffect({
         name: `Rule ${effect.type}`,

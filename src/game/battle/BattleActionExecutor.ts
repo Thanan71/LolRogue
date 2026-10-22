@@ -53,7 +53,8 @@ export function executeValidatedBattleAction(
   if (
     !attacker.champion.useSpell(
       spellSlot,
-      host.rules?.getCooldownMultiplier(attacker.champion.id, spellSlot === 'R') ?? 1,
+      host.rules?.getCooldownMultiplier(attacker.champion.id, spellSlot === 'R', attacker.side) ??
+        1,
     )
   ) {
     return;

@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { usesLegacyEncounterRules } from '@/features/combat/application/legacyCombatEncounter';
@@ -17,6 +18,7 @@ import { usesCanonicalProgression } from '@/game/run/runAuthorityJournal';
 import { transitionToNextBiome } from '@/game/run/runProgression';
 import type { RunAuthorityAttempt } from '@/types/runAttempt';
 import rawRegistry from '../config/authority-versions.json';
+import currentProgressionGolden from './fixtures/authority-progression-0.3.0-golden.json';
 import progressionGolden from './fixtures/authority-progression-golden.json';
 
 const AUTHORITY_VERSION_REGISTRY =
@@ -44,8 +46,24 @@ function readDailyRulesetContracts() {
     });
 }
 
+function biomeTransitionTrace() {
+  return [0, 1, 2, 3, 4].map((currentBiomeIndex) =>
+    transitionToNextBiome({
+      seed: 424_242,
+      currentBiomeIndex,
+      biomeCount: 6,
+      counters: {
+        runLevel: currentBiomeIndex + 1,
+        currentWave: currentBiomeIndex * 3 + 1,
+        totalWavesCompleted: currentBiomeIndex * 3,
+      },
+      ownedAugmentIds: [],
+    }),
+  );
+}
+
 describe('authority progression engine versioning', () => {
-  it('preserves historical runs and publishes semantic structural release 0.2.5 without changing account progression schemas', () => {
+  it('preserves the historical contracts through structural release 0.2.5', () => {
     const v21 = AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-v21');
 
     expect(v21).toMatchObject({
@@ -75,16 +93,34 @@ describe('authority progression engine versioning', () => {
       contentHash: 'c74af7632acfb7e4a2ff45140d62d0a96bbd6b063994b3f4b43d0f72fa785e16',
       bundle: 'supabase/authority-archive/run-authority-0.2.0.bundle.js',
     });
-    expect(CURRENT_REGISTRY_ENTRY).toMatchObject({
+    expect(
+      AUTHORITY_VERSION_REGISTRY.find((version) => version.engine === 'run-engine-0.2.5'),
+    ).toMatchObject({
       engine: 'run-engine-0.2.5',
       gameplay: 24,
       championCatalog: 2,
       dailyScore: 15,
       progression: 3,
       command: 2,
-      status: 'current',
+      status: 'replay-only',
       rulesetCode: '0.2.5',
+      contentHash: '9009950fe0b1c6944a26486e65b0bb0f1379129b42d7499f2bf1c0a8ce3391fa',
+      bundle: 'supabase/functions/verify-run/run-authority-0.2.5.bundle.js',
       features: { runProgression: true, runProgressionAssists: true },
+    });
+  });
+
+  it('publishes gameplay 25 and account progression 4 as a separate semantic release 0.3.0', () => {
+    expect(CURRENT_REGISTRY_ENTRY).toMatchObject({
+      engine: 'run-engine-0.3.0',
+      gameplay: 25,
+      championCatalog: 2,
+      dailyScore: 15,
+      progression: 4,
+      command: 2,
+      status: 'current',
+      rulesetCode: '0.3.0',
+      features: { canonicalProgression: true, runProgression: true, runProgressionAssists: true },
     });
   });
 
@@ -92,6 +128,7 @@ describe('authority progression engine versioning', () => {
     expect(CURRENT_AUTHORITY_VERSION).toEqual({
       engine: CURRENT_REGISTRY_ENTRY.engine,
       gameplay: CURRENT_REGISTRY_ENTRY.gameplay,
+      progression: CURRENT_REGISTRY_ENTRY.progression,
       contentHash: CURRENT_REGISTRY_ENTRY.contentHash,
       dailyScore: CURRENT_REGISTRY_ENTRY.dailyScore,
     });
@@ -154,29 +191,34 @@ describe('authority progression engine versioning', () => {
     expect(usesCanonicalProgression({ engineVersion } as RunAuthorityAttempt)).toBe(expected);
   });
 
-  it('keeps a golden biome transition trace for archived and current progression families', () => {
-    const replayableProgressionFamilies = new Set(
-      AUTHORITY_VERSION_REGISTRY.filter((version) => version.progression >= 2).map(
-        (version) => version.progression,
-      ),
+  it('preserves the recorded canonical biome behavior of historical progression families 2 and 3', () => {
+    expect(
+      createHash('sha256')
+        .update(
+          readFileSync(new URL('./fixtures/authority-progression-golden.json', import.meta.url)),
+        )
+        .digest('hex'),
+    ).toBe('1b0b79d856195b72b5c7671fe87871694e2b6e6cd1bf6e826f978c541ee887f4');
+    const historicalFamilies = new Set(
+      AUTHORITY_VERSION_REGISTRY.filter(
+        (version) => version.progression >= 2 && version.progression < 4,
+      ).map((version) => version.progression),
     );
-    const trace = [...replayableProgressionFamilies].map((progression) => ({
+    const trace = [...historicalFamilies].map((progression) => ({
       progression,
-      transitions: [0, 1, 2, 3, 4].map((currentBiomeIndex) =>
-        transitionToNextBiome({
-          seed: 424_242,
-          currentBiomeIndex,
-          biomeCount: 6,
-          counters: {
-            runLevel: currentBiomeIndex + 1,
-            currentWave: currentBiomeIndex * 3 + 1,
-            totalWavesCompleted: currentBiomeIndex * 3,
-          },
-          ownedAugmentIds: [],
-        }),
-      ),
+      transitions: biomeTransitionTrace(),
     }));
 
     expect(trace).toEqual(progressionGolden);
+  });
+
+  it('records the current progression family separately without regenerating historical goldens', () => {
+    expect({
+      engine: CURRENT_REGISTRY_ENTRY.engine,
+      gameplay: CURRENT_REGISTRY_ENTRY.gameplay,
+      progression: CURRENT_REGISTRY_ENTRY.progression,
+      canonicalProgression: CURRENT_REGISTRY_ENTRY.features.canonicalProgression,
+      transitions: biomeTransitionTrace(),
+    }).toEqual(currentProgressionGolden);
   });
 });

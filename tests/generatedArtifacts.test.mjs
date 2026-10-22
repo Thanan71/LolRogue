@@ -9,6 +9,7 @@ import { parseCommand } from '../scripts/cli.mjs';
 import {
   renderAuthorityResolver,
   renderClientCapabilities,
+  renderClientReplay,
 } from '../scripts/generate-authority-resolver.mjs';
 import { createArtifactSnapshot, sha256 } from '../scripts/lib/artifact-snapshot.mjs';
 import {
@@ -72,8 +73,10 @@ describe('generated artifact contract', () => {
     const result = await checkGeneratedArtifacts({ root });
     expect(result).toMatchObject({
       families: 18,
-      artifacts: 305,
-      authorityVersions: 24,
+      // 0.3.0 adds three cohort JSONs, the frozen 0.2.5 JS bundle and
+      // the generated client replay resolver. Golden fixtures are outside the scopes.
+      artifacts: 310,
+      authorityVersions: 25,
       riotAssets: 231,
     });
     expect(result.conditionalReproduction.map(({ id }) => id)).toContain('database-types');
@@ -236,6 +239,8 @@ describe('generated artifact contract', () => {
         return Buffer.from(renderAuthorityResolver(pruned));
       if (file === 'src/game/authority/versionCapabilities.generated.ts')
         return Buffer.from(renderClientCapabilities(pruned));
+      if (file === 'src/game/authority/versionClientReplay.generated.ts')
+        return Buffer.from(renderClientReplay(pruned));
       return bytes;
     });
     const list = snapshot.list.bind(snapshot);

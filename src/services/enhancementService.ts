@@ -1,24 +1,21 @@
-/**
- * Enhancement Service
- *
- * Business logic for champion enhancement system.
- * Follows SOLID principles:
- * - Single Responsibility: Only handles enhancement calculations
- * - Open/Closed: Extensible through composition
- * - Liskov Substitution: Can be replaced with mock implementations
- * - Interface Segregation: Focused interfaces
- * - Dependency Inversion: Depends on abstractions
- */
-
+/** Shared enhancement projections and adapters; persistence remains in the repository. */
+import { CHAMPION_ENHANCEMENT_SPECIALIZATIONS } from '@/data/enhancementSpecializations';
 import {
-  getNodeTotalCost as calculateTotalCost,
-  canUnlockNode as checkCanUnlock,
+  ENHANCEMENT_TREES_BY_ROLE,
   getEnhancementTreeForRole,
+  getNodeTotalCost,
 } from '@/data/enhancementTrees';
-import { getEnhancementNodeUnavailableReasons } from '@/game/rules/catalogSupport';
-import { normalizeGameplayStatKey } from '@/game/stats/statContract';
+import { aggregateEnhancementBonuses } from '@/game/enhancements/bonuses';
+import {
+  extendEnhancementTreeForChampion,
+  getEnhancementTreeForChampion,
+} from '@/game/enhancements/catalog';
+import { adaptLegacyEnhancementTree } from '@/game/enhancements/contract';
+import {
+  getActiveEnhancementRanks,
+  previewEnhancementPurchase,
+} from '@/game/enhancements/eligibility';
 import type {
-  EnhancementStatBonuses,
   IEnhancementService,
   IEnhancementTreeProvider,
 } from '@/services/interfaces/IEnhancementRepository';
@@ -26,196 +23,107 @@ import type { Champion } from '@/types/champion';
 import type {
   ChampionEnhancementTree,
   EnhancementNode,
+  EnhancementStatBonuses,
   PlayerEnhancementState,
 } from '@/types/enhancementTree';
+import { MAX_MASTERY_LEVEL } from '@/types/mastery';
 import { applyEnhancementBonuses as applySharedEnhancementBonuses } from '@/utils/statCalculator';
 
-/**
- * Enhancement Tree Provider
- * Implements IEnhancementTreeProvider for tree data access
- */
+function nodesOf(tree: ChampionEnhancementTree): EnhancementNode[] {
+  return [...tree.coreNodes, ...tree.branches.flatMap((branch) => branch.nodes)];
+}
+function contractForNode(id: string) {
+  for (const tree of Object.values(ENHANCEMENT_TREES_BY_ROLE))
+    if (nodesOf(tree).some((node) => node.id === id)) return adaptLegacyEnhancementTree(tree);
+  for (const [championId, extension] of Object.entries(CHAMPION_ENHANCEMENT_SPECIALIZATIONS)) {
+    if (extension.branches.some((branch) => branch.nodes.some((node) => node.id === id)))
+      return adaptLegacyEnhancementTree(
+        extendEnhancementTreeForChampion(
+          getEnhancementTreeForRole(extension.primaryRole),
+          championId,
+        ),
+      );
+  }
+  return undefined;
+}
+
 export class EnhancementTreeProvider implements IEnhancementTreeProvider {
   getTreeForChampion(champion: Champion): ChampionEnhancementTree {
-    const primaryRole = champion.tags[0];
-    return getEnhancementTreeForRole(primaryRole);
+    return getEnhancementTreeForChampion(champion);
   }
-
   getTreeByRole(role: string): ChampionEnhancementTree {
     return getEnhancementTreeForRole(role);
   }
-
   getAllRoles(): string[] {
-    return ['Assassin', 'Tank', 'Mage', 'Marksman', 'Fighter', 'Support'];
+    return Object.keys(ENHANCEMENT_TREES_BY_ROLE);
   }
-
   canUnlockNode(
     node: EnhancementNode,
     unlockedNodes: Record<string, number>,
     masteryLevel: number,
     availableCandies: number,
   ): boolean {
-    return checkCanUnlock(node, unlockedNodes, masteryLevel, availableCandies);
+    const contract = contractForNode(node.id);
+    return (
+      contract !== undefined &&
+      previewEnhancementPurchase(node, { unlockedNodes, masteryLevel, availableCandies, contract })
+        .eligible
+    );
   }
 }
 
-/**
- * Enhancement Service
- * Implements IEnhancementService for business logic
- */
 export class EnhancementService implements IEnhancementService {
-  constructor() {
-    // Service can be extended with custom tree provider via inheritance
-  }
-
-  /**
-   * Calculate total stat bonuses from unlocked nodes
-   * Aggregates flat and percentage bonuses from all unlocked nodes
-   */
+  /** Activation validates dependencies and availability while ownership is preserved for history/refund. */
   calculateStatBonuses(
     tree: ChampionEnhancementTree,
     unlockedNodes: Record<string, number>,
   ): EnhancementStatBonuses {
-    const result: EnhancementStatBonuses = {
-      flat: {},
-      percent: {},
-      effects: [],
-    };
-
-    // Process core nodes
-    this._processNodes(tree.coreNodes, unlockedNodes, result);
-
-    // Process branch nodes
-    for (const branch of tree.branches) {
-      this._processNodes(branch.nodes, unlockedNodes, result);
-    }
-
-    return result;
+    const nodes = nodesOf(tree);
+    const spent = nodes.reduce((sum, node) => {
+      const rank = unlockedNodes[node.id] ?? 0;
+      return (
+        sum +
+        (Number.isSafeInteger(rank) && rank > 0 && rank <= (node.maxRanks ?? 1)
+          ? node.candyCost * rank
+          : 0)
+      );
+    }, 0);
+    const active = getActiveEnhancementRanks(
+      adaptLegacyEnhancementTree(tree),
+      { unlockedNodes, totalCandiesSpent: spent },
+      {
+        // Account purchases and the run snapshot attest mastery at purchase time.
+        masteryLevel: MAX_MASTERY_LEVEL,
+        // Closing a publication gate does not revoke an attested owned specialization.
+        enabledGates: ['champion_specializations'],
+      },
+    );
+    return aggregateEnhancementBonuses(nodes, active);
   }
-
-  /**
-   * Helper to process a list of nodes and accumulate bonuses
-   */
-  private _processNodes(
-    nodes: EnhancementNode[],
-    unlockedNodes: Record<string, number>,
-    result: EnhancementStatBonuses,
-  ): void {
-    for (const node of nodes) {
-      const rank = unlockedNodes[node.id] || 0;
-      if (rank === 0) continue;
-
-      // Add flat stat bonuses
-      if (node.statBonuses) {
-        for (const [stat, value] of Object.entries(node.statBonuses)) {
-          const key = normalizeGameplayStatKey(stat);
-          if (!key) continue;
-          result.flat[key] = (result.flat[key] || 0) + value * rank;
-        }
-      }
-
-      // Add percentage bonuses
-      if (node.percentBonuses) {
-        for (const [stat, value] of Object.entries(node.percentBonuses)) {
-          const key = normalizeGameplayStatKey(stat);
-          if (!key) continue;
-          result.percent[key] = (result.percent[key] || 0) + value * rank;
-        }
-      }
-
-      // Add effects
-      if (node.effects && rank > 0) {
-        for (const effect of node.effects) {
-          result.effects.push({
-            ...effect,
-            description: this._getEffectDescription(node, effect, rank),
-          });
-        }
-      }
-    }
-  }
-
-  /**
-   * Generate effect description with rank information
-   */
-  private _getEffectDescription(
-    node: EnhancementNode,
-    effect: { description: string },
-    rank: number,
-  ): string {
-    const maxRanks = node.maxRanks || 1;
-    if (maxRanks > 1 && rank < maxRanks) {
-      return `${effect.description} (Rang ${rank}/${maxRanks})`;
-    }
-    return effect.description;
-  }
-
-  /**
-   * Get total candy cost to unlock a node (including multi-rank)
-   */
   getNodeTotalCost(node: EnhancementNode, currentRank: number): number {
-    return calculateTotalCost(node, currentRank);
+    return getNodeTotalCost(node, currentRank);
   }
-
-  /**
-   * Validate if an unlock is allowed
-   * Returns validation result with error message if invalid
-   */
   validateUnlock(
     node: EnhancementNode,
     state: PlayerEnhancementState,
     masteryLevel: number,
     availableCandies: number,
   ): { valid: boolean; error?: string } {
-    if (getEnhancementNodeUnavailableReasons(node).length > 0) {
-      return {
-        valid: false,
-        error: "Cette amélioration n'est pas disponible dans le moteur de combat actuel",
-      };
-    }
-    // Check mastery level requirement
-    if (masteryLevel < node.requiredMasteryLevel) {
-      return {
-        valid: false,
-        error: `Niveau de maîtrise requis: ${node.requiredMasteryLevel}`,
-      };
-    }
-
-    // Check candy cost
-    if (availableCandies < node.candyCost) {
-      return {
-        valid: false,
-        error: `Candies insuffisants: ${node.candyCost} requis`,
-      };
-    }
-
-    // Check if already maxed
-    const maxRanks = node.maxRanks || 1;
-    const currentRank = state.unlockedNodes[node.id] || 0;
-    if (currentRank >= maxRanks) {
-      return {
-        valid: false,
-        error: 'Ce nœud est déjà au maximum',
-      };
-    }
-
-    // Check prerequisites
-    for (const prereqId of node.prerequisites) {
-      const prereqRank = state.unlockedNodes[prereqId] || 0;
-      if (prereqRank === 0) {
-        return {
+    const contract = contractForNode(node.id);
+    if (!contract) return { valid: false, error: 'unknown_node' };
+    const preview = previewEnhancementPurchase(node, {
+      ...state,
+      masteryLevel,
+      availableCandies,
+      contract,
+    });
+    return preview.eligible
+      ? { valid: true }
+      : {
           valid: false,
-          error: 'Prérequis non débloqués',
+          error: preview.reason?.code ?? 'invalid_state',
         };
-      }
-    }
-
-    return { valid: true };
   }
-
-  /**
-   * Apply enhancement bonuses to champion stats
-   * Applies both flat and percentage bonuses
-   */
   applyEnhancementBonuses<T extends Record<string, number>>(
     baseStats: T,
     bonuses: EnhancementStatBonuses,
@@ -225,97 +133,43 @@ export class EnhancementService implements IEnhancementService {
       bonuses,
     ) as unknown as T;
   }
-
-  /**
-   * Unlock a node and return new state
-   * Pure function - doesn't modify input state
-   */
+  /** Local projections never grant authoritative currency or ownership. */
   unlockNode(
     state: PlayerEnhancementState,
     nodeId: string,
     candyCost: number,
   ): PlayerEnhancementState {
     return {
-      unlockedNodes: {
-        ...state.unlockedNodes,
-        [nodeId]: (state.unlockedNodes[nodeId] || 0) + 1,
-      },
+      ...state,
+      unlockedNodes: { ...state.unlockedNodes, [nodeId]: (state.unlockedNodes[nodeId] ?? 0) + 1 },
       totalCandiesSpent: state.totalCandiesSpent + candyCost,
     };
   }
-
-  /**
-   * Get summary of all unlocked enhancements for a champion
-   */
-  getEnhancementSummary(
-    tree: ChampionEnhancementTree,
-    unlockedNodes: Record<string, number>,
-  ): {
-    totalNodesUnlocked: number;
-    totalNodesAvailable: number;
-    branchesProgress: Array<{
-      branchId: string;
-      branchName: string;
-      unlocked: number;
-      total: number;
-    }>;
-    coreProgress: {
-      unlocked: number;
-      total: number;
-    };
-  } {
-    let totalUnlocked = 0;
-    let totalAvailable = 0;
-
-    // Count core nodes
-    let coreUnlocked = 0;
-    for (const node of tree.coreNodes) {
-      const rank = unlockedNodes[node.id] || 0;
-      if (rank > 0) coreUnlocked++;
-      totalUnlocked += rank;
-      totalAvailable += node.maxRanks || 1;
-    }
-
-    // Count branch nodes
-    const branchesProgress = tree.branches.map((branch) => {
-      let branchUnlocked = 0;
-      for (const node of branch.nodes) {
-        const rank = unlockedNodes[node.id] || 0;
-        branchUnlocked += rank;
-        totalUnlocked += rank;
-        totalAvailable += node.maxRanks || 1;
-      }
-      return {
+  getEnhancementSummary(tree: ChampionEnhancementTree, unlockedNodes: Record<string, number>) {
+    const count = (nodes: readonly EnhancementNode[]) =>
+      nodes.reduce((sum, node) => {
+        const rank = unlockedNodes[node.id] ?? 0;
+        return (
+          sum + (Number.isSafeInteger(rank) ? Math.max(0, Math.min(rank, node.maxRanks ?? 1)) : 0)
+        );
+      }, 0);
+    const capacity = (nodes: readonly EnhancementNode[]) =>
+      nodes.reduce((sum, node) => sum + (node.maxRanks ?? 1), 0);
+    return {
+      totalNodesUnlocked: count(nodesOf(tree)),
+      totalNodesAvailable: capacity(nodesOf(tree)),
+      branchesProgress: tree.branches.map((branch) => ({
         branchId: branch.id,
         branchName: branch.name,
-        unlocked: branchUnlocked,
-        total: branch.nodes.length,
-      };
-    });
-
-    return {
-      totalNodesUnlocked: totalUnlocked,
-      totalNodesAvailable: totalAvailable,
-      branchesProgress,
-      coreProgress: {
-        unlocked: coreUnlocked,
-        total: tree.coreNodes.length,
-      },
+        unlocked: count(branch.nodes),
+        total: capacity(branch.nodes),
+      })),
+      coreProgress: { unlocked: count(tree.coreNodes), total: capacity(tree.coreNodes) },
     };
   }
 }
-
-// ─── Singleton Instances ─────────────────────────────────────────────────────
-
 export const enhancementTreeProvider = new EnhancementTreeProvider();
 export const enhancementService = new EnhancementService();
-
-// ─── Factory Functions ───────────────────────────────────────────────────────
-
-/**
- * Create a new enhancement service
- * Returns the singleton instance for consistency
- */
 export function createEnhancementService(): IEnhancementService {
   return enhancementService;
 }

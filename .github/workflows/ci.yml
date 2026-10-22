@@ -193,6 +193,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
 
       - name: Use Node.js 24
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -216,9 +218,13 @@ jobs:
           echo "VITE_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
           echo "VITE_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
           echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
+          echo "SUPABASE_DB_URL=$DB_URL" >> "$GITHUB_ENV"
 
       - name: Validate schema and live integration
         run: npm run check:db
+
+      - name: Verify application rollback against the current database
+        run: npm run test:db:rollback
 
       - name: Stop local Supabase
         if: always()
@@ -288,7 +294,7 @@ jobs:
           VITE_PUBLIC_SUPABASE_ANON_KEY="$E2E_SUPABASE_ANON_KEY" \
           npm run test:e2e -- --output=test-results/source
 
-      - name: Run connected Daily, Sprint G, champion economy and admin browser tests
+      - name: Run connected Daily, Sprint G, champion economy, enhancement tree and admin browser tests
         env:
           E2E_REQUIRE_CONNECTED: '1'
         run: |
@@ -296,7 +302,7 @@ jobs:
           VITE_PUBLIC_SUPABASE_ANON_KEY="$E2E_SUPABASE_ANON_KEY" \
           SUPABASE_SERVICE_ROLE_KEY="$E2E_SUPABASE_SERVICE_ROLE_KEY" \
           SUPABASE_DB_URL="$E2E_SUPABASE_DB_URL" \
-          npx playwright test e2e/connected-daily.spec.ts e2e/connected-sprint-g.spec.ts e2e/champion-economy-connected.spec.ts e2e/admin-analytics-connected.spec.ts e2e/admin-balance-connected.spec.ts e2e/admin-moderation-connected.spec.ts e2e/admin-diagnostics-connected.spec.ts e2e/admin-navigation-connected.spec.ts --project=chromium --output=test-results/connected
+          npx playwright test e2e/connected-daily.spec.ts e2e/connected-sprint-g.spec.ts e2e/champion-economy-connected.spec.ts e2e/enhancement-tree-connected.spec.ts e2e/admin-analytics-connected.spec.ts e2e/admin-balance-connected.spec.ts e2e/admin-moderation-connected.spec.ts e2e/admin-diagnostics-connected.spec.ts e2e/admin-navigation-connected.spec.ts --project=chromium --output=test-results/connected
 
       - name: Run production browser matrix
         run: npm run test:e2e:production -- --output=test-results/production
@@ -309,6 +315,8 @@ jobs:
           path: |
             test-results/source/**/admin-real-zoom-*.png
             test-results/source/**/browser-zoom-*.json
+            test-results/source/**/enhancement-*.png
+            test-results/source/**/enhancement-browser-zoom-*.json
           if-no-files-found: warn
           retention-days: 30
 

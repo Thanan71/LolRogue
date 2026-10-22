@@ -310,12 +310,16 @@ describeLive('repositories against migrated local Supabase', () => {
 
     await expect(enhancements.getEnhancementState(fixture.userId, 'Garen')).resolves.toEqual({
       totalCandiesSpent: 20,
+      revision: 0,
+      resetCount: 0,
       unlockedNodes: { fighter_core_1: 1 },
     });
     await expect(enhancements.getEnhancementState(fixture.userId, 'Lux')).resolves.toBeNull();
     const allEnhancements = await enhancements.getAllEnhancementStates(fixture.userId);
     expect(allEnhancements.get('Garen')).toEqual({
       totalCandiesSpent: 20,
+      revision: 0,
+      resetCount: 0,
       unlockedNodes: { fighter_core_1: 1 },
     });
   });
@@ -341,6 +345,8 @@ describeLive('repositories against migrated local Supabase', () => {
     ]);
     expect(progression.data.states.get('Garen')).toEqual({
       totalCandiesSpent: 20,
+      revision: 0,
+      resetCount: 0,
       unlockedNodes: { fighter_core_1: 1 },
     });
   });

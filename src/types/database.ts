@@ -242,6 +242,8 @@ export type Database = {
           champion_id: string;
           created_at: string;
           id: string;
+          reset_count: number;
+          revision: number;
           total_candies_spent: number;
           unlocked_nodes: NonNullable<Json>;
           updated_at: string;
@@ -251,6 +253,8 @@ export type Database = {
           champion_id: string;
           created_at?: string;
           id?: string;
+          reset_count?: number;
+          revision?: number;
           total_candies_spent?: number;
           unlocked_nodes?: NonNullable<Json>;
           updated_at?: string;
@@ -260,6 +264,8 @@ export type Database = {
           champion_id?: string;
           created_at?: string;
           id?: string;
+          reset_count?: number;
+          revision?: number;
           total_candies_spent?: number;
           unlocked_nodes?: NonNullable<Json>;
           updated_at?: string;
@@ -694,8 +700,11 @@ export type Database = {
         Row: {
           active: boolean;
           candy_cost: number;
+          champion_id: string | null;
           champion_role: string;
           created_at: string;
+          disabled_reason: string | null;
+          eligibility: NonNullable<Json>;
           max_rank: number;
           node_id: string;
           prerequisite_node_ids: string[];
@@ -706,8 +715,11 @@ export type Database = {
         Insert: {
           active?: boolean;
           candy_cost: number;
+          champion_id?: string | null;
           champion_role: string;
           created_at?: string;
+          disabled_reason?: string | null;
+          eligibility?: NonNullable<Json>;
           max_rank?: number;
           node_id: string;
           prerequisite_node_ids?: string[];
@@ -718,8 +730,11 @@ export type Database = {
         Update: {
           active?: boolean;
           candy_cost?: number;
+          champion_id?: string | null;
           champion_role?: string;
           created_at?: string;
+          disabled_reason?: string | null;
+          eligibility?: NonNullable<Json>;
           max_rank?: number;
           node_id?: string;
           prerequisite_node_ids?: string[];
@@ -728,6 +743,13 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: 'enhancement_champion_contract_fk';
+            columns: ['ruleset_version', 'champion_id'];
+            isOneToOne: false;
+            referencedRelation: 'progression_champion_catalog';
+            referencedColumns: ['ruleset_version', 'champion_id'];
+          },
           {
             foreignKeyName: 'enhancement_node_catalog_ruleset_version_fkey';
             columns: ['ruleset_version'];
@@ -2086,6 +2108,7 @@ export type Database = {
       admin_balance_builds: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
       admin_balance_champions: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
       admin_balance_config: { Args: Record<PropertyKey, never>; Returns: Json };
+      admin_balance_trees: { Args: { p_filters: Json; p_snapshot?: string }; Returns: Json };
       admin_diagnostics: {
         Args: {
           p_cursor?: Json;
@@ -2363,6 +2386,8 @@ export type Database = {
       expire_stale_run_attempts: { Args: Record<PropertyKey, never>; Returns: Json };
       get_champion_economy_snapshot: { Args: Record<PropertyKey, never>; Returns: Json };
       get_daily_challenge: { Args: Record<PropertyKey, never>; Returns: Json };
+      get_enhancement_contract: { Args: Record<PropertyKey, never>; Returns: Json };
+      get_enhancement_reset_preview: { Args: { p_champion_id: string }; Returns: Json };
       get_my_leaderboard_rank: { Args: Record<PropertyKey, never>; Returns: number };
       get_player_run_rejections: {
         Args: {
@@ -2435,6 +2460,15 @@ export type Database = {
       report_daily_score: {
         Args: { p_daily_run_id: string; p_reason: string };
         Returns: undefined;
+      };
+      reset_champion_enhancements: {
+        Args: {
+          p_champion_id: string;
+          p_command_id: string;
+          p_expected_policy_version?: number;
+          p_expected_revision: number;
+        };
+        Returns: Json;
       };
       sanitize_log_jsonb: { Args: { p_depth?: number; p_value: Json }; Returns: Json };
       sanitize_log_text: { Args: { p_max_length: number; p_value: string }; Returns: string };
@@ -2523,6 +2557,17 @@ export type Database = {
             };
             Returns: Json;
           };
+      unlock_champion_enhancement_v2: {
+        Args: {
+          p_champion_id: string;
+          p_command_id: string;
+          p_expected_catalog_version?: number;
+          p_expected_rank: number;
+          p_expected_revision: number;
+          p_node_id: string;
+        };
+        Returns: Json;
+      };
     };
     Enums: {
       [_ in never]: never;

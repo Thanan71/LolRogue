@@ -15,6 +15,10 @@ const staticInputs = [
   'scripts/lib/artifact-snapshot.mjs',
   'scripts/lib/critical-command.mjs',
   'src/components/EnhancementTree.tsx',
+  'src/game/enhancements/bonuses.ts',
+  'tests/helpers/enhancementSpecializationComparison.ts',
+  'tests/enhancementSpecializationComparison.test.ts',
+  'tests/__snapshots__/enhancementSpecializationComparison.test.ts.snap',
   'src/services/enhancementService.ts',
   'src/services/interfaces/IEnhancementRepository.ts',
   'src/services/repositories/SupabaseEnhancementRepository.ts',
@@ -44,13 +48,20 @@ export function parseEnhancementAuditArgs(argv) {
 }
 
 async function formatJson(root, source) {
+  // The tracked output is excluded from broad scans; this virtual included path
+  // keeps its dedicated formatting check active without creating another file.
+  const maxInputBytes = 2 * 1024 * 1024;
+  if (Buffer.byteLength(source, 'utf8') > maxInputBytes) {
+    throw new Error('Enhancement audit: JSON exceeds the dedicated 2 MiB formatting limit.');
+  }
   return new Promise((resolve, reject) => {
     const formatter = spawn(
       process.execPath,
       [
         path.join(root, 'node_modules/@biomejs/biome/bin/biome'),
         'format',
-        '--stdin-file-path=docs/audits/enhancement-trees.json',
+        '--stdin-file-path=tooling/enhancements/audit-output.json',
+        `--files-max-size=${maxInputBytes}`,
       ],
       { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] },
     );
@@ -76,11 +87,11 @@ async function formatJson(root, source) {
     formatter.on('close', (code) => {
       clearTimeout(timeout);
       const formatted = Buffer.concat(output).toString('utf8');
-      if (code !== 0 || !formatted.trim()) {
+      const diagnostic = Buffer.concat(errors).toString('utf8').trim();
+      // Biome can return zero while ignoring a path or a size-limited input.
+      if (code !== 0 || !formatted.trim() || diagnostic) {
         reject(
-          new Error(
-            `Enhancement audit: pinned Biome formatting failed (${Buffer.concat(errors).toString('utf8').trim() || code}).`,
-          ),
+          new Error(`Enhancement audit: pinned Biome formatting failed (${diagnostic || code}).`),
         );
       } else resolve(formatted);
     });
@@ -101,6 +112,8 @@ export async function generateEnhancementAudit({
     file.endsWith('.ts'),
   );
   for (const file of toolingFiles) inputs.add(file);
+  const uiFiles = await snapshot.list('src/features/enhancements/ui');
+  for (const file of uiFiles) if (/\.(?:ts|tsx|css)$/.test(file)) inputs.add(file);
   const migrations = (await snapshot.list('supabase/migrations')).filter((file) =>
     file.endsWith('.sql'),
   );
@@ -110,7 +123,7 @@ export async function generateEnhancementAudit({
   for (const file of toolingFiles) {
     const source = (await snapshot.read(file)).toString('utf8');
     for (const match of source.matchAll(
-      /['"]((?:src|supabase)\/[^'"\r\n]+\.(?:ts|tsx|sql))['"]/g,
+      /['"]((?:src|supabase|tests)\/[^'"\r\n]+\.(?:ts|tsx|sql))['"]/g,
     )) {
       inputs.add(artifactPath(match[1]));
     }

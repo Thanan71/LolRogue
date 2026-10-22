@@ -345,3 +345,33 @@ describe('explicit service entries and import graph evidence', () => {
     );
   });
 });
+
+describe('generated historical browser replay bridge', () => {
+  const target = 'supabase/functions/verify-run/run-authority-0.2.5.bundle.js';
+  function replayGraph(source, path = 'src/game/authority/versionClientReplay.generated.ts') {
+    const graph = graphFor(source, [], path);
+    graph.replayArchives = new Set([target]);
+    return graph;
+  }
+  it('allows the exact lazy archive import from the generated bridge', () => {
+    expect(
+      checkBusinessBoundaries(
+        replayGraph(
+          "const load = () => import('../../../supabase/functions/verify-run/run-authority-0.2.5.bundle.js');",
+        ),
+      ),
+    ).toEqual([]);
+  });
+  it.each([
+    ["import('../../../supabase/functions/verify-run/unregistered.bundle.js')", undefined],
+    [
+      "import('../../../supabase/functions/verify-run/run-authority-0.2.5.bundle.js')",
+      'src/game/authority/arbitrary.ts',
+    ],
+    ["import('../../../supabase/functions/verify-run/run-authority.bundle.js')", undefined],
+    ["import('../../../supabase/functions/verify-run/index.ts')", undefined],
+    ['import(target)', undefined],
+  ])('rejects other imports, entry points and computed targets', (source, path) => {
+    expect(checkBusinessBoundaries(replayGraph(source, path))).toHaveLength(1);
+  });
+});

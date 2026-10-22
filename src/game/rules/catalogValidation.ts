@@ -61,6 +61,15 @@ export function validateRuleCatalogs(): string[] {
     for (const node of [...tree.coreNodes, ...tree.branches.flatMap((branch) => branch.nodes)]) {
       for (const effect of node.effects ?? []) {
         if (
+          effect.chance !== undefined &&
+          (effect.type !== 'bleed' ||
+            !Number.isFinite(effect.chance) ||
+            effect.chance < 0 ||
+            effect.chance > 1)
+        ) {
+          issues.push(`enhancement:${role}:${node.id}: invalid or unsupported trigger probability`);
+        }
+        if (
           !SUPPORTED_ENHANCEMENT_EFFECTS.has(effect.type) &&
           !UNAVAILABLE_ENHANCEMENT_EFFECTS.has(effect.type)
         ) {

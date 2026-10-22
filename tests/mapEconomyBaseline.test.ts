@@ -7,7 +7,7 @@ import {
 } from '@/game/balance/mapEconomyBaseline';
 import { type NodeMap, NodeType } from '@/game/map/types';
 import previousBaseline from '../config/map-economy-baseline-0.2.0.json';
-import structuralBaseline from '../config/map-economy-baseline-0.2.5.json';
+import structuralBaseline from '../config/map-economy-baseline-0.3.0.json';
 
 const metadata = { title: 'Fixture', description: 'Fixture', icon: 'fixture' };
 
@@ -33,7 +33,7 @@ function routeNode(
 }
 
 describe('P1-BAL-02 pre-change map and economy baseline', () => {
-  it('preserves every fixed-seed route and economy observation from 0.2.0 after the structural release', () => {
+  it('preserves every fixed-seed route and economy observation from 0.2.0 in the current release', () => {
     const { identity: previousIdentity, ...previous } = previousBaseline;
     const { identity, ...current } = structuralBaseline;
     expect(identity).toMatchObject({

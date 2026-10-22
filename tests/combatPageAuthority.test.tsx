@@ -5,6 +5,7 @@ import { act, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ROUTES } from '@/config/routes';
+import { HISTORICAL_AUTHORITY_ENGINES } from '@/game/authority/versionClientReplay.generated';
 import type { AuthorityVersionMetadata } from '@/game/authority/versionRegistry';
 import type { CombatActionTrace } from '@/game/battle/actionTrace';
 import { ActionType, type BattleActionOption } from '@/game/battle/types';
@@ -361,7 +362,9 @@ describe('CombatPage authority finalization', () => {
   it.each(
     AUTHORITY_VERSION_REGISTRY.filter(
       (version) =>
-        version.features.manualCombat && version.engine !== CURRENT_AUTHORITY_VERSION.engine,
+        version.features.manualCombat &&
+        version.engine !== CURRENT_AUTHORITY_VERSION.engine &&
+        !HISTORICAL_AUTHORITY_ENGINES.includes(version.engine),
     ).map((version) => version.engine),
   )(
     'starts a %s verified combat with auto off and journals its manual action trace',

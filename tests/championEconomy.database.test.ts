@@ -678,7 +678,7 @@ describeLive('champion economy live authority', () => {
   it('still finalizes historical v22 counters exactly once after the semantic release is active', async () => {
     const owner = await account();
     const run = await attempt(owner.client);
-    localSql(`UPDATE public.run_attempts SET engine_version='run-engine-v22',
+    localSql(`UPDATE public.run_attempts SET ruleset_version=3,engine_version='run-engine-v22',
       gameplay_ruleset_version=22,
       gameplay_content_hash=(SELECT content_hash FROM public.gameplay_rulesets WHERE version=22)
       WHERE id=${uuid(run.id)};`);

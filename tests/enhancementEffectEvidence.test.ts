@@ -90,8 +90,8 @@ function resolverFixture() {
   return {
     target: battle.getEnemyCombatants()[0],
     host: {
-      findCombatantByChampionId: (id: string) =>
-        combatants.find((entry) => entry.champion.id === id),
+      findCombatantByTargetId: (id: string, side: 'player' | 'enemy') =>
+        combatants.find((entry) => entry.targetId === id && entry.side === side),
       applyHeal: vi.fn(),
       applyDamageToTarget: vi.fn(),
       syncEffectState: vi.fn(),
@@ -162,19 +162,27 @@ describe('TREE-01: effect evidence completeness', () => {
   });
 });
 
-describe('TREE-01: observed description/calculation discrepancies (no gameplay repair)', () => {
-  it('Tir Déchirant emits a true DoT at every eligible hit without its advertised 15% roll', () => {
-    const random = vi.fn(() => 0.999);
+describe('TREE-03: verified effect descriptions and calculations', () => {
+  it('Tir Déchirant uses its 15% roll and distributes the exact true damage total', () => {
+    const random = vi.fn(() => 0.1);
     const runtime = runtimeFor('marksman_dps_3', random);
     const event = damageEvent();
     const first = runtime.dispatch(event);
     const second = runtime.dispatch(event);
     for (const result of [first, second]) {
       expect(result.instantEffects).toEqual([
-        { type: 'dot', sourceId: 'Garen', targetId: 'Darius', amount: 25, duration: 3 },
+        {
+          type: 'dot',
+          sourceId: 'Garen',
+          targetId: 'Darius',
+          sourceSide: 'player',
+          targetSide: 'enemy',
+          amount: 25,
+          duration: 3,
+        },
       ]);
     }
-    expect(random).not.toHaveBeenCalled();
+    expect(random).toHaveBeenCalledTimes(2);
     const { host, target } = resolverFixture();
     resolveBattleRuleEffect(host, first.instantEffects[0]);
     resolveBattleRuleEffect(host, second.instantEffects[0]);
@@ -183,9 +191,9 @@ describe('TREE-01: observed description/calculation discrepancies (no gameplay r
     const dot = dots[0];
     expect(dot.damageType).toBe(DamageType.True);
     expect(dot.canCrit).toBe(false);
-    expect([dot.tick().value, dot.tick().value, dot.tick().value]).toEqual([8, 8, 8]);
+    expect([dot.tick().value, dot.tick().value, dot.tick().value]).toEqual([8, 8, 9]);
     expect(dot.maxStacks).toBe(1);
-    expect(getNodeEffectEvidence(node('marksman_dps_3')).status).toBe('partial');
+    expect(getNodeEffectEvidence(node('marksman_dps_3')).status).toBe('implemented');
     for (const locale of ['fr-FR', 'en-US'] as const) {
       expect(getEnhancementNodeContent(locale, 'marksman_dps_3').description).toMatch(/15\s*%/);
     }
@@ -212,14 +220,12 @@ describe('TREE-01: observed description/calculation discrepancies (no gameplay r
     expect(runtime.dispatch(event).instantEffects).toContainEqual(
       expect.objectContaining({ type: 'shield', amount: 200 }),
     );
-    expect(getNodeEffectEvidence(node('assassin_sustain_3')).discrepancies.join(' ')).toContain(
-      'beforeRules.instantEffects',
-    );
+    expect(getNodeEffectEvidence(node('assassin_sustain_3')).status).toBe('implemented');
   });
 
-  it('a mirrored champion receives its own emitted bleed because rule effects lose the target side', () => {
+  it('a mirrored champion applies its bleed to the enemy and retains the source side', () => {
     const garen = championDB.getById('Garen')!;
-    const runtime = runtimeFor('marksman_dps_3');
+    const runtime = runtimeFor('marksman_dps_3', () => 0.1);
     const battle = new BattleManager(
       {
         side: 'player',
@@ -243,13 +249,13 @@ describe('TREE-01: observed description/calculation discrepancies (no gameplay r
     const enemy = battle.getEnemyCombatants()[0];
     expect(
       player.effectManager.effects.filter((entry) => entry instanceof DamageEffect),
-    ).toHaveLength(1);
+    ).toHaveLength(0);
     expect(
       enemy.effectManager.effects.filter((entry) => entry instanceof DamageEffect),
-    ).toHaveLength(0);
+    ).toHaveLength(1);
   });
 
-  it('Phénix has a bus handler but its before_damage shield is lost in an actual BattleManager turn', () => {
+  it('Phénix applies its before_damage shield before the incoming hit in an actual BattleManager turn', () => {
     const garen = championDB.getById('Garen')!;
     const darius = championDB.getById('Darius')!;
     const runtime = runtimeFor('assassin_sustain_3');
@@ -284,21 +290,23 @@ describe('TREE-01: observed description/calculation discrepancies (no gameplay r
     expect(dispatch.mock.results[beforeDamageIndex].value.instantEffects).toContainEqual(
       expect.objectContaining({ type: 'shield', amount: 200 }),
     );
-    expect(player.effectManager.shields).toEqual([]);
-    expect(battle.log.some((event) => event.type === 'shield')).toBe(false);
+    expect(player.effectManager.shields).toHaveLength(1);
+    expect(battle.log.some((event) => event.type === 'shield')).toBe(true);
   });
 
-  it('Combustion changes AP only, while Canalisation converts a fraction into ten haste points', () => {
+  it('Combustion changes AP only, while Canalisation grants ten flat haste points', () => {
     const base = { ...calculateStats(championDB.getById('Veigar')!.stats, 1), abilityPower: 100 };
     const combustion = enhancementService.calculateStatBonuses(ENHANCEMENT_TREES_BY_ROLE.Mage, {
+      mage_burst_1: 1,
       mage_burst_2: 1,
     });
     const result = applyEnhancementBonuses(base, combustion);
     expect(combustion.percent).toEqual({ abilityPower: 0.15 });
     expect(combustion.effects).toEqual([]);
-    expect(result.abilityPower).toBeCloseTo(base.abilityPower * 1.15);
+    expect(result.abilityPower).toBeCloseTo((base.abilityPower + 8) * 1.15);
     expect(result.attackDamage).toBe(base.attackDamage);
     const channeling = enhancementService.calculateStatBonuses(ENHANCEMENT_TREES_BY_ROLE.Mage, {
+      mage_control_1: 1,
       mage_control_2: 1,
     });
     const runtime = new CombatRuleRuntime({
@@ -309,14 +317,15 @@ describe('TREE-01: observed description/calculation discrepancies (no gameplay r
       enhancementEffects: {},
       enhancementStats: { Garen: channeling },
     });
-    expect(channeling.percent).toEqual({ abilityHaste: 0.1 });
+    expect(channeling.flat).toEqual({ abilityHaste: 10 });
+    expect(channeling.percent).toEqual({});
     expect(runtime.getCooldownMultiplier('Garen', false)).toBeCloseTo(100 / 110);
     expect(applyEnhancementBonuses(base, channeling)).toEqual(base);
-    expect(getNodeEffectEvidence(node('mage_burst_2')).status).toBe('partial');
-    expect(getNodeEffectEvidence(node('mage_control_2')).status).toBe('partial');
+    expect(getNodeEffectEvidence(node('mage_burst_2')).status).toBe('implemented');
+    expect(getNodeEffectEvidence(node('mage_control_2')).status).toBe('implemented');
   });
 
-  it('Immortel prevents defeat once without applying the advertised immunity', () => {
+  it('Immortel preserves 1 HP once per battle without advertising immunity', () => {
     const runtime = runtimeFor('tank_defense_3');
     const source = actor({ id: 'Darius', side: 'enemy' });
     const target = actor({ currentHp: 0 });
@@ -339,6 +348,8 @@ describe('TREE-01: observed description/calculation discrepancies (no gameplay r
       type: 'damage',
       sourceId: 'Garen',
       targetId: 'Darius',
+      sourceSide: 'player',
+      targetSide: 'enemy',
       amount: 1,
     });
     const reflection = runtimeFor('tank_thorn_2').dispatch(event).instantEffects;
@@ -346,6 +357,8 @@ describe('TREE-01: observed description/calculation discrepancies (no gameplay r
       type: 'damage',
       sourceId: 'Garen',
       targetId: 'Darius',
+      sourceSide: 'player',
+      targetSide: 'enemy',
       amount: 20,
     });
     const { host } = resolverFixture();

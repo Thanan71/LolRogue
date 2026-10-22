@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { PATCH_NOTES } from '@/data/patchNotes';
 import { getAdminAccessibilityCopy } from '@/i18n/adminAccessibility';
 import { adminAnalyticsContent } from '@/i18n/adminAnalytics';
+import { getAdminEnhancementTreesCopy } from '@/i18n/adminEnhancementTrees';
+import { getHistoricalCombatContent } from '@/i18n/historicalCombatContent';
 import { getAdminBalanceCopy } from '@/i18n/adminBalance';
 import { getAdminDiagnosticsCopy } from '@/i18n/adminDiagnostics';
 import { adminExportContent } from '@/i18n/adminExportContent';
@@ -15,6 +17,7 @@ import { combatContent } from '@/i18n/combatContent';
 import { documentContent } from '@/i18n/documentContent';
 import { en } from '@/i18n/en';
 import { enhancementContent } from '@/i18n/enhancementContent';
+import { getEnhancementResetCopy } from '@/i18n/enhancementReset';
 import { fr } from '@/i18n/fr';
 import { gameOverContent } from '@/i18n/gameOverContent';
 import { inventoryContent } from '@/i18n/inventoryContent';
@@ -68,6 +71,18 @@ const catalogs = {
   combat: combatContent,
   document: documentContent,
   enhancement: enhancementContent,
+  historicalCombat: {
+    'fr-FR': getHistoricalCombatContent('fr-FR'),
+    'en-US': getHistoricalCombatContent('en-US'),
+  },
+  adminEnhancementTrees: {
+    'fr-FR': getAdminEnhancementTreesCopy('fr-FR'),
+    'en-US': getAdminEnhancementTreesCopy('en-US'),
+  },
+  enhancementReset: {
+    'fr-FR': getEnhancementResetCopy('fr-FR'),
+    'en-US': getEnhancementResetCopy('en-US'),
+  },
   gameOver: gameOverContent,
   inventory: inventoryContent,
   legal: { 'fr-FR': legalFr, 'en-US': legalEn },
@@ -110,6 +125,9 @@ const catalogModules = {
   'documentContent.ts': 'document',
   'en.ts': 'main',
   'enhancementContent.ts': 'enhancement',
+  'enhancementReset.ts': 'enhancementReset',
+  'adminEnhancementTrees.ts': 'adminEnhancementTrees',
+  'historicalCombatContent.ts': 'historicalCombat',
   'fr.ts': 'main',
   'gameOverContent.ts': 'gameOver',
   'inventoryContent.ts': 'inventory',
@@ -124,6 +142,7 @@ const catalogModules = {
 } as const satisfies Readonly<Record<string, keyof typeof catalogs>>;
 
 const specializedModuleContracts = {
+  'enhancementSpecializations.ts': 'enhancementSpecializations.test.ts',
   // These modules resolve IDs or format values rather than expose locale records.
   'adminErrorContent.ts': 'i18nBoundarySafety.test.ts',
   'content.ts': 'englishDynamicContent.test.ts',
@@ -226,6 +245,9 @@ const intentionallyIdenticalPaths: Readonly<
     '$.visuals.Garen:spell_w',
   ],
   document: [],
+  enhancementReset: [],
+  historicalCombat: [],
+  adminEnhancementTrees: ['$.champion'],
   enhancement: [
     '$.coreNodes.fighter_core_2.name',
     '$.nodes.fighter_duelist_1.name',
@@ -270,6 +292,9 @@ const intentionallyIdenticalFunctionPaths: Readonly<
   championEconomy: [],
   combat: ['$.logs.action', '$.stage.actionTarget'],
   document: [],
+  enhancementReset: [],
+  historicalCombat: [],
+  adminEnhancementTrees: [],
   enhancement: [],
   gameOver: [],
   inventory: [],

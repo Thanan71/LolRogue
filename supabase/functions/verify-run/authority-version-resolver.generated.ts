@@ -653,11 +653,39 @@ export const AUTHORITY_VERSION_REGISTRY = [
     "dailyScore": 15,
     "progression": 3,
     "command": 2,
-    "status": "current",
+    "status": "replay-only",
     "rulesetCode": "0.2.5",
     "contentHash": "9009950fe0b1c6944a26486e65b0bb0f1379129b42d7499f2bf1c0a8ce3391fa",
-    "bundle": "supabase/functions/verify-run/run-authority.bundle.js",
+    "bundle": "supabase/functions/verify-run/run-authority-0.2.5.bundle.js",
     "migration": "supabase/migrations/20261011134126_gameplay_ruleset_0_2_5_engine_modules.sql",
+    "features": {
+      "canonicalProgression": true,
+      "manualCombat": true,
+      "canonicalEncounters": true,
+      "combatActionTrace": true,
+      "runLedger": true,
+      "mastery": true,
+      "domainInvariants": true,
+      "clientAuthorityParity": true,
+      "automaticTraceSuffix": true,
+      "canonicalStats": true,
+      "contentBalance": true,
+      "runProgression": true,
+      "runProgressionAssists": true
+    },
+    "championCatalog": 2
+  },
+  {
+    "engine": "run-engine-0.3.0",
+    "gameplay": 25,
+    "dailyScore": 15,
+    "progression": 4,
+    "command": 2,
+    "status": "current",
+    "rulesetCode": "0.3.0",
+    "contentHash": "a5ba6703640a3f92595318d2a49ba0a4faebcbbbaa18d0a90bd0bb48074923f2",
+    "bundle": "supabase/functions/verify-run/run-authority.bundle.js",
+    "migration": "supabase/migrations/20261022164730_gameplay_ruleset_0_3_0_enhancement_trees.sql",
     "features": {
       "canonicalProgression": true,
       "manualCombat": true,
@@ -678,7 +706,8 @@ export const AUTHORITY_VERSION_REGISTRY = [
 ] as const;
 
 const verifierLoaders = {
-  "run-engine-0.2.5": () => import("./run-authority.bundle.js"), // loader-0
+  "run-engine-0.2.5": () => import("./run-authority-0.2.5.bundle.js"), // loader-0
+  "run-engine-0.3.0": () => import("./run-authority.bundle.js"), // loader-1
 } as const;
 
 export async function resolveAuthorityVerifier(engineVersion: string, contentHash: string) {

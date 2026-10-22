@@ -120,7 +120,7 @@ export async function seedExplorerAttempt(account: ExplorerAccount) {
    jsonb_build_object('node_id','node_'||n,'actions_json','auto','lease_token','secret-lease-marker','user_id','secret-auth-marker','result',jsonb_build_object('secret','nested-secret-marker')),
    repeat('a',64),repeat('b',64),repeat('c',64) FROM generate_series(1,5)n;
    INSERT INTO public.runs(id,player_id,run_uuid,won,waves_completed,run_level,candies_earned,progression_version,progression_source,run_attempt_id)
-   VALUES('${runId}','${account.playerId}','verified_${randomUUID()}',TRUE,3,2,7,3,'verified','${id}');
+   VALUES('${runId}','${account.playerId}','verified_${randomUUID()}',TRUE,3,2,7,${started.data.ruleset_version},'verified','${id}');
    INSERT INTO public.run_team_members(run_id,champion_id,items_collected)VALUES('${runId}','Garen',ARRAY['long_sword']);
    UPDATE public.run_attempts SET status='verified',last_sequence=5,finish_command_id=gen_random_uuid(),sealed_sequence=5,sealed_journal_hash=repeat('d',64),finished_at=NOW(),verified_at=NOW(),result_run_id='${runId}',
    result_hash=repeat('e',64),result=jsonb_build_object('secret','raw-result-marker'),response=jsonb_build_object('token','raw-response-marker') WHERE id='${id}';`);

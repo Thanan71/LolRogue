@@ -1,3 +1,4 @@
+import { getEnhancementNodeContent } from './enhancementContent';
 import { locale } from './fr';
 
 export type CombatContentLocale = 'fr-FR' | 'en-US';
@@ -272,87 +273,19 @@ const visualTitlesEn = {
   'Warwick:spell_r': 'Beastly Leap',
 } as const satisfies Readonly<Record<CombatVisualTitleId, string>>;
 
-const enhancementEffectsFr = {
-  'assassin_burst_2:execute_damage': 'Dégâts augmentés contre cibles blessées',
-  'assassin_burst_3:burst_amplify': 'Dégâts explosifs ultimes augmentés',
-  'assassin_mobility_1:out_of_combat_speed': 'Vitesse de déplacement augmentée hors combat',
-  'assassin_mobility_2:ambush_damage': 'Dégâts augmentés depuis la dissimulation',
-  'assassin_mobility_3:stealth_on_kill': 'Invisibilité après une élimination',
-  'assassin_sustain_3:survival_shield': 'Bouclier automatique quand PV bas',
-  'tank_defense_3:revive': 'Survie automatique avec immunité temporaire',
-  'tank_support_1:heal_share': 'Partage des soins avec alliés proches',
-  'tank_support_2:ally_damage_reduction': 'Réduction dégâts pour alliés proches',
-  'tank_support_3:damage_intercept': 'Interception des dégâts ciblés sur alliés',
-  'tank_thorn_1:thornmail': 'Renvoi de dégâts physiques',
-  'tank_thorn_2:burn_reflect': 'Dégâts basés sur PV max ennemis',
-  'tank_thorn_3:vengeance_burst': 'Explosion de dégâts vrais après encaissement',
-  'mage_burst_3:spell_echo': 'Chance de répéter les sorts de zone',
-  'mage_control_1:slow': 'Ralentissement sur sorts',
-  'mage_control_3:root_chance': "Chance d'enracinement",
-  'mage_sustain_2:mana_restore': 'Restauration de mana après une élimination',
-  'mage_sustain_3:cdr_ultimate': 'Réduction du délai de récupération ultime',
-  'marksman_dps_2:attack_speed_on_kill': "Initiative d'attaque après élimination",
-  'marksman_dps_3:bleed': 'Saignement sur attaques',
-  'marksman_range_2:champion_damage': 'Dégâts directs augmentés',
-  'marksman_range_3:execute_damage': 'Dégâts augmentés contre les cibles blessées',
-  'marksman_survival_1:dodge': "Chance d'esquive",
-  'marksman_survival_3:smoke_screen': 'Invisibilité et vitesse quand PV bas',
-  'fighter_bruiser_2:bleed': 'Saignement sur attaques',
-  'fighter_bruiser_3:berserker': 'Bonus de dégâts quand les PV sont bas',
-  'fighter_duelist_1:riposte': 'Bonus de dégâts après esquive',
-  'fighter_duelist_2:champion_damage': 'Dégâts augmentés contre champions',
-  'fighter_duelist_3:duelist': 'Bonus en duel',
-  'fighter_sustain_3:heal_on_kill': 'Soin massif après une élimination',
-  'support_enchanter_1:heal_amp': 'Amplification des soins',
-  'support_enchanter_2:shield_amp': 'Amplification des boucliers',
-  'support_enchanter_3:damage_aura': 'Aura de dégâts pour alliés',
-  'support_tanky_2:cc_extension': 'Durée des contrôles augmentée',
-  'support_tanky_3:damage_sacrifice': 'Absorption de dégâts mortels',
-  'support_utility_1:bush_vision': 'Vision dans les broussailles',
-  'support_utility_2:aoe_slow': 'Ralentissement de zone augmenté',
-  'support_utility_3:cc_aoe': 'Zone de contrôle augmentée',
-} as const satisfies Readonly<Record<CombatEnhancementEffectId, string>>;
+const enhancementEffectsFr = Object.fromEntries(
+  COMBAT_ENHANCEMENT_EFFECT_IDS.map((id) => [
+    id,
+    getEnhancementNodeContent('fr-FR', id.split(':')[0]).description,
+  ]),
+) as Record<CombatEnhancementEffectId, string>;
 
-const enhancementEffectsEn = {
-  'assassin_burst_2:execute_damage': 'Increased damage against wounded targets',
-  'assassin_burst_3:burst_amplify': 'Increased ultimate burst damage',
-  'assassin_mobility_1:out_of_combat_speed': 'Increased movement speed outside combat',
-  'assassin_mobility_2:ambush_damage': 'Increased damage from concealment',
-  'assassin_mobility_3:stealth_on_kill': 'Stealth after a kill',
-  'assassin_sustain_3:survival_shield': 'Automatic shield at low HP',
-  'tank_defense_3:revive': 'Automatic survival with temporary immunity',
-  'tank_support_1:heal_share': 'Shares healing with nearby allies',
-  'tank_support_2:ally_damage_reduction': 'Damage reduction for nearby allies',
-  'tank_support_3:damage_intercept': 'Intercepts damage targeting allies',
-  'tank_thorn_1:thornmail': 'Reflects physical damage',
-  'tank_thorn_2:burn_reflect': 'Damage based on enemy maximum HP',
-  'tank_thorn_3:vengeance_burst': 'Burst of true damage after taking damage',
-  'mage_burst_3:spell_echo': 'Chance to repeat area-of-effect spells',
-  'mage_control_1:slow': 'Spells apply a slow',
-  'mage_control_3:root_chance': 'Chance to root',
-  'mage_sustain_2:mana_restore': 'Restores mana on kill',
-  'mage_sustain_3:cdr_ultimate': 'Reduced ultimate cooldown',
-  'marksman_dps_2:attack_speed_on_kill': 'Attack initiative after an elimination',
-  'marksman_dps_3:bleed': 'Attacks inflict bleeding',
-  'marksman_range_2:champion_damage': 'Increased direct damage',
-  'marksman_range_3:execute_damage': 'Increased damage against wounded targets',
-  'marksman_survival_1:dodge': 'Chance to dodge',
-  'marksman_survival_3:smoke_screen': 'Stealth and speed at low HP',
-  'fighter_bruiser_2:bleed': 'Attacks inflict bleeding',
-  'fighter_bruiser_3:berserker': 'Damage boost at low HP',
-  'fighter_duelist_1:riposte': 'Bonus damage after dodging',
-  'fighter_duelist_2:champion_damage': 'Increased damage against champions',
-  'fighter_duelist_3:duelist': 'Bonus in a one-on-one duel',
-  'fighter_sustain_3:heal_on_kill': 'Major heal on kill',
-  'support_enchanter_1:heal_amp': 'Increased healing',
-  'support_enchanter_2:shield_amp': 'Increased shielding',
-  'support_enchanter_3:damage_aura': 'Damage aura for allies',
-  'support_tanky_2:cc_extension': 'Increased crowd-control duration',
-  'support_tanky_3:damage_sacrifice': 'Absorbs lethal damage',
-  'support_utility_1:bush_vision': 'Vision inside brush',
-  'support_utility_2:aoe_slow': 'Increased area slow',
-  'support_utility_3:cc_aoe': 'Increased crowd-control area',
-} as const satisfies Readonly<Record<CombatEnhancementEffectId, string>>;
+const enhancementEffectsEn = Object.fromEntries(
+  COMBAT_ENHANCEMENT_EFFECT_IDS.map((id) => [
+    id,
+    getEnhancementNodeContent('en-US', id.split(':')[0]).description,
+  ]),
+) as Record<CombatEnhancementEffectId, string>;
 
 const presenterStatsFr = {
   hp: 'PV',

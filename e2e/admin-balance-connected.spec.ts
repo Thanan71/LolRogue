@@ -35,7 +35,7 @@ function record(value: unknown): Record<string, unknown> {
 // Real Auth and RPCs, with one persisted verified-result fixture installed only
 // by privileged Node SQL on disposable loopback PostgreSQL. This tests the
 // analytics boundary; authority gameplay verification has its own replay tests.
-test('équilibrage connecté : résultat persistant, trois RPC réelles et révocation du même JWT', async ({
+test('équilibrage connecté : résultat persistant, quatre RPC réelles et révocation du même JWT', async ({
   page,
 }) => {
   const local =
@@ -114,7 +114,7 @@ test('équilibrage connecté : résultat persistant, trois RPC réelles et révo
     await form.getByLabel('Fin incluse (UTC)', { exact: true }).fill(day);
     await form.getByRole('combobox', { name: 'Mode', exact: true }).selectOption('normal');
     await form.getByRole('combobox', { name: 'Difficulté', exact: true }).selectOption('normal');
-    const resources = ['champions', 'builds'] as const;
+    const resources = ['champions', 'builds', 'trees'] as const;
     const responses = resources.map((resource) =>
       page.waitForResponse((response) => {
         if (new URL(response.url()).pathname !== `/rest/v1/rpc/admin_balance_${resource}`)
@@ -140,7 +140,12 @@ test('équilibrage connecté : résultat persistant, trois RPC réelles et révo
     await expect(champions.getByRole('row').filter({ hasText: 'Garen' }).first()).toBeVisible();
     await expect(panel.locator('#admin-balance-builds').getByRole('table')).toBeVisible();
     await expect(panel.locator('#admin-balance-config table')).toBeVisible();
-    await expect(panel).toContainText('TREE-10');
+    const trees = panel.locator('#admin-balance-trees');
+    await expect(trees).toHaveAttribute('aria-busy', 'false');
+    await expect(trees).toContainText('pas un taux de conversion');
+    expect(record(await reads[2].json()).buildBasis).toBe('frozen_attempt_snapshot');
+    expect(record(await reads[2].json()).catalogue).toHaveLength(88);
+    await expect(trees.getByRole('table', { name: 'Achats de nœuds' })).toBeVisible();
     await expect(panel.getByRole('alert')).toHaveCount(0);
 
     // The same browser session must lose every cached balance resource on42501.

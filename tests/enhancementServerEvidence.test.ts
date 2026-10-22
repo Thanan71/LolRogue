@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { implementedChampions } from '@/data/champion';
 import { championDB } from '@/data/championDatabase';
+import { CHAMPION_ENHANCEMENT_SPECIALIZATIONS } from '@/data/enhancementSpecializations';
 import {
   canUnlockNode,
   ENHANCEMENT_TREES_BY_ROLE,
@@ -11,7 +12,7 @@ import {
   compareEnhancementServerNode,
   ENHANCEMENT_SERVER_SOURCES,
   extractEnhancementServerCatalog,
-  getEnhancementServerLockReason,
+  getEnhancementServerLockReason as projectServerLockReason,
   readEnhancementServerCatalog,
 } from '../tooling/enhancements/serverEvidence';
 
@@ -30,12 +31,31 @@ const nodes = Object.values(ENHANCEMENT_TREES_BY_ROLE).flatMap((tree) => [
 ]);
 const serverById = new Map(catalog.nodes.map((node) => [node.id, node]));
 
+const getEnhancementServerLockReason = (
+  node: (typeof catalog.nodes)[number],
+  ranks: Readonly<Record<string, number>>,
+  mastery: number,
+  candies: number,
+  expectedRank?: number,
+) => projectServerLockReason(node, ranks, mastery, candies, expectedRank, { nodes: catalog.nodes });
+const ancestors = (id: string, ranks: Record<string, number> = {}): Record<string, number> => {
+  for (const parent of serverById.get(id)?.prerequisites ?? []) {
+    ranks[parent] = 1;
+    ancestors(parent, ranks);
+  }
+  return ranks;
+};
+
 describe('enhancement SQL catalog audit', () => {
-  it('extracts all 72 canonical nodes from the seed and validates the two unchanged copies', () => {
+  it('extracts 72 shared nodes plus the 16 SQL-expanded extensions and validates all copies', () => {
     expect(catalog.evidence).toBe('repository-migrations');
-    expect(catalog.rulesetVersion).toBe(3);
-    expect(catalog.nodes).toHaveLength(72);
-    expect(new Set(catalog.nodes.map((node) => node.id)).size).toBe(72);
+    expect(extractEnhancementServerCatalog([...migrations].reverse())).toEqual(catalog);
+    expect(() => extractEnhancementServerCatalog([...migrations, migrations[0]])).toThrow(
+      'duplicate migration path',
+    );
+    expect(catalog.rulesetVersion).toBe(4);
+    expect(catalog.nodes).toHaveLength(88);
+    expect(new Set(catalog.nodes.map((node) => node.id)).size).toBe(88);
     expect([...new Set(catalog.nodes.map((node) => node.role))].sort()).toEqual([
       'assassin',
       'fighter',
@@ -44,15 +64,28 @@ describe('enhancement SQL catalog audit', () => {
       'support',
       'tank',
     ]);
-    expect(catalog.nodes.every((node) => node.active && node.maxRanks === 1)).toBe(true);
-    expect(catalog.sources).toHaveLength(6);
+    expect(catalog.nodes.filter((node) => !node.active)).toHaveLength(12);
+    expect(catalog.nodes.filter((node) => node.championId === null)).toHaveLength(72);
+    expect(catalog.nodes.filter((node) => node.championId !== null)).toHaveLength(16);
+    expect(catalog.nodes.every((node) => node.maxRanks === 1)).toBe(true);
+    expect(catalog.settings).toEqual({
+      championSpecializationsEnabled: false,
+      repeatResetFeeBasisPoints: 0,
+    });
+    expect(catalog.sources).toHaveLength(10);
+    expect(catalog.sources.map((source) => source.path)).toContain(
+      ENHANCEMENT_SERVER_SOURCES.snapshotV25,
+    );
     expect(catalog.sources.every((source) => /^[a-f0-9]{64}$/.test(source.sha256))).toBe(true);
   });
 
   it('finds exact client/server purchase fields for every visible node', () => {
     expect(nodes).toHaveLength(72);
     expect(nodes.map((node) => node.id).sort()).toEqual(
-      catalog.nodes.map((node) => node.id).sort(),
+      catalog.nodes
+        .filter((node) => node.championId === null)
+        .map((node) => node.id)
+        .sort(),
     );
     for (const node of nodes)
       expect(compareEnhancementServerNode(node, serverById.get(node.id))).toEqual([]);
@@ -85,14 +118,14 @@ describe('enhancement SQL catalog audit', () => {
     }
   });
 
-  it('exposes the availability gate absent from the server catalog instead of silently treating it as SQL parity', () => {
+  it('keeps all fifteen unsupported or inherited role paths closed on both sides, including already-owned disabled parents', () => {
     const unavailable: string[] = [];
     for (const node of nodes) {
-      const prerequisites = Object.fromEntries(node.prerequisites.map((id) => [id, 1]));
-      expect(
-        getEnhancementServerLockReason(serverById.get(node.id)!, prerequisites, 4, 100_000),
-      ).toBeNull();
-      if (!canUnlockNode(node, prerequisites, 4, 100_000)) unavailable.push(node.id);
+      const owned = ancestors(node.id);
+      const serverAllowed =
+        getEnhancementServerLockReason(serverById.get(node.id)!, owned, 4, 100_000) === null;
+      expect(canUnlockNode(node, owned, 4, 100_000), node.id).toBe(serverAllowed);
+      if (!serverAllowed) unavailable.push(node.id);
     }
     expect(unavailable.sort()).toEqual(
       [
@@ -100,6 +133,8 @@ describe('enhancement SQL catalog audit', () => {
         'assassin_mobility_2',
         'assassin_mobility_3',
         'fighter_duelist_1',
+        'fighter_duelist_2',
+        'fighter_duelist_3',
         'mage_burst_3',
         'marksman_survival_3',
         'support_tanky_3',
@@ -107,9 +142,96 @@ describe('enhancement SQL catalog audit', () => {
         'support_utility_2',
         'support_utility_3',
         'tank_support_1',
+        'tank_support_2',
         'tank_support_3',
       ].sort(),
     );
+    expect(
+      getEnhancementServerLockReason(
+        serverById.get('fighter_duelist_2')!,
+        { fighter_duelist_1: 1 },
+        4,
+        100_000,
+      ),
+    ).toBe('enhancement_requirement_required');
+  });
+
+  it('projects the exact authored champion scope, gate and mutually exclusive specialization paths', () => {
+    for (const extension of Object.values(CHAMPION_ENHANCEMENT_SPECIALIZATIONS)) {
+      for (const node of extension.branches.flatMap((branch) => branch.nodes)) {
+        const server = serverById.get(node.id)!;
+        expect(compareEnhancementServerNode(node, server), node.id).toEqual([]);
+        expect(server.championId).toBe(extension.championId);
+        const owned = ancestors(node.id);
+        const context = { nodes: catalog.nodes, championId: extension.championId };
+        expect(projectServerLockReason(server, owned, 4, 1000, undefined, context)).toBe(
+          'enhancement_feature_disabled',
+        );
+        expect(
+          projectServerLockReason(server, owned, 4, 1000, undefined, {
+            ...context,
+            enabledGates: ['champion_specializations'],
+          }),
+        ).toBeNull();
+        expect(
+          projectServerLockReason(server, owned, 4, 1000, undefined, {
+            ...context,
+            championId: 'wrong',
+            enabledGates: ['champion_specializations'],
+          }),
+        ).toBe('enhancement_not_in_champion_catalog');
+        expect(
+          projectServerLockReason(
+            server,
+            { ...owned, [server.eligibility.exclusiveWith[0]]: 1 },
+            4,
+            1000,
+            undefined,
+            { ...context, enabledGates: ['champion_specializations'] },
+          ),
+        ).toBe(
+          node.prerequisites.length
+            ? 'enhancement_requirement_required'
+            : 'enhancement_exclusive_conflict',
+        );
+      }
+    }
+  });
+
+  it('models AND/OR, minimum owned ranks, ancestry and actual historical budget spend independently of the client validator', () => {
+    const parent = { ...serverById.get('fighter_core_1')!, maxRanks: 2 };
+    const node = {
+      ...serverById.get('fighter_core_2')!,
+      prerequisites: [],
+      eligibility: {
+        schemaVersion: 1 as const,
+        exclusiveWith: [],
+        budget: 100,
+        requirement: {
+          kind: 'or' as const,
+          conditions: [
+            { kind: 'node' as const, nodeId: parent.id, minRank: 2 },
+            { kind: 'and' as const, conditions: [{ kind: 'node' as const, nodeId: 'missing' }] },
+          ],
+        },
+      },
+    };
+    const context = { nodes: [parent, node], totalCandiesSpent: 100 - node.candyCost };
+    expect(projectServerLockReason(node, { [parent.id]: 1 }, 4, 1000, undefined, context)).toBe(
+      'enhancement_requirement_required',
+    );
+    expect(
+      projectServerLockReason(node, { [parent.id]: 2 }, 4, 1000, undefined, context),
+    ).toBeNull();
+    expect(projectServerLockReason(node, { [parent.id]: 3 }, 4, 1000, undefined, context)).toBe(
+      'enhancement_requirement_required',
+    );
+    expect(
+      projectServerLockReason(node, { [parent.id]: 2 }, 4, 1000, undefined, {
+        ...context,
+        totalCandiesSpent: context.totalCandiesSpent + 1,
+      }),
+    ).toBe('enhancement_budget_exceeded');
   });
 
   it('reports missing, inactive or changed server values by field', () => {
@@ -130,7 +252,8 @@ describe('enhancement SQL catalog audit', () => {
       'maxRanks',
       'requiredMasteryLevel',
       'prerequisites',
-      'inactive_server_node',
+      'active',
+      'requirement',
     ]);
   });
 
@@ -165,10 +288,53 @@ describe('enhancement SQL catalog audit', () => {
         ...migrations,
         {
           path: 'supabase/migrations/99999999999999_future.sql',
-          sql: 'UPDATE public.progression_rulesets SET is_active = TRUE WHERE version = 4;',
+          sql: 'UPDATE public.progression_rulesets SET is_active = TRUE WHERE version = 5;',
         },
       ]),
     ).toThrow('active progression ruleset must be re-audited');
+  });
+
+  it('fails closed for a changed v4 mapping or a newly opened private gate', () => {
+    const mutate = (change: (sql: string) => string) =>
+      migrations.map((entry) =>
+        entry.path === ENHANCEMENT_SERVER_SOURCES.contractV4
+          ? { ...entry, sql: change(entry.sql) }
+          : entry,
+      );
+    expect(() =>
+      extractEnhancementServerCatalog(
+        mutate((sql) =>
+          sql.replace(
+            "'exclusiveWith',jsonb_build_array",
+            "'exclusiveWithChanged',jsonb_build_array",
+          ),
+        ),
+      ),
+    ).toThrow('unreviewed specialization mapping');
+    expect(() =>
+      extractEnhancementServerCatalog(
+        mutate((sql) => sql.replace('THEN FALSE ELSE active END', 'THEN TRUE ELSE active END')),
+      ),
+    ).toThrow('unsupported catalog copy 3->4');
+    expect(() =>
+      extractEnhancementServerCatalog(
+        mutate((sql) => sql.replace('DEFAULT FALSE', 'DEFAULT TRUE')),
+      ),
+    ).toThrow('settings must be re-audited');
+    expect(() =>
+      extractEnhancementServerCatalog([
+        ...migrations,
+        {
+          path: 'supabase/migrations/99999999999999_future.sql',
+          sql: 'UPDATE private.enhancement_contract_settings SET champion_specializations_enabled=TRUE;',
+        },
+      ]),
+    ).toThrow('unreviewed contract settings mutation');
+    const changed = extractEnhancementServerCatalog(
+      mutate((sql) => sql.replace('rank=1 THEN 80 ELSE 120', 'rank=1 THEN 81 ELSE 121')),
+    );
+    expect(changed.nodes.find((node) => node.id === 'garen_durability_1')?.candyCost).toBe(81);
+    expect(changed.nodes.find((node) => node.id === 'garen_durability_2')?.candyCost).toBe(121);
   });
 
   it('rejects a missing row, duplicate ID and unreviewed copy mapping', () => {

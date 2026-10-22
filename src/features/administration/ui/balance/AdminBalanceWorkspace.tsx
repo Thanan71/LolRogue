@@ -1,3 +1,5 @@
+import { getAdminEnhancementTreesCopy } from '@/i18n/adminEnhancementTrees';
+import { AdminBalanceTrees } from './AdminBalanceTrees';
 import { getAdminBalanceCopy } from '@/i18n/adminBalance';
 import { locale } from '@/i18n/fr';
 import { Button } from '@/shared/ui/Controls';
@@ -23,10 +25,12 @@ export default function AdminBalanceWorkspace({
 }) {
   const balance = useAdminBalance(active, navigation, view ?? 'reports');
   const copy = getAdminBalanceCopy(locale);
+  const treesCopy = getAdminEnhancementTreesCopy(locale);
   const loading =
     balance.champions.loading ||
     balance.builds.loading ||
     balance.config.loading ||
+    balance.trees.loading ||
     balance.field.loading;
   return (
     <section
@@ -132,10 +136,23 @@ export default function AdminBalanceWorkspace({
           >
             {balance.config.data && <AdminBalanceConfig config={balance.config.data} />}
           </AdminBalanceSection>
-          <section className="admin-balance__panel" aria-labelledby="admin-balance-trees-heading">
-            <h3 id="admin-balance-trees-heading">{copy.treeTitle}</h3>
-            <p>{copy.treeDependency}</p>
-          </section>
+          <AdminBalanceSection
+            id="admin-balance-trees"
+            title={treesCopy.title}
+            help={treesCopy.help}
+            state={balance.trees}
+            disabled={!balance.enabled}
+          >
+            {balance.trees.data && (
+              <AdminBalanceTrees
+                report={balance.trees.data}
+                selection={{
+                  value: balance.selection.treeContextId,
+                  onChange: (value) => balance.changeSelection('treeContextId', value),
+                }}
+              />
+            )}
+          </AdminBalanceSection>
         </>
       )}
       {view !== 'reports' && (

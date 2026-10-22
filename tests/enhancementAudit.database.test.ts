@@ -1,7 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { canUnlockNode, ENHANCEMENT_TREES_BY_ROLE } from '@/data/enhancementTrees';
-import { readEnhancementServerCatalog } from '../tooling/enhancements/serverEvidence';
+import {
+  getEnhancementServerLockReason,
+  readEnhancementServerCatalog,
+} from '../tooling/enhancements/serverEvidence';
 import {
   cleanupExplorer,
   type ExplorerAccount,
@@ -56,7 +58,7 @@ describeDatabase('TREE-01 actual enhancement catalog, permissions and purchases'
         'version',(SELECT version FROM public.progression_rulesets WHERE is_active),
         'nodes',(SELECT json_agg(json_build_object('id',node_id,'role',champion_role,'candyCost',candy_cost,
           'maxRanks',max_rank,'requiredMasteryLevel',required_mastery_level,'prerequisites',prerequisite_node_ids,
-          'active',active,'rulesetVersion',ruleset_version) ORDER BY node_id COLLATE "C")
+          'active',active,'rulesetVersion',ruleset_version,'championId',champion_id,'disabledReason',disabled_reason,'eligibility',eligibility) ORDER BY node_id COLLATE "C")
           FROM public.enhancement_node_catalog WHERE ruleset_version=(SELECT version FROM public.progression_rulesets WHERE is_active)),
         'champions',(SELECT json_agg(json_build_object('championId',champion_id,'primaryRole',primary_role,'active',active)
           ORDER BY champion_id COLLATE "C") FROM public.progression_champion_catalog
@@ -87,7 +89,7 @@ describeDatabase('TREE-01 actual enhancement catalog, permissions and purchases'
       SELECT json_build_object('audit',json_build_object(
         'grants',(SELECT json_agg(json_build_object('role',r,'purchase',
           has_function_privilege(r,'public.unlock_champion_enhancement(text,text,integer,uuid)','EXECUTE'),
-          'privatePurchase',has_function_privilege(r,'private.unlock_champion_enhancement_pre_candy_ledger(text,text,integer,uuid)','EXECUTE'),
+          'privatePurchase',has_function_privilege(r,'private.purchase_enhancement_v4(text,text,integer,integer,uuid)','EXECUTE'),
           'mutate',has_table_privilege(r,'public.champion_enhancements','INSERT,UPDATE,DELETE')))
           FROM unnest(ARRAY['anon','authenticated','service_role']) r),
         'visibility',(SELECT json_object_agg(label,n) FROM audit_visibility)
@@ -118,19 +120,47 @@ describeDatabase('TREE-01 actual enhancement catalog, permissions and purchases'
     const anonymousSession = await anonymousApi.auth.signInAnonymously();
     if (anonymousSession.data.user) {
       users.push(anonymousSession.data.user.id);
+      const anonymousPurchase = await anonymousApi.rpc('unlock_champion_enhancement', {
+        p_champion_id: 'Garen',
+        p_node_id: 'fighter_core_1',
+        p_expected_rank: 0,
+        p_command_id: randomUUID(),
+      });
+      expect(anonymousPurchase.error?.message).toBe('registered_account_required');
       await anonymousApi.auth.signOut();
     }
     // This is the disposable local config, not a claim about any remote project.
-    expect(anonymousSession.error?.code).toBe('anonymous_provider_disabled');
+    if (!anonymousSession.data.user)
+      expect(anonymousSession.error?.code).toBe('anonymous_provider_disabled');
   });
 
-  it('isolates the purchase checks for every node with seeded parents, exposing the UI-only availability gate', () => {
+  it('checks all 88 canonical IDs against actual SQL: 57 legal, 12 disabled, 3 inherited and 16 gated', () => {
     const champions = new Map(
       catalog.nodes.map((node) => [
         node.role,
         catalog.champions.find((champion) => champion.primaryRole === node.role)!.championId,
       ]),
     );
+    const ancestors = (id: string, owned: Record<string, number> = {}): Record<string, number> => {
+      for (const parent of catalog.nodes.find((node) => node.id === id)?.prerequisites ?? []) {
+        owned[parent] = 1;
+        ancestors(parent, owned);
+      }
+      return owned;
+    };
+    const probe = catalog.nodes.map((node) => {
+      const championId = node.championId ?? champions.get(node.role)!;
+      const owned = ancestors(node.id);
+      return {
+        node,
+        championId,
+        owned,
+        error: getEnhancementServerLockReason(node, owned, 4, 100_000, undefined, {
+          nodes: catalog.nodes,
+          championId,
+        }),
+      };
+    });
     const actual = result<{
       responses: {
         node_id: string;
@@ -140,64 +170,62 @@ describeDatabase('TREE-01 actual enhancement catalog, permissions and purchases'
         catalog_version: number;
         replayed: boolean;
       }[];
+      errors: Record<string, string>;
       spent: number;
       debited: number;
       commands: number;
       balance: number;
     }>(`BEGIN;
       UPDATE public.players SET total_candies=100000 WHERE id='${owner.playerId}';
-      ${[...champions.values()].map((champion) => mastery(owner, champion)).join('\n')}
+      ${[...new Set(probe.map((entry) => entry.championId))].map((champion) => mastery(owner, champion)).join('\n')}
       CREATE TEMP TABLE audit_purchases(response jsonb); GRANT INSERT,SELECT ON audit_purchases TO authenticated;
+      CREATE TEMP TABLE audit_errors(node_id text,error text); GRANT INSERT,SELECT ON audit_errors TO authenticated;
       ${claims(owner)}
-      ${catalog.nodes
-        .map((node) => {
-          const champion = champions.get(node.role)!;
-          return `INSERT INTO public.champion_enhancements(user_id,champion_id,unlocked_nodes)
-          VALUES ('${owner.userId}',${literal(champion)},${literal(JSON.stringify(Object.fromEntries(node.prerequisites.map((id) => [id, 1]))))}::jsonb)
-          ON CONFLICT(user_id,champion_id) DO UPDATE SET unlocked_nodes=EXCLUDED.unlocked_nodes;
-          SET LOCAL ROLE authenticated; INSERT INTO audit_purchases VALUES (${unlock(champion, node.id)}); RESET ROLE;`;
-        })
+      ${probe
+        .map(
+          ({ node, championId, owned }) => `
+        INSERT INTO public.champion_enhancements(user_id,champion_id,unlocked_nodes)
+        VALUES ('${owner.userId}',${literal(championId)},${literal(JSON.stringify(owned))}::jsonb)
+        ON CONFLICT(user_id,champion_id) DO UPDATE SET unlocked_nodes=EXCLUDED.unlocked_nodes;
+        SET LOCAL ROLE authenticated;
+        DO $audit$ BEGIN BEGIN INSERT INTO audit_purchases VALUES (${unlock(championId, node.id)});
+          EXCEPTION WHEN OTHERS THEN INSERT INTO audit_errors VALUES (${literal(node.id)},SQLERRM); END; END $audit$;
+        RESET ROLE;`,
+        )
         .join('\n')}
       SELECT json_build_object('audit',json_build_object(
         'responses',(SELECT json_agg(response ORDER BY response->>'node_id' COLLATE "C") FROM audit_purchases),
+        'errors',(SELECT json_object_agg(node_id,error) FROM audit_errors),
         'spent',(SELECT count(*) FROM public.candy_transactions WHERE player_id='${owner.playerId}' AND kind='spent'),
         'debited',(SELECT -sum(amount) FROM public.candy_transactions WHERE player_id='${owner.playerId}' AND kind='spent'),
         'commands',(SELECT count(*) FROM public.progression_commands WHERE user_id='${owner.userId}'),
         'balance',(SELECT total_candies FROM public.players WHERE id='${owner.playerId}')
       )); ROLLBACK;`);
-    expect(actual.responses).toHaveLength(72);
-    const clientNodes = Object.values(ENHANCEMENT_TREES_BY_ROLE).flatMap((tree) => [
-      ...tree.coreNodes,
-      ...tree.branches.flatMap((branch) => branch.nodes),
-    ]);
-    const unavailable: string[] = [];
-    for (const node of catalog.nodes) {
+    expect(probe.filter((entry) => entry.error === null)).toHaveLength(57);
+    expect(actual.responses).toHaveLength(57);
+    expect(actual.errors).toEqual(
+      Object.fromEntries(
+        probe.filter((entry) => entry.error).map((entry) => [entry.node.id, entry.error]),
+      ),
+    );
+    for (const { node } of probe.filter((entry) => entry.error === null)) {
       expect(actual.responses.find((response) => response.node_id === node.id)).toMatchObject({
         current_rank: 1,
         candy_cost: node.candyCost,
         max_rank: node.maxRanks,
-        catalog_version: 3,
+        catalog_version: 4,
         replayed: false,
       });
-      const client = clientNodes.find((entry) => entry.id === node.id)!;
-      if (
-        !canUnlockNode(
-          client,
-          Object.fromEntries(node.prerequisites.map((id) => [id, 1])),
-          4,
-          100_000,
-        )
-      )
-        unavailable.push(node.id);
     }
-    expect(unavailable).toHaveLength(12);
-    const total = catalog.nodes.reduce((sum, node) => sum + node.candyCost, 0);
-    expect(actual.spent).toBe(72);
-    expect(actual.commands).toBe(72);
+    const total = probe
+      .filter((entry) => entry.error === null)
+      .reduce((sum, entry) => sum + entry.node.candyCost, 0);
+    expect(actual.spent).toBe(57);
+    expect(actual.commands).toBe(57);
     expect(actual.debited).toBe(total);
     expect(actual.balance).toBe(100000 - total);
-    // Seeded parents isolate RPC validation; this test does not establish that
-    // every parent can be reached through the public UI from an empty state.
+    // Owned ancestry is seeded to isolate every SQL node refusal, including legacy
+    // disabled parents. A separate test buys a complete legal chain from empty.
   });
 
   it('buys a complete legal three-node chain from empty and freezes its earlier run snapshot', () => {

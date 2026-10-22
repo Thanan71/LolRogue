@@ -21,11 +21,14 @@ export interface DamageEffectParams {
   /** Spell-authored damage retains its provenance when it ticks on a later turn. */
   abilityDamage?: boolean;
   sourceSide?: 'player' | 'enemy';
+  /** Distribute the rounded total exactly across ticks; opt-in for enhancement DoTs. */
+  preserveTotal?: boolean;
 }
 
 export class DamageEffect extends Effect<DamageEffectData> {
   readonly abilityDamage: boolean;
   readonly sourceSide: 'player' | 'enemy' | undefined;
+  private readonly preserveTotal: boolean;
   constructor(params: DamageEffectParams) {
     super({
       id: generateEffectId('dmg'),
@@ -45,6 +48,7 @@ export class DamageEffect extends Effect<DamageEffectData> {
     this.data.stacks = Math.min(this.data.stacks, this.data.maxStacks);
     this.abilityDamage = params.abilityDamage ?? false;
     this.sourceSide = params.sourceSide;
+    this.preserveTotal = params.preserveTotal ?? false;
   }
 
   get damageType(): DamageType {
@@ -68,9 +72,13 @@ export class DamageEffect extends Effect<DamageEffectData> {
 
   tick(): EffectEvent {
     // For DoT: each tick deals magnitude / duration damage
+    const total = Math.round(this.data.magnitude * this.data.stacks);
     const perTick = this.isInstant
       ? this.data.magnitude
-      : Math.round((this.data.magnitude * this.data.stacks) / this.data.duration);
+      : this.preserveTotal
+        ? Math.floor((total * (this.data.ticksElapsed + 1)) / this.data.duration) -
+          Math.floor((total * this.data.ticksElapsed) / this.data.duration)
+        : Math.round((this.data.magnitude * this.data.stacks) / this.data.duration);
 
     const event: EffectEvent = {
       type: 'effect_tick',

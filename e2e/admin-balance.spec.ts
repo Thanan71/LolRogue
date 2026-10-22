@@ -6,13 +6,16 @@ import {
   balanceChampionFixture,
   balanceConfigFixture,
 } from '../tests/fixtures/adminBalanceUi';
+import { balanceTreeFixture } from '../tests/fixtures/adminTreeUi';
 import { captureLoadedAdminPage, enterAdminExplorer } from './helpers/admin-explorer';
 
 async function balanceBackend(page: Page) {
   const api = {
     champions: [] as BalanceFilters[],
     builds: [] as BalanceFilters[],
+    trees: [] as BalanceFilters[],
     failChampions: false,
+    failTrees: false,
     denyChampions: false,
     configReads: 0,
   };
@@ -20,7 +23,22 @@ async function balanceBackend(page: Page) {
     const name = new URL(route.request().url()).pathname.split('/').pop();
     if (name === 'admin_balance_config') {
       api.configReads += 1;
-      await route.fulfill({ json: balanceConfigFixture() });
+      const config = balanceConfigFixture();
+      config.trees = { status: 'available', catalogVersion: 4, contractSchemaVersion: 1 };
+      await route.fulfill({ json: config });
+      return;
+    }
+    if (name === 'admin_balance_trees') {
+      const filters = (route.request().postDataJSON() as { p_filters: BalanceFilters }).p_filters;
+      api.trees.push(filters);
+      if (api.failTrees) {
+        await route.fulfill({
+          status: 500,
+          json: { code: 'XX000', message: 'Controlled tree read failure' },
+        });
+        return;
+      }
+      await route.fulfill({ json: balanceTreeFixture(filters) });
       return;
     }
     if (name === 'admin_balance_champions' || name === 'admin_balance_builds') {
@@ -83,7 +101,27 @@ async function openBalance(page: Page, language: 'fr-FR' | 'en-US' = 'fr-FR') {
   await expect(panel.locator('#admin-balance-picks table')).toBeVisible();
   await expect(panel.locator('#admin-balance-builds table')).toBeVisible();
   await expect(panel.locator('#admin-balance-config table')).toBeVisible();
-  await expect(panel).toContainText('TREE-10');
+  const trees = panel.locator('#admin-balance-trees');
+  await expect(trees).toHaveAttribute('aria-busy', 'false');
+  await expect(
+    trees.getByRole('table', {
+      name: language === 'fr-FR' ? 'Achats de nœuds' : 'Node purchases',
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    trees.getByRole('table', {
+      name: language === 'fr-FR' ? 'Achats par branche' : 'Purchases by branch',
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    trees.getByRole('table', {
+      name: language === 'fr-FR' ? 'Arbres au départ des runs' : 'Trees at run start',
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(trees.getByRole('alert')).toHaveCount(0);
   return panel;
 }
 
@@ -110,11 +148,13 @@ test('balance has one dedicated tab, versioned populations and independent stale
       difficulty: 'hard',
     });
   expect(api.builds.at(-1)).toEqual(api.champions.at(-1));
+  await expect.poll(() => api.trees.at(-1)).toEqual(api.champions.at(-1));
   await expect(champions).toContainText('run-engine-0.2.5');
   await expect(champions).toContainText(/moins de 30 comptes/);
   await expect(champions).toContainText(/Runs répétées par compte/);
   const buildReads = api.builds.length;
   const configReads = api.configReads;
+  const treeReads = api.trees.length;
   api.failChampions = true;
   await champions.getByRole('button', { name: 'Actualiser', exact: true }).click();
   await expect(champions.getByRole('alert')).toBeVisible();
@@ -125,6 +165,26 @@ test('balance has one dedicated tab, versioned populations and independent stale
   await champions.getByRole('button', { name: 'Réessayer', exact: true }).click();
   await expect(champions.getByRole('alert')).toHaveCount(0);
   await expect(champions).toHaveAttribute('aria-busy', 'false');
+  expect(api.builds).toHaveLength(buildReads);
+  expect(api.configReads).toBe(configReads);
+  expect(api.trees).toHaveLength(treeReads);
+  const trees = panel.locator('#admin-balance-trees');
+  await expect(trees).toContainText('pas un taux de conversion');
+  await expect(trees).toContainText('au moins 30 acheteurs');
+  await expect(trees.getByRole('table', { name: 'Achats de nœuds' })).toContainText(
+    'fighter_core_1',
+  );
+  const championReads = api.champions.length;
+  api.failTrees = true;
+  await trees.getByRole('button', { name: 'Actualiser', exact: true }).click();
+  await expect(trees.getByRole('alert')).toBeVisible();
+  await expect(trees).toContainText(/dernière lecture réussie/);
+  await expect(trees.getByRole('table', { name: 'Arbres au départ des runs' })).toBeVisible();
+  api.failTrees = false;
+  await trees.getByRole('button', { name: 'Réessayer', exact: true }).click();
+  await expect(trees.getByRole('alert')).toHaveCount(0);
+  await expect(trees).toHaveAttribute('aria-busy', 'false');
+  expect(api.champions).toHaveLength(championReads);
   expect(api.builds).toHaveLength(buildReads);
   expect(api.configReads).toBe(configReads);
   await page.getByRole('tab', { name: /Surveillance/ }).click();
@@ -154,7 +214,11 @@ test('English balance reflows at320px with keyboard tables, honest missing metri
   await page.keyboard.press('Enter');
   await expect(panel.locator('#admin-balance-champions')).toHaveAttribute('aria-busy', 'false');
   await expect(panel).toContainText('DPS and control duration are not collected');
-  await expect(panel).toContainText('Waiting for TREE-10');
+  const trees = panel.locator('#admin-balance-trees');
+  await expect(trees).toHaveAttribute('aria-busy', 'false');
+  await expect(trees).toContainText('not a conversion rate');
+  await expect(trees).toContainText('at least 30 purchasers');
+  await expect(trees.getByText('50.0%', { exact: true })).toHaveCount(0);
   await expect(panel).toContainText('without guaranteed simultaneity');
   await panel.getByText('Baseline provenance', { exact: true }).click();
   await expect(
@@ -192,13 +256,16 @@ test('permission denial clears every cached balance resource and disables retrie
     .getByRole('button', { name: 'Actualiser', exact: true })
     .click();
   await expect(panel.getByRole('alert').first()).toContainText('Accès refusé');
-  for (const resource of ['champions', 'builds', 'config', 'field'])
+  for (const resource of ['champions', 'builds', 'trees', 'config', 'field'])
     await expect(panel.locator(`#admin-balance-${resource}`).getByRole('table')).toHaveCount(0);
   expect(api.champions.length).toBeGreaterThan(1);
   await expect(
     panel
       .locator('#admin-balance-champions')
       .getByRole('button', { name: 'Actualiser', exact: true }),
+  ).toBeDisabled();
+  await expect(
+    panel.locator('#admin-balance-trees').getByRole('button', { name: 'Actualiser', exact: true }),
   ).toBeDisabled();
 });
 

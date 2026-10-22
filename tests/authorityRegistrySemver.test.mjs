@@ -11,6 +11,7 @@ describe('semantic authority registry versions', () => {
   it('labels a new release semantically while preserving historical ordinal labels', () => {
     expect(getAuthorityGameplayVersionLabel(23)).toBe('0.2.0');
     expect(getAuthorityGameplayVersionLabel(24)).toBe('0.2.5');
+    expect(getAuthorityGameplayVersionLabel(25)).toBe('0.3.0');
     expect(getAuthorityGameplayVersionLabel(22)).toBe('22');
     expect(getAuthorityGameplayVersionLabel(99)).toBe('99');
   });
@@ -18,8 +19,17 @@ describe('semantic authority registry versions', () => {
   it('admits semantic releases alongside immutable historical identities', () => {
     expect(validateAuthorityVersionRegistry(structuredClone(registry))).toEqual(registry);
     expect(registry.versions.at(-1)).toMatchObject({
+      engine: 'run-engine-0.3.0',
+      rulesetCode: '0.3.0',
+      gameplay: 25,
+      progression: 4,
+    });
+    expect(registry.versions.find((entry) => entry.gameplay === 24)).toMatchObject({
       engine: 'run-engine-0.2.5',
       rulesetCode: '0.2.5',
+      contentHash: '9009950fe0b1c6944a26486e65b0bb0f1379129b42d7499f2bf1c0a8ce3391fa',
+      status: 'replay-only',
+      progression: 3,
     });
   });
 

@@ -1,4 +1,5 @@
 import type { AuthorityDifficulty, AuthorityRunSnapshot } from '@/game/authority/types';
+import { hasAuthorityFeature } from '@/game/authority/versionRegistry';
 import type { BattleManager } from '@/game/battle/BattleManager';
 import { ActionType, BattlePhase } from '@/game/battle/types';
 import type { ChampionInstance } from '@/game/ChampionInstance';
@@ -390,13 +391,23 @@ export function generateVeigarRunProgressionBalanceDocument(input: {
   edgeAuthority: AuthorityCohortRuntime;
   sourceClasses: VeigarBalanceBattleClasses;
   edgeClasses: VeigarBalanceBattleClasses;
+  /** Offline replay may attest a frozen registry capability independently of live support. */
+  registeredAuthority?: {
+    readonly engine: string;
+    readonly contentHash: string;
+    readonly features: { readonly runProgression: boolean };
+  };
   seeds?: readonly number[];
 }) {
   const seeds = input.seeds ?? VEIGAR_BALANCE_SEEDS;
+  const registered = input.registeredAuthority;
+  const supportsRunProgression = registered
+    ? registered.engine === input.sourceAuthority.engineVersion &&
+      registered.contentHash === input.sourceAuthority.contentHash &&
+      registered.features.runProgression
+    : hasAuthorityFeature(input.sourceAuthority.engineVersion, 'runProgression');
   if (
-    !['run-engine-v22', 'run-engine-0.2.0', 'run-engine-0.2.5'].includes(
-      input.sourceAuthority.engineVersion,
-    ) ||
+    !supportsRunProgression ||
     input.edgeAuthority.engineVersion !== input.sourceAuthority.engineVersion ||
     input.edgeAuthority.contentHash !== input.sourceAuthority.contentHash
   )

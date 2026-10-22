@@ -249,12 +249,27 @@ export function readBusinessImportGraph(root) {
   if (existsSync(resolve(root, 'data'))) walk(resolve(root, 'data'));
   const config = JSON.parse(readFileSync(resolve(root, 'tsconfig.json'), 'utf8'));
   const paths = new Set(files.map((file) => file.path));
-  return buildImportGraph(files, (source, specifier) =>
+  const graph = buildImportGraph(files, (source, specifier) =>
     resolveInMemory(source, specifier, paths, config.compilerOptions.paths, root),
   );
+  const registry = JSON.parse(
+    readFileSync(resolve(root, 'config/authority-versions.json'), 'utf8'),
+  );
+  // Only immutable, registry-declared replays are exposed through this generated lazy bridge.
+  // The generated-artifact check separately enforces exact loader text and archived bytes.
+  graph.replayArchives = new Set(
+    registry.versions.filter(({ status }) => status === 'replay-only').map(({ bundle }) => bundle),
+  );
+  return graph;
 }
 
-function forbiddenTarget(edge) {
+function forbiddenTarget(edge, replayArchives) {
+  if (
+    edge.source === 'src/game/authority/versionClientReplay.generated.ts' &&
+    edge.kind === 'dynamic-import' &&
+    replayArchives?.has(edge.target)
+  )
+    return null;
   if (edge.target === null) return 'computed-import';
   if (FORBIDDEN_PACKAGES.test(edge.specifier ?? '') || FORBIDDEN_PACKAGES.test(edge.target))
     return 'ui-or-transport';
@@ -461,7 +476,9 @@ export function checkBusinessBoundaries(graph) {
     }
   }
   const gameRoots = graph.nodes.filter((node) => node.startsWith('src/game/'));
-  for (const { edge, reason, chain } of findReachableImports(graph, gameRoots, forbiddenTarget)) {
+  for (const { edge, reason, chain } of findReachableImports(graph, gameRoots, (edge) =>
+    forbiddenTarget(edge, graph.replayArchives),
+  )) {
     violations.push({
       ...edge,
       rule: 'deterministic-game-boundary',

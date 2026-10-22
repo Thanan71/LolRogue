@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.10/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -18,7 +18,9 @@
       "!!supabase/**/run-authority-*.bundle.ts",
       "!!supabase/**/run-authority-*.bundle.js",
       "!!supabase/functions/verify-run/authority-version-resolver.generated.ts",
-      "!!src/game/authority/versionCapabilities.generated.ts"
+      "!!src/game/authority/versionCapabilities.generated.ts",
+      "!!src/game/authority/versionClientReplay.generated.ts",
+      "!!docs/audits/enhancement-trees.json"
     ]
   },
   "formatter": {

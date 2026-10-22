@@ -1,14 +1,14 @@
-# Audit reproductible des arbres — TREE-01
+# Audit reproductible des arbres — TREE-01 / TREE-10
 
 > Généré par `npm run testing -- enhancements audit`. Ne pas modifier ce rapport à la main.
 
-Le JSON voisin conserve les 72 définitions, libellés FR/EN, chemins, coûts, causes et preuves physiques. Ce rapport est une observation des sources, pas une interrogation distante ni une réparation.
+Le JSON voisin conserve les 72 nœuds de rôle et les 16 extensions spécialisées du catalogue 4, leurs libellés FR/EN, chemins, coûts, conditions et sources. Observation hors ligne : aucune interrogation distante ou écriture de progression.
 
-**6 arbres / 72 nœuds ; 57 atteignables, 15 bloqués ; 0 nœud affecté par un défaut topologique.**
+**6 arbres de rôle + 4 extensions / 88 nœuds ; 57 atteignables, 31 bloqués ; 0 nœud affecté par un défaut topologique.**
 
 Maîtrise maximale : **4**. Budget Candies global : **non plafonné** ; un solde suffisant reste requis pour chaque achat.
 
-12 indisponibilités directes, 3 blocages hérités, 0 blocage de maîtrise. 0 divergence d’attributs du catalogue ; 15 divergences d’éligibilité depuis un état vide entre client et modèle SQL.
+12 indisponibilités directes, 3 blocages hérités, 16 extensions fermées par gate, 0 blocage de maîtrise. 0 divergence d’attributs du catalogue ; 0 divergences d’éligibilité depuis un état vide entre client et modèle SQL.
 
 Les coûts incluent une fois chaque ancêtre requis au rang 1 ; le rang maximal paie ensuite chaque rang du nœud cible au coût constant. Un coût théorique ne prouve pas un chemin achetable : le champ `reachable` du JSON fait foi.
 
@@ -233,12 +233,12 @@ Vert : chemin légal ; orange : indisponibilité ou héritage ; violet : maîtri
 | `assassin_core_1` | Griffes Aiguisées / Sharpened Claws | socle | 1 | 20 ; 20 / 20 | 0 | — | oui / oui | implemented |
 | `assassin_core_2` | Agilité / Agility | socle | 1 | 30 ; 50 / 50 | 1 | assassin_core_1 | oui / oui | implemented |
 | `assassin_core_3` | Pénétration / Penetration | socle | 1 | 40 ; 90 / 90 | 2 | assassin_core_2 | oui / oui | implemented |
-| `assassin_mobility_1` | Pas Furtif / Stealthy Step | assassin_mobility | 1 | 50 ; 50 / 50 | 1 | — | non / oui | descriptive |
-| `assassin_mobility_2` | Embuscade / Ambush | assassin_mobility | 1 | 80 ; 130 / 130 | 2 | assassin_mobility_1 | non / oui | descriptive |
-| `assassin_mobility_3` | Ombre / Shadow | assassin_mobility | 1 | 150 ; 280 / 280 | 3 | assassin_mobility_2 | non / oui | descriptive |
-| `assassin_sustain_1` | Soif de Sang / Bloodthirst | assassin_sustain | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | partial |
+| `assassin_mobility_1` | Pas Furtif / Stealthy Step | assassin_mobility | 1 | 50 ; 50 / 50 | 1 | — | non / non | descriptive |
+| `assassin_mobility_2` | Embuscade / Ambush | assassin_mobility | 1 | 80 ; 130 / 130 | 2 | assassin_mobility_1 | non / non | descriptive |
+| `assassin_mobility_3` | Ombre / Shadow | assassin_mobility | 1 | 150 ; 280 / 280 | 3 | assassin_mobility_2 | non / non | descriptive |
+| `assassin_sustain_1` | Soif de Sang / Bloodthirst | assassin_sustain | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | implemented |
 | `assassin_sustain_2` | Vampirisme / Vampirism | assassin_sustain | 1 | 80 ; 130 / 130 | 2 | assassin_sustain_1 | oui / oui | implemented |
-| `assassin_sustain_3` | Phénix / Phoenix | assassin_sustain | 1 | 150 ; 280 / 280 | 3 | assassin_sustain_2 | oui / oui | partial |
+| `assassin_sustain_3` | Phénix / Phoenix | assassin_sustain | 1 | 150 ; 280 / 280 | 3 | assassin_sustain_2 | oui / oui | implemented |
 
 ### assassin_burst_1 — Frappe Critique
 
@@ -254,7 +254,9 @@ Valeurs déclarées : plats `{"crit":8}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -267,7 +269,7 @@ EN : +10% damage against targets below 40% HP
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.assassin_burst_2`.
 
-Effet : **implemented**. Types : `execute_damage`. Multiplie les dégâts par 1 + value si les PV courants de la cible sont strictement sous 40 %.
+Effet : **implemented**. Types : `execute_damage`. Dégâts × (1 + value) sous 40 % des PV max de la cible, seuil strict.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
@@ -277,13 +279,13 @@ Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et 
 
 ### assassin_burst_3 — Mort Subite
 
-FR : Ultime : dégâts explosifs augmentés de 20 %
+FR : Les dégâts de la compétence R sont augmentés de 20 %.
 
-EN : Ultimate: Burst damage increased by 20%
+EN : Damage from the R ability is increased by 20%.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.assassin_burst_3`.
 
-Effet : **implemented**. Types : `burst_amplify`. Multiplie les dégâts de l’action SpellR par 1 + value.
+Effet : **implemented**. Types : `burst_amplify`. Dégâts de la compétence R × (1 + value), autres actions inchangées.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
@@ -305,7 +307,9 @@ Valeurs déclarées : plats `{"atk":5}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -324,7 +328,9 @@ Valeurs déclarées : plats `{}` ; pourcentages `{"spd":0.03}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -343,7 +349,9 @@ Valeurs déclarées : plats `{"armorPen":4}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -423,15 +431,15 @@ EN : +5% Lifesteal
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.assassin_sustain_1`.
 
-Effet : **partial**. Types : statistiques. flat.lifesteal=5. Bonus secondaire plat divisé par 100, appliqué à tous les événements damage_dealt du porteur.
+Effet : **implemented**. Types : statistiques. flat.lifesteal=5. Bonus secondaire plat divisé par 100, appliqué aux dégâts HP des attaques de base du porteur.
 
 Valeurs déclarées : plats `{"lifesteal":5}` ; pourcentages `{}`.
 
-- Écart d’effet : Vol de vie appliqué aussi aux sorts et DoT, sans restriction aux attaques de base.
+Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-03, TREE-04.
-
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -445,13 +453,15 @@ EN : +3% Omnivamp
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.assassin_sustain_2`.
 
-Effet : **implemented**. Types : statistiques. flat.omnivamp=3. Même consommateur que lifesteal : les deux pourcentages plats s’additionnent aux soins après dégâts.
+Effet : **implemented**. Types : statistiques. flat.omnivamp=3. Bonus secondaire plat divisé par 100 sur tous les dégâts HP du porteur ; s’ajoute au vol de vie seulement pour les attaques de base.
 
 Valeurs déclarées : plats `{"omnivamp":3}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -459,21 +469,17 @@ Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntim
 
 ### assassin_sustain_3 — Phénix
 
-FR : Ultime : en dessous de 20 % PV, gagne un bouclier de 200 PV (60 s de récupération)
+FR : Avant un coup reçu sous 20 % PV, gagne un bouclier de 200 PV pendant 2 tours, une fois par combat.
 
-EN : Ultimate: Below 20% HP, gain a 200 HP shield (60s cooldown)
+EN : Before a hit received below 20% HP, gain a 200 HP shield for 2 turns, once per battle.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.assassin_sustain_3`.
 
-Effet : **partial**. Types : `survival_shield`. Sous 20 % PV avant le coup, le bus émet un bouclier puis marque la source utilisée jusqu’au reset du combat.
+Effet : **implemented**. Types : `survival_shield`. Sous 20 % PV avant un coup, émet et applique le bouclier avant ce coup, pour duration tours ; une utilisation par combat.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
-- Écart d’effet : Phénix : le texte FR/EN annonce 60 secondes ; le bus autorise une seule émission par combat et ignore cooldown.
-- Écart d’effet : BattleManager ne résout pas beforeRules.instantEffects : le bouclier émis n’est pas appliqué au combat normal.
-- Écart d’effet : Le seuil est testé avant les dégâts ; le passage de plus de 20 % à moins de 20 % ne déclenche pas le bouclier sur ce coup.
-
-Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-03, TREE-04.
+Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-04.
 
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.beforeDamage`.
 - Source : `src/game/battle/BattleManager.ts` — `BattleManager._applyDamageToTarget`.
@@ -515,62 +521,58 @@ Vert : chemin légal ; orange : indisponibilité ou héritage ; violet : maîtri
 
 | ID | FR / EN | Branche | Rang max | Candies/rang ; chemin 1er/max | Maîtrise | Parents | Déblocage client / SQL | Effet |
 | --- | --- | --- | ---: | --- | ---: | --- | --- | --- |
-| `fighter_bruiser_1` | Frappe Lourde / Heavy Strike | fighter_bruiser | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | partial |
-| `fighter_bruiser_2` | Saignée / Bloodletting | fighter_bruiser | 1 | 80 ; 130 / 130 | 2 | fighter_bruiser_1 | oui / oui | partial |
+| `fighter_bruiser_1` | Frappe Lourde / Heavy Strike | fighter_bruiser | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | implemented |
+| `fighter_bruiser_2` | Saignée / Bloodletting | fighter_bruiser | 1 | 80 ; 130 / 130 | 2 | fighter_bruiser_1 | oui / oui | implemented |
 | `fighter_bruiser_3` | Furie / Berserker | fighter_bruiser | 1 | 150 ; 280 / 280 | 3 | fighter_bruiser_2 | oui / oui | implemented |
 | `fighter_core_1` | Force / Strength | socle | 1 | 20 ; 20 / 20 | 0 | — | oui / oui | implemented |
 | `fighter_core_2` | Endurance / Endurance | socle | 1 | 30 ; 50 / 50 | 1 | fighter_core_1 | oui / oui | implemented |
 | `fighter_core_3` | Fureur / Fury | socle | 1 | 40 ; 90 / 90 | 2 | fighter_core_2 | oui / oui | implemented |
-| `fighter_duelist_1` | Riposte / Riposte | fighter_duelist | 1 | 50 ; 50 / 50 | 1 | — | non / oui | descriptive |
-| `fighter_duelist_2` | Défi / Challenge | fighter_duelist | 1 | 80 ; 130 / 130 | 2 | fighter_duelist_1 | non / oui | partial |
-| `fighter_duelist_3` | Mort ou Vif / Dead or Alive | fighter_duelist | 1 | 150 ; 280 / 280 | 3 | fighter_duelist_2 | non / oui | partial |
-| `fighter_sustain_1` | Vol de Vie / Lifesteal | fighter_sustain | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | partial |
+| `fighter_duelist_1` | Riposte / Riposte | fighter_duelist | 1 | 50 ; 50 / 50 | 1 | — | non / non | descriptive |
+| `fighter_duelist_2` | Défi / Challenge | fighter_duelist | 1 | 80 ; 130 / 130 | 2 | fighter_duelist_1 | non / non | implemented |
+| `fighter_duelist_3` | Mort ou Vif / Dead or Alive | fighter_duelist | 1 | 150 ; 280 / 280 | 3 | fighter_duelist_2 | non / non | implemented |
+| `fighter_sustain_1` | Vol de Vie / Lifesteal | fighter_sustain | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | implemented |
 | `fighter_sustain_2` | Récupération / Recovery | fighter_sustain | 1 | 80 ; 130 / 130 | 2 | fighter_sustain_1 | oui / oui | implemented |
 | `fighter_sustain_3` | Immortalité / Immortality | fighter_sustain | 1 | 150 ; 280 / 280 | 3 | fighter_sustain_2 | oui / oui | implemented |
 
 ### fighter_bruiser_1 — Frappe Lourde
 
-FR : +5 % de dégâts
+FR : +5 % de dégâts d’attaque ; aucun multiplicateur global de dégâts.
 
-EN : +5% damage
+EN : +5% Attack Damage; no global damage multiplier.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.fighter_bruiser_1`.
 
-Effet : **partial**. Types : statistiques. percent.atk=0.05. Dégâts d’attaque canoniques, pas un multiplicateur global de dégâts.
+Effet : **implemented**. Types : statistiques. percent.atk=0.05. Dégâts d’attaque canoniques, pas un multiplicateur global de dégâts.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{"atk":0.05}`.
 
-- Écart d’effet : Frappe Lourde annonce +5 % de dégâts mais livre percent.atk=0,05 : +5 % de dégâts d’attaque, sans multiplication globale.
+Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-03, TREE-04.
-
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
 
 ### fighter_bruiser_2 — Saignée
 
-FR : Les attaques appliquent des saignements (3 % des PV maximum sur 2 s)
+FR : Les attaques de base infligent 3 % des PV max de la cible en dégâts vrais sur 2 tours ; applications indépendantes.
 
-EN : Attacks inflict bleeding (3% max HP over 2s)
+EN : Basic attacks deal 3% of the target’s max HP as true damage over 2 turns; applications are independent.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.fighter_bruiser_2`.
 
-Effet : **partial**. Types : `bleed`. Après chaque attaque de base infligeant des dégâts HP, émet un DoT de PV max cible × value, réparti en round(duration) tours, en dégâts vrais.
+Effet : **implemented**. Types : `bleed`. Sur une attaque de base infligeant des dégâts HP, tirage chance (absent = 100 %), puis total round(PV max cible × value) en dégâts vrais répartis exactement sur duration tours ; applications indépendantes et boucliers absorbants.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
-- Écart d’effet : Aucun tirage de chance : Tir Déchirant s’applique à chaque événement éligible malgré les 15 % annoncés.
-- Écart d’effet : Les durées annoncées en secondes sont utilisées comme tours ; chaque tick est arrondi séparément, sans garantie d’un total exact.
-- Écart d’effet : Chaque application crée une instance indépendante (maxStacks=1), sans plafond global ni rafraîchissement ; les ticks repassent par before_damage et les boucliers.
-
-Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-03, TREE-04.
+Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-04.
 
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.afterDamage`.
+- Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.shouldTriggerEnhancementChance`.
 - Source : `src/game/battle/BattleRuleEffectResolver.ts` — `resolveBattleRuleEffect`.
 - Source : `src/game/effects/DamageEffect.ts` — `DamageEffect.tick`.
-- Source : `src/game/effects/EffectManager.ts` — `EffectManager.apply`.
 - Source : `src/game/battle/BattleManager.ts` — `BattleManager._tickTurnEffects`.
 
 ### fighter_bruiser_3 — Furie
@@ -581,7 +583,7 @@ EN : Ultimate: Below 50% HP, deal +20% damage
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.fighter_bruiser_3`.
 
-Effet : **implemented**. Types : `berserker`. Multiplie les dégâts par 1 + value quand les PV du porteur sont strictement sous 50 %.
+Effet : **implemented**. Types : `berserker`. Dégâts × (1 + value) lorsque les PV du porteur sont strictement sous 50 %.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
@@ -603,7 +605,9 @@ Valeurs déclarées : plats `{"hp":10,"atk":3}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -622,7 +626,9 @@ Valeurs déclarées : plats `{"def":5}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -641,7 +647,9 @@ Valeurs déclarées : plats `{}` ; pourcentages `{"attackSpeed":0.05}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -669,41 +677,37 @@ Responsables des effets : Catalogue / disponibilité du moteur / traductions. Su
 
 ### fighter_duelist_2 — Défi
 
-FR : +10 % de dégâts contre les champions ennemis
+FR : +10 % de dégâts infligés par attaques, sorts et DoT.
 
-EN : +10% damage against enemy champions
+EN : +10% damage dealt by attacks, spells and damage over time.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.fighter_duelist_2`.
 
-Effet : **partial**. Types : `champion_damage`. Multiplie tous les dégâts par 1 + value sans classification de la cible.
+Effet : **implemented**. Types : `champion_damage`. Dégâts des attaques, sorts et DoT × (1 + value), sur toute cible ; renvois sans récursion exclus.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
 - Blocage `unavailable` via `fighter_duelist_2` → `fighter_duelist_1` : Bonus de dégâts après esquive. Responsable : Disponibilité des effets / descendants ; suite : TREE-02 / TREE-03.
 
-- Écart d’effet : Le texte annonce les champions ; aucun prédicat de type de cible n’est présent.
-
-Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-03, TREE-04.
+Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-04.
 
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.beforeDamage`.
 
 ### fighter_duelist_3 — Mort ou Vif
 
-FR : Ultime : en duel contre un champion, +25 % de dégâts et +15 % de réduction des dégâts
+FR : Avec exactement un combattant vivant par camp, +25 % de dégâts infligés et 15 % de réduction des dégâts reçus.
 
-EN : Ultimate: In a duel against a champion, gain +25% damage and +15% damage reduction
+EN : With exactly one living combatant per side, +25% damage dealt and 15% less incoming damage.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.fighter_duelist_3`.
 
-Effet : **partial**. Types : `duelist`. Quand chaque camp possède exactement un acteur vivant, multiplie les dégâts sortants par 1 + value et ajoute 15 % de réduction entrante.
+Effet : **implemented**. Types : `duelist`. Avec exactement un acteur vivant par camp, dégâts sortants × (1 + value) et 15 % de réduction entrante.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
 - Blocage `unavailable` via `fighter_duelist_3` → `fighter_duelist_2` → `fighter_duelist_1` : Bonus de dégâts après esquive. Responsable : Disponibilité des effets / descendants ; suite : TREE-02 / TREE-03.
 
-- Écart d’effet : Aucun contrôle du type champion de l’adversaire malgré le texte ; le bonus défensif de 15 % est codé dans le handler.
-
-Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-03, TREE-04.
+Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-04.
 
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.beforeDamage`.
 
@@ -715,15 +719,15 @@ EN : +4% Lifesteal
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.fighter_sustain_1`.
 
-Effet : **partial**. Types : statistiques. flat.lifesteal=4. Bonus secondaire plat divisé par 100, appliqué à tous les événements damage_dealt du porteur.
+Effet : **implemented**. Types : statistiques. flat.lifesteal=4. Bonus secondaire plat divisé par 100, appliqué aux dégâts HP des attaques de base du porteur.
 
 Valeurs déclarées : plats `{"lifesteal":4}` ; pourcentages `{}`.
 
-- Écart d’effet : Vol de vie appliqué aussi aux sorts et DoT, sans restriction aux attaques de base.
+Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-03, TREE-04.
-
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -743,7 +747,9 @@ Valeurs déclarées : plats `{"hpRegen":5}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -757,7 +763,7 @@ EN : Ultimate: Kills restore 20% max HP
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.fighter_sustain_3`.
 
-Effet : **implemented**. Types : `heal_on_kill`. Une élimination créditée au porteur émet un soin de ses PV max × value ; amplification du soin et plafond HP ensuite.
+Effet : **implemented**. Types : `heal_on_kill`. Une élimination créditée au porteur soigne ses PV max × value, puis amplification et plafond des PV.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
@@ -804,16 +810,16 @@ Vert : chemin légal ; orange : indisponibilité ou héritage ; violet : maîtri
 | ID | FR / EN | Branche | Rang max | Candies/rang ; chemin 1er/max | Maîtrise | Parents | Déblocage client / SQL | Effet |
 | --- | --- | --- | ---: | --- | ---: | --- | --- | --- |
 | `mage_burst_1` | Concentration / Focus | mage_burst | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | implemented |
-| `mage_burst_2` | Combustion / Combustion | mage_burst | 1 | 80 ; 130 / 130 | 2 | mage_burst_1 | oui / oui | partial |
-| `mage_burst_3` | Tempête Arcane / Arcane Storm | mage_burst | 1 | 150 ; 280 / 280 | 3 | mage_burst_2 | non / oui | descriptive |
-| `mage_control_1` | Ralentissement / Slow | mage_control | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | partial |
-| `mage_control_2` | Canalisation / Channeling | mage_control | 1 | 80 ; 130 / 130 | 2 | mage_control_1 | oui / oui | partial |
-| `mage_control_3` | Racines / Roots | mage_control | 1 | 150 ; 280 / 280 | 3 | mage_control_2 | oui / oui | partial |
+| `mage_burst_2` | Combustion / Combustion | mage_burst | 1 | 80 ; 130 / 130 | 2 | mage_burst_1 | oui / oui | implemented |
+| `mage_burst_3` | Tempête Arcane / Arcane Storm | mage_burst | 1 | 150 ; 280 / 280 | 3 | mage_burst_2 | non / non | descriptive |
+| `mage_control_1` | Ralentissement / Slow | mage_control | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | implemented |
+| `mage_control_2` | Canalisation / Channeling | mage_control | 1 | 80 ; 130 / 130 | 2 | mage_control_1 | oui / oui | implemented |
+| `mage_control_3` | Racines / Roots | mage_control | 1 | 150 ; 280 / 280 | 3 | mage_control_2 | oui / oui | implemented |
 | `mage_core_1` | Étincelle Arcane / Arcane Spark | socle | 1 | 20 ; 20 / 20 | 0 | — | oui / oui | implemented |
 | `mage_core_2` | Hâte / Haste | socle | 1 | 30 ; 50 / 50 | 1 | mage_core_1 | oui / oui | implemented |
 | `mage_core_3` | Pénétration Magique / Magic Penetration | socle | 1 | 40 ; 90 / 90 | 2 | mage_core_2 | oui / oui | implemented |
 | `mage_sustain_1` | Clarté / Clarity | mage_sustain | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | implemented |
-| `mage_sustain_2` | Flux de Mana / Manaflow | mage_sustain | 1 | 80 ; 130 / 130 | 2 | mage_sustain_1 | oui / oui | partial |
+| `mage_sustain_2` | Flux de Mana / Manaflow | mage_sustain | 1 | 80 ; 130 / 130 | 2 | mage_sustain_1 | oui / oui | implemented |
 | `mage_sustain_3` | Présence Éternelle / Eternal Presence | mage_sustain | 1 | 150 ; 280 / 280 | 3 | mage_sustain_2 | oui / oui | implemented |
 
 ### mage_burst_1 — Concentration
@@ -830,28 +836,30 @@ Valeurs déclarées : plats `{"ap":8}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
 
 ### mage_burst_2 — Combustion
 
-FR : +15 % de dégâts magiques
+FR : +15 % de puissance ; ne multiplie pas directement les dégâts magiques.
 
-EN : +15% magic damage
+EN : +15% Ability Power; does not directly multiply magic damage.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.mage_burst_2`.
 
-Effet : **partial**. Types : statistiques. percent.ap=0.15. Puissance canonique, utilisée uniquement par les ratios AP des effets.
+Effet : **implemented**. Types : statistiques. percent.ap=0.15. Puissance canonique, utilisée uniquement par les ratios AP des effets.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{"ap":0.15}`.
 
-- Écart d’effet : Combustion annonce +15 % de dégâts magiques mais livre percent.ap=0,15 : +15 % de puissance ; dégâts de base et dégâts sans ratio AP inchangés.
+Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-03, TREE-04.
-
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -879,41 +887,38 @@ Responsables des effets : Catalogue / disponibilité du moteur / traductions. Su
 
 ### mage_control_1 — Ralentissement
 
-FR : Les sorts appliquent 15 % de ralentissement pendant 1 s
+FR : Les dégâts de sort appliquent 15 % de ralentissement pendant 1 tour, avant modificateurs de durée.
 
-EN : Spells apply a 15% slow for 1s
+EN : Spell damage applies a 15% slow for 1 turn, before duration modifiers.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.mage_control_1`.
 
-Effet : **partial**. Types : `slow`. Après un dégât de sort, applique value de ralentissement pendant max(1, round(duration)) tours ; les ralentissements cumulés sont plafonnés à 60 %.
+Effet : **implemented**. Types : `slow`. Après un dégât de sort, applique value de ralentissement pour duration tours, modifiés par extension et ténacité, puis arrondi supérieur et caps ; cumul des ralentissements plafonné à 60 %.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
-- Écart d’effet : La seconde annoncée devient un tour ; les contrôles émis par ce résolveur ne passent pas par les multiplicateurs ténacité/extension des sorts.
-
-Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-03, TREE-04.
+Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-04.
 
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.afterDamage`.
 - Source : `src/game/battle/BattleRuleEffectResolver.ts` — `resolveBattleRuleEffect`.
-- Source : `src/game/effects/EffectManager.ts` — `EffectManager.getSpeedMultiplier`.
 
 ### mage_control_2 — Canalisation
 
-FR : +10 de hâte de compétence
+FR : +10 points de hâte de compétence ; recharge × 100 / (100 + hâte).
 
-EN : +10 Ability Haste
+EN : +10 Ability Haste points; cooldown × 100 / (100 + haste).
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.mage_control_2`.
 
-Effet : **partial**. Types : statistiques. percent.abilityHaste=0.1. Hâte effective = flat + percent × 100 ; recharge × 100 / (100 + max(0, hâte)), minimum ×0,1.
+Effet : **implemented**. Types : statistiques. flat.abilityHaste=10. Hâte effective = flat + percent × 100 ; recharge × 100 / (100 + max(0, hâte)), minimum ×0,1.
 
-Valeurs déclarées : plats `{}` ; pourcentages `{"abilityHaste":0.1}`.
+Valeurs déclarées : plats `{"abilityHaste":10}` ; pourcentages `{}`.
 
-- Écart d’effet : Canalisation stocke percent.abilityHaste=0,1 ; le runtime convertit en 10 points, et non +10 % de hâte. L’aperçu canonique filtre cette stat secondaire.
+Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-03, TREE-04.
-
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -921,19 +926,17 @@ Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntim
 
 ### mage_control_3 — Racines
 
-FR : Ultime : 20 % de chances qu'un sort enracine la cible pendant 1 s
+FR : Chaque événement de dégâts de sort a 20 % de chances d’enraciner la cible pendant 1 tour, avant modificateurs de durée.
 
-EN : Ultimate: Spells have a 20% chance to root the target for 1s
+EN : Each spell damage event has a 20% chance to root its target for 1 turn, before duration modifiers.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.mage_control_3`.
 
-Effet : **partial**. Types : `root_chance`. Après chaque événement de dégâts de sort, tire random() < value et applique Snare pendant max(1, round(duration)) tours.
+Effet : **implemented**. Types : `root_chance`. Après chaque événement de dégâts de sort, random() < value applique Snare pour duration tours, avec modificateurs et plafonds de durée.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
-- Écart d’effet : La seconde annoncée devient un tour ; le tirage est par événement de dégâts et le résolveur ne passe pas par ténacité/extension.
-
-Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-03, TREE-04.
+Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-04.
 
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.afterDamage`.
 - Source : `src/game/battle/BattleRuleEffectResolver.ts` — `resolveBattleRuleEffect`.
@@ -952,7 +955,9 @@ Valeurs déclarées : plats `{"ap":5}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -971,7 +976,9 @@ Valeurs déclarées : plats `{"abilityHaste":5}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -991,7 +998,9 @@ Valeurs déclarées : plats `{"magicPen":4}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -1011,7 +1020,9 @@ Valeurs déclarées : plats `{"mp":20,"mpRegen":3}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -1019,19 +1030,17 @@ Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntim
 
 ### mage_sustain_2 — Flux de Mana
 
-FR : Les éliminations de sbires restaurent 5 PM
+FR : Chaque élimination créditée au porteur restaure 5 PM.
 
-EN : Minion kills restore 5 MP
+EN : Each kill credited to the owner restores 5 MP.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.mage_sustain_2`.
 
-Effet : **partial**. Types : `mana_restore`. Sur une élimination créditée au porteur, restaure value PM avec plafond maxMp.
+Effet : **implemented**. Types : `mana_restore`. Chaque élimination créditée au porteur restaure value PM, avec plafond maxMp.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
-- Écart d’effet : Le texte annonce des sbires ; aucun test de type de victime n’existe dans le bus.
-
-Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-03, TREE-04.
+Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-04.
 
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.onKill`.
 - Source : `src/game/battle/BattleRuleEffectResolver.ts` — `resolveBattleRuleEffect`.
@@ -1044,7 +1053,7 @@ EN : Ultimate: Reduces ultimate cooldowns by 20%
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.mage_sustain_3`.
 
-Effet : **implemented**. Types : `cdr_ultimate`. Pour R, multiplie la recharge par 1 - somme(value), après 100 / (100 + hâte) ; multiplicateur minimum 0,1.
+Effet : **implemented**. Types : `cdr_ultimate`. Pour R, recharge × (1 - somme(value)) après le facteur 100 / (100 + hâte), multiplicateur final minimum 0,1.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
@@ -1094,13 +1103,13 @@ Vert : chemin légal ; orange : indisponibilité ou héritage ; violet : maîtri
 | `marksman_core_3` | Critique / Critical | socle | 1 | 40 ; 90 / 90 | 2 | marksman_core_2 | oui / oui | implemented |
 | `marksman_dps_1` | Létalité / Lethality | marksman_dps | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | implemented |
 | `marksman_dps_2` | Frappe Fantôme / Phantom Strike | marksman_dps | 1 | 80 ; 130 / 130 | 2 | marksman_dps_1 | oui / oui | implemented |
-| `marksman_dps_3` | Tir Déchirant / Rending Shot | marksman_dps | 1 | 150 ; 280 / 280 | 3 | marksman_dps_2 | oui / oui | partial |
+| `marksman_dps_3` | Tir Déchirant / Rending Shot | marksman_dps | 1 | 150 ; 280 / 280 | 3 | marksman_dps_2 | oui / oui | implemented |
 | `marksman_range_1` | Position haute / High Ground | marksman_range | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | implemented |
-| `marksman_range_2` | Tir précis / Precise Shot | marksman_range | 1 | 80 ; 130 / 130 | 2 | marksman_range_1 | oui / oui | partial |
+| `marksman_range_2` | Tir précis / Precise Shot | marksman_range | 1 | 80 ; 130 / 130 | 2 | marksman_range_1 | oui / oui | implemented |
 | `marksman_range_3` | Tireur d'élite / Sniper | marksman_range | 1 | 150 ; 280 / 280 | 3 | marksman_range_2 | oui / oui | implemented |
 | `marksman_survival_1` | Esquive / Dodge | marksman_survival | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | implemented |
 | `marksman_survival_2` | Rapide comme l'Éclair / Lightning Fast | marksman_survival | 1 | 80 ; 130 / 130 | 2 | marksman_survival_1 | oui / oui | implemented |
-| `marksman_survival_3` | Brouillard de Fumée / Smoke Screen | marksman_survival | 1 | 150 ; 280 / 280 | 3 | marksman_survival_2 | non / oui | descriptive |
+| `marksman_survival_3` | Brouillard de Fumée / Smoke Screen | marksman_survival | 1 | 150 ; 280 / 280 | 3 | marksman_survival_2 | non / non | descriptive |
 
 ### marksman_core_1 — Précision
 
@@ -1116,7 +1125,9 @@ Valeurs déclarées : plats `{"atk":5}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -1135,7 +1146,9 @@ Valeurs déclarées : plats `{}` ; pourcentages `{"attackSpeed":0.08}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -1154,7 +1167,9 @@ Valeurs déclarées : plats `{"crit":5}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -1173,7 +1188,9 @@ Valeurs déclarées : plats `{"armorPen":5}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -1187,7 +1204,7 @@ EN : +10% Attack Initiative for 3 turns after a takedown
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.marksman_dps_2`.
 
-Effet : **implemented**. Types : `attack_speed_on_kill`. Une élimination du porteur pose un bonus relatif attackSpeed pendant round(duration) tours ; une nouvelle élimination remplace et rafraîchit ce bonus.
+Effet : **implemented**. Types : `attack_speed_on_kill`. Une élimination pose un bonus relatif attackSpeed pendant duration fins de tour du porteur ; une nouvelle élimination rafraîchit ce bonus sans cumul.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
@@ -1199,26 +1216,22 @@ Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et 
 
 ### marksman_dps_3 — Tir Déchirant
 
-FR : Ultime : les attaques ont 15 % de chances d'infliger des saignements (5 % des PV maximum sur 3 s)
+FR : Les attaques de base ont 15 % de chances d’infliger 5 % des PV max de la cible en dégâts vrais sur 3 tours ; applications indépendantes.
 
-EN : Ultimate: Attacks have a 15% chance to inflict bleeding (5% max HP over 3s)
+EN : Basic attacks have a 15% chance to deal 5% of the target’s max HP as true damage over 3 turns; applications are independent.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.marksman_dps_3`.
 
-Effet : **partial**. Types : `bleed`. Après chaque attaque de base infligeant des dégâts HP, émet un DoT de PV max cible × value, réparti en round(duration) tours, en dégâts vrais.
+Effet : **implemented**. Types : `bleed`. Sur une attaque de base infligeant des dégâts HP, tirage chance (absent = 100 %), puis total round(PV max cible × value) en dégâts vrais répartis exactement sur duration tours ; applications indépendantes et boucliers absorbants.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
-- Écart d’effet : Aucun tirage de chance : Tir Déchirant s’applique à chaque événement éligible malgré les 15 % annoncés.
-- Écart d’effet : Les durées annoncées en secondes sont utilisées comme tours ; chaque tick est arrondi séparément, sans garantie d’un total exact.
-- Écart d’effet : Chaque application crée une instance indépendante (maxStacks=1), sans plafond global ni rafraîchissement ; les ticks repassent par before_damage et les boucliers.
-
-Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-03, TREE-04.
+Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-04.
 
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.afterDamage`.
+- Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.shouldTriggerEnhancementChance`.
 - Source : `src/game/battle/BattleRuleEffectResolver.ts` — `resolveBattleRuleEffect`.
 - Source : `src/game/effects/DamageEffect.ts` — `DamageEffect.tick`.
-- Source : `src/game/effects/EffectManager.ts` — `EffectManager.apply`.
 - Source : `src/game/battle/BattleManager.ts` — `BattleManager._tickTurnEffects`.
 
 ### marksman_range_1 — Position haute
@@ -1235,26 +1248,26 @@ Valeurs déclarées : plats `{"spd":5}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
 
 ### marksman_range_2 — Tir précis
 
-FR : +8 % de dégâts contre les champions
+FR : +8 % de dégâts infligés par attaques, sorts et DoT.
 
-EN : +8% damage against champions
+EN : +8% damage dealt by attacks, spells and damage over time.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.marksman_range_2`.
 
-Effet : **partial**. Types : `champion_damage`. Multiplie tous les dégâts par 1 + value sans classification de la cible.
+Effet : **implemented**. Types : `champion_damage`. Dégâts des attaques, sorts et DoT × (1 + value), sur toute cible ; renvois sans récursion exclus.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
-- Écart d’effet : Le texte annonce les champions ; aucun prédicat de type de cible n’est présent.
-
-Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-03, TREE-04.
+Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-04.
 
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.beforeDamage`.
 
@@ -1266,7 +1279,7 @@ EN : Ultimate: +15% damage against targets below 40% HP
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.marksman_range_3`.
 
-Effet : **implemented**. Types : `execute_damage`. Multiplie les dégâts par 1 + value si les PV courants de la cible sont strictement sous 40 %.
+Effet : **implemented**. Types : `execute_damage`. Dégâts × (1 + value) sous 40 % des PV max de la cible, seuil strict.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
@@ -1282,7 +1295,7 @@ EN : +3% chance to dodge an attack
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.marksman_survival_1`.
 
-Effet : **implemented**. Types : `dodge`. Sur attaque de base, random() < value met la réduction entrante à 100 %.
+Effet : **implemented**. Types : `dodge`. Sur une attaque de base, random() < value porte la réduction entrante à 100 %.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
@@ -1304,7 +1317,9 @@ Valeurs déclarées : plats `{}` ; pourcentages `{"spd":0.08}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -1371,13 +1386,13 @@ Vert : chemin légal ; orange : indisponibilité ou héritage ; violet : maîtri
 | `support_core_3` | Hâte de Soutien / Support Haste | socle | 1 | 40 ; 90 / 90 | 2 | support_core_2 | oui / oui | implemented |
 | `support_enchanter_1` | Soin Amélioré / Improved Healing | support_enchanter | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | implemented |
 | `support_enchanter_2` | Bouclier / Shield | support_enchanter | 1 | 80 ; 130 / 130 | 2 | support_enchanter_1 | oui / oui | implemented |
-| `support_enchanter_3` | Aura Divine / Divine Aura | support_enchanter | 1 | 150 ; 280 / 280 | 3 | support_enchanter_2 | oui / oui | partial |
+| `support_enchanter_3` | Aura Divine / Divine Aura | support_enchanter | 1 | 150 ; 280 / 280 | 3 | support_enchanter_2 | oui / oui | implemented |
 | `support_tanky_1` | Corps Garde / Bodyguard | support_tanky | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | implemented |
-| `support_tanky_2` | Entrave / Bind | support_tanky | 1 | 80 ; 130 / 130 | 2 | support_tanky_1 | oui / oui | partial |
-| `support_tanky_3` | Sacrifice Ultime / Ultimate Sacrifice | support_tanky | 1 | 200 ; 330 / 330 | 3 | support_tanky_2 | non / oui | descriptive |
-| `support_utility_1` | Vision / Vision | support_utility | 1 | 50 ; 50 / 50 | 1 | — | non / oui | descriptive |
-| `support_utility_2` | Entrave de Zone / Area Bind | support_utility | 1 | 80 ; 130 / 130 | 2 | support_utility_1 | non / oui | descriptive |
-| `support_utility_3` | Contrôle Total / Total Control | support_utility | 1 | 150 ; 280 / 280 | 3 | support_utility_2 | non / oui | descriptive |
+| `support_tanky_2` | Entrave / Bind | support_tanky | 1 | 80 ; 130 / 130 | 2 | support_tanky_1 | oui / oui | implemented |
+| `support_tanky_3` | Sacrifice Ultime / Ultimate Sacrifice | support_tanky | 1 | 200 ; 330 / 330 | 3 | support_tanky_2 | non / non | descriptive |
+| `support_utility_1` | Vision / Vision | support_utility | 1 | 50 ; 50 / 50 | 1 | — | non / non | descriptive |
+| `support_utility_2` | Entrave de Zone / Area Bind | support_utility | 1 | 80 ; 130 / 130 | 2 | support_utility_1 | non / non | descriptive |
+| `support_utility_3` | Contrôle Total / Total Control | support_utility | 1 | 150 ; 280 / 280 | 3 | support_utility_2 | non / non | descriptive |
 
 ### support_core_1 — Bénédiction
 
@@ -1393,7 +1408,9 @@ Valeurs déclarées : plats `{"hp":15,"ap":3}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -1412,7 +1429,9 @@ Valeurs déclarées : plats `{"def":3,"mr":3}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -1431,7 +1450,9 @@ Valeurs déclarées : plats `{"abilityHaste":8}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -1445,7 +1466,7 @@ EN : +10% healing power
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.support_enchanter_1`.
 
-Effet : **implemented**. Types : `heal_amp`. Ajoute value au multiplicateur des soins dont le porteur est la source ; cumul additif avec Spirit Visage du destinataire.
+Effet : **implemented**. Types : `heal_amp`. Ajoute value au multiplicateur des soins émis par le porteur ; cumul additif avec Spirit Visage du destinataire.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
@@ -1462,30 +1483,29 @@ EN : Applied shields are 15% stronger
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.support_enchanter_2`.
 
-Effet : **implemented**. Types : `shield_amp`. Ajoute value au multiplicateur des boucliers de sort dont le porteur est la source.
+Effet : **implemented**. Types : `shield_amp`. Ajoute value au multiplicateur des boucliers émis par le porteur, y compris les boucliers des règles.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
 Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-04.
 
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.getShieldMultiplier`.
+- Source : `src/game/battle/BattleRuleEffectResolver.ts` — `resolveBattleRuleEffect`.
 - Source : `src/game/battle/BattleSpellEffectResolver.ts` — `BattleSpellEffectResolver.resolve`.
 
 ### support_enchanter_3 — Aura Divine
 
-FR : Ultime : les alliés proches gagnent +10 % à tous leurs dégâts
+FR : Tant que le porteur est vivant, toute son équipe, lui inclus, inflige 10 % de dégâts supplémentaires.
 
-EN : Ultimate: Nearby allies gain +10% to all damage
+EN : While the owner is alive, their entire team, including the owner, deals 10% more damage.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.support_enchanter_3`.
 
-Effet : **partial**. Types : `damage_aura`. Additionne les values de toute l’équipe puis multiplie les dégâts sortants par 1 + somme.
+Effet : **implemented**. Types : `damage_aura`. Les porteurs vivants ajoutent leurs values au multiplicateur des dégâts de toute leur équipe, eux inclus ; aucune notion spatiale.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
-- Écart d’effet : La proximité n’est pas représentée ; le porteur est inclus et la défaite du contributeur ne retire pas son aura du loadout.
-
-Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-03, TREE-04.
+Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-04.
 
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.beforeDamage`.
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.getAllTeamEnhancements`.
@@ -1504,28 +1524,29 @@ Valeurs déclarées : plats `{"hp":20,"def":5}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
 
 ### support_tanky_2 — Entrave
 
-FR : Les effets de contrôle durent 10 % plus longtemps
+FR : Durée des contrôles appliqués × 1,1, avant ténacité, arrondi supérieur et plafonds par type.
 
-EN : Crowd control effects last 10% longer
+EN : Applied crowd control duration × 1.1, before tenacity, rounding up and limits by type.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.support_tanky_2`.
 
-Effet : **partial**. Types : `cc_extension`. Multiplie la durée des contrôles de sort par 1 + somme(value), avant ténacité, arrondis et plafonds par type.
+Effet : **implemented**. Types : `cc_extension`. Durée des contrôles × (1 + somme(value)), puis ténacité, arrondi supérieur et plafonds ; hard CC limité à 1 tour.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
-- Écart d’effet : Les contrôles provenant de BattleRuleEffectResolver contournent ce multiplicateur ; les arrondis peuvent annuler le gain sur une courte durée.
-
-Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-03, TREE-04.
+Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-04.
 
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.getAppliedControlDurationMultiplier`.
+- Source : `src/game/battle/BattleRuleEffectResolver.ts` — `resolveBattleRuleEffect`.
 - Source : `src/game/battle/BattleSpellEffectResolver.ts` — `BattleSpellEffectResolver.resolve`.
 
 ### support_tanky_3 — Sacrifice Ultime
@@ -1655,14 +1676,14 @@ Vert : chemin légal ; orange : indisponibilité ou héritage ; violet : maîtri
 | `tank_core_2` | Résistance Magique / Magic Resistance | socle | 1 | 30 ; 50 / 50 | 1 | tank_core_1 | oui / oui | implemented |
 | `tank_core_3` | Vitalité / Vitality | socle | 1 | 40 ; 90 / 90 | 2 | tank_core_2 | oui / oui | implemented |
 | `tank_defense_1` | Peau Épaisse / Thick Skin | tank_defense | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | implemented |
-| `tank_defense_2` | Ténacité / Tenacity | tank_defense | 1 | 80 ; 130 / 130 | 2 | tank_defense_1 | oui / oui | partial |
-| `tank_defense_3` | Immortel / Immortal | tank_defense | 1 | 200 ; 330 / 330 | 3 | tank_defense_2 | oui / oui | partial |
-| `tank_support_1` | Bouclier d'Allié / Ally Shield | tank_support | 1 | 50 ; 50 / 50 | 1 | — | non / oui | descriptive |
-| `tank_support_2` | Gardien / Guardian | tank_support | 1 | 80 ; 130 / 130 | 2 | tank_support_1 | non / oui | partial |
-| `tank_support_3` | Sacrifice / Sacrifice | tank_support | 1 | 200 ; 330 / 330 | 3 | tank_support_2 | non / oui | descriptive |
-| `tank_thorn_1` | Pointes / Spikes | tank_thorn | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | partial |
-| `tank_thorn_2` | Brûlure / Burn | tank_thorn | 1 | 80 ; 130 / 130 | 2 | tank_thorn_1 | oui / oui | partial |
-| `tank_thorn_3` | Vengeance / Vengeance | tank_thorn | 1 | 200 ; 330 / 330 | 3 | tank_thorn_2 | oui / oui | partial |
+| `tank_defense_2` | Ténacité / Tenacity | tank_defense | 1 | 80 ; 130 / 130 | 2 | tank_defense_1 | oui / oui | implemented |
+| `tank_defense_3` | Immortel / Immortal | tank_defense | 1 | 200 ; 330 / 330 | 3 | tank_defense_2 | oui / oui | implemented |
+| `tank_support_1` | Bouclier d'Allié / Ally Shield | tank_support | 1 | 50 ; 50 / 50 | 1 | — | non / non | descriptive |
+| `tank_support_2` | Gardien / Guardian | tank_support | 1 | 80 ; 130 / 130 | 2 | tank_support_1 | non / non | implemented |
+| `tank_support_3` | Sacrifice / Sacrifice | tank_support | 1 | 200 ; 330 / 330 | 3 | tank_support_2 | non / non | descriptive |
+| `tank_thorn_1` | Pointes / Spikes | tank_thorn | 1 | 50 ; 50 / 50 | 1 | — | oui / oui | implemented |
+| `tank_thorn_2` | Brûlure / Burn | tank_thorn | 1 | 80 ; 130 / 130 | 2 | tank_thorn_1 | oui / oui | implemented |
+| `tank_thorn_3` | Vengeance / Vengeance | tank_thorn | 1 | 200 ; 330 / 330 | 3 | tank_thorn_2 | oui / oui | implemented |
 
 ### tank_core_1 — Armure Renforcée
 
@@ -1678,7 +1699,9 @@ Valeurs déclarées : plats `{"hp":15,"def":2}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -1697,7 +1720,9 @@ Valeurs déclarées : plats `{"mr":3}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -1716,7 +1741,9 @@ Valeurs déclarées : plats `{"hp":25,"hpRegen":2}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -1736,7 +1763,9 @@ Valeurs déclarées : plats `{"def":5,"mr":5}` ; pourcentages `{}`.
 
 Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -1749,15 +1778,15 @@ EN : +10% Tenacity (crowd control reduction)
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.tank_defense_2`.
 
-Effet : **partial**. Types : statistiques. flat.tenacity=10. Bonus secondaire plat : max(0,2 ; 1 - max(0, valeur) / 100), appliqué aux contrôles de sort.
+Effet : **implemented**. Types : statistiques. flat.tenacity=10. Bonus secondaire plat : max(0,2 ; 1 - max(0, valeur) / 100), appliqué aux contrôles de sort et aux contrôles émis par les règles.
 
 Valeurs déclarées : plats `{"tenacity":10}` ; pourcentages `{}`.
 
-- Écart d’effet : Ne passe pas par les contrôles de BattleRuleEffectResolver ; les arrondis peuvent supprimer le gain.
+Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-04.
 
-Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntime / traductions. Suite : TREE-03, TREE-04.
-
-- Source : `src/services/enhancementService.ts` — `EnhancementService._processNodes`.
+- Source : `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`.
+- Source : `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`.
+- Source : `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`.
 - Source : `src/utils/statCalculator.ts` — `enhancementModifiers`.
 - Source : `src/game/stats/statContract.ts` — `applyCanonicalModifiers`.
 - Source : `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`.
@@ -1765,19 +1794,17 @@ Responsables des effets : EnhancementService / statCalculator / CombatRuleRuntim
 
 ### tank_defense_3 — Immortel
 
-FR : Ultime : quand les PV tombent à 0, reste à 1 PV avec une immunité de 2 s (120 s de récupération)
+FR : Une fois par combat, un coup mortel vous laisse à 1 PV ; sans immunité.
 
-EN : Ultimate: When HP reaches 0, remain at 1 HP with immunity for 2s (120s cooldown)
+EN : Once per battle, a lethal hit leaves you at 1 HP; no immunity.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.tank_defense_3`.
 
-Effet : **partial**. Types : `revive`. Une fois par champion et par combat, before_defeat conserve 1 PV après les priorités augment puis objet.
+Effet : **implemented**. Types : `revive`. Une fois par champion et par combat, reste à 1 PV après un coup mortel ; aucune immunité ni recharge temps réel.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
-- Écart d’effet : Aucune immunité de 2 secondes ni recharge de 120 secondes n’est appliquée ; duration et cooldown sont ignorés.
-
-Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-03, TREE-04.
+Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-04.
 
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.beforeDefeat`.
 - Source : `src/game/battle/BattleManager.ts` — `BattleManager._applyDamageToTarget`.
@@ -1805,21 +1832,19 @@ Responsables des effets : Catalogue / disponibilité du moteur / traductions. Su
 
 ### tank_support_2 — Gardien
 
-FR : +10 % de réduction des dégâts subis par les alliés proches
+FR : Tant que le porteur est vivant, toute son équipe, lui inclus, subit 10 % de dégâts en moins.
 
-EN : +10% damage reduction for nearby allies
+EN : While the owner is alive, their entire team, including the owner, takes 10% less damage.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.tank_support_2`.
 
-Effet : **partial**. Types : `ally_damage_reduction`. Additionne les valeurs de tous les loadouts de l’équipe aux réductions entrantes, plafonnées à 100 %.
+Effet : **implemented**. Types : `ally_damage_reduction`. Les porteurs vivants contribuent à la réduction des dégâts de toute leur équipe, eux inclus ; valeurs additionnées puis réduction totale plafonnée à 100 %.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
 - Blocage `unavailable` via `tank_support_2` → `tank_support_1` : Partage des soins avec alliés proches. Responsable : Disponibilité des effets / descendants ; suite : TREE-02 / TREE-03.
 
-- Écart d’effet : La proximité n’est pas représentée ; le porteur est inclus et un allié vaincu reste contributeur tant que son loadout existe.
-
-Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-03, TREE-04.
+Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-04.
 
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.beforeDamage`.
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.getAllTeamEnhancements`.
@@ -1848,70 +1873,109 @@ Responsables des effets : Catalogue / disponibilité du moteur / traductions. Su
 
 ### tank_thorn_1 — Pointes
 
-FR : Renvoie 5 % des dégâts physiques reçus aux attaquants
+FR : Renvoie 5 % des dégâts non absorbés reçus, en dégâts vrais.
 
-EN : Reflect 5% of physical damage received back to attackers
+EN : Reflects 5% of incoming damage not absorbed by shields as true damage.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.tank_thorn_1`.
 
-Effet : **partial**. Types : `thornmail`. Renvoie amount × value en dégâts vrais sans déclenchement récursif des règles après les dégâts reçus.
+Effet : **implemented**. Types : `thornmail`. Après les dégâts non absorbés reçus, renvoie round(amount × value) dégâts vrais, quel que soit le type entrant, sans récursion.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
-- Écart d’effet : Le texte limite aux dégâts physiques ; le bus ne filtre pas damageType et le renvoi est vrai.
-
-Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-03, TREE-04.
+Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-04.
 
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.afterDamage`.
 - Source : `src/game/battle/BattleRuleEffectResolver.ts` — `resolveBattleRuleEffect`.
 
 ### tank_thorn_2 — Brûlure
 
-FR : Les attaques contre vous infligent à leur auteur 2 % de ses PV maximum en dégâts magiques
+FR : Après une attaque de base reçue, inflige 2 % des PV max de l’attaquant en dégâts vrais.
 
-EN : Attacks against you deal 2% of the attacker's max HP as magic damage
+EN : After receiving a basic attack, deal 2% of the attacker’s max HP as true damage.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.tank_thorn_2`.
 
-Effet : **partial**. Types : `burn_reflect`. Après une attaque de base reçue, renvoie les PV max de l’attaquant × value en dégâts vrais.
+Effet : **implemented**. Types : `burn_reflect`. Après une attaque de base reçue, renvoie round(PV max attaquant × value) dégâts vrais.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
-- Écart d’effet : Le texte FR/EN annonce des dégâts magiques ; le résolveur applique des dégâts vrais.
-
-Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-03, TREE-04.
+Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-04.
 
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.afterDamage`.
 - Source : `src/game/battle/BattleRuleEffectResolver.ts` — `resolveBattleRuleEffect`.
 
 ### tank_thorn_3 — Vengeance
 
-FR : Ultime : après avoir subi 500 dégâts, renvoie 50 dégâts bruts à tous les ennemis proches
+FR : Après 500 dégâts non absorbés reçus, inflige 50 dégâts vrais à chaque ennemi vivant, une fois par combat.
 
-EN : Ultimate: After taking 500 damage, deal 50 true damage to all nearby enemies
+EN : After receiving 500 damage not absorbed by shields, deal 50 true damage to every living enemy, once per battle.
 
 Visibilité : branche sélectionnée ; les effets indisponibles ne masquent pas la carte. Attribut serveur : `champion_enhancements.unlocked_nodes.tank_thorn_3`.
 
-Effet : **partial**. Types : `vengeance_burst`. Cumule les dégâts HP reçus ; à partir de 500, émet value dégâts vrais vers tous les ennemis vivants, une fois par combat.
+Effet : **implemented**. Types : `vengeance_burst`. Après 500 dégâts HP reçus, inflige value dégâts vrais à chaque ennemi vivant, une fois par combat.
 
 Valeurs déclarées : plats `{}` ; pourcentages `{}`.
 
-- Écart d’effet : La proximité annoncée n’est pas représentée ; la protection par bouclier ne contribue pas au compteur damage_dealt.
-
-Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-03, TREE-04.
+Responsables des effets : CombatRuleRuntime / résolveurs combat / catalogue et traductions. Suite : TREE-04.
 
 - Source : `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.afterDamage`.
 - Source : `src/game/battle/BattleRuleEffectResolver.ts` — `resolveBattleRuleEffect`.
+
+## Spécialisations publiées, achats fermés
+
+Les 16 extensions sont séparées des 72 nœuds de rôle. Chaque champion reçoit deux voies de deux nœuds mutuellement exclusives ; 80 + 120 Candies, maîtrise 2 puis 3. Les chemins conditionnels ci-dessous supposent le gate ouvert et ne constituent pas une autorisation d’achat.
+
+| Champion | ID | FR / EN | Exclusions | Achat actuel client / SQL | Chemin si gate ouvert | Effet |
+| --- | --- | --- | --- | --- | ---: | --- |
+| Annie | `annie_burst_1` | Braise concentrée / Focused Ember | annie_control_1, annie_control_2 | non / non | 80 | implemented |
+| Annie | `annie_burst_2` | Colère de Tibbers / Tibbers’ Wrath | annie_control_1, annie_control_2 | non / non | 200 | implemented |
+| Annie | `annie_control_1` | Incantation préparée / Prepared Casting | annie_burst_1, annie_burst_2 | non / non | 80 | implemented |
+| Annie | `annie_control_2` | Étude protectrice / Protective Study | annie_burst_1, annie_burst_2 | non / non | 200 | implemented |
+| Garen | `garen_durability_1` | Courage durable / Lasting Courage | garen_execution_1, garen_execution_2 | non / non | 80 | implemented |
+| Garen | `garen_durability_2` | Armure de Demacia / Demacian Armor | garen_execution_1, garen_execution_2 | non / non | 200 | implemented |
+| Garen | `garen_execution_1` | Pression décisive / Decisive Pressure | garen_durability_1, garen_durability_2 | non / non | 80 | implemented |
+| Garen | `garen_execution_2` | Justice approchante / Approaching Justice | garen_durability_1, garen_durability_2 | non / non | 200 | implemented |
+| Jinx | `jinx_sustained_1` | Munitions préparées / Prepared Ammunition | jinx_finisher_1, jinx_finisher_2 | non / non | 80 | implemented |
+| Jinx | `jinx_sustained_2` | Cadence constante / Steady Cadence | jinx_finisher_1, jinx_finisher_2 | non / non | 200 | implemented |
+| Jinx | `jinx_finisher_1` | Visée explosive / Explosive Aim | jinx_sustained_1, jinx_sustained_2 | non / non | 80 | implemented |
+| Jinx | `jinx_finisher_2` | Dernier feu / Last Fire | jinx_sustained_1, jinx_sustained_2 | non / non | 200 | implemented |
+| Soraka | `soraka_healing_1` | Lumière astrale / Astral Light | soraka_protection_1, soraka_protection_2 | non / non | 80 | implemented |
+| Soraka | `soraka_healing_2` | Grâce renouvelée / Renewed Grace | soraka_protection_1, soraka_protection_2 | non / non | 200 | implemented |
+| Soraka | `soraka_protection_1` | Présence céleste / Celestial Presence | soraka_healing_1, soraka_healing_2 | non / non | 80 | implemented |
+| Soraka | `soraka_protection_2` | Veille des étoiles / Starlight Watch | soraka_healing_1, soraka_healing_2 | non / non | 200 | implemented |
+
+## Économie : hypothèses explicites
+
+Chaque objectif simule une épargne indépendante. Les cohortes, cadences et probabilités de victoire sont des hypothèses ; les durées sont supposées, sans mesure de rétention. Les prix sont conservés et les réinitialisations répétées restent gratuites avec remboursement audité.
+
+| Rôle | Maximum théorique catalogue | Rangs supportés cumulables | Tous les nœuds atteignables |
+| --- | ---: | ---: | --- |
+| Assassin | 930 | 650 | non : chemin bloqué |
+| Fighter | 930 | 650 | non : chemin bloqué |
+| Mage | 930 | 780 | non : chemin bloqué |
+| Marksman | 930 | 780 | non : chemin bloqué |
+| Support | 980 | 500 | non : chemin bloqué |
+| Tank | 1080 | 750 | non : chemin bloqué |
+
+Le total des rangs supportés ne remplace pas reachableMaximumCandies : ce dernier reste null si un seul nœud du rôle est inaccessible. Les extensions exclusives ne sont pas additionnées comme un build achetable.
+
+- SQL-source projection and client simulations are not a remote database or deployment check.
+- Source runtime tests, registered historical replay, exact generated Edge bundles and browser tests have separate execution evidence; this generator does not run them.
+- Champion specialization purchases remain gated until a separately recorded human balance review. Automated comparisons do not grant that approval.
+- The comparison fixture uses 48 seeded autoplay encounters across four champions; the original all-defeat sample is a limited scenario, not a victory-rate or retention study.
 
 ## Contrats transverses
 
 ### rank-aggregation
 
-calculateStatBonuses additionne stat × rang ; les effets sont copiés une fois par nœud sans multiplier value par rang. Les émissions numériques créées par CombatRuleRuntime.effect sont bornées et arrondies par max(0, round(amount)) avant leur résolution.
+calculateStatBonuses filtre les rangs possédés via getActiveEnhancementRanks avant aggregateEnhancementBonuses : stats × rang, effets copiés une fois par nœud. Le helper agrégateur refuse les rangs hors entier sûr 1..maxRanks. Les émissions numériques runtime utilisent max(0, round(amount)).
 
-Limite : Ce calcul ne valide ni prérequis, ni indisponibilité, ni plafond du rang ; il ne prouve pas qu’un achat est légal.
+Limite : Le service conserve les IDs et la dépense historique, mais exclut des bonus les ancêtres désactivés, exigences non satisfaites et conflits. Il ouvre explicitement la capacité des spécialisations déjà attestées ; le gate d’achat courant reste contrôlé séparément par le serveur. Le helper seul ne prouve pas un achat légal.
 
-- `src/services/enhancementService.ts` — `EnhancementService._processNodes`
+- `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`
+- `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`
+- `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`
 - `src/game/rules/CombatRuleRuntime.ts` — `CombatRuleRuntime.effect`
 
 ### preview-and-combat
@@ -1920,7 +1984,9 @@ Les alias sont normalisés ; aperçu et ChampionInstance partagent applyEnhancem
 
 Limite : L’aperçu canonique exclut les stats secondaires et n’exécute aucun effet conditionnel ; la présence d’un texte FR/EN ne prouve aucun handler.
 
-- `src/services/enhancementService.ts` — `EnhancementService._processNodes`
+- `src/game/enhancements/bonuses.ts` — `aggregateEnhancementBonuses`
+- `src/services/enhancementService.ts` — `EnhancementService.calculateStatBonuses`
+- `src/game/enhancements/eligibility.ts` — `getActiveEnhancementRanks`
 - `src/utils/statCalculator.ts` — `enhancementModifiers`
 - `src/game/stats/statContract.ts` — `applyCanonicalModifiers`
 - `src/game/ChampionInstance.ts` — `ChampionInstance.getStatsWithEnhancements`
@@ -1928,14 +1994,26 @@ Limite : L’aperçu canonique exclut les stats secondaires et n’exécute aucu
 
 ### combatant-identity
 
-Les événements du bus conservent id=champion.id et side ; les effets instantanés émis ne transportent que sourceId/targetId. Le résolveur retrouve le premier champion correspondant, en parcourant les joueurs avant les ennemis.
+Les événements du bus conservent champion.id, combatantId et camp. Tous les effets instantanés portent sourceId/targetId de formation et sourceSide/targetSide ; le résolveur exige ces camps et retrouve chaque cible exacte.
 
-Limite : Combat miroir : avec Garen dans chaque camp, une attaque du joueur peut appliquer son saignement au Garen joueur au lieu du Garen ennemi. Renvois et contrôles émis partagent cette résolution ambiguë. TREE-04 : porter une identité de combattant non ambiguë et tester les deux camps, sans retoucher les replays historiques.
+Limite : Les effets sans identité de camp valide sont refusés. Les champions miroirs et les occurrences multiples d’un champion ennemi restent distincts. Les requêtes de statistiques secondaires et les modificateurs de soins/boucliers sont limités au camp propriétaire ; aucun investissement du joueur ne modifie son homologue ennemi.
 
 - `src/game/battle/BattleManager.ts` — `BattleManager._toRuleActor`
-- `src/game/battle/BattleManager.ts` — `BattleManager._findCombatantByChampionId`
+- `src/game/battle/BattleManager.ts` — `BattleManager._findCombatantByTargetId`
 - `src/game/rules/types.ts` — `CombatRuleInstantEffect`
 - `src/game/battle/BattleRuleEffectResolver.ts` — `resolveBattleRuleEffect`
+
+### ui-source-and-parity
+
+L’arbre et le combat affichent la même description FR/EN du nœud. L’aperçu secondaire et le runtime partagent les contributions en points ainsi que les facteurs de recharge et de ténacité. Les fixtures source comparent manuel, autoplay, replay et restauration avec les mêmes seed, équipe et rangs. La comparaison Edge nécessite séparément le bundle généré et son hash final.
+
+Limite : Les cinq rôles jouables sont exercés par Garen, Annie, Ashe, Leona et Soraka ; Veigar ajoute une preuve de séparation des compteurs intra-run. Aucun kit maintenu n’a Assassin comme premier rôle : les effets Assassin ont des fixtures moteur isolées, sans prétendre prouver une run publique Assassin. La conservation des octets et la reprise du moteur 0.2.5 ont leurs propres tests ; ce rapport hors ligne ne les exécute pas.
+
+- `src/features/combat/presentation/combatPresenter.ts` — `getEnhancementDescriptions`
+- `src/game/rules/enhancementStats.ts` — `getEnhancementSecondaryStats`
+- `tests/helpers/enhancementParityFixtures.ts` — `enhancementParityAttempt`
+- `tests/enhancementBattleParity.test.ts` — `replayAuthorityRun`
+- `tests/enhancementAuthorityParity.test.ts` — `resolveRegisteredAuthorityVerifier`
 
 ### serialized-snapshot
 
@@ -1949,9 +2027,9 @@ Limite : Le client n’est pas l’autorité de l’achat ; l’Edge reconstruit
 
 ### authority-validation
 
-validateRunAttempt contrôle champion disponible, ID du nœud, entier sûr de 0 à maxRanks et chaque parent acquis au moins au rang 1 ; le moteur utilise le même buildCombatRuleLoadout.
+Le validateur authority interprète le snapshot attesté ; le moteur construit ses règles via buildCombatRuleLoadout. Les tests de contrat couvrent entiers, rangs, exigences AND/OR, exclusions et ancêtres indisponibles.
 
-Limite : La validation d’une forme et de parents ne démontre pas la parité de chaque effet manuel/autoplay/Edge. TREE-04 doit fournir ces fixtures.
+Limite : Les tests du contrat source ne certifient pas à eux seuls que le bundle Edge final applique la même validation ; la preuve exige le moteur enregistré, ses dimensions figées et son hash exact.
 
 - `src/game/authority/RunCommandValidator.ts` — `validateRunAttempt`
 - `src/game/authority/AuthorityRunEngine.ts` — `AuthorityReplayState`
@@ -1969,7 +2047,7 @@ Limite : Aucun investissement Candies ne doit changer le Daily officiel ; audit 
 
 La registry sélectionne une version de moteur et un hash de contenu ; les bundles historiques sont conservés.
 
-Limite : Toute future correction de mécanique attend TREE-03/04 et une version future ; cet audit ne modifie ni gameplay, ni hash, ni replay archivé.
+Limite : Les corrections TREE-03/04 appartiennent au moteur futur 0.3.0 ; les bundles et hashes historiques restent figés et ne reçoivent pas le nouveau runtime.
 
 - `src/game/authority/index.ts` — `getAuthorityVerifier`
 
@@ -1988,4 +2066,4 @@ Le JSON contient les attributs et SHA-256 des migrations, la chaîne de copies d
 
 ## Provenance reproductible
 
-SHA-256 des 132 entrées et de la liste des 73 migrations : `5c00232211bd688a70dd5ad32a42936277105e57e1b51a48ac94d8806bb14779`. Les chemins et empreintes individuels figurent dans le JSON voisin. Aucun horodatage ni SHA de commit auto-référencé.
+SHA-256 des 159 entrées et de la liste des 77 migrations : `e479f33d9d9555e4fbbe331e9d07d572ef72b0baade2ef19a96dc67654cef9dc`. Les chemins et empreintes individuels figurent dans le JSON voisin. Aucun horodatage ni SHA de commit auto-référencé.

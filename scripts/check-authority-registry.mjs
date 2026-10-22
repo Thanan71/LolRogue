@@ -2,8 +2,10 @@ import { readFile } from 'node:fs/promises';
 import {
   AUTHORITY_RESOLVER_PATH,
   CLIENT_CAPABILITIES_PATH,
+  CLIENT_REPLAY_PATH,
   renderAuthorityResolver,
   renderClientCapabilities,
+  renderClientReplay,
 } from './generate-authority-resolver.mjs';
 import { readAuthorityVersionRegistry } from './lib/authority-version-registry.mjs';
 
@@ -15,7 +17,12 @@ const generatedClientCapabilities = await readFile(CLIENT_CAPABILITIES_PATH, 'ut
 );
 const expectedClientCapabilities = renderClientCapabilities(registry);
 
-if (generated !== expected || generatedClientCapabilities !== expectedClientCapabilities) {
+const generatedClientReplay = await readFile(CLIENT_REPLAY_PATH, 'utf8').catch(() => '');
+if (
+  generated !== expected ||
+  generatedClientCapabilities !== expectedClientCapabilities ||
+  generatedClientReplay !== renderClientReplay(registry)
+) {
   throw new Error(
     'The generated authority resolver is stale. Run `npm run authority:generate` and commit it.',
   );

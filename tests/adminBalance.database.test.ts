@@ -1,3 +1,4 @@
+import { CURRENT_AUTHORITY_VERSION } from '@/game/authority/versionRegistry';
 import { randomUUID } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { parseAdminBalanceConfig } from '../src/features/administration/domain/balance/adminBalanceConfigParser';
@@ -345,9 +346,9 @@ describeDatabase('read-only verified balance populations', () => {
       balanceRpc('champions', {
         ...balanceFilters,
         difficulty: 'normal',
-        gameplayVersion: 24,
-        engineVersion: 'run-engine-0.2.5',
-        contentHash: '9009950fe0b1c6944a26486e65b0bb0f1379129b42d7499f2bf1c0a8ce3391fa',
+        gameplayVersion: CURRENT_AUTHORITY_VERSION.gameplay,
+        engineVersion: CURRENT_AUTHORITY_VERSION.engine,
+        contentHash: CURRENT_AUTHORITY_VERSION.contentHash,
       }),
     );
     expect(value.population.verifiedRuns).toBe(1);
@@ -433,19 +434,25 @@ describeDatabase('read-only verified balance populations', () => {
     );
   });
 
-  it('returns live read-only version and economy state with honest TREE-10 dependency', async () => {
+  it('returns live read-only version and economy state with the available tree contract', async () => {
     const value = await rpcData(admin.client, 'admin_balance_config', {});
     expect(() => parseAdminBalanceConfig(value)).not.toThrow();
     expect(value).toMatchObject({
       readOnly: true,
       minimumSampleSize: 30,
-      trees: { status: 'dependency_unavailable', dependency: 'TREE-10' },
+      trees: {
+        status: 'available',
+        catalogVersion: CURRENT_AUTHORITY_VERSION.progression,
+        contractSchemaVersion: 1,
+      },
       unsupportedMetrics: ['dps', 'crowd_control_duration', 'item_exposure'],
     });
     expect(value.gameplayRulesets.filter((r: { active: boolean }) => r.active)).toHaveLength(1);
-    expect(value.gameplayRulesets.find((r: { version: number }) => r.version === 24)).toMatchObject(
-      { engineVersion: 'run-engine-0.2.5', active: true },
-    );
+    expect(
+      value.gameplayRulesets.find(
+        (r: { version: number }) => r.version === CURRENT_AUTHORITY_VERSION.gameplay,
+      ),
+    ).toMatchObject({ engineVersion: CURRENT_AUTHORITY_VERSION.engine, active: true });
     expect(value.progressionRulesets.filter((r: { active: boolean }) => r.active)).toHaveLength(1);
     expect(JSON.stringify(value)).not.toMatch(
       /user_id|email|lease_token|payload_hash|raw_user_meta_data|command_id/,

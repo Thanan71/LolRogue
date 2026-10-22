@@ -1,7 +1,8 @@
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import previousArtifact from '@/../config/veigar-run-progression-balance-0.2.0.json';
-import artifact from '@/../config/veigar-run-progression-balance-0.2.5.json';
+import structuralArtifact from '@/../config/veigar-run-progression-balance-0.2.5.json';
+import artifact from '@/../config/veigar-run-progression-balance-0.3.0.json';
 import { championDB } from '@/data/championDatabase';
 import {
   AUTHORITY_CONTENT_HASH,
@@ -45,14 +46,49 @@ describe('Veigar current balance campaign', () => {
     expect(artifact.reports.every((report) => report.runs === 30)).toBe(true);
   });
 
-  it('preserves all 180 paired outcomes and safety probes from 0.2.0 byte-for-byte after identity normalization', () => {
-    const normalized = JSON.stringify(artifact)
+  it('preserves the archived 0.2.5 paired outcomes and safety probes from 0.2.0 after identity normalization', () => {
+    const normalized = JSON.stringify(structuralArtifact)
       .split('0.2.5')
       .join('0.2.0')
-      .split(AUTHORITY_CONTENT_HASH)
+      .split(structuralArtifact.authority.contentHash)
       .join(previousArtifact.authority.contentHash);
     expect(normalized).toBe(JSON.stringify(previousArtifact));
   });
+
+  it.each([
+    {
+      engine: 'run-engine-v22',
+      contentHash: AUTHORITY_CONTENT_HASH,
+      features: { runProgression: true },
+    },
+    {
+      engine: AUTHORITY_ENGINE_VERSION,
+      contentHash: '0'.repeat(64),
+      features: { runProgression: true },
+    },
+    {
+      engine: AUTHORITY_ENGINE_VERSION,
+      contentHash: AUTHORITY_CONTENT_HASH,
+      features: { runProgression: false },
+    },
+  ])(
+    'rejects an offline contract that does not attest the replay identity and capability: %j',
+    (registeredAuthority) => {
+      const authority = getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH);
+      if (!authority) throw new Error('Current verifier is unavailable.');
+      const classes = { championDB, BattleManager, ChampionInstance };
+      expect(() =>
+        generateVeigarRunProgressionBalanceDocument({
+          sourceAuthority: authority,
+          edgeAuthority: authority,
+          sourceClasses: classes,
+          edgeClasses: classes,
+          registeredAuthority,
+          seeds: VEIGAR_BALANCE_SEEDS.slice(0, 2),
+        }),
+      ).toThrow('Expected matching supported source/Edge identities.');
+    },
+  );
 
   it('reports absent or dead checkpoint populations explicitly instead of inventing end-run means', () => {
     const base: VeigarBalanceRunObservation = {

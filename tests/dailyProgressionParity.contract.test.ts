@@ -7,6 +7,8 @@ import {
   verifyAuthorityRun,
 } from '@/game/authority';
 import { survivalGreedyPolicy } from '@/game/balance/balancePolicy';
+import { adaptLegacyEnhancementTree } from '@/game/enhancements/contract';
+import { getActiveEnhancementRanks } from '@/game/enhancements/eligibility';
 import { enhancementTreeProvider } from '@/services/enhancementService';
 
 function maxedAccountSnapshots(): Pick<
@@ -21,7 +23,16 @@ function maxedAccountSnapshots(): Pick<
         const nodes = [...tree.coreNodes, ...tree.branches.flatMap((branch) => branch.nodes)];
         return [
           champion.id,
-          Object.fromEntries(nodes.map((node) => [node.id, node.maxRanks ?? 1])),
+          getActiveEnhancementRanks(
+            adaptLegacyEnhancementTree(tree),
+            {
+              unlockedNodes: Object.fromEntries(
+                nodes.filter((node) => !node.gate).map((node) => [node.id, node.maxRanks ?? 1]),
+              ),
+              totalCandiesSpent: 0,
+            },
+            { masteryLevel: 4 },
+          ),
         ];
       }),
     ),

@@ -169,8 +169,7 @@ describe('enhancementContent', () => {
     });
     expect(english.nodes.tank_defense_3).toEqual({
       name: 'Immortal',
-      description:
-        'Ultimate: When HP reaches 0, remain at 1 HP with immunity for 2s (120s cooldown)',
+      description: 'Once per battle, a lethal hit leaves you at 1 HP; no immunity.',
     });
     expect(english.nodes.mage_burst_3).toEqual({
       name: 'Arcane Storm',
@@ -178,12 +177,13 @@ describe('enhancementContent', () => {
     });
     expect(english.nodes.marksman_dps_3).toEqual({
       name: 'Rending Shot',
-      description: 'Ultimate: Attacks have a 15% chance to inflict bleeding (5% max HP over 3s)',
+      description:
+        'Basic attacks have a 15% chance to deal 5% of the target’s max HP as true damage over 3 turns; applications are independent.',
     });
     expect(english.nodes.fighter_duelist_3).toEqual({
       name: 'Dead or Alive',
       description:
-        'Ultimate: In a duel against a champion, gain +25% damage and +15% damage reduction',
+        'With exactly one living combatant per side, +25% damage dealt and 15% less incoming damage.',
     });
     expect(english.nodes.support_utility_3).toEqual({
       name: 'Total Control',

@@ -763,6 +763,13 @@
       "bundle": "supabase/functions/verify-run/run-authority.bundle.js",
       "bytes": 859875,
       "sha256": "24e7b3b5f2d9db780e4451192a865e88fb6cdbdecccedfa2deb0ca6e25dd8ae8"
+    },
+    {
+      "engine": "run-engine-0.2.5",
+      "contentHash": "9009950fe0b1c6944a26486e65b0bb0f1379129b42d7499f2bf1c0a8ce3391fa",
+      "bundle": "supabase/functions/verify-run/run-authority-0.2.5.bundle.js",
+      "bytes": 861126,
+      "sha256": "e6b73c06bc2cb68736f3801c0ebf9869479023cfce7c99f213d763766cb062f1"
     }
   ]
 }

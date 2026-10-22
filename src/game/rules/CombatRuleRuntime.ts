@@ -1,9 +1,14 @@
 import { AUGMENT_DATABASE, ITEM_DATABASE, RUNE_DATABASE } from '@/data/items';
-import { ActionType } from '@/game/battle/types';
+import { ActionType, type TeamSide } from '@/game/battle/types';
 import { DamageType, type StatKey } from '@/game/effects/types';
 import { type RuneContext, type RuneEvaluationEvent, RuneManager } from '@/game/runes/RuneManager';
 import { AugmentEffectType, ItemCategory } from '@/types/inventory';
 import { SUPPORTED_ENHANCEMENT_EFFECTS } from './catalogSupport';
+import {
+  enhancementCooldownMultiplier,
+  enhancementCrowdControlMultiplier,
+  getEnhancementSecondaryStats,
+} from './enhancementStats';
 import type {
   CombatRuleActor,
   CombatRuleEvent,
@@ -126,30 +131,38 @@ export class CombatRuleRuntime {
     return result;
   }
 
-  getCooldownMultiplier(championId: string, isUltimate: boolean): number {
-    const stats = this.loadout.enhancementStats[championId];
-    const haste = (stats?.flat.abilityHaste ?? 0) + (stats?.percent.abilityHaste ?? 0) * 100;
+  getCooldownMultiplier(
+    championId: string,
+    isUltimate: boolean,
+    side: TeamSide = 'player',
+  ): number {
+    if (side !== 'player') return 1;
+    const stats = getEnhancementSecondaryStats(this.loadout.enhancementStats[championId]);
     const ultimateReduction = isUltimate
       ? this.getEnhancements(championId)
           .filter((effect) => effect.type === 'cdr_ultimate')
           .reduce((sum, effect) => sum + (effect.value ?? 0), 0)
       : 0;
-    return Math.max(0.1, (100 / (100 + Math.max(0, haste))) * (1 - ultimateReduction));
+    return enhancementCooldownMultiplier(stats, ultimateReduction);
   }
 
-  getControlDurationMultiplier(championId: string): number {
-    const tenacity = this.loadout.enhancementStats[championId]?.flat.tenacity ?? 0;
-    return Math.max(0.2, 1 - Math.max(0, tenacity) / 100);
+  getControlDurationMultiplier(championId: string, side: TeamSide = 'player'): number {
+    if (side !== 'player') return 1;
+    return enhancementCrowdControlMultiplier(
+      getEnhancementSecondaryStats(this.loadout.enhancementStats[championId]),
+    );
   }
 
-  getAppliedControlDurationMultiplier(championId: string): number {
+  getAppliedControlDurationMultiplier(championId: string, side: TeamSide = 'player'): number {
+    if (side !== 'player') return 1;
     const extension = this.getEnhancements(championId)
       .filter((effect) => effect.type === 'cc_extension')
       .reduce((sum, effect) => sum + (effect.value ?? 0), 0);
     return 1 + extension;
   }
 
-  getStatBonuses(championId: string): CombatRuleStatBonus[] {
+  getStatBonuses(championId: string, side: TeamSide = 'player'): CombatRuleStatBonus[] {
+    if (side !== 'player') return [];
     const result = new Map<StatKey, { flat: number; percent: number }>();
     const runeBonuses: Record<StatKey, { flat: number; percent: number }> =
       this.runeManagers.get(championId)?.getActiveStatBonuses() ??
@@ -188,10 +201,10 @@ export class CombatRuleRuntime {
         this.onKill(event.source, event.actors, resolution);
         break;
       case 'before_heal':
-        resolution.healMultiplier = this.getHealMultiplier(event.source.id, event.target.id);
+        resolution.healMultiplier = this.getHealMultiplier(event.source, event.target);
         break;
       case 'before_shield':
-        resolution.shieldMultiplier = this.getShieldMultiplier(event.source.id, event.target.id);
+        resolution.shieldMultiplier = this.getShieldMultiplier(event.source, event.target);
         break;
       case 'before_defeat':
         this.beforeDefeat(event.target, resolution);
@@ -250,7 +263,7 @@ export class CombatRuleRuntime {
 
     const potionTurns = this.potionTurns.get(actor.id) ?? 0;
     if (potionTurns > 0) {
-      resolution.instantEffects.push(this.effect('heal', actor.id, actor.id, 50));
+      resolution.instantEffects.push(this.effect('heal', actor, actor, 50));
       this.potionTurns.set(actor.id, potionTurns - 1);
     }
     for (const entry of this.getItems(actor.id)) {
@@ -258,17 +271,17 @@ export class CombatRuleRuntime {
       for (const enemy of actors.filter(
         (candidate) => candidate.side !== actor.side && !candidate.isDefeated,
       )) {
-        resolution.instantEffects.push(this.effect('damage', actor.id, enemy.id, 15));
+        resolution.instantEffects.push(this.effect('damage', actor, enemy, 15));
       }
     }
 
     const regen = this.loadout.enhancementStats[actor.id]?.flat.hpRegen ?? 0;
     if (regen > 0) {
-      resolution.instantEffects.push(this.effect('heal', actor.id, actor.id, regen));
+      resolution.instantEffects.push(this.effect('heal', actor, actor, regen));
     }
     const manaRegen = this.loadout.enhancementStats[actor.id]?.flat.mpRegen ?? 0;
     if (manaRegen > 0) {
-      resolution.instantEffects.push(this.effect('mana', actor.id, actor.id, manaRegen));
+      resolution.instantEffects.push(this.effect('mana', actor, actor, manaRegen));
     }
   }
 
@@ -308,11 +321,14 @@ export class CombatRuleRuntime {
   ): void {
     if (event.source.side === 'player') {
       resolution.damageMultiplier *= this.getAugmentDamageMultiplier();
+      const secondary = getEnhancementSecondaryStats(
+        this.loadout.enhancementStats[event.source.id],
+      );
       const penetration =
         event.damageType === DamageType.AD
-          ? (this.loadout.enhancementStats[event.source.id]?.flat.armorPen ?? 0)
+          ? secondary.armorPen
           : event.damageType === DamageType.AP
-            ? (this.loadout.enhancementStats[event.source.id]?.flat.magicPen ?? 0)
+            ? secondary.magicPen
             : 0;
       resolution.damageMultiplier *= 1 + Math.max(0, penetration) / 200;
       if (
@@ -344,7 +360,7 @@ export class CombatRuleRuntime {
         }
       }
       resolution.damageMultiplier *=
-        1 + this.getAllTeamEnhancements(event.source.side, 'damage_aura');
+        1 + this.getAllTeamEnhancements(event.source.side, 'damage_aura', event.actors);
     }
     if (event.target.side === 'player') {
       resolution.damageReduction += this.getAugmentDamageReduction();
@@ -373,11 +389,16 @@ export class CombatRuleRuntime {
         event.target.currentHp / event.target.maxHp < 0.2
       ) {
         this.usedEnhancementCooldowns.add(shieldKey);
-        resolution.instantEffects.push(
-          this.effect('shield', event.target.id, event.target.id, survivalShield.value ?? 0),
-        );
+        resolution.instantEffects.push({
+          ...this.effect('shield', event.target, event.target, survivalShield.value ?? 0),
+          duration: survivalShield.duration ?? 2,
+        });
       }
-      const allyReduction = this.getAllTeamEnhancements(event.target.side, 'ally_damage_reduction');
+      const allyReduction = this.getAllTeamEnhancements(
+        event.target.side,
+        'ally_damage_reduction',
+        event.actors,
+      );
       resolution.damageReduction += allyReduction;
     }
     resolution.damageReduction = Math.min(1, resolution.damageReduction);
@@ -403,16 +424,18 @@ export class CombatRuleRuntime {
       )
         ? 0.18
         : 0;
+      const secondary = getEnhancementSecondaryStats(
+        this.loadout.enhancementStats[event.source.id],
+      );
       const enhancedLifesteal =
-        ((this.loadout.enhancementStats[event.source.id]?.flat.lifesteal ?? 0) +
-          (this.loadout.enhancementStats[event.source.id]?.flat.omnivamp ?? 0)) /
+        ((event.action === ActionType.BasicAttack ? secondary.lifesteal : 0) + secondary.omnivamp) /
         100;
       if (lifesteal + enhancedLifesteal > 0) {
         resolution.instantEffects.push(
           this.effect(
             'heal',
-            event.source.id,
-            event.source.id,
+            event.source,
+            event.source,
             event.amount * (lifesteal + enhancedLifesteal),
           ),
         );
@@ -421,17 +444,17 @@ export class CombatRuleRuntime {
       if (pendingDamage > 0) {
         this.pendingRuneDamage.delete(event.source.id);
         resolution.instantEffects.push(
-          this.effect('damage', event.source.id, event.target.id, pendingDamage),
+          this.effect('damage', event.source, event.target, pendingDamage),
         );
       }
       if (event.action === ActionType.BasicAttack) {
         for (const effect of this.getEnhancements(event.source.id)) {
-          if (effect.type === 'bleed') {
+          if (effect.type === 'bleed' && this.shouldTriggerEnhancementChance(effect.chance)) {
             resolution.instantEffects.push({
               ...this.effect(
                 'dot',
-                event.source.id,
-                event.target.id,
+                event.source,
+                event.target,
                 event.target.maxHp * (effect.value ?? 0),
               ),
               duration: Math.max(1, Math.round(effect.duration ?? 1)),
@@ -443,14 +466,16 @@ export class CombatRuleRuntime {
           if (effect.type === 'slow') {
             resolution.instantEffects.push({
               type: 'slow',
-              sourceId: event.source.id,
-              targetId: event.target.id,
+              sourceId: event.source.combatantId ?? event.source.id,
+              targetId: event.target.combatantId ?? event.target.id,
+              sourceSide: event.source.side,
+              targetSide: event.target.side,
               amount: effect.value ?? 0,
               duration: effect.duration,
             });
           } else if (effect.type === 'root_chance' && this.random() < (effect.value ?? 0)) {
             resolution.instantEffects.push({
-              ...this.effect('snare', event.source.id, event.target.id, 1),
+              ...this.effect('snare', event.source, event.target, 1),
               duration: effect.duration,
             });
           }
@@ -470,19 +495,14 @@ export class CombatRuleRuntime {
       for (const effect of this.getEnhancements(event.target.id)) {
         if (effect.type === 'thornmail') {
           resolution.instantEffects.push(
-            this.effect(
-              'damage',
-              event.target.id,
-              event.source.id,
-              event.amount * (effect.value ?? 0),
-            ),
+            this.effect('damage', event.target, event.source, event.amount * (effect.value ?? 0)),
           );
         } else if (effect.type === 'burn_reflect' && event.action === ActionType.BasicAttack) {
           resolution.instantEffects.push(
             this.effect(
               'damage',
-              event.target.id,
-              event.source.id,
+              event.target,
+              event.source,
               event.source.maxHp * (effect.value ?? 0),
             ),
           );
@@ -496,7 +516,7 @@ export class CombatRuleRuntime {
             (candidate) => candidate.side !== event.target.side && !candidate.isDefeated,
           )) {
             resolution.instantEffects.push(
-              this.effect('damage', event.target.id, enemy.id, effect.value ?? 0),
+              this.effect('damage', event.target, enemy, effect.value ?? 0),
             );
           }
         }
@@ -514,19 +534,15 @@ export class CombatRuleRuntime {
     metrics.kills++;
     this.evaluateRunes(source, actors, 'kill');
     if (this.hasRune(source.id, 'triumph')) {
-      resolution.instantEffects.push(
-        this.effect('heal', source.id, source.id, source.maxHp * 0.12),
-      );
+      resolution.instantEffects.push(this.effect('heal', source, source, source.maxHp * 0.12));
     }
     for (const effect of this.getEnhancements(source.id)) {
       if (effect.type === 'heal_on_kill') {
         resolution.instantEffects.push(
-          this.effect('heal', source.id, source.id, source.maxHp * (effect.value ?? 0)),
+          this.effect('heal', source, source, source.maxHp * (effect.value ?? 0)),
         );
       } else if (effect.type === 'mana_restore') {
-        resolution.instantEffects.push(
-          this.effect('mana', source.id, source.id, effect.value ?? 0),
-        );
+        resolution.instantEffects.push(this.effect('mana', source, source, effect.value ?? 0));
       } else if (effect.type === 'attack_speed_on_kill') {
         this.setTemporaryStat(
           source.id,
@@ -635,12 +651,23 @@ export class CombatRuleRuntime {
     );
   }
 
-  private getAllTeamEnhancements(side: 'player' | 'enemy', type: string): number {
+  private getAllTeamEnhancements(
+    side: 'player' | 'enemy',
+    type: string,
+    actors: CombatRuleActor[],
+  ): number {
     if (side !== 'player') return 0;
-    return Object.values(this.loadout.enhancementEffects)
-      .flat()
+    return actors
+      .filter((actor) => actor.side === side && !actor.isDefeated && actor.currentHp > 0)
+      .flatMap((actor) => this.getEnhancements(actor.id))
       .filter((effect) => effect.type === type)
       .reduce((sum, effect) => sum + (effect.value ?? 0), 0);
+  }
+
+  private shouldTriggerEnhancementChance(chance: number | undefined): boolean {
+    if (chance === undefined || chance === 1) return true;
+    if (!Number.isFinite(chance) || chance <= 0 || chance > 1) return false;
+    return this.random() < chance;
   }
 
   private getAugmentDamageMultiplier(): number {
@@ -670,23 +697,29 @@ export class CombatRuleRuntime {
     );
   }
 
-  private getHealMultiplier(sourceId: string, targetId: string): number {
+  private getHealMultiplier(source: CombatRuleActor, target: CombatRuleActor): number {
     let multiplier = 1;
-    if (this.getItems(targetId).some((entry) => entry.item.id === 'spirit_visage')) {
+    if (
+      target.side === 'player' &&
+      this.getItems(target.id).some((entry) => entry.item.id === 'spirit_visage')
+    ) {
       multiplier += 0.25;
     }
-    for (const effect of this.getEnhancements(sourceId)) {
+    for (const effect of source.side === 'player' ? this.getEnhancements(source.id) : []) {
       if (effect.type === 'heal_amp') multiplier += effect.value ?? 0;
     }
     return multiplier;
   }
 
-  private getShieldMultiplier(sourceId: string, targetId: string): number {
+  private getShieldMultiplier(source: CombatRuleActor, target: CombatRuleActor): number {
     let multiplier = 1;
-    if (this.getItems(targetId).some((entry) => entry.item.id === 'spirit_visage')) {
+    if (
+      target.side === 'player' &&
+      this.getItems(target.id).some((entry) => entry.item.id === 'spirit_visage')
+    ) {
       multiplier += 0.25;
     }
-    for (const effect of this.getEnhancements(sourceId)) {
+    for (const effect of source.side === 'player' ? this.getEnhancements(source.id) : []) {
       if (effect.type === 'shield_amp') multiplier += effect.value ?? 0;
     }
     return multiplier;
@@ -706,10 +739,17 @@ export class CombatRuleRuntime {
 
   private effect(
     type: CombatRuleInstantEffect['type'],
-    sourceId: string,
-    targetId: string,
+    source: CombatRuleActor,
+    target: CombatRuleActor,
     amount: number,
   ): CombatRuleInstantEffect {
-    return { type, sourceId, targetId, amount: Math.max(0, Math.round(amount)) };
+    return {
+      type,
+      sourceId: source.combatantId ?? source.id,
+      targetId: target.combatantId ?? target.id,
+      sourceSide: source.side,
+      targetSide: target.side,
+      amount: Math.max(0, Math.round(amount)),
+    };
   }
 }

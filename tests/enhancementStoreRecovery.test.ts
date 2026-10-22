@@ -1,11 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { garen } from '@/data/champion/Garen';
-import type { UnlockNodeResult } from '@/services/interfaces/IEnhancementRepository';
+import type {
+  EnhancementResetResult,
+  UnlockNodeResult,
+} from '@/services/interfaces/IEnhancementRepository';
 import { useSettingsStore } from '@/stores/settingsStore';
 import type { PlayerEnhancementState } from '@/types/enhancementTree';
 
 const dependencies = vi.hoisted(() => {
   const unlockNode = vi.fn();
+  const getContractState = vi.fn();
+  const previewReset = vi.fn();
+  const resetTree = vi.fn();
   const getPlayer = vi.fn();
   const getChampionMastery = vi.fn();
   const getAllEnhancementStates = vi.fn();
@@ -28,6 +34,9 @@ const dependencies = vi.hoisted(() => {
     refreshPlayer,
     setPlayerCandyBalance,
     unlockNode,
+    getContractState,
+    previewReset,
+    resetTree,
     getPlayer,
     getChampionMastery,
     getAllEnhancementStates,
@@ -39,6 +48,9 @@ vi.mock('@/services/container', () => ({
     create: () => ({
       enhancement: {
         unlockNode: dependencies.unlockNode,
+        getContractState: dependencies.getContractState,
+        previewReset: dependencies.previewReset,
+        resetTree: dependencies.resetTree,
         getEnhancementState: vi.fn(),
         getAllEnhancementStates: dependencies.getAllEnhancementStates,
       },
@@ -99,6 +111,15 @@ function deferred<T>() {
 describe('enhancement unlock recovery', () => {
   beforeEach(() => {
     dependencies.unlockNode.mockReset();
+    dependencies.previewReset.mockReset();
+    dependencies.resetTree.mockReset();
+    dependencies.getContractState.mockReset().mockResolvedValue({
+      catalogVersion: 4,
+      contractSchemaVersion: 1,
+      enabledGates: { champion_specializations: false },
+      repeatResetFeeBasisPoints: 0,
+      resetPolicyVersion: 1,
+    });
     dependencies.getPlayer.mockReset().mockResolvedValue({ data: null, error: null });
     dependencies.getChampionMastery.mockReset().mockResolvedValue({ data: [], error: null });
     dependencies.getAllEnhancementStates.mockReset().mockResolvedValue(new Map());
@@ -113,6 +134,13 @@ describe('enhancement unlock recovery', () => {
 
     useEnhancementStore.getState().reset();
     useEnhancementStore.setState({
+      contractState: {
+        catalogVersion: 4,
+        contractSchemaVersion: 1,
+        enabledGates: { champion_specializations: false },
+        repeatResetFeeBasisPoints: 0,
+        resetPolicyVersion: 1,
+      },
       selectedChampion: garen,
       enhancements: {
         Garen: {
@@ -254,6 +282,8 @@ describe('enhancement unlock recovery', () => {
       'fighter_core_1',
       0,
       commandId,
+      0,
+      4,
     );
     expect(useEnhancementStore.getState()).toMatchObject({
       enhancements: {
@@ -298,6 +328,8 @@ describe('enhancement unlock recovery', () => {
       'fighter_core_1',
       0,
       commandId,
+      0,
+      4,
     ]);
     expect(dependencies.unlockNode.mock.calls[1]).toEqual(dependencies.unlockNode.mock.calls[0]);
     expect(useEnhancementStore.getState()).toMatchObject({
@@ -388,9 +420,249 @@ describe('enhancement unlock recovery', () => {
       'fighter_core_1',
       0,
       commandId,
+      0,
+      4,
     );
     expect(useEnhancementStore.getState().statusMessage).toBe(
       'Strength was successfully upgraded.',
     );
+  });
+
+  const preview = () => ({
+    championId: 'Garen',
+    revision: 1,
+    catalogVersion: 4,
+    contractSchemaVersion: 1 as const,
+    unlockedNodes: { fighter_core_1: 1 },
+    removedNodeIds: ['fighter_core_1'],
+    actualSpend: 20,
+    refundAmount: 20,
+    feeAmount: 0,
+    feeExempt: false,
+    resetCount: 0,
+    remainingCandies: 40,
+    policyVersion: 1,
+    eligible: true,
+    historyUnavailable: false,
+    reason: null,
+    activeRunPreserved: true as const,
+  });
+
+  it('fails closed when metadata advertises catalogue 5 while this UI still displays catalogue 4 prices', async () => {
+    dependencies.getContractState.mockResolvedValue({
+      catalogVersion: 5,
+      contractSchemaVersion: 1,
+      enabledGates: { champion_specializations: true },
+      repeatResetFeeBasisPoints: 0,
+      resetPolicyVersion: 1,
+    });
+    await useEnhancementStore.getState().loadContract();
+    expect(useEnhancementStore.getState().contractState).toBeNull();
+    expect(useEnhancementStore.getState().contractError).toBeTruthy();
+    // A stale bundle quotes 20 while a future server could charge 99. No command
+    // may use metadata 5 as permission to submit that catalogue-4 confirmation.
+    dependencies.unlockNode.mockResolvedValue({
+      ...successfulUnlock('bad', false),
+      candyCost: 99,
+      catalogVersion: 5,
+    });
+    useEnhancementStore.setState({
+      contractState: {
+        catalogVersion: 5,
+        contractSchemaVersion: 1,
+        enabledGates: { champion_specializations: false },
+        repeatResetFeeBasisPoints: 0,
+        resetPolicyVersion: 1,
+      },
+    });
+    expect(await useEnhancementStore.getState().unlockNode('fighter_core_1')).toBe(false);
+    expect(dependencies.unlockNode).not.toHaveBeenCalled();
+    expect(dependencies.randomUUID).not.toHaveBeenCalled();
+    expect(useEnhancementStore.getState().availableCandies).toBe(20);
+  });
+
+  it('retries an uncertain reset using the same command and policy without a second client refund', async () => {
+    useEnhancementStore.setState({ resetPreview: preview() });
+    dependencies.randomUUID.mockReturnValue('reset-command');
+    dependencies.resetTree
+      .mockResolvedValueOnce({
+        success: false,
+        newState: { unlockedNodes: { fighter_core_1: 1 }, totalCandiesSpent: 20 },
+        error: 'network',
+      })
+      .mockResolvedValueOnce({
+        success: true,
+        newState: { unlockedNodes: {}, totalCandiesSpent: 0, revision: 2, resetCount: 1 },
+        remainingCandies: 40,
+        replayed: false,
+      });
+    expect(await useEnhancementStore.getState().resetTree(1)).toBe(true);
+    expect(dependencies.resetTree.mock.calls[0]).toEqual([
+      'user-1',
+      'Garen',
+      1,
+      'reset-command',
+      1,
+    ]);
+    expect(dependencies.resetTree.mock.calls[1]).toEqual(dependencies.resetTree.mock.calls[0]);
+    expect(dependencies.randomUUID).toHaveBeenCalledOnce();
+    expect(useEnhancementStore.getState()).toMatchObject({
+      availableCandies: 40,
+      resetPreview: null,
+      error: null,
+    });
+  });
+
+  it('confirms an already committed reset only by replaying its exact command receipt', async () => {
+    useEnhancementStore.setState({ resetPreview: preview() });
+    dependencies.randomUUID.mockReturnValue('reset-command');
+    dependencies.getPlayer.mockResolvedValue({ data: { total_candies: 40 }, error: null });
+    dependencies.resetTree
+      .mockResolvedValueOnce({
+        success: false,
+        newState: { unlockedNodes: {}, totalCandiesSpent: 0, revision: 2, resetCount: 1 },
+        error: 'fetch failed',
+      })
+      .mockResolvedValueOnce({
+        success: true,
+        newState: { unlockedNodes: {}, totalCandiesSpent: 0, revision: 2, resetCount: 1 },
+        remainingCandies: 40,
+        replayed: true,
+        commandId: 'reset-command',
+      });
+    expect(await useEnhancementStore.getState().resetTree(1)).toBe(true);
+    expect(dependencies.resetTree).toHaveBeenCalledTimes(2);
+    expect(dependencies.resetTree.mock.calls[1]).toEqual(dependencies.resetTree.mock.calls[0]);
+    expect(useEnhancementStore.getState().availableCandies).toBe(40);
+    expect(useEnhancementStore.getState().getResetRetryPreview()).toBeNull();
+  });
+
+  it('retains the exact quote and command after two outages, including after a champion switch', async () => {
+    const quote = preview();
+    useEnhancementStore.setState({ resetPreview: quote });
+    dependencies.randomUUID.mockReturnValue('reset-command');
+    dependencies.resetTree
+      .mockRejectedValueOnce(new Error('network'))
+      .mockResolvedValueOnce({
+        success: false,
+        newState: { unlockedNodes: {}, totalCandiesSpent: 0, revision: 2 },
+        error: 'fetch failed',
+      })
+      .mockResolvedValueOnce({
+        success: true,
+        newState: { unlockedNodes: {}, totalCandiesSpent: 0, revision: 2, resetCount: 1 },
+        remainingCandies: 40,
+        replayed: true,
+        commandId: 'reset-command',
+      });
+    expect(await useEnhancementStore.getState().resetTree(1)).toBe(false);
+    expect(useEnhancementStore.getState().resetPreview).toEqual(quote);
+    expect(useEnhancementStore.getState().getResetRetryPreview()).toEqual(quote);
+    useEnhancementStore.getState().setSelectedChampion({ ...garen, id: 'Annie' });
+    expect(useEnhancementStore.getState().getResetRetryPreview()).toBeNull();
+    useEnhancementStore.getState().setSelectedChampion(garen);
+    expect(await useEnhancementStore.getState().previewReset()).toEqual(quote);
+    expect(dependencies.previewReset).not.toHaveBeenCalled();
+    dependencies.getPlayer.mockResolvedValue({ data: { total_candies: 40 }, error: null });
+    expect(await useEnhancementStore.getState().resetTree(1)).toBe(true);
+    expect(dependencies.resetTree.mock.calls[2]).toEqual(dependencies.resetTree.mock.calls[0]);
+    expect(dependencies.randomUUID).toHaveBeenCalledOnce();
+  });
+
+  it('does not infer success from an unrelated concurrent reset or retry a deterministic revision refusal', async () => {
+    useEnhancementStore.setState({ resetPreview: preview() });
+    dependencies.randomUUID.mockReturnValue('reset-command');
+    dependencies.resetTree
+      .mockResolvedValueOnce({
+        success: false,
+        newState: { unlockedNodes: {}, totalCandiesSpent: 0, revision: 2 },
+        error: 'network',
+      })
+      .mockResolvedValueOnce({
+        success: false,
+        newState: { unlockedNodes: {}, totalCandiesSpent: 0, revision: 2 },
+        error: 'enhancement_revision_conflict',
+      });
+    expect(await useEnhancementStore.getState().resetTree(1)).toBe(false);
+    expect(dependencies.resetTree).toHaveBeenCalledTimes(2);
+    expect(useEnhancementStore.getState().resetPreview).toBeNull();
+    expect(useEnhancementStore.getState().getResetRetryPreview()).toBeNull();
+    expect(useEnhancementStore.getState().statusMessage).toBeNull();
+  });
+
+  it('does not send the automatic retry under a different authenticated account', async () => {
+    useEnhancementStore.setState({ resetPreview: preview() });
+    dependencies.randomUUID.mockReturnValue('reset-command');
+    const pending = deferred<EnhancementResetResult>();
+    dependencies.resetTree.mockReturnValue(pending.promise);
+    const request = useEnhancementStore.getState().resetTree(1);
+    dependencies.authState.user = { id: 'user-2' };
+    useEnhancementStore.setState({
+      ownerUserId: 'user-2',
+      availableCandies: 99,
+      resetPreview: null,
+    });
+    pending.resolve({
+      success: false,
+      newState: { unlockedNodes: {}, totalCandiesSpent: 0 },
+      error: 'network',
+    });
+    expect(await request).toBe(false);
+    expect(dependencies.resetTree).toHaveBeenCalledOnce();
+    expect(useEnhancementStore.getState().availableCandies).toBe(99);
+    expect(useEnhancementStore.getState().getResetRetryPreview()).toBeNull();
+  });
+
+  it('rejects guest resets and unattested preview states before any mutation call', async () => {
+    useEnhancementStore.setState({
+      resetPreview: {
+        ...preview(),
+        eligible: false,
+        historyUnavailable: true,
+        reason: 'history_unavailable',
+      },
+    });
+    expect(await useEnhancementStore.getState().resetTree(1)).toBe(false);
+    dependencies.authState.isGuest = true;
+    expect(await useEnhancementStore.getState().previewReset()).toBeNull();
+    expect(await useEnhancementStore.getState().resetTree(1)).toBe(false);
+    expect(dependencies.resetTree).not.toHaveBeenCalled();
+    expect(dependencies.previewReset).not.toHaveBeenCalled();
+  });
+
+  it('drops a late reset reply after the authenticated account changes', async () => {
+    useEnhancementStore.setState({ resetPreview: preview() });
+    dependencies.randomUUID.mockReturnValue('reset-command');
+    const pending = deferred<any>();
+    dependencies.resetTree.mockReturnValue(pending.promise);
+    const reset = useEnhancementStore.getState().resetTree(1);
+    dependencies.authState.user = { id: 'user-2' };
+    useEnhancementStore.setState({ ownerUserId: 'user-2', availableCandies: 99, isLoading: true });
+    pending.resolve({
+      success: true,
+      newState: { unlockedNodes: {}, totalCandiesSpent: 0 },
+      remainingCandies: 40,
+      replayed: false,
+    });
+    expect(await reset).toBe(false);
+    expect(useEnhancementStore.getState()).toMatchObject({
+      ownerUserId: 'user-2',
+      availableCandies: 99,
+      isLoading: true,
+    });
+  });
+
+  it('requires another preview after a revision or policy conflict and hides server exception text', async () => {
+    useEnhancementStore.setState({ resetPreview: preview() });
+    dependencies.randomUUID.mockReturnValue('reset-command');
+    dependencies.resetTree.mockResolvedValue({
+      success: false,
+      newState: { unlockedNodes: { fighter_core_1: 1 }, totalCandiesSpent: 20 },
+      error: 'enhancement_reset_policy_conflict',
+    });
+    expect(await useEnhancementStore.getState().resetTree(1)).toBe(false);
+    expect(useEnhancementStore.getState().resetPreview).toBeNull();
+    expect(useEnhancementStore.getState().error).toContain('Recharge l’aperçu');
+    expect(useEnhancementStore.getState().error).not.toContain('enhancement_reset_policy_conflict');
   });
 });

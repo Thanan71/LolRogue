@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { implementedChampions } from '@/data/champion';
+import { CURRENT_AUTHORITY_VERSION } from '@/game/authority/versionRegistry';
 import {
   CHAMPION_COMBAT_MATRIX_CHAMPION_IDS,
   CHAMPION_COMBAT_MATRIX_SEEDS,
@@ -16,9 +17,15 @@ import { loadInstrumentedAuthorityCombatRuntime } from './helpers/instrumentedAu
 const matrix = matrixJson as unknown as ChampionCombatMatrixComparison;
 
 describe('champion combat acceptance matrix', () => {
-  it('preserves all paired combat outcomes between frozen 0.2.0 and extracted 0.2.5', () => {
-    expect(matrix.baseline.authority.engineVersion).toBe('run-engine-0.2.0');
-    expect(matrix.candidate.authority.engineVersion).toBe('run-engine-0.2.5');
+  it('preserves paired unenhanced combat outcomes between frozen 0.2.5 and current authority', () => {
+    expect(matrix.baseline.authority).toEqual({
+      engineVersion: 'run-engine-0.2.5',
+      contentHash: '9009950fe0b1c6944a26486e65b0bb0f1379129b42d7499f2bf1c0a8ce3391fa',
+    });
+    expect(matrix.candidate.authority).toEqual({
+      engineVersion: CURRENT_AUTHORITY_VERSION.engine,
+      contentHash: CURRENT_AUTHORITY_VERSION.contentHash,
+    });
     expect(matrix.candidate.champions).toEqual(matrix.baseline.champions);
     expect(matrix.candidate.metricAvailability).toEqual(matrix.baseline.metricAvailability);
   });

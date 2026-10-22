@@ -65,18 +65,30 @@ et sa dernière migration. Après chaque migration ajoutée, vérifier son manif
 (préfixe du schéma courant ou identique) et sa prise en charge du moteur actif,
 puis mettre à jour `requiredCurrentMigrationVersion`. Si le moteur actif change,
 choisir un nouveau checkpoint compatible avant l'activation. Exécuter les tests
-de contrat et `npm run test:db:rollback` sur la base locale migrée. Le probe utilise le code
-historique et ses dépendances verrouillées, installées dans un checkout temporaire
-avec les scripts d'installation désactivés, puis crée et nettoie ses propres
-fixtures sans modifier le schéma. Pour P3-CHAMP-01, la version courante attendue
-est `20261009174447`. Le checkpoint `b1ca9020c2b4e744c34b90053da0af542aea06d2`
-est un **candidat client compatible**, pas un déploiement de production déjà connu
-comme sain. Construire et déployer ce checkpoint, puis valider Auth, démarrage,
-combat, reprise et compteurs de run avant l'activation SQL du moteur 22.
-Après cette activation, un client limité au moteur 21 n'est plus une cible valide
-de rollback applicatif : il ne connaît ni les attempts v22 ni leurs compteurs.
-Conserver un déploiement sain compatible v22 et relever son identifiant avant
-de promouvoir les versions suivantes.
+de contrat et `npm run test:db:rollback` sur la base locale migrée. Le runner compare
+aussi les octets de chaque migration du préfixe, puis les versions moteur,
+gameplay, progression, commandes, score Daily, catalogue de champions et le hash
+autoritaire. Un ordinal SQL identique ne suffit pas si son contenu a changé.
+Les probes utilisent le code du checkpoint et ses dépendances verrouillées,
+installées dans un checkout temporaire avec les scripts d'installation désactivés,
+puis créent et nettoient leurs propres fixtures sans modifier le schéma.
+
+Pour TREE 0.3.0, le checkpoint est
+`f5a3fed3587c34a61d7a8d70d18f01d9ebc464b8`, au schéma de 77 migrations dont la
+dernière est `20261022164730`. Il connaît `run-engine-0.3.0`, gameplay25,
+progression/catalogue d'améliorations4, catalogue de champions2, commandes2 et
+score Daily15. Son hash autoritaire est
+`a5ba6703640a3f92595318d2a49ba0a4faebcbbbaa18d0a90bd0bb48074923f2`.
+Le probe des repositories est complété par ceux des achats, resets et snapshots
+autoritarisés TREE ; ils vérifient notamment les refus sans débit, les reçus
+idempotents, la conservation des runs ouvertes et les identités Daily25.
+
+Ce checkpoint est un **candidat client compatible**, pas un déploiement de
+production connu comme sain. Construire et déployer ce commit, puis valider Auth,
+démarrage, combat, reprise et compteurs avant de l'utiliser pour un rollback réel.
+Un ancien client0.2.5 ne connaît pas l'autorité0.3.0 et n'est donc pas une cible
+compatible. Conserver un déploiement sain de ce contrat et relever son identifiant
+avant de promouvoir les versions suivantes.
 
 Pour ADM-S6, la lecture directe des logs est retirée au navigateur. Le checkpoint
 pré-S6 `968c0b3a` n’est plus compatible avec cette surface admin. Le candidat de

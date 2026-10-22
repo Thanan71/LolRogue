@@ -77,6 +77,16 @@
       "justification": "Publish the sanitized canonical Daily configuration and caller-scoped status."
     },
     {
+      "signature": "public.get_enhancement_contract()",
+      "roles": ["authenticated"],
+      "justification": "Read the registered caller's canonical tree catalogue and gated reset policy."
+    },
+    {
+      "signature": "public.get_enhancement_reset_preview(text)",
+      "roles": ["authenticated"],
+      "justification": "Read only the registered caller's attested reset quote without mutating balances or ranks."
+    },
+    {
       "signature": "public.get_my_leaderboard_rank()",
       "roles": ["authenticated"],
       "justification": "Return only the authenticated caller's private rank."
@@ -110,6 +120,11 @@
       "signature": "public.reject_run_verification(uuid, uuid, text)",
       "roles": ["service_role"],
       "justification": "Persist a bounded verifier rejection from the trusted Edge worker."
+    },
+    {
+      "signature": "public.reset_champion_enhancements(text, integer, uuid, integer)",
+      "roles": ["authenticated"],
+      "justification": "Atomically refund only attested owned purchases with revision, policy and idempotency checks."
     },
     {
       "signature": "public.seal_run_attempt(uuid, uuid, integer)",
@@ -150,6 +165,11 @@
       "signature": "public.unlock_champion_enhancement(text, text, integer, uuid)",
       "roles": ["authenticated"],
       "justification": "Execute the idempotent, ownership-checked canonical enhancement command."
+    },
+    {
+      "signature": "public.unlock_champion_enhancement_v2(text, text, integer, integer, uuid, integer)",
+      "roles": ["authenticated"],
+      "justification": "Execute an ownership-checked enhancement purchase with strict revision and canonical eligibility."
     }
   ]
 }

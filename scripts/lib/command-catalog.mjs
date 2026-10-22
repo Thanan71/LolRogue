@@ -206,7 +206,7 @@ export const commandCatalog = [
       risk: 'generate',
       options: { engine, output, check },
       artifact: 'veigar-run-progression-balance',
-      supportedEngines: ['v22', '0.2.0', '0.2.5'],
+      supportedEngines: ['v22', '0.2.0', '0.2.5', '0.3.0'],
     },
   ),
   command(
@@ -218,7 +218,7 @@ export const commandCatalog = [
     {
       options: { engine, all },
       artifact: 'veigar-run-progression-balance',
-      supportedEngines: ['v22', '0.2.0', '0.2.5'],
+      supportedEngines: ['v22', '0.2.0', '0.2.5', '0.3.0'],
       aliasOptions: { 'balance:veigar:check': ['--all'] },
     },
   ),

@@ -9,7 +9,8 @@ const previousSql = readFileSync(
   ),
   'utf8',
 );
-const current = registry.versions[registry.versions.length - 1]!;
+// This audit proves the published structural 0.2.5 refactor, independently of later gameplay releases.
+const current = registry.versions.find(({ engine }) => engine === 'run-engine-0.2.5')!;
 const migrationSql = readFileSync(new URL(`../${current.migration}`, import.meta.url), 'utf8');
 
 function finalizationContract(source: string): string {
@@ -19,7 +20,7 @@ function finalizationContract(source: string): string {
   return source.slice(start, end);
 }
 
-describe('structural engine release database contract', () => {
+describe('frozen structural engine 0.2.5 database contract', () => {
   it('changes only admitted and restored registry identities in the previous rewards, lease and idempotency implementation', () => {
     const allowedChanges = [
       [

@@ -19,6 +19,8 @@ import {
   adminBalanceAppliedFilters,
   defaultAdminBalanceDraft,
 } from '../../domain/balance/adminBalanceFilterDraft';
+import { fetchAdminBalanceTrees } from '../../infrastructure/balance/adminTreeClient';
+import type { BalanceTreeReport } from '../../domain/balance/treeTypes';
 import type {
   BalanceBuildReport,
   BalanceChampionReport,
@@ -37,6 +39,7 @@ const EMPTY_SELECTION = {
   championContextId: '',
   buildContextId: '',
   pickSegmentId: '',
+  treeContextId: '',
 };
 
 export function useAdminBalance(
@@ -142,6 +145,10 @@ export function useAdminBalance(
     (signal: AbortSignal) => read(() => fetchAdminBalanceField(filters, signal), signal),
     [filters, read],
   );
+  const loadTrees = useCallback(
+    (signal: AbortSignal) => read(() => fetchAdminBalanceTrees(filters, signal), signal),
+    [filters, read],
+  );
   const common = { ...access, enabled: enabled && (!navigation || view === 'reports') };
   const champions = useAdminSection<BalanceChampionReport | null>({
     ...common,
@@ -162,6 +169,13 @@ export function useAdminBalance(
     initialData: null,
     load: loadConfig,
     isEmpty: emptyConfig,
+  });
+  const trees = useAdminSection<BalanceTreeReport | null>({
+    ...common,
+    queryKey,
+    initialData: null,
+    load: loadTrees,
+    isEmpty: (data) => data === null,
   });
   const field = useAdminSection<AdminBalanceFieldData | null>({
     ...access,
@@ -223,7 +237,8 @@ export function useAdminBalance(
     void builds.reload();
     void config.reload();
     void field.reload();
-  }, [enabled, champions.reload, builds.reload, config.reload, field.reload]);
+    void trees.reload();
+  }, [enabled, champions.reload, builds.reload, config.reload, field.reload, trees.reload]);
   return {
     enabled,
     selection,
@@ -242,6 +257,7 @@ export function useAdminBalance(
     builds,
     config,
     field,
+    trees,
   };
 }
 export type AdminBalance = ReturnType<typeof useAdminBalance>;

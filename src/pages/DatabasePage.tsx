@@ -38,7 +38,7 @@ export function DatabasePage() {
   const shouldRevealSelectionRef = useRef(false);
 
   // Enhancement store
-  const { player } = useAuthStore();
+  const { player, user, isGuest } = useAuthStore();
   const setAvailableCandies = useEnhancementStore((s) => s.setAvailableCandies);
   const {
     state: enhancementState,
@@ -48,6 +48,12 @@ export function DatabasePage() {
     error: enhancementError,
     statusMessage: enhancementStatus,
     unlockNode,
+    enabledGates,
+    loadError: enhancementLoadError,
+    previewReset,
+    resetTree,
+    getResetRetryPreview,
+    retryLoad,
   } = useChampionEnhancements(selectedChampion);
 
   // Sync candies from auth store
@@ -97,6 +103,7 @@ export function DatabasePage() {
       const success = await unlockNode(nodeId);
       if (!success) {
         logger.error('Failed to unlock node');
+        throw new Error('enhancement_purchase_failed');
       }
     },
     [unlockNode],
@@ -348,6 +355,14 @@ export function DatabasePage() {
                     }
                     onUnlockNode={handleUnlockNode}
                     isLoading={isEnhancementLoading}
+                    readOnly={isGuest || !user}
+                    accountKey={user?.id ?? null}
+                    enabledGates={enabledGates}
+                    loadError={enhancementLoadError}
+                    onRetry={retryLoad}
+                    onPreviewReset={previewReset}
+                    onResetTree={resetTree}
+                    getResetRetryPreview={getResetRetryPreview}
                   />
                 </div>
               )}
