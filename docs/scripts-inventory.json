@@ -384,6 +384,7 @@
     "scripts/generate-test-order-seeds.mjs",
     "scripts/generate-veigar-run-progression-balance.mjs",
     "scripts/inspect-finished-queue-index-stats.mjs",
+    "scripts/lib/application-rollback-contract.mjs",
     "scripts/lib/artifact-snapshot.mjs",
     "scripts/lib/authority-version-registry.mjs",
     "scripts/lib/business-boundaries.mjs",
@@ -603,6 +604,7 @@
     "src/features/administration/ui/balance/AdminBalanceProvenance.tsx",
     "src/features/administration/ui/balance/AdminBalanceRate.tsx",
     "src/features/administration/ui/balance/AdminBalanceSection.tsx",
+    "src/features/administration/ui/balance/AdminBalanceTrees.tsx",
     "src/features/administration/ui/balance/AdminBalanceWorkspace.tsx",
     "src/features/administration/ui/diagnostics/AdminDiagnosticsWorkspace.tsx",
     "src/features/administration/ui/diagnostics/DiagnosticsCorrelation.tsx",
@@ -827,6 +829,7 @@
     "src/i18n/adminAnalytics.ts",
     "src/i18n/adminBalance.ts",
     "src/i18n/adminDiagnostics.ts",
+    "src/i18n/adminEnhancementTrees.ts",
     "src/i18n/adminErrorContent.ts",
     "src/i18n/adminExplorer.ts",
     "src/i18n/adminExportContent.ts",
@@ -907,6 +910,7 @@
     "src/services/container/RepositoryContainer.ts",
     "src/services/container/applicationRepositories.ts",
     "src/services/container/index.ts",
+    "src/services/enhancementContract.ts",
     "src/services/enhancementService.ts",
     "src/services/imageLoader.ts",
     "src/services/imageLoader.types.ts",
@@ -1051,6 +1055,7 @@
     "tests/adminRunExport.test.ts",
     "tests/adminTree.database.test.ts",
     "tests/adminTreeReport.test.ts",
+    "tests/adminTreeUi.test.tsx",
     "tests/adminVolume.database.test.ts",
     "tests/administrationArchitecture.test.mjs",
     "tests/administrationNavigation.test.ts",
@@ -1194,6 +1199,7 @@
     "tests/enhancementSecondaryStats.test.ts",
     "tests/enhancementServerEvidence.test.ts",
     "tests/enhancementSnapshotValidation.test.ts",
+    "tests/enhancementSpecializationAuthority.test.ts",
     "tests/enhancementSpecializationComparison.test.ts",
     "tests/enhancementSpecializations.test.ts",
     "tests/enhancementStoreRecovery.test.ts",
@@ -1210,6 +1216,7 @@
     "tests/fixtures/adminBalanceUi.ts",
     "tests/fixtures/adminPlayerExplorer.ts",
     "tests/fixtures/adminTreeUi.ts",
+    "tests/fixtures/authority-progression-0.3.0-golden.json",
     "tests/fixtures/authority-progression-golden.json",
     "tests/fixtures/engine-refactor-contract.json",
     "tests/fixtures/user-copy-scanner/hardcoded-copy.tsx",
@@ -1947,7 +1954,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 357,
+          "line": 359,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run assets -- verify",
@@ -2233,7 +2240,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 357,
+          "line": 359,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run assets -- verify",
@@ -2531,7 +2538,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -2588,7 +2595,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -4101,7 +4108,7 @@
         },
         {
           "file": "tests/generatedArtifacts.test.mjs",
-          "line": 317,
+          "line": 319,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "if (invocation === 'npm run authority:generate') continue;",
@@ -4168,7 +4175,7 @@
         },
         {
           "file": "tests/generatedArtifacts.test.mjs",
-          "line": 317,
+          "line": 319,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "if (invocation === 'npm run authority:generate') continue;",
@@ -4371,7 +4378,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1057,
+          "line": 1058,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- [x] `npm run balance -- check` rejoue de vraies runs authority et vérifie le bundle/version/hash",
@@ -4982,7 +4989,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1057,
+          "line": 1058,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- [x] `npm run balance -- check` rejoue de vraies runs authority et vérifie le bundle/version/hash",
@@ -26749,7 +26756,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -26785,7 +26792,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -27267,7 +27274,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -27291,7 +27298,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -27545,7 +27552,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -27569,7 +27576,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -28060,7 +28067,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -28093,7 +28100,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -28684,7 +28691,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -28717,7 +28724,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -29133,14 +29140,6 @@
           "classification": "active"
         },
         {
-          "file": "docs/enhancement-tree-audit.md",
-          "line": 77,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "npm run check:static",
-          "classification": "active"
-        },
-        {
           "file": "tests/toolingTypecheckContract.test.ts",
           "line": 52,
           "kind": "npm-run",
@@ -29177,14 +29176,6 @@
           "classification": "active"
         },
         {
-          "file": "docs/enhancement-tree-audit.md",
-          "line": 77,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "npm run check:static",
-          "classification": "active"
-        },
-        {
           "file": "package.json",
           "line": 33,
           "kind": "npm-run",
@@ -29205,7 +29196,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -29238,7 +29229,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -29697,7 +29688,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -29730,7 +29721,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -30515,7 +30506,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 317,
+          "line": 319,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -30523,7 +30514,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 360,
+          "line": 362,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
@@ -30531,7 +30522,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 374,
+          "line": 376,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- lint",
@@ -30539,7 +30530,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 384,
+          "line": 386,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- reset --yes",
@@ -30547,7 +30538,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 385,
+          "line": 387,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- lint",
@@ -30555,7 +30546,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 406,
+          "line": 408,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -30715,7 +30706,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -30995,7 +30986,7 @@
         },
         {
           "file": "docs/enhancement-tree-audit.md",
-          "line": 85,
+          "line": 78,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run database -- validate --yes",
@@ -31511,7 +31502,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 317,
+          "line": 319,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -31519,7 +31510,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 360,
+          "line": 362,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
@@ -31527,7 +31518,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 374,
+          "line": 376,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- lint",
@@ -31535,7 +31526,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 384,
+          "line": 386,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- reset --yes",
@@ -31543,7 +31534,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 385,
+          "line": 387,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- lint",
@@ -31551,7 +31542,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 406,
+          "line": 408,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -31711,7 +31702,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -31991,7 +31982,7 @@
         },
         {
           "file": "docs/enhancement-tree-audit.md",
-          "line": 85,
+          "line": 78,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run database -- validate --yes",
@@ -34242,7 +34233,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -34278,7 +34269,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -34472,17 +34463,6 @@
           "classification": "active",
           "via": [
             "check",
-            "check:static"
-          ]
-        },
-        {
-          "file": "docs/enhancement-tree-audit.md",
-          "line": 77,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "npm run check:static",
-          "classification": "active",
-          "via": [
             "check:static"
           ]
         },
@@ -34801,7 +34781,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -34837,7 +34817,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -35031,17 +35011,6 @@
           "classification": "active",
           "via": [
             "check",
-            "check:static"
-          ]
-        },
-        {
-          "file": "docs/enhancement-tree-audit.md",
-          "line": 77,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "npm run check:static",
-          "classification": "active",
-          "via": [
             "check:static"
           ]
         },
@@ -35396,7 +35365,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -35432,7 +35401,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -35626,17 +35595,6 @@
           "classification": "active",
           "via": [
             "check",
-            "check:static"
-          ]
-        },
-        {
-          "file": "docs/enhancement-tree-audit.md",
-          "line": 77,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "npm run check:static",
-          "classification": "active",
-          "via": [
             "check:static"
           ]
         },
@@ -35968,7 +35926,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -36029,7 +35987,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -36654,7 +36612,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 354,
+          "line": 356,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -37052,7 +37010,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 354,
+          "line": 356,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -37475,7 +37433,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -37536,7 +37494,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -38262,7 +38220,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 966,
+          "line": 967,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "Ces dix identifiants restent visibles pour que `npm run release -- preflight` conserve son",
@@ -38350,7 +38308,7 @@
         },
         {
           "file": "docs/authority-versioning.md",
-          "line": 158,
+          "line": 161,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes` sur la cible de branche",
@@ -38486,7 +38444,7 @@
         },
         {
           "file": "docs/incident-runbooks.md",
-          "line": 127,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- edge bundle`, déployer la fonction, puis activer le nouveau ruleset.",
@@ -38788,7 +38746,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 966,
+          "line": 967,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "Ces dix identifiants restent visibles pour que `npm run release -- preflight` conserve son",
@@ -38876,7 +38834,7 @@
         },
         {
           "file": "docs/authority-versioning.md",
-          "line": 158,
+          "line": 161,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- deploy --project-ref <project-ref> --yes` sur la cible de branche",
@@ -39012,7 +38970,7 @@
         },
         {
           "file": "docs/incident-runbooks.md",
-          "line": 127,
+          "line": 139,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run release -- edge bundle`, déployer la fonction, puis activer le nouveau ruleset.",
@@ -39265,7 +39223,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -39325,7 +39283,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -39584,17 +39542,6 @@
           "classification": "active",
           "via": [
             "check",
-            "check:static"
-          ]
-        },
-        {
-          "file": "docs/enhancement-tree-audit.md",
-          "line": 77,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "npm run check:static",
-          "classification": "active",
-          "via": [
             "check:static"
           ]
         },
@@ -40254,7 +40201,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -40290,7 +40237,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -40484,17 +40431,6 @@
           "classification": "active",
           "via": [
             "check",
-            "check:static"
-          ]
-        },
-        {
-          "file": "docs/enhancement-tree-audit.md",
-          "line": 77,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "npm run check:static",
-          "classification": "active",
-          "via": [
             "check:static"
           ]
         },
@@ -41190,7 +41126,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -41226,7 +41162,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -41664,7 +41600,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 386,
+          "line": 388,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run test:db",
@@ -41781,7 +41717,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 386,
+          "line": 388,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run test:db",
@@ -41994,7 +41930,7 @@
           "line": 68,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "de contrat et `npm run test:db:rollback` sur la base locale migrée. Le probe utilise le code",
+          "excerpt": "de contrat et `npm run test:db:rollback` sur la base locale migrée. Le runner compare",
           "classification": "active"
         },
         {
@@ -42023,7 +41959,7 @@
           "line": 68,
           "kind": "npm-run",
           "source": "documentation",
-          "excerpt": "de contrat et `npm run test:db:rollback` sur la base locale migrée. Le probe utilise le code",
+          "excerpt": "de contrat et `npm run test:db:rollback` sur la base locale migrée. Le runner compare",
           "classification": "active"
         },
         {
@@ -43342,7 +43278,7 @@
         },
         {
           "file": "docs/enhancement-tree-audit.md",
-          "line": 73,
+          "line": 68,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run testing -- enhancements audit",
@@ -43350,7 +43286,7 @@
         },
         {
           "file": "docs/enhancement-tree-audit.md",
-          "line": 74,
+          "line": 69,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run testing -- enhancements audit --check",
@@ -43494,7 +43430,7 @@
         },
         {
           "file": "scripts/audit-enhancement-trees.mjs",
-          "line": 271,
+          "line": 277,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "'Usage: npm run testing -- enhancements audit [--check]\\nGenerate the offline JSON/Markdown enhancement audit, or verify both files without writing.\\n',",
@@ -43502,7 +43438,7 @@
         },
         {
           "file": "scripts/audit-enhancement-trees.mjs",
-          "line": 283,
+          "line": 289,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "`Enhancement audit: missing ${relative}. Run npm run testing -- enhancements audit.`,",
@@ -43510,7 +43446,7 @@
         },
         {
           "file": "scripts/audit-enhancement-trees.mjs",
-          "line": 287,
+          "line": 293,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "`Enhancement audit: stale ${relative}. Run npm run testing -- enhancements audit.`,",
@@ -43534,7 +43470,7 @@
         },
         {
           "file": "tests/enhancementAuditCli.test.mjs",
-          "line": 201,
+          "line": 236,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(messages.join('')).toContain('npm run testing -- enhancements audit [--check]');",
@@ -43614,7 +43550,7 @@
         },
         {
           "file": "tooling/enhancements/report.ts",
-          "line": 234,
+          "line": 383,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "'> Généré par `npm run testing -- enhancements audit`. Ne pas modifier ce rapport à la main.',",
@@ -43791,7 +43727,7 @@
         },
         {
           "file": "docs/enhancement-tree-audit.md",
-          "line": 73,
+          "line": 68,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run testing -- enhancements audit",
@@ -43799,7 +43735,7 @@
         },
         {
           "file": "docs/enhancement-tree-audit.md",
-          "line": 74,
+          "line": 69,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run testing -- enhancements audit --check",
@@ -43997,7 +43933,7 @@
         },
         {
           "file": "scripts/audit-enhancement-trees.mjs",
-          "line": 271,
+          "line": 277,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "'Usage: npm run testing -- enhancements audit [--check]\\nGenerate the offline JSON/Markdown enhancement audit, or verify both files without writing.\\n',",
@@ -44005,7 +43941,7 @@
         },
         {
           "file": "scripts/audit-enhancement-trees.mjs",
-          "line": 283,
+          "line": 289,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "`Enhancement audit: missing ${relative}. Run npm run testing -- enhancements audit.`,",
@@ -44013,7 +43949,7 @@
         },
         {
           "file": "scripts/audit-enhancement-trees.mjs",
-          "line": 287,
+          "line": 293,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "`Enhancement audit: stale ${relative}. Run npm run testing -- enhancements audit.`,",
@@ -44037,7 +43973,7 @@
         },
         {
           "file": "tests/enhancementAuditCli.test.mjs",
-          "line": 201,
+          "line": 236,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(messages.join('')).toContain('npm run testing -- enhancements audit [--check]');",
@@ -44117,7 +44053,7 @@
         },
         {
           "file": "tooling/enhancements/report.ts",
-          "line": 234,
+          "line": 383,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "'> Généré par `npm run testing -- enhancements audit`. Ne pas modifier ce rapport à la main.',",
@@ -44160,7 +44096,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -44196,7 +44132,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -44460,17 +44396,6 @@
           ]
         },
         {
-          "file": "docs/enhancement-tree-audit.md",
-          "line": 77,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "npm run check:static",
-          "classification": "active",
-          "via": [
-            "check:static"
-          ]
-        },
-        {
           "file": "docs/operations.md",
           "line": 60,
           "kind": "npm-run",
@@ -44729,14 +44654,6 @@
           "classification": "active"
         },
         {
-          "file": "docs/enhancement-tree-audit.md",
-          "line": 76,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "npm run typecheck",
-          "classification": "active"
-        },
-        {
           "file": "docs/testing.md",
           "line": 129,
           "kind": "npm-run",
@@ -44783,14 +44700,6 @@
         {
           "file": "docs/admin-s7-validation-2026-10-21.md",
           "line": 103,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "npm run typecheck",
-          "classification": "active"
-        },
-        {
-          "file": "docs/enhancement-tree-audit.md",
-          "line": 76,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run typecheck",
@@ -44844,7 +44753,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -44880,7 +44789,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -45074,17 +44983,6 @@
           "classification": "active",
           "via": [
             "check",
-            "check:static"
-          ]
-        },
-        {
-          "file": "docs/enhancement-tree-audit.md",
-          "line": 77,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "npm run check:static",
-          "classification": "active",
-          "via": [
             "check:static"
           ]
         },
@@ -45377,7 +45275,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -45427,7 +45325,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -45647,29 +45545,6 @@
           "classification": "active",
           "via": [
             "check",
-            "check:static",
-            "typecheck"
-          ]
-        },
-        {
-          "file": "docs/enhancement-tree-audit.md",
-          "line": 76,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "npm run typecheck",
-          "classification": "active",
-          "via": [
-            "typecheck"
-          ]
-        },
-        {
-          "file": "docs/enhancement-tree-audit.md",
-          "line": 77,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "npm run check:static",
-          "classification": "active",
-          "via": [
             "check:static",
             "typecheck"
           ]
@@ -46042,7 +45917,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -46092,7 +45967,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -46312,29 +46187,6 @@
           "classification": "active",
           "via": [
             "check",
-            "check:static",
-            "typecheck"
-          ]
-        },
-        {
-          "file": "docs/enhancement-tree-audit.md",
-          "line": 76,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "npm run typecheck",
-          "classification": "active",
-          "via": [
-            "typecheck"
-          ]
-        },
-        {
-          "file": "docs/enhancement-tree-audit.md",
-          "line": 77,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "npm run check:static",
-          "classification": "active",
-          "via": [
             "check:static",
             "typecheck"
           ]
@@ -46675,7 +46527,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 389,
+          "line": 391,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -46725,7 +46577,7 @@
         },
         {
           "file": "TODO.md",
-          "line": 1038,
+          "line": 1039,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "- Les autres tâches utilisent `npm run check`, `npm run database -- validate --yes` et les gates",
@@ -46945,29 +46797,6 @@
           "classification": "active",
           "via": [
             "check",
-            "check:static",
-            "typecheck"
-          ]
-        },
-        {
-          "file": "docs/enhancement-tree-audit.md",
-          "line": 76,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "npm run typecheck",
-          "classification": "active",
-          "via": [
-            "typecheck"
-          ]
-        },
-        {
-          "file": "docs/enhancement-tree-audit.md",
-          "line": 77,
-          "kind": "npm-run",
-          "source": "documentation",
-          "excerpt": "npm run check:static",
-          "classification": "active",
-          "via": [
             "check:static",
             "typecheck"
           ]
