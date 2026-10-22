@@ -49,7 +49,7 @@ export function DatabasePage() {
     statusMessage: enhancementStatus,
     unlockNode,
     enabledGates,
-    contractError,
+    loadError: enhancementLoadError,
     previewReset,
     resetTree,
     retryLoad,
@@ -357,7 +357,7 @@ export function DatabasePage() {
                     readOnly={isGuest || !user}
                     accountKey={user?.id ?? null}
                     enabledGates={enabledGates}
-                    loadError={Boolean(contractError || enhancementError)}
+                    loadError={enhancementLoadError}
                     onRetry={retryLoad}
                     onPreviewReset={previewReset}
                     onResetTree={resetTree}

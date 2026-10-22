@@ -27,6 +27,7 @@ async function enterEnhancements(page: Page, language: 'fr-FR' | 'en-US', guest 
     })
     .click();
   await expect(page).toHaveURL('/');
+  await expect(page.getByRole('heading', { name: 'LoL Rogue', exact: true })).toBeVisible();
   await page.evaluate(
     async ({ guest }) => {
       const [{ useAuthStore }, { useEnhancementStore }, { useChampionEconomyStore }] =
@@ -37,6 +38,35 @@ async function enterEnhancements(page: Page, language: 'fr-FR' | 'en-US', guest 
         ]);
       const account = '00000000-0000-4000-8000-000000000088';
       window.__enhancementUiFixture = { purchases: [], resets: [], quotes: 0 };
+      if (!guest) {
+        const user = { id: account } as NonNullable<
+          ReturnType<typeof useAuthStore.getState>['user']
+        >;
+        useAuthStore.setState({
+          user,
+          session: {
+            user,
+            access_token: 'enhancement-ui-fixture',
+            refresh_token: 'enhancement-ui-fixture',
+            token_type: 'bearer',
+          } as NonNullable<ReturnType<typeof useAuthStore.getState>['session']>,
+          isGuest: false,
+          isAuthenticated: true,
+          isInitialized: true,
+          isLoading: false,
+          authStatus: 'ready',
+          player: {
+            id: account,
+            username: 'enhancement-ui-fixture',
+            display_name: 'Enhancement UI fixture',
+            total_candies: 1_000,
+            is_admin: false,
+            level: 1,
+            total_runs_completed: 0,
+            total_wins: 0,
+          } as NonNullable<ReturnType<typeof useAuthStore.getState>['player']>,
+        });
+      }
       useChampionEconomyStore.setState({
         refresh: async () => undefined,
         snapshot: null,
@@ -130,30 +160,15 @@ async function enterEnhancements(page: Page, language: 'fr-FR' | 'en-US', guest 
           return true;
         },
       });
-      if (!guest)
-        useAuthStore.setState({
-          user: { id: account } as NonNullable<ReturnType<typeof useAuthStore.getState>['user']>,
-          isGuest: false,
-          isAuthenticated: true,
-          isInitialized: true,
-          isLoading: false,
-          authStatus: 'ready',
-          player: {
-            id: account,
-            username: 'enhancement-ui-fixture',
-            display_name: 'Enhancement UI fixture',
-            total_candies: 1_000,
-            is_admin: false,
-            level: 1,
-            total_runs_completed: 0,
-            total_wins: 0,
-          } as NonNullable<ReturnType<typeof useAuthStore.getState>['player']>,
-        });
-      history.pushState(null, '', '/database');
-      dispatchEvent(new PopStateEvent('popstate'));
     },
     { guest },
   );
+  await page
+    .getByRole('button', {
+      name: 'Champions',
+      exact: true,
+    })
+    .click();
   await expect(page).toHaveURL('/database');
   await page.locator('#champion-search').fill('Garen');
   await page.locator('#database-champion-Garen').click();
@@ -282,9 +297,37 @@ for (const language of ['fr-FR', 'en-US'] as const) {
           name: english ? 'Confirm this purchase' : 'Confirmer cet achat',
         });
         await expect(dialog).toBeVisible();
-        await expect(
-          dialog.getByRole('button', { name: english ? 'Cancel' : 'Annuler', exact: true }),
-        ).toBeFocused();
+        const heading = dialog.getByRole('heading', {
+          name: english ? 'Confirm this purchase' : 'Confirmer cet achat',
+        });
+        const cancel = dialog.getByRole('button', {
+          name: english ? 'Cancel' : 'Annuler',
+          exact: true,
+        });
+        const spend = dialog.getByRole('button', {
+          name: english ? 'Spend Candies' : 'Dépenser les Candies',
+          exact: true,
+        });
+        const scrolls = await dialog.evaluate(
+          (element) => element.scrollHeight > element.clientHeight,
+        );
+        if (scrolls) {
+          await expect(heading).toBeFocused();
+          await expect(heading).toBeInViewport();
+          await expect(dialog.locator('p').first()).toBeInViewport();
+          await heading.press('Tab');
+          await expect(cancel).toBeFocused();
+          await cancel.press('Shift+Tab');
+          await expect(spend).toBeFocused();
+          await spend.press('Tab');
+          await expect(cancel).toBeFocused();
+          await heading.focus();
+          await dialog.evaluate((element) => {
+            element.scrollTop = 0;
+          });
+        } else {
+          await expect(cancel).toBeFocused();
+        }
         await noOverflow(page);
         const audit = await new AxeBuilder({ page })
           .include('.enhancement-dialog')
@@ -297,6 +340,24 @@ for (const language of ['fr-FR', 'en-US'] as const) {
           path: screenshot,
           contentType: 'image/png',
         });
+        // At 400% the short viewport requires scrolling inside the modal. Its
+        // reviewed title/cost and both actions must remain reachable, not clipped.
+        await heading.scrollIntoViewIfNeeded();
+        await expect(heading).toBeInViewport();
+        await expect(dialog.locator('p').first()).toBeInViewport();
+        if (factor === 4) {
+          const reviewScreenshot = info.outputPath(
+            `enhancement-real-zoom-${language}-400-review.png`,
+          );
+          await zoomed.screenshot(page, reviewScreenshot);
+          await info.attach(`enhancement-real-zoom-${language}-400-review`, {
+            path: reviewScreenshot,
+            contentType: 'image/png',
+          });
+        }
+        await spend.scrollIntoViewIfNeeded();
+        await expect(spend).toBeInViewport();
+        await expect(spend).toBeEnabled();
         await page.keyboard.press('Escape');
         await expect(dialog).not.toBeVisible();
         await expect(opener).toBeFocused();

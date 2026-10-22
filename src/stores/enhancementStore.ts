@@ -737,6 +737,7 @@ export function useChampionEnhancements(champion: Champion | null) {
   const retryLoad = useEnhancementStore((s) => s.retryLoad);
   const contractState = useEnhancementStore((s) => s.contractState);
   const contractError = useEnhancementStore((s) => s.contractError);
+  const isInitialized = useEnhancementStore((s) => s.isInitialized);
   const loadContract = useEnhancementStore((s) => s.loadContract);
   const setSelectedChampion = useEnhancementStore((s) => s.setSelectedChampion);
   const getEnhancementState = useEnhancementStore((s) => s.getEnhancementState);
@@ -765,6 +766,7 @@ export function useChampionEnhancements(champion: Champion | null) {
     contractState,
     contractError,
     loadContract,
+    loadError: Boolean(contractError || (!isInitialized && error)),
     enabledGates: contractState?.enabledGates ?? { champion_specializations: false },
     state,
     tree,

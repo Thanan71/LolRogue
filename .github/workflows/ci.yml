@@ -309,6 +309,8 @@ jobs:
           path: |
             test-results/source/**/admin-real-zoom-*.png
             test-results/source/**/browser-zoom-*.json
+            test-results/source/**/enhancement-*.png
+            test-results/source/**/enhancement-browser-zoom-*.json
           if-no-files-found: warn
           retention-days: 30
 

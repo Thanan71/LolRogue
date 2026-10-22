@@ -22,6 +22,7 @@ export function EnhancementDialog({
 }) {
   const id = useId();
   const dialog = useRef<HTMLDialogElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
   const cancel = useRef<HTMLButtonElement>(null);
   const confirm = useRef<HTMLButtonElement>(null);
   const opener = useRef<HTMLElement | null>(null);
@@ -31,8 +32,12 @@ export function EnhancementDialog({
     const element = dialog.current;
     if (element?.showModal) element.showModal();
     else element?.setAttribute('open', '');
-    // A destructive operation always starts with the reversible action focused.
+    // Keep the reversible action first, unless it scrolls essential context away.
     cancel.current?.focus();
+    if (element && element.scrollHeight > element.clientHeight) {
+      heading.current?.focus({ preventScroll: true });
+      element.scrollTop = 0;
+    }
     return () =>
       queueMicrotask(() => {
         if (!element?.isConnected && opener.current?.isConnected) opener.current.focus();
@@ -62,6 +67,9 @@ export function EnhancementDialog({
         if (!first) {
           event.preventDefault();
           event.currentTarget.focus();
+        } else if (!elements.includes(document.activeElement as HTMLElement)) {
+          event.preventDefault();
+          (event.shiftKey ? last : first)?.focus();
         } else if (event.shiftKey && document.activeElement === first) {
           event.preventDefault();
           last?.focus();
@@ -71,7 +79,9 @@ export function EnhancementDialog({
         }
       }}
     >
-      <h3 id={`${id}-title`}>{title}</h3>
+      <h3 ref={heading} tabIndex={-1} id={`${id}-title`}>
+        {title}
+      </h3>
       <div id={`${id}-body`}>{children}</div>
       <div className="enhancement-dialog__actions">
         <button ref={cancel} type="button" onClick={onCancel} disabled={busy}>

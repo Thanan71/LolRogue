@@ -74,7 +74,7 @@ function renderTree(overrides: Partial<EnhancementTreeProps> = {}) {
 }
 
 const firstNode = () => document.getElementById('enhancement-fighter_core_1')!;
-const unlock = () => within(firstNode()).getByRole('button', { name: 'Débloquer', exact: true });
+const unlock = () => within(firstNode()).getByRole('button', { name: 'Débloquer' });
 const purchaseDialog = () => screen.getByRole('dialog', { name: 'Confirmer cet achat' });
 const confirm = () =>
   within(purchaseDialog()).getByRole('button', { name: 'Dépenser les Candies' });
@@ -259,7 +259,10 @@ describe('TREE-08 enhancement purchase experience', () => {
     const firstTab = screen.getAllByRole('tab')[0];
     firstTab.focus();
     await user.keyboard('{End}');
-    expect(screen.getAllByRole('tab').at(-1)).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getAllByRole('tab')[screen.getAllByRole('tab').length - 1]).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
     await user.keyboard('{Home}');
     expect(firstTab).toHaveFocus();
     await user.click(screen.getByRole('button', { name: 'Voir le prochain achat possible' }));
