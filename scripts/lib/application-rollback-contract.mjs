@@ -1,5 +1,4 @@
 import { execFileSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -20,10 +19,10 @@ export function assertRollbackMigrationContents(candidateSha, root) {
   for (const entry of entries) {
     const match = entry.match(/^\d+ blob ([0-9a-f]{40})\t(supabase\/migrations\/\d{14}_.+\.sql)$/);
     if (!match) continue;
-    const [, expected, path] = match;
+    const [, , path] = match;
     const bytes = readFileSync(resolve(root, path));
-    const actual = createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
-    if (actual !== expected) throw new Error(`Rollback migration content diverges: ${path}.`);
+    const original = execFileSync('git', ['show', `${candidateSha}:${path}`], { cwd: root });
+    if (!bytes.equals(original)) throw new Error(`Rollback migration content diverges: ${path}.`);
     count++;
   }
   if (count === 0) throw new Error('Rollback checkpoint has no versioned SQL migrations.');
