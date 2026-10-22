@@ -74,7 +74,7 @@ installées dans un checkout temporaire avec les scripts d'installation désacti
 puis créent et nettoient leurs propres fixtures sans modifier le schéma.
 
 Pour TREE 0.3.0, le checkpoint est
-`c89a229a90a49454d6423d33fa9b2e43fa3a7eed`, au schéma de 77 migrations dont la
+`7739b3fae2bc8e73fb00bd3db57d8d0062726aa9`, au schéma de 77 migrations dont la
 dernière est `20261022164730`. Il connaît `run-engine-0.3.0`, gameplay25,
 progression/catalogue d'améliorations4, catalogue de champions2, commandes2 et
 score Daily15. Son hash autoritaire est
