@@ -16,6 +16,8 @@ ALTER TABLE public.enhancement_node_catalog
   ),
   ADD CONSTRAINT enhancement_champion_contract_fk FOREIGN KEY(ruleset_version,champion_id)
     REFERENCES public.progression_champion_catalog(ruleset_version,champion_id);
+CREATE INDEX enhancement_node_catalog_champion_contract
+  ON public.enhancement_node_catalog(ruleset_version,champion_id);
 ALTER TABLE public.champion_enhancements
   ADD COLUMN revision INTEGER NOT NULL DEFAULT 0 CHECK(revision>=0),
   ADD COLUMN reset_count INTEGER NOT NULL DEFAULT 0 CHECK(reset_count>=0);

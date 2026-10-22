@@ -380,6 +380,42 @@
       }
     },
     {
+      "type": "security",
+      "cacheKey": "rls_enabled_no_policy_private_enhancement_contract_settings",
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "justification": "Configuration TREE privée réservée aux RPC autoritaires : RLS sans policy et tous les droits PUBLIC/anon/authenticated/service_role révoqués bloquent toute lecture ou mutation cliente directe. Aucune policy permissive ne doit remplacer ce refus par défaut.",
+      "expiresAt": "2026-10-31",
+      "object": {
+        "schema": "private",
+        "name": "enhancement_contract_settings"
+      }
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_enhancement_node_catalog_enhancement_node_catalog_champion_contract",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index composite couvrant exactement la FK TREE (ruleset_version, champion_id) pour les contrôles d'intégrité et les recherches par champion ; son compteur vierge après reset ne justifie pas de réintroduire une FK sans index. Réévaluation sur trafic représentatif avant expiration.",
+      "expiresAt": "2026-10-31"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_progression_commands_progression_commands_tree_receipts",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index des reçus TREE terminés par utilisateur, champion et type de commande pour calculer le remboursement attesté ; la base jetable est contrôlée avant les achats/resets et sans trafic représentatif. Conserver cette lecture bornée et mesurer son usage avant expiration.",
+      "expiresAt": "2026-10-31"
+    },
+    {
+      "type": "performance",
+      "cacheKey": "unused_index_public_progression_commands_progression_commands_tree_window",
+      "name": "unused_index",
+      "level": "INFO",
+      "justification": "Index temporel des commandes TREE terminées pour borner les agrégats admin par date, version et type ; les compteurs sont réinitialisés avant les probes sur une base jetable sans activité. L'absence d'usage post-reset ne prouve pas sa redondance ; réévaluation avant expiration.",
+      "expiresAt": "2026-10-31"
+    },
+    {
       "type": "performance",
       "cacheKey": "unused_index_public_run_attempts_run_attempts_analytics_started_at",
       "name": "unused_index",

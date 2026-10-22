@@ -33,6 +33,26 @@ describeDatabase('TREE-02 canonical v4 eligibility and revision purchases', () =
   });
   afterAll(async () => cleanupExplorer(service, users));
 
+  it('covers the champion FK while keeping private settings inaccessible to all client roles', () => {
+    const result = json<{
+      fkIndexed: boolean;
+      rls: boolean;
+      policies: number;
+      clientPrivileges: string[];
+    }>(`BEGIN READ ONLY;
+      SELECT json_build_object('audit',json_build_object(
+        'fkIndexed',EXISTS(SELECT 1 FROM pg_constraint fk JOIN pg_index idx ON idx.indrelid=fk.conrelid
+          WHERE fk.conrelid='public.enhancement_node_catalog'::regclass
+          AND fk.conname='enhancement_champion_contract_fk' AND idx.indisvalid AND idx.indpred IS NULL
+          AND (string_to_array(idx.indkey::text,' ')::smallint[])[1:cardinality(fk.conkey)]=fk.conkey),
+        'rls',(SELECT relrowsecurity FROM pg_class WHERE oid='private.enhancement_contract_settings'::regclass),
+        'policies',(SELECT count(*) FROM pg_policy WHERE polrelid='private.enhancement_contract_settings'::regclass),
+        'clientPrivileges',ARRAY(SELECT role_name FROM (VALUES('anon'),('authenticated'),('service_role')) r(role_name)
+          WHERE has_table_privilege(role_name,'private.enhancement_contract_settings','SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER'))
+      )); ROLLBACK;`);
+    expect(result).toEqual({ fkIndexed: true, rls: true, policies: 0, clientPrivileges: [] });
+  });
+
   it('preserves 72 historical IDs and ranks, disables 12 unsupported nodes and gates 16 extensions', () => {
     const result = json<{
       active: number;
