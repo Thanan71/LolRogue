@@ -250,6 +250,7 @@
     "docs/engine-refactor-contract.md",
     "docs/enhancement-economy.md",
     "docs/enhancement-tree-audit.md",
+    "docs/enhancement-trees-validation-0.3.0.md",
     "docs/environment-contract.md",
     "docs/feature-combat-contract.md",
     "docs/feature-module-contract.md",
@@ -2829,6 +2830,19 @@
           "classification": "active",
           "via": [
             "check"
+          ]
+        },
+        {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 51,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:build",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build",
+            "prebuild"
           ]
         },
         {
@@ -27034,6 +27048,17 @@
           ]
         },
         {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 51,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:build",
+          "classification": "active",
+          "via": [
+            "check:build"
+          ]
+        },
+        {
           "file": "docs/operations.md",
           "line": 60,
           "kind": "npm-run",
@@ -27995,6 +28020,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 51,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:build",
+          "classification": "active"
+        },
+        {
           "file": "package.json",
           "line": 33,
           "kind": "npm-run",
@@ -28052,6 +28085,14 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run check:build` 5,62 s. Les contrôles des artefacts avant/après réussissent",
+          "classification": "active"
+        },
+        {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 51,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:build",
           "classification": "active"
         },
         {
@@ -28528,6 +28569,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 47,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:db",
+          "classification": "active"
+        },
+        {
           "file": "tests/databaseDeploymentWorkflow.test.ts",
           "line": 85,
           "kind": "npm-run",
@@ -28576,6 +28625,14 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "1. `validate-migrations` vérifie le SHA et installe le lockfile. `npm run release -- edge bundle` construit et valide les bundles Edge avant de démarrer Supabase local et d'exécuter `npm run check:db` (reset **local uniq",
+          "classification": "active"
+        },
+        {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 47,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:db",
           "classification": "active"
         },
         {
@@ -29640,6 +29697,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 46,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:unit",
+          "classification": "active"
+        },
+        {
           "file": "package.json",
           "line": 33,
           "kind": "npm-run",
@@ -29673,6 +29738,14 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "- `npm run check:unit` passe : 2 835 tests, 265 fichiers, 83 tests conditionnels",
+          "classification": "active"
+        },
+        {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 46,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:unit",
           "classification": "active"
         },
         {
@@ -32521,6 +32594,17 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "1. `validate-migrations` vérifie le SHA et installe le lockfile. `npm run release -- edge bundle` construit et valide les bundles Edge avant de démarrer Supabase local et d'exécuter `npm run check:db` (reset **local uniq",
+          "classification": "active",
+          "via": [
+            "check:db"
+          ]
+        },
+        {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 47,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:db",
           "classification": "active",
           "via": [
             "check:db"
@@ -36249,6 +36333,18 @@
           ]
         },
         {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 51,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:build",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build"
+          ]
+        },
+        {
           "file": "docs/operations.md",
           "line": 60,
           "kind": "npm-run",
@@ -37756,6 +37852,18 @@
           ]
         },
         {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 51,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:build",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build"
+          ]
+        },
+        {
           "file": "docs/operations.md",
           "line": 60,
           "kind": "npm-run",
@@ -38411,6 +38519,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 49,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run release -- artifacts check",
+          "classification": "active"
+        },
+        {
           "file": "docs/feature-status.md",
           "line": 19,
           "kind": "npm-run",
@@ -38934,6 +39050,14 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run release -- edge bundle",
+          "classification": "active"
+        },
+        {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 49,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run release -- artifacts check",
           "classification": "active"
         },
         {
@@ -39543,6 +39667,19 @@
           "via": [
             "check",
             "check:static"
+          ]
+        },
+        {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 51,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:build",
+          "classification": "active",
+          "via": [
+            "check:build",
+            "build",
+            "prebuild"
           ]
         },
         {
@@ -41371,6 +41508,17 @@
           ]
         },
         {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 46,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:unit",
+          "classification": "active",
+          "via": [
+            "check:unit"
+          ]
+        },
+        {
           "file": "docs/operations.md",
           "line": 60,
           "kind": "npm-run",
@@ -42108,6 +42256,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 50,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run test:e2e -- e2e/enhancement-tree.spec.ts",
+          "classification": "active"
+        },
+        {
           "file": "docs/operations.md",
           "line": 61,
           "kind": "npm-run",
@@ -42191,6 +42347,14 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "E2E_REQUIRE_CONNECTED=1 npm run test:e2e -- e2e/admin-navigation-connected.spec.ts",
+          "classification": "active"
+        },
+        {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 50,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run test:e2e -- e2e/enhancement-tree.spec.ts",
           "classification": "active"
         },
         {
@@ -43293,6 +43457,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 48,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run testing -- enhancements audit --check",
+          "classification": "active"
+        },
+        {
           "file": "docs/feature-status.md",
           "line": 18,
           "kind": "npm-run",
@@ -43430,7 +43602,7 @@
         },
         {
           "file": "scripts/audit-enhancement-trees.mjs",
-          "line": 277,
+          "line": 284,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "'Usage: npm run testing -- enhancements audit [--check]\\nGenerate the offline JSON/Markdown enhancement audit, or verify both files without writing.\\n',",
@@ -43438,7 +43610,7 @@
         },
         {
           "file": "scripts/audit-enhancement-trees.mjs",
-          "line": 289,
+          "line": 296,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "`Enhancement audit: missing ${relative}. Run npm run testing -- enhancements audit.`,",
@@ -43446,7 +43618,7 @@
         },
         {
           "file": "scripts/audit-enhancement-trees.mjs",
-          "line": 293,
+          "line": 300,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "`Enhancement audit: stale ${relative}. Run npm run testing -- enhancements audit.`,",
@@ -43470,7 +43642,7 @@
         },
         {
           "file": "tests/enhancementAuditCli.test.mjs",
-          "line": 236,
+          "line": 260,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(messages.join('')).toContain('npm run testing -- enhancements audit [--check]');",
@@ -43742,6 +43914,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 48,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run testing -- enhancements audit --check",
+          "classification": "active"
+        },
+        {
           "file": "docs/feature-status.md",
           "line": 18,
           "kind": "npm-run",
@@ -43933,7 +44113,7 @@
         },
         {
           "file": "scripts/audit-enhancement-trees.mjs",
-          "line": 277,
+          "line": 284,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "'Usage: npm run testing -- enhancements audit [--check]\\nGenerate the offline JSON/Markdown enhancement audit, or verify both files without writing.\\n',",
@@ -43941,7 +44121,7 @@
         },
         {
           "file": "scripts/audit-enhancement-trees.mjs",
-          "line": 289,
+          "line": 296,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "`Enhancement audit: missing ${relative}. Run npm run testing -- enhancements audit.`,",
@@ -43949,7 +44129,7 @@
         },
         {
           "file": "scripts/audit-enhancement-trees.mjs",
-          "line": 293,
+          "line": 300,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "`Enhancement audit: stale ${relative}. Run npm run testing -- enhancements audit.`,",
@@ -43973,7 +44153,7 @@
         },
         {
           "file": "tests/enhancementAuditCli.test.mjs",
-          "line": 236,
+          "line": 260,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(messages.join('')).toContain('npm run testing -- enhancements audit [--check]');",
@@ -44396,6 +44576,17 @@
           ]
         },
         {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 51,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run check:build",
+          "classification": "active",
+          "via": [
+            "check:build"
+          ]
+        },
+        {
           "file": "docs/operations.md",
           "line": 60,
           "kind": "npm-run",
@@ -44654,6 +44845,14 @@
           "classification": "active"
         },
         {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 45,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run typecheck",
+          "classification": "active"
+        },
+        {
           "file": "docs/testing.md",
           "line": 129,
           "kind": "npm-run",
@@ -44700,6 +44899,14 @@
         {
           "file": "docs/admin-s7-validation-2026-10-21.md",
           "line": 103,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run typecheck",
+          "classification": "active"
+        },
+        {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 45,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run typecheck",
@@ -45550,6 +45757,17 @@
           ]
         },
         {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 45,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run typecheck",
+          "classification": "active",
+          "via": [
+            "typecheck"
+          ]
+        },
+        {
           "file": "docs/operations.md",
           "line": 60,
           "kind": "npm-run",
@@ -46192,6 +46410,17 @@
           ]
         },
         {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 45,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run typecheck",
+          "classification": "active",
+          "via": [
+            "typecheck"
+          ]
+        },
+        {
           "file": "docs/operations.md",
           "line": 60,
           "kind": "npm-run",
@@ -46798,6 +47027,17 @@
           "via": [
             "check",
             "check:static",
+            "typecheck"
+          ]
+        },
+        {
+          "file": "docs/enhancement-trees-validation-0.3.0.md",
+          "line": 45,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run typecheck",
+          "classification": "active",
+          "via": [
             "typecheck"
           ]
         },
