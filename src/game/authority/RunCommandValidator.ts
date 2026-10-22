@@ -2,9 +2,10 @@ import { implementedChampions } from '@/data/champion';
 import { championDB } from '@/data/championDatabase';
 import { getRuneDefinition } from '@/data/items';
 import type { SpellSlot } from '@/game/ChampionInstance';
-import { MAX_STARTER_TEAM_SIZE } from '@/game/run/starterBudget';
+import { getEnhancementContractForChampion } from '@/game/enhancements/catalog';
+import { validateEnhancementState } from '@/game/enhancements/eligibility';
 import { SPELL_SLOTS } from '@/game/run/spellUpgradeRules';
-import { enhancementTreeProvider } from '@/services/enhancementService';
+import { MAX_STARTER_TEAM_SIZE } from '@/game/run/starterBudget';
 import type { AuthorityRunAttempt, AuthorityRunCommand } from './types';
 
 const IMPLEMENTED_CHAMPION_IDS = new Set(implementedChampions.map((champion) => champion.id));
@@ -305,6 +306,23 @@ export function validateRunAttempt(value: AuthorityRunAttempt): void {
   ) {
     failAuthorityVerification('invalid_attempt', 'Attempt rune loadout is invalid.');
   }
+  if (!isRecord(value.masterySnapshot)) {
+    failAuthorityVerification('invalid_attempt', 'Attempt mastery snapshot is invalid.');
+  }
+  for (const [championId, level] of Object.entries(value.masterySnapshot)) {
+    if (
+      !IMPLEMENTED_CHAMPION_IDS.has(championId) ||
+      !championDB.getById(championId) ||
+      !Number.isSafeInteger(level) ||
+      (level as number) < 0 ||
+      (level as number) > 4
+    ) {
+      failAuthorityVerification(
+        'invalid_attempt',
+        'Attempt mastery snapshot contains an invalid level.',
+      );
+    }
+  }
   if (!isRecord(value.enhancementSnapshot)) {
     failAuthorityVerification('invalid_attempt', 'Attempt enhancement snapshot is invalid.');
   }
@@ -320,12 +338,10 @@ export function validateRunAttempt(value: AuthorityRunAttempt): void {
       );
     }
     const champion = championDB.getById(championId);
-    if (!champion) {
+    if (!champion)
       failAuthorityVerification('invalid_attempt', 'Attempt enhancement champion is unavailable.');
-    }
-    const tree = enhancementTreeProvider.getTreeForChampion(champion);
-    const nodes = [...tree.coreNodes, ...tree.branches.flatMap((branch) => branch.nodes)];
-    const nodeById = new Map(nodes.map((node) => [node.id, node]));
+    const contract = getEnhancementContractForChampion(champion);
+    const nodeById = new Map(contract.nodes.map((node) => [node.id, node]));
     for (const [nodeId, rank] of Object.entries(ranks)) {
       const node = nodeById.get(nodeId);
       if (
@@ -339,34 +355,32 @@ export function validateRunAttempt(value: AuthorityRunAttempt): void {
           'Attempt enhancement snapshot contains an invalid rank.',
         );
       }
-      if (
-        (rank as number) > 0 &&
-        node.prerequisites.some(
-          (prerequisiteId) =>
-            !Number.isSafeInteger(ranks[prerequisiteId]) || ranks[prerequisiteId] < 1,
-        )
-      ) {
-        failAuthorityVerification(
-          'invalid_attempt',
-          'Attempt enhancement prerequisites are incomplete.',
-        );
-      }
     }
-  }
-  if (!isRecord(value.masterySnapshot)) {
-    failAuthorityVerification('invalid_attempt', 'Attempt mastery snapshot is invalid.');
-  }
-  for (const [championId, level] of Object.entries(value.masterySnapshot)) {
-    if (
-      !IMPLEMENTED_CHAMPION_IDS.has(championId) ||
-      !championDB.getById(championId) ||
-      !Number.isSafeInteger(level) ||
-      (level as number) < 0 ||
-      (level as number) > 4
-    ) {
+    // Frozen ranks are server-attested ownership, not a new purchase. Publication
+    // gates may close later; ancestry, mastery, ranks and exclusions still apply.
+    // Actual spend is intentionally absent from this immutable snapshot format.
+    // A future aggregate budget needs its own attestation before it can be used.
+    if (contract.budget !== null) {
       failAuthorityVerification(
         'invalid_attempt',
-        'Attempt mastery snapshot contains an invalid level.',
+        'Attempt enhancement budget attestation is unavailable.',
+      );
+    }
+    const state = validateEnhancementState(
+      contract,
+      {
+        unlockedNodes: ranks as Record<string, number>,
+        totalCandiesSpent: 0,
+      },
+      {
+        masteryLevel: value.masterySnapshot[championId] ?? 0,
+        enabledGates: ['champion_specializations'],
+      },
+    );
+    if (!state.valid) {
+      failAuthorityVerification(
+        'invalid_attempt',
+        'Attempt enhancement ownership violates the canonical contract.',
       );
     }
   }
