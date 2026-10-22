@@ -21177,7 +21177,7 @@
         },
         {
           "path": "supabase/migrations/20261022164730_gameplay_ruleset_0_3_0_enhancement_trees.sql",
-          "sha256": "76bd4faceafd914eeff2091f6f1748d9894ec0fced01af6d8c32e522ede92cbe"
+          "sha256": "7ad47296cc62d66240f68ffee0989f7eee9626cc5cc412192feee6b87dc95749"
         },
         {
           "path": "supabase/migrations/20260724190000_harden_verified_attempt_contract.sql",
@@ -36688,7 +36688,7 @@
   ],
   "provenance": {
     "algorithm": "sha256",
-    "inputsSha256": "9f5e208851acbc948dd659e3fdbbe104ed56364bf0d1ef3092c28d0d8a1f57dc",
+    "inputsSha256": "578d5dd6e3ceac22eb65c67d4f46573f8c7fca2bfc7528a7d45392ab180ce569",
     "inputs": [
       {
         "path": "biome.json",
@@ -37276,7 +37276,7 @@
       },
       {
         "path": "supabase/migrations/20261022164730_gameplay_ruleset_0_3_0_enhancement_trees.sql",
-        "sha256": "76bd4faceafd914eeff2091f6f1748d9894ec0fced01af6d8c32e522ede92cbe"
+        "sha256": "7ad47296cc62d66240f68ffee0989f7eee9626cc5cc412192feee6b87dc95749"
       },
       {
         "path": "tests/__snapshots__/enhancementSpecializationComparison.test.ts.snap",

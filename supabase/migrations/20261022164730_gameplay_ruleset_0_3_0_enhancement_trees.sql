@@ -701,4 +701,3 @@ UPDATE public.gameplay_rulesets SET is_active=TRUE WHERE version=25;
 UPDATE public.daily_challenge_rulesets SET is_active=FALSE WHERE is_active;
 UPDATE public.daily_challenge_rulesets SET is_active=TRUE WHERE version=25;
 COMMIT;
-
