@@ -6,6 +6,7 @@
  * depend on abstractions, not concretions.
  */
 
+import type { EnhancementResetFailureKind } from '@/services/enhancementContract';
 import type { Champion } from '@/types/champion';
 import type {
   ChampionEnhancementTree,
@@ -74,6 +75,7 @@ export interface EnhancementResetResult {
   commandId?: string;
   replayed?: boolean;
   error?: string;
+  failureKind?: EnhancementResetFailureKind;
 }
 
 /**

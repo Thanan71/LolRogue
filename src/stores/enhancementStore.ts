@@ -25,9 +25,14 @@ import {
 import { getEnhancementResetCopy } from '@/i18n/enhancementReset';
 import { accountProgressionService } from '@/services/accountProgressionService';
 import { applicationRepositories as container } from '@/services/container/applicationRepositories';
+import {
+  enhancementResetFailureKind,
+  supportsEnhancementContract,
+} from '@/services/enhancementContract';
 import type {
   EnhancementContractState,
   EnhancementResetPreview,
+  EnhancementResetResult,
 } from '@/services/interfaces/IEnhancementRepository';
 import { useAuthStore } from '@/stores/authStore';
 import { useMasteryStore } from '@/stores/masteryStore';
@@ -55,7 +60,12 @@ interface PendingUnlockCommand {
 const pendingUnlockCommands = new Map<string, PendingUnlockCommand>();
 const pendingResetCommands = new Map<
   string,
-  { commandId: string; expectedRevision: number; policyVersion: number }
+  {
+    commandId: string;
+    expectedRevision: number;
+    policyVersion: number;
+    preview: EnhancementResetPreview;
+  }
 >();
 let progressionGeneration = 0;
 let contractRequestGeneration = 0;
@@ -137,6 +147,7 @@ interface EnhancementStoreState {
 interface EnhancementStoreActions {
   previewReset: () => Promise<EnhancementResetPreview | null>;
   resetTree: (expectedRevision: number) => Promise<boolean>;
+  getResetRetryPreview: () => EnhancementResetPreview | null;
   retryLoad: () => Promise<void>;
   loadContract: () => Promise<void>;
   /** Initialize store with player data */
@@ -173,6 +184,15 @@ export type EnhancementStore = EnhancementStoreState & EnhancementStoreActions;
 
 export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
   resetPreview: null,
+  getResetRetryPreview: () => {
+    const state = get();
+    const auth = useAuthStore.getState();
+    if (!auth.user || auth.isGuest || state.ownerUserId !== auth.user.id || !state.selectedChampion)
+      return null;
+    return (
+      pendingResetCommands.get(`${auth.user.id}:${state.selectedChampion.id}`)?.preview ?? null
+    );
+  },
   retryLoad: async () => {
     const auth = useAuthStore.getState();
     if (!auth.user || auth.isGuest) return;
@@ -196,6 +216,11 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
       return null;
     }
     const userId = auth.user.id;
+    const pending = pendingResetCommands.get(`${userId}:${selectedChampion.id}`);
+    if (pending) {
+      set({ resetPreview: pending.preview, error: null });
+      return pending.preview;
+    }
     const generation = progressionGeneration;
     const current = () =>
       generation === progressionGeneration &&
@@ -247,6 +272,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
             commandId: globalThis.crypto.randomUUID(),
             expectedRevision,
             policyVersion: resetPreview.policyVersion,
+            preview: resetPreview,
           };
     pendingResetCommands.set(key, command);
     const generation = progressionGeneration;
@@ -257,24 +283,50 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
       !useAuthStore.getState().isGuest;
     set({ isLoading: true, error: null, statusMessage: null });
     try {
-      const result = await container.enhancement.resetTree(
-        userId,
-        selectedChampion.id,
-        expectedRevision,
-        command.commandId,
-        command.policyVersion,
-      );
+      const send = async (): Promise<EnhancementResetResult> => {
+        try {
+          return await container.enhancement.resetTree(
+            userId,
+            selectedChampion.id,
+            command.expectedRevision,
+            command.commandId,
+            command.policyVersion,
+          );
+        } catch (error) {
+          const message = error instanceof Error ? error.message : undefined;
+          const code =
+            error && typeof error === 'object' && 'code' in error && typeof error.code === 'string'
+              ? error.code
+              : undefined;
+          return {
+            success: false,
+            newState: get().getEnhancementState(selectedChampion.id),
+            error: message,
+            failureKind: enhancementResetFailureKind(message, code),
+          };
+        }
+      };
+      let result = await send();
+      if (!current()) return false;
+      if (
+        !result.success &&
+        (result.failureKind ?? enhancementResetFailureKind(result.error)) === 'retryable'
+      ) {
+        // Same authenticated generation and exact original receipt identity. Empty
+        // ownership from another reset is never evidence that this one succeeded.
+        result = await send();
+      }
       if (!current()) return false;
       if (!result.success) {
-        const conflict =
-          !!result.error &&
-          /^enhancement_(revision_conflict|reset_policy_conflict|reset_ineligible)/.test(
-            result.error,
-          );
-        if (conflict) pendingResetCommands.delete(key);
+        const failureKind = result.failureKind ?? enhancementResetFailureKind(result.error);
+        const conflict = failureKind === 'conflict';
+        if (failureKind !== 'retryable') pendingResetCommands.delete(key);
         set((s) => ({
           enhancements: { ...s.enhancements, [selectedChampion.id]: result.newState },
-          resetPreview: conflict ? null : s.resetPreview,
+          resetPreview:
+            failureKind === 'retryable' && s.selectedChampion?.id === selectedChampion.id
+              ? command.preview
+              : null,
           error: result.error?.includes('history_unavailable')
             ? copy.historyUnavailable
             : conflict
@@ -321,6 +373,8 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
       !useAuthStore.getState().isGuest;
     try {
       const contractState = await container.enhancement.getContractState();
+      if (!supportsEnhancementContract(contractState))
+        throw new Error('ENHANCEMENT_CONTRACT_UNSUPPORTED');
       if (current()) set({ contractState, contractError: null });
     } catch {
       if (current())
@@ -438,7 +492,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
   // Check if a node can be unlocked
   canUnlockNode: (node: EnhancementNode) => {
     const { selectedChampion, availableCandies, enhancements, championMasteryLevels } = get();
-    if (!selectedChampion) return false;
+    if (!selectedChampion || !supportsEnhancementContract(get().contractState)) return false;
 
     const state = enhancements[selectedChampion.id] || {
       unlockedNodes: {},
@@ -539,6 +593,14 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
     // A replay keeps the exact original command and must reach the server even
     // if the local balance became stale after a response was lost.
     if (!retryCommand) {
+      if (!supportsEnhancementContract(get().contractState)) {
+        set({
+          contractError: 'ENHANCEMENT_CONTRACT_UNSUPPORTED',
+          error: storeContent.saveFailed,
+          statusMessage: null,
+        });
+        return false;
+      }
       const validation = previewEnhancementPurchase(nodeToUnlock, {
         ...currentState,
         masteryLevel,
@@ -734,6 +796,7 @@ export function useChampionEnhancements(champion: Champion | null) {
   const resetPreview = useEnhancementStore((s) => s.resetPreview);
   const previewReset = useEnhancementStore((s) => s.previewReset);
   const resetTree = useEnhancementStore((s) => s.resetTree);
+  const getResetRetryPreview = useEnhancementStore((s) => s.getResetRetryPreview);
   const retryLoad = useEnhancementStore((s) => s.retryLoad);
   const contractState = useEnhancementStore((s) => s.contractState);
   const contractError = useEnhancementStore((s) => s.contractError);
@@ -762,6 +825,7 @@ export function useChampionEnhancements(champion: Champion | null) {
     resetPreview,
     previewReset,
     resetTree,
+    getResetRetryPreview,
     retryLoad,
     contractState,
     contractError,
