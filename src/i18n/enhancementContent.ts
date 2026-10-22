@@ -338,7 +338,7 @@ const frFR = {
     },
     assassin_burst_3: {
       name: 'Mort Subite',
-      description: 'Ultime : dégâts explosifs augmentés de 20 %',
+      description: 'Les dégâts de la compétence R sont augmentés de 20 %.',
     },
     assassin_mobility_1: {
       name: 'Pas Furtif',
@@ -363,7 +363,7 @@ const frFR = {
     assassin_sustain_3: {
       name: 'Phénix',
       description:
-        'Ultime : en dessous de 20 % PV, gagne un bouclier de 200 PV (60 s de récupération)',
+        'Avant un coup reçu sous 20 % PV, gagne un bouclier de 200 PV pendant 2 tours, une fois par combat.',
     },
     tank_defense_1: {
       name: 'Peau Épaisse',
@@ -375,8 +375,7 @@ const frFR = {
     },
     tank_defense_3: {
       name: 'Immortel',
-      description:
-        'Ultime : quand les PV tombent à 0, reste à 1 PV avec une immunité de 2 s (120 s de récupération)',
+      description: 'Une fois par combat, un coup mortel vous laisse à 1 PV ; sans immunité.',
     },
     tank_support_1: {
       name: "Bouclier d'Allié",
@@ -384,7 +383,8 @@ const frFR = {
     },
     tank_support_2: {
       name: 'Gardien',
-      description: '+10 % de réduction des dégâts subis par les alliés proches',
+      description:
+        'Tant que le porteur est vivant, toute son équipe, lui inclus, subit 10 % de dégâts en moins.',
     },
     tank_support_3: {
       name: 'Sacrifice',
@@ -393,17 +393,17 @@ const frFR = {
     },
     tank_thorn_1: {
       name: 'Pointes',
-      description: 'Renvoie 5 % des dégâts physiques reçus aux attaquants',
+      description: 'Renvoie 5 % des dégâts non absorbés reçus, en dégâts vrais.',
     },
     tank_thorn_2: {
       name: 'Brûlure',
       description:
-        'Les attaques contre vous infligent à leur auteur 2 % de ses PV maximum en dégâts magiques',
+        'Après une attaque de base reçue, inflige 2 % des PV max de l’attaquant en dégâts vrais.',
     },
     tank_thorn_3: {
       name: 'Vengeance',
       description:
-        'Ultime : après avoir subi 500 dégâts, renvoie 50 dégâts bruts à tous les ennemis proches',
+        'Après 500 dégâts non absorbés reçus, inflige 50 dégâts vrais à chaque ennemi vivant, une fois par combat.',
     },
     mage_burst_1: {
       name: 'Concentration',
@@ -411,7 +411,7 @@ const frFR = {
     },
     mage_burst_2: {
       name: 'Combustion',
-      description: '+15 % de dégâts magiques',
+      description: '+15 % de puissance ; ne multiplie pas directement les dégâts magiques.',
     },
     mage_burst_3: {
       name: 'Tempête Arcane',
@@ -419,15 +419,17 @@ const frFR = {
     },
     mage_control_1: {
       name: 'Ralentissement',
-      description: 'Les sorts appliquent 15 % de ralentissement pendant 1 s',
+      description:
+        'Les dégâts de sort appliquent 15 % de ralentissement pendant 1 tour, avant modificateurs de durée.',
     },
     mage_control_2: {
       name: 'Canalisation',
-      description: '+10 de hâte de compétence',
+      description: '+10 points de hâte de compétence ; recharge × 100 / (100 + hâte).',
     },
     mage_control_3: {
       name: 'Racines',
-      description: "Ultime : 20 % de chances qu'un sort enracine la cible pendant 1 s",
+      description:
+        'Chaque événement de dégâts de sort a 20 % de chances d’enraciner la cible pendant 1 tour, avant modificateurs de durée.',
     },
     mage_sustain_1: {
       name: 'Clarté',
@@ -435,7 +437,7 @@ const frFR = {
     },
     mage_sustain_2: {
       name: 'Flux de Mana',
-      description: 'Les éliminations de sbires restaurent 5 PM',
+      description: 'Chaque élimination créditée au porteur restaure 5 PM.',
     },
     mage_sustain_3: {
       name: 'Présence Éternelle',
@@ -452,7 +454,7 @@ const frFR = {
     marksman_dps_3: {
       name: 'Tir Déchirant',
       description:
-        "Ultime : les attaques ont 15 % de chances d'infliger des saignements (5 % des PV maximum sur 3 s)",
+        'Les attaques de base ont 15 % de chances d’infliger 5 % des PV max de la cible en dégâts vrais sur 3 tours ; applications indépendantes.',
     },
     marksman_range_1: {
       name: 'Position haute',
@@ -460,7 +462,7 @@ const frFR = {
     },
     marksman_range_2: {
       name: 'Tir précis',
-      description: '+8 % de dégâts contre les champions',
+      description: '+8 % de dégâts infligés par attaques, sorts et DoT.',
     },
     marksman_range_3: {
       name: "Tireur d'élite",
@@ -481,11 +483,12 @@ const frFR = {
     },
     fighter_bruiser_1: {
       name: 'Frappe Lourde',
-      description: '+5 % de dégâts',
+      description: '+5 % de dégâts d’attaque ; aucun multiplicateur global de dégâts.',
     },
     fighter_bruiser_2: {
       name: 'Saignée',
-      description: 'Les attaques appliquent des saignements (3 % des PV maximum sur 2 s)',
+      description:
+        'Les attaques de base infligent 3 % des PV max de la cible en dégâts vrais sur 2 tours ; applications indépendantes.',
     },
     fighter_bruiser_3: {
       name: 'Furie',
@@ -497,12 +500,12 @@ const frFR = {
     },
     fighter_duelist_2: {
       name: 'Défi',
-      description: '+10 % de dégâts contre les champions ennemis',
+      description: '+10 % de dégâts infligés par attaques, sorts et DoT.',
     },
     fighter_duelist_3: {
       name: 'Mort ou Vif',
       description:
-        'Ultime : en duel contre un champion, +25 % de dégâts et +15 % de réduction des dégâts',
+        'Avec exactement un combattant vivant par camp, +25 % de dégâts infligés et 15 % de réduction des dégâts reçus.',
     },
     fighter_sustain_1: {
       name: 'Vol de Vie',
@@ -526,7 +529,8 @@ const frFR = {
     },
     support_enchanter_3: {
       name: 'Aura Divine',
-      description: 'Ultime : les alliés proches gagnent +10 % à tous leurs dégâts',
+      description:
+        'Tant que le porteur est vivant, toute son équipe, lui inclus, inflige 10 % de dégâts supplémentaires.',
     },
     support_tanky_1: {
       name: 'Corps Garde',
@@ -534,7 +538,8 @@ const frFR = {
     },
     support_tanky_2: {
       name: 'Entrave',
-      description: 'Les effets de contrôle durent 10 % plus longtemps',
+      description:
+        'Durée des contrôles appliqués × 1,1, avant ténacité, arrondi supérieur et plafonds par type.',
     },
     support_tanky_3: {
       name: 'Sacrifice Ultime',
@@ -839,7 +844,7 @@ const enUS = {
     },
     assassin_burst_3: {
       name: 'Sudden Death',
-      description: 'Ultimate: Burst damage increased by 20%',
+      description: 'Damage from the R ability is increased by 20%.',
     },
     assassin_mobility_1: {
       name: 'Stealthy Step',
@@ -863,7 +868,8 @@ const enUS = {
     },
     assassin_sustain_3: {
       name: 'Phoenix',
-      description: 'Ultimate: Below 20% HP, gain a 200 HP shield (60s cooldown)',
+      description:
+        'Before a hit received below 20% HP, gain a 200 HP shield for 2 turns, once per battle.',
     },
     tank_defense_1: {
       name: 'Thick Skin',
@@ -875,8 +881,7 @@ const enUS = {
     },
     tank_defense_3: {
       name: 'Immortal',
-      description:
-        'Ultimate: When HP reaches 0, remain at 1 HP with immunity for 2s (120s cooldown)',
+      description: 'Once per battle, a lethal hit leaves you at 1 HP; no immunity.',
     },
     tank_support_1: {
       name: 'Ally Shield',
@@ -884,7 +889,8 @@ const enUS = {
     },
     tank_support_2: {
       name: 'Guardian',
-      description: '+10% damage reduction for nearby allies',
+      description:
+        'While the owner is alive, their entire team, including the owner, takes 10% less damage.',
     },
     tank_support_3: {
       name: 'Sacrifice',
@@ -892,15 +898,17 @@ const enUS = {
     },
     tank_thorn_1: {
       name: 'Spikes',
-      description: 'Reflect 5% of physical damage received back to attackers',
+      description: 'Reflects 5% of incoming damage not absorbed by shields as true damage.',
     },
     tank_thorn_2: {
       name: 'Burn',
-      description: "Attacks against you deal 2% of the attacker's max HP as magic damage",
+      description:
+        'After receiving a basic attack, deal 2% of the attacker’s max HP as true damage.',
     },
     tank_thorn_3: {
       name: 'Vengeance',
-      description: 'Ultimate: After taking 500 damage, deal 50 true damage to all nearby enemies',
+      description:
+        'After receiving 500 damage not absorbed by shields, deal 50 true damage to every living enemy, once per battle.',
     },
     mage_burst_1: {
       name: 'Focus',
@@ -908,7 +916,7 @@ const enUS = {
     },
     mage_burst_2: {
       name: 'Combustion',
-      description: '+15% magic damage',
+      description: '+15% Ability Power; does not directly multiply magic damage.',
     },
     mage_burst_3: {
       name: 'Arcane Storm',
@@ -916,15 +924,16 @@ const enUS = {
     },
     mage_control_1: {
       name: 'Slow',
-      description: 'Spells apply a 15% slow for 1s',
+      description: 'Spell damage applies a 15% slow for 1 turn, before duration modifiers.',
     },
     mage_control_2: {
       name: 'Channeling',
-      description: '+10 Ability Haste',
+      description: '+10 Ability Haste points; cooldown × 100 / (100 + haste).',
     },
     mage_control_3: {
       name: 'Roots',
-      description: 'Ultimate: Spells have a 20% chance to root the target for 1s',
+      description:
+        'Each spell damage event has a 20% chance to root its target for 1 turn, before duration modifiers.',
     },
     mage_sustain_1: {
       name: 'Clarity',
@@ -932,7 +941,7 @@ const enUS = {
     },
     mage_sustain_2: {
       name: 'Manaflow',
-      description: 'Minion kills restore 5 MP',
+      description: 'Each kill credited to the owner restores 5 MP.',
     },
     mage_sustain_3: {
       name: 'Eternal Presence',
@@ -948,7 +957,8 @@ const enUS = {
     },
     marksman_dps_3: {
       name: 'Rending Shot',
-      description: 'Ultimate: Attacks have a 15% chance to inflict bleeding (5% max HP over 3s)',
+      description:
+        'Basic attacks have a 15% chance to deal 5% of the target’s max HP as true damage over 3 turns; applications are independent.',
     },
     marksman_range_1: {
       name: 'High Ground',
@@ -956,7 +966,7 @@ const enUS = {
     },
     marksman_range_2: {
       name: 'Precise Shot',
-      description: '+8% damage against champions',
+      description: '+8% damage dealt by attacks, spells and damage over time.',
     },
     marksman_range_3: {
       name: 'Sniper',
@@ -977,11 +987,12 @@ const enUS = {
     },
     fighter_bruiser_1: {
       name: 'Heavy Strike',
-      description: '+5% damage',
+      description: '+5% Attack Damage; no global damage multiplier.',
     },
     fighter_bruiser_2: {
       name: 'Bloodletting',
-      description: 'Attacks inflict bleeding (3% max HP over 2s)',
+      description:
+        'Basic attacks deal 3% of the target’s max HP as true damage over 2 turns; applications are independent.',
     },
     fighter_bruiser_3: {
       name: 'Berserker',
@@ -993,12 +1004,12 @@ const enUS = {
     },
     fighter_duelist_2: {
       name: 'Challenge',
-      description: '+10% damage against enemy champions',
+      description: '+10% damage dealt by attacks, spells and damage over time.',
     },
     fighter_duelist_3: {
       name: 'Dead or Alive',
       description:
-        'Ultimate: In a duel against a champion, gain +25% damage and +15% damage reduction',
+        'With exactly one living combatant per side, +25% damage dealt and 15% less incoming damage.',
     },
     fighter_sustain_1: {
       name: 'Lifesteal',
@@ -1022,7 +1033,8 @@ const enUS = {
     },
     support_enchanter_3: {
       name: 'Divine Aura',
-      description: 'Ultimate: Nearby allies gain +10% to all damage',
+      description:
+        'While the owner is alive, their entire team, including the owner, deals 10% more damage.',
     },
     support_tanky_1: {
       name: 'Bodyguard',
@@ -1030,7 +1042,8 @@ const enUS = {
     },
     support_tanky_2: {
       name: 'Bind',
-      description: 'Crowd control effects last 10% longer',
+      description:
+        'Applied crowd control duration × 1.1, before tenacity, rounding up and limits by type.',
     },
     support_tanky_3: {
       name: 'Ultimate Sacrifice',

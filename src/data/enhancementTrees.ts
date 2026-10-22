@@ -96,7 +96,7 @@ const ASSASSIN_BRANCHES: EnhancementBranch[] = [
       createNode({
         id: 'assassin_burst_3',
         name: 'Mort Subite',
-        description: 'Ulti: Dégâts de burst augmentés de 20%',
+        description: 'Les dégâts de la compétence R sont augmentés de 20 %.',
         type: 'ultimate',
         candyCost: 150,
         requiredMasteryLevel: 3,
@@ -196,7 +196,8 @@ const ASSASSIN_BRANCHES: EnhancementBranch[] = [
       createNode({
         id: 'assassin_sustain_3',
         name: 'Phénix',
-        description: 'Ulti: En dessous de 20% PV, gagne un bouclier de 200 PV (60s CD)',
+        description:
+          'Avant un coup reçu sous 20 % PV, gagne un bouclier de 200 PV pendant 2 tours, une fois par combat.',
         type: 'ultimate',
         candyCost: 150,
         requiredMasteryLevel: 3,
@@ -207,7 +208,7 @@ const ASSASSIN_BRANCHES: EnhancementBranch[] = [
             description: 'Bouclier automatique quand PV bas',
             value: 200,
             condition: 'En dessous de 20% PV',
-            cooldown: 60,
+            duration: 2,
           },
         ],
       }),
@@ -287,7 +288,7 @@ const TANK_BRANCHES: EnhancementBranch[] = [
       createNode({
         id: 'tank_defense_3',
         name: 'Immortel',
-        description: 'Ulti: Quand PV tombent à 0, reste à 1 PV avec immunité 2s (120s CD)',
+        description: 'Une fois par combat, un coup mortel vous laisse à 1 PV ; sans immunité.',
         type: 'ultimate',
         candyCost: 200,
         requiredMasteryLevel: 3,
@@ -295,9 +296,7 @@ const TANK_BRANCHES: EnhancementBranch[] = [
         effects: [
           {
             type: 'revive',
-            description: 'Survie automatique avec immunité temporaire',
-            duration: 2,
-            cooldown: 120,
+            description: 'Survie à 1 PV une fois par combat, sans immunité',
           },
         ],
       }),
@@ -328,7 +327,8 @@ const TANK_BRANCHES: EnhancementBranch[] = [
       createNode({
         id: 'tank_support_2',
         name: 'Gardien',
-        description: '+10% de réduction des dégâts subis par les alliés proches',
+        description:
+          'Tant que le porteur est vivant, toute son équipe, lui inclus, subit 10 % de dégâts en moins.',
         type: 'passive',
         candyCost: 80,
         requiredMasteryLevel: 2,
@@ -368,7 +368,7 @@ const TANK_BRANCHES: EnhancementBranch[] = [
       createNode({
         id: 'tank_thorn_1',
         name: 'Pointes',
-        description: 'Renvoie 5% des dégâts physiques reçus aux attaquants',
+        description: 'Renvoie 5 % des dégâts non absorbés reçus, en dégâts vrais.',
         type: 'passive',
         candyCost: 50,
         requiredMasteryLevel: 1,
@@ -385,7 +385,7 @@ const TANK_BRANCHES: EnhancementBranch[] = [
         id: 'tank_thorn_2',
         name: 'Brûlure',
         description:
-          'Les attaques contre vous leur infligent 2% de leurs PV max en dégâts magiques',
+          'Après une attaque de base reçue, inflige 2 % des PV max de l’attaquant en dégâts vrais.',
         type: 'passive',
         candyCost: 80,
         requiredMasteryLevel: 2,
@@ -402,7 +402,7 @@ const TANK_BRANCHES: EnhancementBranch[] = [
         id: 'tank_thorn_3',
         name: 'Vengeance',
         description:
-          'Ulti: Après avoir subi 500 dégâts, renvoie 50 dégâts vrais à tous les ennemis proches',
+          'Après 500 dégâts non absorbés reçus, inflige 50 dégâts vrais à chaque ennemi vivant, une fois par combat.',
         type: 'ultimate',
         candyCost: 200,
         requiredMasteryLevel: 3,
@@ -482,7 +482,7 @@ const MAGE_BRANCHES: EnhancementBranch[] = [
       createNode({
         id: 'mage_burst_2',
         name: 'Combustion',
-        description: '+15% de dégâts magiques',
+        description: '+15 % de puissance ; ne multiplie pas directement les dégâts magiques.',
         type: 'passive',
         candyCost: 80,
         requiredMasteryLevel: 2,
@@ -516,7 +516,8 @@ const MAGE_BRANCHES: EnhancementBranch[] = [
       createNode({
         id: 'mage_control_1',
         name: 'Ralentissement',
-        description: 'Les sorts appliquent 15% de ralentissement pendant 1s',
+        description:
+          'Les dégâts de sort appliquent 15 % de ralentissement pendant 1 tour, avant modificateurs de durée.',
         type: 'passive',
         candyCost: 50,
         requiredMasteryLevel: 1,
@@ -533,17 +534,18 @@ const MAGE_BRANCHES: EnhancementBranch[] = [
       createNode({
         id: 'mage_control_2',
         name: 'Canalisation',
-        description: '+10 de hâte de compétence',
+        description: '+10 points de hâte de compétence ; recharge × 100 / (100 + hâte).',
         type: 'stat',
         candyCost: 80,
         requiredMasteryLevel: 2,
         prerequisites: ['mage_control_1'],
-        percentBonuses: { abilityHaste: 0.1 },
+        statBonuses: { abilityHaste: 10 },
       }),
       createNode({
         id: 'mage_control_3',
         name: 'Racines',
-        description: "Ulti: 20% de chances qu'un sort enracine la cible pendant 1s",
+        description:
+          'Chaque événement de dégâts de sort a 20 % de chances d’enraciner la cible pendant 1 tour, avant modificateurs de durée.',
         type: 'ultimate',
         candyCost: 150,
         requiredMasteryLevel: 3,
@@ -578,7 +580,7 @@ const MAGE_BRANCHES: EnhancementBranch[] = [
       createNode({
         id: 'mage_sustain_2',
         name: 'Flux de Mana',
-        description: 'Les kills de sbires restaurent 5 PM',
+        description: 'Chaque élimination créditée au porteur restaure 5 PM.',
         type: 'passive',
         candyCost: 80,
         requiredMasteryLevel: 2,
@@ -691,7 +693,7 @@ const MARKSMAN_BRANCHES: EnhancementBranch[] = [
         id: 'marksman_dps_3',
         name: 'Tir Déchirant',
         description:
-          "Ulti: Les attaques ont 15% de chances d'infliger des saignements (5% PV max sur 3s)",
+          'Les attaques de base ont 15 % de chances d’infliger 5 % des PV max de la cible en dégâts vrais sur 3 tours ; applications indépendantes.',
         type: 'ultimate',
         candyCost: 150,
         requiredMasteryLevel: 3,
@@ -701,6 +703,7 @@ const MARKSMAN_BRANCHES: EnhancementBranch[] = [
             type: 'bleed',
             description: 'Saignement sur attaques',
             value: 0.05,
+            chance: 0.15,
             duration: 3,
           },
         ],
@@ -726,7 +729,7 @@ const MARKSMAN_BRANCHES: EnhancementBranch[] = [
       createNode({
         id: 'marksman_range_2',
         name: 'Tir précis',
-        description: '+8% de dégâts contre les champions',
+        description: '+8 % de dégâts infligés par attaques, sorts et DoT.',
         type: 'passive',
         candyCost: 80,
         requiredMasteryLevel: 2,
@@ -865,7 +868,7 @@ const FIGHTER_BRANCHES: EnhancementBranch[] = [
       createNode({
         id: 'fighter_bruiser_1',
         name: 'Frappe Lourde',
-        description: '+5% de dégâts',
+        description: '+5 % de dégâts d’attaque ; aucun multiplicateur global de dégâts.',
         type: 'passive',
         candyCost: 50,
         requiredMasteryLevel: 1,
@@ -875,7 +878,8 @@ const FIGHTER_BRANCHES: EnhancementBranch[] = [
       createNode({
         id: 'fighter_bruiser_2',
         name: 'Saignée',
-        description: 'Les attaques appliquent des saignements (3% PV max sur 2s)',
+        description:
+          'Les attaques de base infligent 3 % des PV max de la cible en dégâts vrais sur 2 tours ; applications indépendantes.',
         type: 'passive',
         candyCost: 80,
         requiredMasteryLevel: 2,
@@ -933,7 +937,7 @@ const FIGHTER_BRANCHES: EnhancementBranch[] = [
       createNode({
         id: 'fighter_duelist_2',
         name: 'Défi',
-        description: '+10% de dégâts contre les champions ennemis',
+        description: '+10 % de dégâts infligés par attaques, sorts et DoT.',
         type: 'passive',
         candyCost: 80,
         requiredMasteryLevel: 2,
@@ -950,7 +954,7 @@ const FIGHTER_BRANCHES: EnhancementBranch[] = [
         id: 'fighter_duelist_3',
         name: 'Mort ou Vif',
         description:
-          'Ulti: En 1v1 contre un champion, +25% de dégâts et +15% de réduction de dégâts',
+          'Avec exactement un combattant vivant par camp, +25 % de dégâts infligés et 15 % de réduction des dégâts reçus.',
         type: 'ultimate',
         candyCost: 150,
         requiredMasteryLevel: 3,
@@ -1096,7 +1100,8 @@ const SUPPORT_BRANCHES: EnhancementBranch[] = [
       createNode({
         id: 'support_enchanter_3',
         name: 'Aura Divine',
-        description: 'Ulti: Les alliés proches gagnent +10% de tous leurs dégâts',
+        description:
+          'Tant que le porteur est vivant, toute son équipe, lui inclus, inflige 10 % de dégâts supplémentaires.',
         type: 'ultimate',
         candyCost: 150,
         requiredMasteryLevel: 3,
@@ -1130,7 +1135,8 @@ const SUPPORT_BRANCHES: EnhancementBranch[] = [
       createNode({
         id: 'support_tanky_2',
         name: 'Entrave',
-        description: 'Les sorts de CC durent 10% plus longtemps',
+        description:
+          'Durée des contrôles appliqués × 1,1, avant ténacité, arrondi supérieur et plafonds par type.',
         type: 'passive',
         candyCost: 80,
         requiredMasteryLevel: 2,

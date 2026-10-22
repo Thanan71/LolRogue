@@ -1,4 +1,4 @@
-/** TREE-01 observations, not gameplay rules. Runtime availability and graph reachability are separate. */
+/** Audited enhancement contracts. Runtime availability and graph reachability are separate. */
 export type EnhancementEffectStatus = 'implemented' | 'partial' | 'descriptive';
 export type EnhancementEffectFollowUp = 'TREE-03' | 'TREE-04';
 
@@ -95,89 +95,62 @@ export const ENHANCEMENT_EFFECT_EVIDENCE: Readonly<Record<string, EnhancementEff
     ...[
       effect(
         'execute_damage',
-        'Multiplie les dégâts par 1 + value si les PV courants de la cible sont strictement sous 40 %.',
+        'Dégâts × (1 + value) sous 40 % des PV max de la cible, seuil strict.',
         [runtime('beforeDamage')],
       ),
-      effect('burst_amplify', 'Multiplie les dégâts de l’action SpellR par 1 + value.', [
-        runtime('beforeDamage'),
-      ]),
+      effect(
+        'burst_amplify',
+        'Dégâts de la compétence R × (1 + value), autres actions inchangées.',
+        [runtime('beforeDamage')],
+      ),
       effect(
         'survival_shield',
-        'Sous 20 % PV avant le coup, le bus émet un bouclier puis marque la source utilisée jusqu’au reset du combat.',
+        'Sous 20 % PV avant un coup, émet et applique le bouclier avant ce coup, pour duration tours ; une utilisation par combat.',
         [runtime('beforeDamage'), battle('_applyDamageToTarget'), resolver],
-        [
-          'Phénix : le texte FR/EN annonce 60 secondes ; le bus autorise une seule émission par combat et ignore cooldown.',
-          'BattleManager ne résout pas beforeRules.instantEffects : le bouclier émis n’est pas appliqué au combat normal.',
-          'Le seuil est testé avant les dégâts ; le passage de plus de 20 % à moins de 20 % ne déclenche pas le bouclier sur ce coup.',
-        ],
       ),
       effect(
         'revive',
-        'Une fois par champion et par combat, before_defeat conserve 1 PV après les priorités augment puis objet.',
+        'Une fois par champion et par combat, reste à 1 PV après un coup mortel ; aucune immunité ni recharge temps réel.',
         [runtime('beforeDefeat'), battle('_applyDamageToTarget')],
-        [
-          'Aucune immunité de 2 secondes ni recharge de 120 secondes n’est appliquée ; duration et cooldown sont ignorés.',
-        ],
       ),
       effect(
         'ally_damage_reduction',
-        'Additionne les valeurs de tous les loadouts de l’équipe aux réductions entrantes, plafonnées à 100 %.',
+        'Les porteurs vivants contribuent à la réduction des dégâts de toute leur équipe, eux inclus ; valeurs additionnées puis réduction totale plafonnée à 100 %.',
         [runtime('beforeDamage'), runtime('getAllTeamEnhancements')],
-        [
-          'La proximité n’est pas représentée ; le porteur est inclus et un allié vaincu reste contributeur tant que son loadout existe.',
-        ],
       ),
       effect(
         'thornmail',
-        'Renvoie amount × value en dégâts vrais sans déclenchement récursif des règles après les dégâts reçus.',
+        'Après les dégâts non absorbés reçus, renvoie round(amount × value) dégâts vrais, quel que soit le type entrant, sans récursion.',
         [runtime('afterDamage'), resolver],
-        [
-          'Le texte limite aux dégâts physiques ; le bus ne filtre pas damageType et le renvoi est vrai.',
-        ],
       ),
       effect(
         'burn_reflect',
-        'Après une attaque de base reçue, renvoie les PV max de l’attaquant × value en dégâts vrais.',
+        'Après une attaque de base reçue, renvoie round(PV max attaquant × value) dégâts vrais.',
         [runtime('afterDamage'), resolver],
-        ['Le texte FR/EN annonce des dégâts magiques ; le résolveur applique des dégâts vrais.'],
       ),
       effect(
         'vengeance_burst',
-        'Cumule les dégâts HP reçus ; à partir de 500, émet value dégâts vrais vers tous les ennemis vivants, une fois par combat.',
+        'Après 500 dégâts HP reçus, inflige value dégâts vrais à chaque ennemi vivant, une fois par combat.',
         [runtime('afterDamage'), resolver],
-        [
-          'La proximité annoncée n’est pas représentée ; la protection par bouclier ne contribue pas au compteur damage_dealt.',
-        ],
       ),
       effect(
         'slow',
-        'Après un dégât de sort, applique value de ralentissement pendant max(1, round(duration)) tours ; les ralentissements cumulés sont plafonnés à 60 %.',
-        [
-          runtime('afterDamage'),
-          resolver,
-          { path: 'src/game/effects/EffectManager.ts', symbol: 'EffectManager.getSpeedMultiplier' },
-        ],
-        [
-          'La seconde annoncée devient un tour ; les contrôles émis par ce résolveur ne passent pas par les multiplicateurs ténacité/extension des sorts.',
-        ],
+        'Après un dégât de sort, applique value de ralentissement pour duration tours, modifiés par extension et ténacité, puis arrondi supérieur et caps ; cumul des ralentissements plafonné à 60 %.',
+        [runtime('afterDamage'), resolver],
       ),
       effect(
         'root_chance',
-        'Après chaque événement de dégâts de sort, tire random() < value et applique Snare pendant max(1, round(duration)) tours.',
+        'Après chaque événement de dégâts de sort, random() < value applique Snare pour duration tours, avec modificateurs et plafonds de durée.',
         [runtime('afterDamage'), resolver],
-        [
-          'La seconde annoncée devient un tour ; le tirage est par événement de dégâts et le résolveur ne passe pas par ténacité/extension.',
-        ],
       ),
       effect(
         'mana_restore',
-        'Sur une élimination créditée au porteur, restaure value PM avec plafond maxMp.',
+        'Chaque élimination créditée au porteur restaure value PM, avec plafond maxMp.',
         [runtime('onKill'), resolver],
-        ['Le texte annonce des sbires ; aucun test de type de victime n’existe dans le bus.'],
       ),
       effect(
         'cdr_ultimate',
-        'Pour R, multiplie la recharge par 1 - somme(value), après 100 / (100 + hâte) ; multiplicateur minimum 0,1.',
+        'Pour R, recharge × (1 - somme(value)) après le facteur 100 / (100 + hâte), multiplicateur final minimum 0,1.',
         [
           runtime('getCooldownMultiplier'),
           {
@@ -188,62 +161,56 @@ export const ENHANCEMENT_EFFECT_EVIDENCE: Readonly<Record<string, EnhancementEff
       ),
       effect(
         'attack_speed_on_kill',
-        'Une élimination du porteur pose un bonus relatif attackSpeed pendant round(duration) tours ; une nouvelle élimination remplace et rafraîchit ce bonus.',
+        'Une élimination pose un bonus relatif attackSpeed pendant duration fins de tour du porteur ; une nouvelle élimination rafraîchit ce bonus sans cumul.',
         [runtime('onKill'), runtime('getStatBonuses'), runtime('onTurnEnd')],
       ),
       effect(
         'bleed',
-        'Après chaque attaque de base infligeant des dégâts HP, émet un DoT de PV max cible × value, réparti en round(duration) tours, en dégâts vrais.',
+        'Sur une attaque de base infligeant des dégâts HP, tirage chance (absent = 100 %), puis total round(PV max cible × value) en dégâts vrais répartis exactement sur duration tours ; applications indépendantes et boucliers absorbants.',
         [
           runtime('afterDamage'),
+          runtime('shouldTriggerEnhancementChance'),
           resolver,
           { path: 'src/game/effects/DamageEffect.ts', symbol: 'DamageEffect.tick' },
-          { path: 'src/game/effects/EffectManager.ts', symbol: 'EffectManager.apply' },
           battle('_tickTurnEffects'),
         ],
-        [
-          'Aucun tirage de chance : Tir Déchirant s’applique à chaque événement éligible malgré les 15 % annoncés.',
-          'Les durées annoncées en secondes sont utilisées comme tours ; chaque tick est arrondi séparément, sans garantie d’un total exact.',
-          'Chaque application crée une instance indépendante (maxStacks=1), sans plafond global ni rafraîchissement ; les ticks repassent par before_damage et les boucliers.',
-        ],
       ),
-      effect('dodge', 'Sur attaque de base, random() < value met la réduction entrante à 100 %.', [
-        runtime('beforeDamage'),
-      ]),
+      effect(
+        'dodge',
+        'Sur une attaque de base, random() < value porte la réduction entrante à 100 %.',
+        [runtime('beforeDamage')],
+      ),
       effect(
         'berserker',
-        'Multiplie les dégâts par 1 + value quand les PV du porteur sont strictement sous 50 %.',
+        'Dégâts × (1 + value) lorsque les PV du porteur sont strictement sous 50 %.',
         [runtime('beforeDamage')],
       ),
       effect(
         'champion_damage',
-        'Multiplie tous les dégâts par 1 + value sans classification de la cible.',
+        'Dégâts des attaques, sorts et DoT × (1 + value), sur toute cible ; renvois sans récursion exclus.',
         [runtime('beforeDamage')],
-        ['Le texte annonce les champions ; aucun prédicat de type de cible n’est présent.'],
       ),
       effect(
         'duelist',
-        'Quand chaque camp possède exactement un acteur vivant, multiplie les dégâts sortants par 1 + value et ajoute 15 % de réduction entrante.',
+        'Avec exactement un acteur vivant par camp, dégâts sortants × (1 + value) et 15 % de réduction entrante.',
         [runtime('beforeDamage')],
-        [
-          'Aucun contrôle du type champion de l’adversaire malgré le texte ; le bonus défensif de 15 % est codé dans le handler.',
-        ],
       ),
       effect(
         'heal_on_kill',
-        'Une élimination créditée au porteur émet un soin de ses PV max × value ; amplification du soin et plafond HP ensuite.',
+        'Une élimination créditée au porteur soigne ses PV max × value, puis amplification et plafond des PV.',
         [runtime('onKill'), resolver, battle('_applyHeal')],
       ),
       effect(
         'heal_amp',
-        'Ajoute value au multiplicateur des soins dont le porteur est la source ; cumul additif avec Spirit Visage du destinataire.',
+        'Ajoute value au multiplicateur des soins émis par le porteur ; cumul additif avec Spirit Visage du destinataire.',
         [runtime('getHealMultiplier'), battle('_applyHeal')],
       ),
       effect(
         'shield_amp',
-        'Ajoute value au multiplicateur des boucliers de sort dont le porteur est la source.',
+        'Ajoute value au multiplicateur des boucliers émis par le porteur, y compris les boucliers des règles.',
         [
           runtime('getShieldMultiplier'),
+          resolver,
           {
             path: 'src/game/battle/BattleSpellEffectResolver.ts',
             symbol: 'BattleSpellEffectResolver.resolve',
@@ -252,24 +219,19 @@ export const ENHANCEMENT_EFFECT_EVIDENCE: Readonly<Record<string, EnhancementEff
       ),
       effect(
         'damage_aura',
-        'Additionne les values de toute l’équipe puis multiplie les dégâts sortants par 1 + somme.',
+        'Les porteurs vivants ajoutent leurs values au multiplicateur des dégâts de toute leur équipe, eux inclus ; aucune notion spatiale.',
         [runtime('beforeDamage'), runtime('getAllTeamEnhancements')],
-        [
-          'La proximité n’est pas représentée ; le porteur est inclus et la défaite du contributeur ne retire pas son aura du loadout.',
-        ],
       ),
       effect(
         'cc_extension',
-        'Multiplie la durée des contrôles de sort par 1 + somme(value), avant ténacité, arrondis et plafonds par type.',
+        'Durée des contrôles × (1 + somme(value)), puis ténacité, arrondi supérieur et plafonds ; hard CC limité à 1 tour.',
         [
           runtime('getAppliedControlDurationMultiplier'),
+          resolver,
           {
             path: 'src/game/battle/BattleSpellEffectResolver.ts',
             symbol: 'BattleSpellEffectResolver.resolve',
           },
-        ],
-        [
-          'Les contrôles provenant de BattleRuleEffectResolver contournent ce multiplicateur ; les arrondis peuvent annuler le gain sur une courte durée.',
         ],
       ),
     ].map((entry) => [entry.id, entry] as const),
@@ -313,11 +275,11 @@ const statBehavior: Readonly<Record<string, string>> = {
   armorPen: 'Bonus secondaire plat : multiplie les dégâts physiques par 1 + max(0, valeur) / 200.',
   magicPen: 'Bonus secondaire plat : multiplie les dégâts magiques par 1 + max(0, valeur) / 200.',
   lifesteal:
-    'Bonus secondaire plat divisé par 100, appliqué à tous les événements damage_dealt du porteur.',
+    'Bonus secondaire plat divisé par 100, appliqué aux dégâts HP des attaques de base du porteur.',
   omnivamp:
-    'Même consommateur que lifesteal : les deux pourcentages plats s’additionnent aux soins après dégâts.',
+    'Bonus secondaire plat divisé par 100 sur tous les dégâts HP du porteur ; s’ajoute au vol de vie seulement pour les attaques de base.',
   tenacity:
-    'Bonus secondaire plat : max(0,2 ; 1 - max(0, valeur) / 100), appliqué aux contrôles de sort.',
+    'Bonus secondaire plat : max(0,2 ; 1 - max(0, valeur) / 100), appliqué aux contrôles de sort et aux contrôles émis par les règles.',
   abilityHaste:
     'Hâte effective = flat + percent × 100 ; recharge × 100 / (100 + max(0, hâte)), minimum ×0,1.',
 };
@@ -331,18 +293,6 @@ const statRuntimeSources: Readonly<Record<string, readonly EnhancementEvidenceSo
   omnivamp: [runtime('afterDamage')],
   tenacity: [runtime('getControlDurationMultiplier')],
   abilityHaste: [runtime('getCooldownMultiplier')],
-};
-
-const nodeDiscrepancies: Readonly<Record<string, readonly string[]>> = {
-  mage_burst_2: [
-    'Combustion annonce +15 % de dégâts magiques mais livre percent.ap=0,15 : +15 % de puissance ; dégâts de base et dégâts sans ratio AP inchangés.',
-  ],
-  fighter_bruiser_1: [
-    'Frappe Lourde annonce +5 % de dégâts mais livre percent.atk=0,05 : +5 % de dégâts d’attaque, sans multiplication globale.',
-  ],
-  mage_control_2: [
-    'Canalisation stocke percent.abilityHaste=0,1 ; le runtime convertit en 10 points, et non +10 % de hâte. L’aperçu canonique filtre cette stat secondaire.',
-  ],
 };
 
 export const ENHANCEMENT_SHARED_EFFECT_CONTRACTS = [
@@ -421,7 +371,7 @@ export const ENHANCEMENT_SHARED_EFFECT_CONTRACTS = [
     behavior:
       'La registry sélectionne une version de moteur et un hash de contenu ; les bundles historiques sont conservés.',
     limit:
-      'Toute future correction de mécanique attend TREE-03/04 et une version future ; cet audit ne modifie ni gameplay, ni hash, ni replay archivé.',
+      'Les corrections TREE-03/04 appartiennent au moteur futur 0.3.0 ; les bundles et hashes historiques restent figés et ne reçoivent pas le nouveau runtime.',
     evidence: [{ path: 'src/game/authority/index.ts', symbol: 'getAuthorityVerifier' }],
   },
   {
@@ -450,15 +400,7 @@ export function getNodeEffectEvidence(
       if (!behavior || typeof value !== 'number' || !Number.isFinite(value)) {
         throw new Error(`Unaudited enhancement stat: ${node.id}:${kind}:${id}`);
       }
-      const discrepancies = [...(nodeDiscrepancies[node.id] ?? [])];
-      if (id === 'lifesteal')
-        discrepancies.push(
-          'Vol de vie appliqué aussi aux sorts et DoT, sans restriction aux attaques de base.',
-        );
-      if (id === 'tenacity')
-        discrepancies.push(
-          'Ne passe pas par les contrôles de BattleRuleEffectResolver ; les arrondis peuvent supprimer le gain.',
-        );
+      const discrepancies: string[] = [];
       contributions.push({
         kind: 'stat',
         id: `${kind}.${id}`,

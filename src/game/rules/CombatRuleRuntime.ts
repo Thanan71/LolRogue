@@ -344,7 +344,7 @@ export class CombatRuleRuntime {
         }
       }
       resolution.damageMultiplier *=
-        1 + this.getAllTeamEnhancements(event.source.side, 'damage_aura');
+        1 + this.getAllTeamEnhancements(event.source.side, 'damage_aura', event.actors);
     }
     if (event.target.side === 'player') {
       resolution.damageReduction += this.getAugmentDamageReduction();
@@ -373,11 +373,16 @@ export class CombatRuleRuntime {
         event.target.currentHp / event.target.maxHp < 0.2
       ) {
         this.usedEnhancementCooldowns.add(shieldKey);
-        resolution.instantEffects.push(
-          this.effect('shield', event.target.id, event.target.id, survivalShield.value ?? 0),
-        );
+        resolution.instantEffects.push({
+          ...this.effect('shield', event.target.id, event.target.id, survivalShield.value ?? 0),
+          duration: survivalShield.duration ?? 2,
+        });
       }
-      const allyReduction = this.getAllTeamEnhancements(event.target.side, 'ally_damage_reduction');
+      const allyReduction = this.getAllTeamEnhancements(
+        event.target.side,
+        'ally_damage_reduction',
+        event.actors,
+      );
       resolution.damageReduction += allyReduction;
     }
     resolution.damageReduction = Math.min(1, resolution.damageReduction);
@@ -404,7 +409,9 @@ export class CombatRuleRuntime {
         ? 0.18
         : 0;
       const enhancedLifesteal =
-        ((this.loadout.enhancementStats[event.source.id]?.flat.lifesteal ?? 0) +
+        ((event.action === ActionType.BasicAttack
+          ? (this.loadout.enhancementStats[event.source.id]?.flat.lifesteal ?? 0)
+          : 0) +
           (this.loadout.enhancementStats[event.source.id]?.flat.omnivamp ?? 0)) /
         100;
       if (lifesteal + enhancedLifesteal > 0) {
@@ -426,7 +433,7 @@ export class CombatRuleRuntime {
       }
       if (event.action === ActionType.BasicAttack) {
         for (const effect of this.getEnhancements(event.source.id)) {
-          if (effect.type === 'bleed') {
+          if (effect.type === 'bleed' && this.shouldTriggerEnhancementChance(effect.chance)) {
             resolution.instantEffects.push({
               ...this.effect(
                 'dot',
@@ -635,12 +642,23 @@ export class CombatRuleRuntime {
     );
   }
 
-  private getAllTeamEnhancements(side: 'player' | 'enemy', type: string): number {
+  private getAllTeamEnhancements(
+    side: 'player' | 'enemy',
+    type: string,
+    actors: CombatRuleActor[],
+  ): number {
     if (side !== 'player') return 0;
-    return Object.values(this.loadout.enhancementEffects)
-      .flat()
+    return actors
+      .filter((actor) => actor.side === side && !actor.isDefeated && actor.currentHp > 0)
+      .flatMap((actor) => this.getEnhancements(actor.id))
       .filter((effect) => effect.type === type)
       .reduce((sum, effect) => sum + (effect.value ?? 0), 0);
+  }
+
+  private shouldTriggerEnhancementChance(chance: number | undefined): boolean {
+    if (chance === undefined || chance === 1) return true;
+    if (!Number.isFinite(chance) || chance <= 0 || chance > 1) return false;
+    return this.random() < chance;
   }
 
   private getAugmentDamageMultiplier(): number {

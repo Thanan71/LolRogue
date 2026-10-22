@@ -737,6 +737,8 @@ export class BattleManager {
             actors: this._getRuleActors(),
           })
         : null;
+    // Defensive effects must exist before shields absorb this same hit.
+    if (beforeRules) this._resolveRuleEffects(beforeRules);
     const ruleDamageReduction = Math.min(1, Math.max(0, beforeRules?.damageReduction ?? 0));
     const effectDamageReduction = triggerRules
       ? target.effectManager.getIncomingDamageReduction()
@@ -807,7 +809,7 @@ export class BattleManager {
             type: 'damage_dealt',
             source: this._toRuleActor(attacker),
             target: this._toRuleActor(target),
-            amount: remaining,
+            amount: hpDamage,
             damageType,
             action: this._activeActionType,
             isCrit,
@@ -1536,6 +1538,17 @@ export class BattleManager {
         applyHeal: this._applyHeal.bind(this),
         applyDamageToTarget: this._applyDamageToTarget.bind(this),
         syncEffectState: this._syncEffectState.bind(this),
+        getAppliedControlDurationMultiplier: (source) =>
+          this._rules?.getAppliedControlDurationMultiplier(source.champion.id) ?? 1,
+        getControlDurationMultiplier: (target) =>
+          this._rules?.getControlDurationMultiplier(target.champion.id) ?? 1,
+        getShieldMultiplier: (source, target, amount) =>
+          this._rules?.dispatch({
+            type: 'before_shield',
+            source: this._toRuleActor(source),
+            target: this._toRuleActor(target),
+            amount,
+          }).shieldMultiplier ?? 1,
         emit: this._emit.bind(this),
       },
       effect,
