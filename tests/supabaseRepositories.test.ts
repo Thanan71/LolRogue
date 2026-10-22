@@ -541,6 +541,65 @@ describe('SupabaseRunRepository PostgREST branches', () => {
 });
 
 describe('SupabaseEnhancementRepository', () => {
+  it('rejects future catalogue metadata and never sends a strict purchase with a different displayed catalogue version', async () => {
+    const { mockSupabase, queryChain } = createMockSupabaseClient();
+    vi.mocked(mockSupabase.rpc).mockResolvedValue({
+      data: {
+        catalog_version: 5,
+        contract_schema_version: 1,
+        champion_specializations_enabled: false,
+        repeat_reset_fee_basis_points: 0,
+        reset_policy_version: 1,
+      },
+      error: null,
+    } as never);
+    queryChain.single.mockResolvedValue({ data: null, error: { code: 'PGRST116' } });
+    const repository = new SupabaseEnhancementRepository(mockSupabase);
+    await expect(repository.getContractState()).rejects.toThrow(
+      'ENHANCEMENT_CONTRACT_INVALID_RESPONSE',
+    );
+    vi.mocked(mockSupabase.rpc).mockClear();
+    expect(
+      await repository.unlockNode('user-1', 'Garen', 'fighter_core_1', 0, 'command', 0, 5),
+    ).toMatchObject({ success: false, error: 'ENHANCEMENT_CONTRACT_UNSUPPORTED' });
+    expect(mockSupabase.rpc).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['fetch failed', undefined, 'retryable'],
+    ['enhancement_revision_conflict', '22023', 'conflict'],
+    ['enhancement_reset_policy_conflict', '22023', 'conflict'],
+    ['enhancement_reset_ineligible:history_unavailable', '22023', 'conflict'],
+    ['idempotency_key_reused', '22023', 'terminal'],
+  ])(
+    'classifies reset refusal %s independently of an empty readable state',
+    async (message, code, failureKind) => {
+      const { mockSupabase, queryChain } = createMockSupabaseClient();
+      vi.mocked(mockSupabase.rpc).mockResolvedValue({
+        data: null,
+        error: { message, code },
+      } as never);
+      queryChain.single.mockResolvedValue({
+        data: { unlocked_nodes: {}, total_candies_spent: 0, revision: 2, reset_count: 1 },
+        error: null,
+      });
+      const result = await new SupabaseEnhancementRepository(mockSupabase).resetTree(
+        'user-1',
+        'Garen',
+        1,
+        'command',
+        1,
+      );
+      expect(result).toMatchObject({
+        success: false,
+        failureKind,
+        error: message,
+        newState: { unlockedNodes: {} },
+      });
+      expect(mockSupabase.rpc).toHaveBeenCalledOnce();
+    },
+  );
+
   it('unlocks a node with optimistic rank and idempotency but no client-owned price', async () => {
     const { mockSupabase } = createMockSupabaseClient();
     const commandId = '01234567-89ab-4def-8123-456789abcdef';
