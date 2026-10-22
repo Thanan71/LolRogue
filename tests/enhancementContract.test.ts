@@ -120,8 +120,30 @@ describe('versioned enhancement contract', () => {
 });
 
 describe('shared enhancement purchase preview and active state', () => {
+  it('refuses an actual legacy descendant even when its disabled Fighter parent is already owned', () => {
+    const definition = adaptLegacyEnhancementTree(ENHANCEMENT_TREES_BY_ROLE.Fighter);
+    const child = definition.nodes.find(({ id }) => id === 'fighter_duelist_2')!;
+    const historical = { fighter_duelist_1: 1 };
+    expect(
+      previewEnhancementPurchase(child, {
+        ...context,
+        contract: definition,
+        unlockedNodes: historical,
+      }).reason?.code,
+    ).toBe('prerequisite');
+    expect(
+      getActiveEnhancementRanks(
+        definition,
+        { unlockedNodes: historical, totalCandiesSpent: 50 },
+        context,
+      ),
+    ).toEqual({});
+    expect(historical).toEqual({ fighter_duelist_1: 1 });
+  });
+
   it('matches legacy direct eligibility for every node and ordinary mastery/wallet/rank state', () => {
     for (const tree of Object.values(ENHANCEMENT_TREES_BY_ROLE)) {
+      const definition = adaptLegacyEnhancementTree(tree);
       for (const source of [...tree.coreNodes, ...tree.branches.flatMap(({ nodes }) => nodes)]) {
         for (const masteryLevel of [0, 1, 2, 3, 4]) {
           for (const availableCandies of [0, source.candyCost, 1_000]) {
@@ -130,14 +152,22 @@ describe('shared enhancement purchase preview and active state', () => {
               Object.fromEntries(source.prerequisites.map((id) => [id, 1])),
               { [source.id]: source.maxRanks ?? 1 },
             ]) {
+              // Historical invalid ownership is tested separately. Direct-wrapper parity
+              // applies only to an actual legal prerequisite state, never fabricated ranks.
+              const activeRanks = getActiveEnhancementRanks(
+                definition,
+                { unlockedNodes, totalCandiesSpent: 0 },
+                { masteryLevel },
+              );
               expect(
                 previewEnhancementPurchase(source, {
-                  unlockedNodes,
+                  contract: definition,
+                  unlockedNodes: activeRanks,
                   masteryLevel,
                   availableCandies,
                 }).eligible,
                 source.id,
-              ).toBe(canUnlockNode(source, unlockedNodes, masteryLevel, availableCandies));
+              ).toBe(canUnlockNode(source, activeRanks, masteryLevel, availableCandies));
             }
           }
         }
