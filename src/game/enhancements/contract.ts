@@ -176,6 +176,16 @@ export function validateEnhancementContract(value: unknown): {
             `${path}.${field}.${stat}`,
             'Expected a supported stat and finite modifier',
           );
+        if (
+          field === 'percentBonuses' &&
+          ['armorPen', 'magicPen', 'lifesteal', 'omnivamp', 'tenacity'].includes(stat)
+        ) {
+          fail(
+            'shape',
+            `${path}.${field}.${stat}`,
+            'This secondary stat is supported in flat points only',
+          );
+        }
       }
     }
     if (node.effects !== undefined) {
@@ -202,6 +212,9 @@ export function validateEnhancementContract(value: unknown): {
             `${effectPath}.type`,
             'Effect needs an implemented consumer or explicit disabled state',
           );
+        if (effect.chance !== undefined && effect.type !== 'bleed') {
+          fail('effect', `${effectPath}.chance`, 'Only bleed supports a trigger probability');
+        }
         for (const field of ['value', 'duration', 'cooldown', 'chance']) {
           const amount = effect[field];
           if (
@@ -297,7 +310,7 @@ export function validateEnhancementContract(value: unknown): {
 export function adaptLegacyEnhancementTree(tree: ChampionEnhancementTree): EnhancementTreeContract {
   return {
     schemaVersion: 1,
-    id: `role:${tree.primaryRole}`,
+    id: tree.championId === '*' ? `role:${tree.primaryRole}` : `champion:${tree.championId}`,
     championId: tree.championId,
     primaryRole: tree.primaryRole,
     budget: null,

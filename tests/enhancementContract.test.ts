@@ -81,6 +81,12 @@ describe('versioned enhancement contract', () => {
     contract([node('a', { candyCost: -1 })]),
     contract([node('a', { maxRanks: 0 })]),
     contract([node('a', { statBonuses: { hp: Number.POSITIVE_INFINITY } })]),
+    contract([node('a', { percentBonuses: { tenacity: 0.1 } })]),
+    contract([
+      node('a', {
+        effects: [{ type: 'heal_amp', description: 'No random healing consumer', chance: 0.5 }],
+      }),
+    ]),
     contract([node('a', { effects: [{ type: 'invented_effect', description: 'No consumer' }] })]),
     contract([
       node('a', { effects: [{ type: 'bleed', description: 'Probability', chance: 1.01 }] }),
