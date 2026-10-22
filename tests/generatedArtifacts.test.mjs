@@ -54,7 +54,8 @@ describe('generated artifact contract', () => {
           file,
         ) ||
         /\.(?:generated|bundle)\.(?:ts|js)$/.test(file) ||
-        file === 'src/types/database.ts',
+        file === 'src/types/database.ts' ||
+        /^docs\/audits\/enhancement-trees\.(?:json|md)$/.test(file),
     );
     const added = runGit('git', ['add', '-f', '--', ...outputs, contractPath], {
       cwd: root,
@@ -70,8 +71,8 @@ describe('generated artifact contract', () => {
   it('reproduces the current bundle and projections offline without changing archive bytes', async () => {
     const result = await checkGeneratedArtifacts({ root });
     expect(result).toMatchObject({
-      families: 17,
-      artifacts: 303,
+      families: 18,
+      artifacts: 305,
       authorityVersions: 24,
       riotAssets: 231,
     });

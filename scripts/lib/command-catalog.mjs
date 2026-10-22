@@ -666,6 +666,21 @@ export const commandCatalog = [
   ),
   command(
     'testing',
+    'enhancements audit',
+    [],
+    'Generate or check the exhaustive TREE-01 enhancement graph and contract audit.',
+    node('audit-enhancement-trees'),
+    {
+      risk: 'generate',
+      options: { check },
+      artifact: 'enhancement-tree-audit',
+      inputs: [
+        'Current enhancement trees, localization, effect evidence and committed SQL migrations',
+      ],
+    },
+  ),
+  command(
+    'testing',
     'content check',
     ['content:check'],
     'Check the existing content support contracts.',

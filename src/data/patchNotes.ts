@@ -625,6 +625,35 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 19,
+    version: '0.2.14',
+    publishedOn: '2026-10-21',
+    title: {
+      'fr-FR': 'Audit des arbres d’amélioration',
+      'en-US': 'Enhancement tree audit',
+    },
+    entries: [
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Les six arbres d’amélioration disposent d’un audit reproductible de leurs 72 nœuds : prérequis, maîtrise, coûts en Candies, effets et règles d’achat serveur.',
+          'en-US':
+            'All six enhancement trees now have a reproducible audit of their 72 nodes, covering prerequisites, mastery, Candy costs, effects and server purchase rules.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'L’audit identifie précisément 15 nœuds bloqués et les écarts entre descriptions et combat. Ces constats préparent les prochains correctifs des arbres ; cette version conserve les règles de jeu actuelles.',
+          'en-US':
+            'The audit identifies 15 blocked nodes and discrepancies between descriptions and combat. These findings prepare upcoming tree fixes; this version preserves the current gameplay rules.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {
