@@ -48,7 +48,7 @@
 - [x] **Prouver le résultat avant clôture.**
   - [x] Exécuter les probes SQL ciblées de refus, concurrence et possessions historiques, ainsi que les tests du contrat pur ; la nouvelle comparaison exhaustive des 88 lignes reste incluse dans la campagne SQL globale.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
-  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
+  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD :** les 72 nœuds ont un chemin atteignable et testable ou sont explicitement et intentionnellement désactivés.
 
 ### TREE-03 — Corriger les descriptions et les calculs d'effets (P1, L ; dépend TREE-01)
@@ -67,7 +67,7 @@
 - [x] **Prouver le résultat avant clôture.**
   - [x] Tester probabilité 15 %, dégâts vrais et arrondis du saignement, Phénix une fois par combat, Combustion en puissance et Canalisation en points de hâte, avec textes FR/EN et vrais consommateurs de combat.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
-  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
+  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD :** aucun des quatre cas connus n'annonce un bonus non résolu ; tables avant/après vérifiées.
 
 ### TREE-04 — Parité UI/combat/authority et RNG (P1, L ; dépend TREE-02/03)
@@ -85,7 +85,7 @@
 - [x] **Prouver le résultat avant clôture.**
   - [x] Comparer source, manuel, autoplay, replay et bundle Edge enregistré sur seeds figées ; reprise au milieu du journal, rejeu historique et ressources/ledger exacts. Les 8 voies spécialisées ont leurs 24 probes dédiées.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
-  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
+  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD :** zéro divergence documentée sur la matrice d'échantillons; résultats reproductibles, aucun effet fictif.
 
 ### TREE-05 — Contrat déclaratif d'arbre extensible (P2, L ; après TREE-01..04)
@@ -103,7 +103,7 @@
 - [x] **Prouver le résultat avant clôture.**
   - [x] Tester schéma portable, AND/OR, rang minimal, exclusivité, budget, ordre déterministe et multi-rôles ; vérifier les cas RPC ciblés. Le validateur authority utilise la maîtrise figée réelle et le même contrat pour les possessions attestées.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
-  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
+  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD :** nouveau nœud ajoutable par données + effet moteur + tests, sans modifier plusieurs validateurs divergents.
 
 ### TREE-06 — Spécialisations Garen, Annie, Soraka, Jinx (P3, XL ; après TREE-05)
@@ -124,7 +124,7 @@
   - [x] Exécuter 24 probes couvrant les 8 voies en vrai BattleManager et source/Edge, plus 48 combats comparatifs (4 champions × 4 builds × 3 seeds) ; mesurer dégâts par tour, soins, survie et durée, avec textes FR/EN. Les 48 issues sont des défaites : ce scénario ne valide pas la balance.
   - [ ] Effectuer et approuver le playtest humain des spécialisations sur une cellule figée avant toute ouverture de leur gate.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
-  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
+  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD code :** quatre champions, huit voies et seize nœuds intégrés et testés derrière gate fermée. **DoD activation non acquise :** équilibrage humain approuvé avant déblocage réel.
 
 ### TREE-07 — Réinitialisation sécurisée de l'arbre (P2/P3, L ; après TREE-05)
@@ -142,7 +142,7 @@
 - [x] **Prouver le résultat avant clôture.**
   - [x] Tester en SQL ciblé 0/1/N resets, double appel/retry, concurrence achat-reset, devis périmé, conservation de la run active, reçus historiques et absence de création de Candies.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
-  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
+  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD :** somme comptable exacte, aucun double remboursement, opérations autorisées uniquement au propriétaire.
 
 ### TREE-08 — UI/UX lisible, mobile et accessible (P2, L ; dépend TREE-02/05)
@@ -162,7 +162,7 @@
   - [x] Exécuter 24 tests UI et 5 E2E : confirmations sans mutation préalable, double clic, comptes/champions remplacés, erreurs/retry, focus/Tab/Escape/restauration, devis de reset et invité. FR/EN, 320 px, zoom réel 200/400 %, axe et focus du titre à 400 % sont vérifiés automatiquement.
   - [x] Parcours VoiceOver validé par l’utilisateur le 22 octobre 2026 sur le candidat `69c31fd` ; Safari/macOS déclarés à jour, numéros et langue non précisés. Attestation et limites consignées dans la validation 0.3.0 ; ADM-34 n’est pas réutilisé.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
-  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
+  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD :** un joueur comprend pourquoi il ne peut pas acheter et ce que le nœud changera effectivement.
 
 ### TREE-09 — Économie, coûts, plafonds (P2, L ; dépend TREE-01/04)
@@ -181,7 +181,7 @@
   - [x] Tester coûts minimaux, scénarios de pire cas, choix exclusifs, arrondis, scénarios d’épargne indépendants et absence de données suffisantes pour modifier les prix.
   - [ ] Recueillir les preuves humaines de balance avant toute future proposition de prix ou ouverture des spécialisations.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
-  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
+  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD :** coût d'une voie compréhensible, pas de monnaie supplémentaire, résultat de balance reproductible.
 
 ### TREE-10 — Statistiques et exploitation admin (P2, M ; dépend TREE-07/09)
@@ -199,7 +199,7 @@
 - [x] **Prouver le résultat avant clôture.**
   - [x] Exécuter les probes ciblées de confidentialité admin, achats/reset attestés, cohortes figées, petits effectifs, répétitions et données incomplètes ; les agrégats ne réécrivent aucun solde.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
-  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
+  - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD :** une source de métriques cohérente, aucun double dashboard.
 
 ## Gate de clôture
@@ -210,7 +210,7 @@
 - [x] UI FR/EN : 24 tests UI et 5 E2E locaux, 320 px, zoom réel 200/400 %, axe et navigation/focus automatiques.
 - [x] Nouvelle UI validée avec VoiceOver par l’utilisateur le 22 octobre 2026 ; attestation distincte de ADM-34, versions déclarées à jour sans numéros précis.
 - [ ] Balance humaine des 8 voies approuvée avant activation ; conserver la gate fermée jusque-là. Les 48 défaites simulées ne constituent pas cette approbation.
-- [x] Campagne SQL complète et anciennes fixtures remises au vert : 371/371, y compris Daily neutre et gains normaux ; contrôles locaux et artefacts vérifiés.
+- [x] Campagne SQL complète et anciennes fixtures remises au vert : 373/373, y compris Daily neutre et gains normaux ; contrôles locaux et artefacts vérifiés.
 Contrôle CI obligatoire : consulter les checks du dernier SHA sur la [PR #242](https://github.com/Thanan71/LolRogue/pull/242/checks). Les résultats locaux ne présument pas leur succès.
 - [ ] PR, fusion éventuelle et déploiement migrations/Edge/frontend vérifiés séparément sur la cible autorisée ; aucun état distant attesté à ce stade.
 

@@ -2835,7 +2835,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -2846,7 +2846,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 72,
+          "line": 73,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:build",
@@ -27061,7 +27061,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -27073,7 +27073,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 72,
+          "line": 73,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:build",
@@ -27403,7 +27403,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -27761,7 +27761,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -28061,7 +28061,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 72,
+          "line": 73,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:build",
@@ -28129,7 +28129,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 72,
+          "line": 73,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:build",
@@ -28354,7 +28354,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -28621,7 +28621,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 66,
+          "line": 67,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:db",
@@ -28688,7 +28688,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 66,
+          "line": 67,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:db",
@@ -29021,7 +29021,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -29537,7 +29537,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -29787,7 +29787,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 65,
+          "line": 66,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:unit",
@@ -29831,7 +29831,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 65,
+          "line": 66,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:unit",
@@ -30056,7 +30056,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -32717,7 +32717,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 66,
+          "line": 67,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:db",
@@ -34679,7 +34679,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -35239,7 +35239,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -35835,7 +35835,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -36497,7 +36497,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -36510,7 +36510,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 72,
+          "line": 73,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:build",
@@ -37052,7 +37052,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -37467,7 +37467,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "source": "documentation",
           "kind": "implicit-install-hook",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -38045,7 +38045,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -38058,7 +38058,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 72,
+          "line": 73,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:build",
@@ -38725,7 +38725,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 69,
+          "line": 70,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run release -- artifacts check",
@@ -39259,7 +39259,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 69,
+          "line": 70,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run release -- artifacts check",
@@ -39876,7 +39876,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -39888,7 +39888,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 72,
+          "line": 73,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:build",
@@ -40790,7 +40790,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -41738,7 +41738,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -41750,7 +41750,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 65,
+          "line": 66,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:unit",
@@ -42324,7 +42324,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 67,
+          "line": 68,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run test:db:rollback",
@@ -42377,7 +42377,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 67,
+          "line": 68,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run test:db:rollback",
@@ -42546,7 +42546,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 70,
+          "line": 71,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run test:e2e -- e2e/enhancement-tree.spec.ts",
@@ -42554,7 +42554,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 71,
+          "line": 72,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "E2E_REQUIRE_CONNECTED=1 npm run test:e2e -- e2e/enhancement-tree-connected.spec.ts",
@@ -42648,7 +42648,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 70,
+          "line": 71,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run test:e2e -- e2e/enhancement-tree.spec.ts",
@@ -42656,7 +42656,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 71,
+          "line": 72,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "E2E_REQUIRE_CONNECTED=1 npm run test:e2e -- e2e/enhancement-tree-connected.spec.ts",
@@ -43763,7 +43763,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 68,
+          "line": 69,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run testing -- enhancements audit --check",
@@ -44220,7 +44220,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 68,
+          "line": 69,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run testing -- enhancements audit --check",
@@ -44882,7 +44882,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -44894,7 +44894,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 72,
+          "line": 73,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:build",
@@ -45163,7 +45163,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 64,
+          "line": 65,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run typecheck",
@@ -45223,7 +45223,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 64,
+          "line": 65,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run typecheck",
@@ -45512,7 +45512,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -46087,7 +46087,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -46100,7 +46100,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 64,
+          "line": 65,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run typecheck",
@@ -46753,7 +46753,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -46766,7 +46766,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 64,
+          "line": 65,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run typecheck",
@@ -47387,7 +47387,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 57,
+          "line": 58,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de pri",
@@ -47400,7 +47400,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 64,
+          "line": 65,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run typecheck",
