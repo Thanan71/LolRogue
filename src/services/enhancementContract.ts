@@ -1,3 +1,7 @@
+import type { EnhancementResetFailureKind } from '@/types/enhancementTree';
+
+export type { EnhancementResetFailureKind } from '@/types/enhancementTree';
+
 /** The client definitions and their displayed prices belong to this exact catalogue. */
 export const ENHANCEMENT_CATALOG_VERSION = 4;
 export const ENHANCEMENT_CONTRACT_SCHEMA_VERSION = 1;
@@ -10,8 +14,6 @@ export function supportsEnhancementContract(
     contract.contractSchemaVersion === ENHANCEMENT_CONTRACT_SCHEMA_VERSION
   );
 }
-
-export type EnhancementResetFailureKind = 'retryable' | 'conflict' | 'terminal';
 
 /** Only uncertain outcomes may replay automatically. SQL business refusals are final. */
 export function enhancementResetFailureKind(

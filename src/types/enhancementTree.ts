@@ -9,6 +9,9 @@
 import type { GameplayStatKey } from '@/game/stats/statContract';
 import type { ChampionTag } from './champion';
 
+/** Transport-independent category used by reset results and retry orchestration. */
+export type EnhancementResetFailureKind = 'retryable' | 'conflict' | 'terminal';
+
 // ─── Enhancement Node Types ──────────────────────────────────────────────────
 
 export type EnhancementNodeType =

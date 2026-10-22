@@ -6,11 +6,11 @@
  * depend on abstractions, not concretions.
  */
 
-import type { EnhancementResetFailureKind } from '@/services/enhancementContract';
 import type { Champion } from '@/types/champion';
 import type {
   ChampionEnhancementTree,
   EnhancementNode,
+  EnhancementResetFailureKind,
   EnhancementStatBonuses,
   PlayerEnhancementState,
 } from '@/types/enhancementTree';
