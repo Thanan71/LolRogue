@@ -9,6 +9,7 @@ import { parseCommand } from '../scripts/cli.mjs';
 import {
   renderAuthorityResolver,
   renderClientCapabilities,
+  renderClientReplay,
 } from '../scripts/generate-authority-resolver.mjs';
 import { createArtifactSnapshot, sha256 } from '../scripts/lib/artifact-snapshot.mjs';
 import {
@@ -236,6 +237,8 @@ describe('generated artifact contract', () => {
         return Buffer.from(renderAuthorityResolver(pruned));
       if (file === 'src/game/authority/versionCapabilities.generated.ts')
         return Buffer.from(renderClientCapabilities(pruned));
+      if (file === 'src/game/authority/versionClientReplay.generated.ts')
+        return Buffer.from(renderClientReplay(pruned));
       return bytes;
     });
     const list = snapshot.list.bind(snapshot);

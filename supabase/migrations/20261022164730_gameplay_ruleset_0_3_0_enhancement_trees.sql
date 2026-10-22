@@ -10,7 +10,7 @@ VALUES (
   '0.3.0',
   'run-engine-0.3.0',
   2,
-  '0000000000000000000000000000000000000000000000000000000000000000',
+  '22b050a99c3e7166729aefdf03bfdb187f64fe81185b9a79b28ff35ef3f5f91b',
   FALSE
 )
 ON CONFLICT (version) DO NOTHING;
@@ -24,7 +24,7 @@ BEGIN
       AND engine_version = 'run-engine-0.3.0'
       AND command_schema_version = 2
       AND content_hash =
-        '0000000000000000000000000000000000000000000000000000000000000000'
+        '22b050a99c3e7166729aefdf03bfdb187f64fe81185b9a79b28ff35ef3f5f91b'
   ) THEN
     RAISE EXCEPTION 'gameplay_ruleset_0_3_0_contract_mismatch';
   END IF;
@@ -114,12 +114,12 @@ CREATE TRIGGER run_attempts_zzz_freeze_enhancements_v25 BEFORE INSERT ON public.
 -- Return the stored filtered snapshot for 0.3.0; historical responses stay exact.
 CREATE OR REPLACE FUNCTION public.start_run_attempt(p_command_id UUID,p_team TEXT[],p_rune_ids TEXT[],p_difficulty TEXT,p_mode TEXT DEFAULT 'normal')
 RETURNS JSONB LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
-DECLARE response JSONB; attempt public.run_attempts;
+DECLARE v_response JSONB; attempt public.run_attempts;
 BEGIN
-  response:=public.start_run_attempt_pre_champion_economy(p_command_id,p_team,p_rune_ids,p_difficulty,p_mode);
-  SELECT * INTO STRICT attempt FROM public.run_attempts WHERE id=(response->>'attempt_id')::uuid;
-  IF attempt.engine_version='run-engine-0.3.0' THEN response:=response||jsonb_build_object('enhancement_snapshot',attempt.enhancement_snapshot); END IF;
-  RETURN response||jsonb_build_object('champion_access_snapshot',attempt.champion_access_snapshot,'economy_version',attempt.economy_version);
+  v_response:=public.start_run_attempt_pre_champion_economy(p_command_id,p_team,p_rune_ids,p_difficulty,p_mode);
+  SELECT * INTO STRICT attempt FROM public.run_attempts WHERE id=(v_response->>'attempt_id')::uuid;
+  IF attempt.engine_version='run-engine-0.3.0' THEN v_response:=v_response||jsonb_build_object('enhancement_snapshot',attempt.enhancement_snapshot); END IF;
+  RETURN v_response||jsonb_build_object('champion_access_snapshot',attempt.champion_access_snapshot,'economy_version',attempt.economy_version);
 END;
 $$;
 REVOKE ALL ON FUNCTION public.start_run_attempt(UUID,TEXT[],TEXT[],TEXT,TEXT) FROM PUBLIC,anon,authenticated,service_role;

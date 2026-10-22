@@ -1,3 +1,4 @@
+import { hasAuthorityFeature } from '@/game/authority/versionRegistry';
 import type { AuthorityDifficulty, AuthorityRunSnapshot } from '@/game/authority/types';
 import type { BattleManager } from '@/game/battle/BattleManager';
 import { ActionType, BattlePhase } from '@/game/battle/types';
@@ -394,9 +395,7 @@ export function generateVeigarRunProgressionBalanceDocument(input: {
 }) {
   const seeds = input.seeds ?? VEIGAR_BALANCE_SEEDS;
   if (
-    !['run-engine-v22', 'run-engine-0.2.0', 'run-engine-0.2.5'].includes(
-      input.sourceAuthority.engineVersion,
-    ) ||
+    !hasAuthorityFeature(input.sourceAuthority.engineVersion, 'runProgressionAssists') ||
     input.edgeAuthority.engineVersion !== input.sourceAuthority.engineVersion ||
     input.edgeAuthority.contentHash !== input.sourceAuthority.contentHash
   )

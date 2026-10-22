@@ -5,6 +5,7 @@
     "config",
     "supabase/authority-archive",
     "src/game/authority/versionCapabilities.generated.ts",
+    "src/game/authority/versionClientReplay.generated.ts",
     "src/types/database.ts",
     "public/assets",
     "docs/audits/enhancement-trees.json",
@@ -132,6 +133,7 @@
       "id": "auth-projections",
       "patterns": [
         "src/game/authority/versionCapabilities.generated.ts",
+        "src/game/authority/versionClientReplay.generated.ts",
         "supabase/functions/verify-run/authority-version-resolver.generated.ts"
       ],
       "sources": ["config/authority-versions.json", "scripts/generate-authority-resolver.mjs"],

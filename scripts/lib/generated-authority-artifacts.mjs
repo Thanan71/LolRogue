@@ -2,8 +2,10 @@ import { build } from 'esbuild-authority';
 import {
   AUTHORITY_RESOLVER_PATH,
   CLIENT_CAPABILITIES_PATH,
+  CLIENT_REPLAY_PATH,
   renderAuthorityResolver,
   renderClientCapabilities,
+  renderClientReplay,
 } from '../generate-authority-resolver.mjs';
 import { artifactPath, sha256 } from './artifact-snapshot.mjs';
 import { validateAuthorityVersionRegistry } from './authority-version-registry.mjs';
@@ -30,6 +32,7 @@ export async function checkAuthorityArtifacts(snapshot, root, { buildSource = bu
   for (const [file, expected] of [
     [AUTHORITY_RESOLVER_PATH, renderAuthorityResolver(registry)],
     [CLIENT_CAPABILITIES_PATH, renderClientCapabilities(registry)],
+    [CLIENT_REPLAY_PATH, renderClientReplay(registry)],
   ]) {
     if ((await snapshot.read(file)).toString('utf8') !== expected) {
       throw new Error(`Generated artifacts: stale ${file}. Run npm run authority:generate.`);
