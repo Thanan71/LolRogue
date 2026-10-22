@@ -23,10 +23,16 @@ function maxedAccountSnapshots(): Pick<
         const nodes = [...tree.coreNodes, ...tree.branches.flatMap((branch) => branch.nodes)];
         return [
           champion.id,
-          getActiveEnhancementRanks(adaptLegacyEnhancementTree(tree), {
-            unlockedNodes: Object.fromEntries(nodes.filter((node) => !node.gate).map((node) => [node.id,node.maxRanks ?? 1])),
-            totalCandiesSpent: 0,
-          }, {masteryLevel:4}),
+          getActiveEnhancementRanks(
+            adaptLegacyEnhancementTree(tree),
+            {
+              unlockedNodes: Object.fromEntries(
+                nodes.filter((node) => !node.gate).map((node) => [node.id, node.maxRanks ?? 1]),
+              ),
+              totalCandiesSpent: 0,
+            },
+            { masteryLevel: 4 },
+          ),
         ];
       }),
     ),

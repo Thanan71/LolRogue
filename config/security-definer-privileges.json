@@ -3,249 +3,177 @@
   "functions": [
     {
       "signature": "private.admin_analytics(text, jsonb, timestamp with time zone)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Return only bounded retained-data analytics aggregates after a live registered administrator check; never expose personal identities or authority payloads."
     },
     {
       "signature": "private.admin_balance(text, jsonb, timestamp with time zone)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Read bounded descriptive verified balance cohorts and live rule states only after a live registered database administrator check; no personal identities or authority mutations."
     },
     {
       "signature": "private.admin_diagnostics(text, jsonb, jsonb, timestamp with time zone, integer)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Project bounded technical logs, authority counts and measured seal latency only after a live nonanonymous database administrator check; no raw payload, identities or inferred availability."
     },
     {
       "signature": "private.admin_explorer_page(text, jsonb, jsonb, timestamp with time zone, integer, boolean)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Return bounded administrative pages and atomic exports only after a live database-admin identity check."
     },
     {
       "signature": "private.admin_moderation(text, jsonb)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Authorize the live nonanonymous database administrator before bounded queue/history reads or confirmed, idempotent moderation; return audited rejection receipts without exposing unauthorized targets."
     },
     {
       "signature": "private.admin_player_detail(uuid, timestamp with time zone)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Project a bounded player profile and separate ledgers only after a live database-admin identity check."
     },
     {
       "signature": "private.admin_run_detail(uuid, text, jsonb, timestamp with time zone, integer)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Project run or attempt lifecycle and allowlisted actions only after a live database-admin identity check."
     },
     {
       "signature": "private.report_daily_score(uuid, text)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Attribute normalized Daily reports to the live nonanonymous caller, reject invalid targets, deduplicate and enforce per-account reporting limits."
     },
     {
       "signature": "public.adjust_champion_shards(uuid, bigint, uuid)",
-      "roles": [
-        "service_role"
-      ],
+      "roles": ["service_role"],
       "justification": "Append an explicitly audited idempotent administrative shard adjustment without editing ledger history."
     },
     {
       "signature": "public.admin_balance_trees(jsonb, timestamp with time zone)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Read privacy-bounded aggregates from tree commands, the existing Candy ledger and canonical verified snapshots after an administrator check."
     },
     {
       "signature": "public.append_run_attempt_commands(uuid, jsonb)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Append an authenticated caller's bounded, ownership-checked run journal batch."
     },
     {
       "signature": "public.audit_champion_economy()",
-      "roles": [
-        "service_role"
-      ],
+      "roles": ["service_role"],
       "justification": "Read aggregate economy metrics and report wallet ledger divergence without repairing or exposing identities."
     },
     {
       "signature": "public.claim_run_verification(uuid, uuid)",
-      "roles": [
-        "service_role"
-      ],
+      "roles": ["service_role"],
       "justification": "Acquire a verifier lease from the trusted Edge worker."
     },
     {
       "signature": "public.complete_run_verification(uuid, uuid, jsonb, text)",
-      "roles": [
-        "service_role"
-      ],
+      "roles": ["service_role"],
       "justification": "Commit replay-verified progression from the trusted Edge worker."
     },
     {
       "signature": "public.get_champion_economy_snapshot()",
-      "roles": [
-        "anon",
-        "authenticated"
-      ],
+      "roles": ["anon", "authenticated"],
       "justification": "Publish a bounded canonical rotation/catalog and only the authenticated account wallet and unlocks."
     },
     {
       "signature": "public.get_daily_challenge()",
-      "roles": [
-        "anon",
-        "authenticated"
-      ],
+      "roles": ["anon", "authenticated"],
       "justification": "Publish the sanitized canonical Daily configuration and caller-scoped status."
     },
     {
       "signature": "public.get_enhancement_contract()",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Read the registered caller's canonical tree catalogue and gated reset policy."
     },
     {
       "signature": "public.get_enhancement_reset_preview(text)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Read only the registered caller's attested reset quote without mutating balances or ranks."
     },
     {
       "signature": "public.get_my_leaderboard_rank()",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Return only the authenticated caller's private rank."
     },
     {
       "signature": "public.get_run_attempt_status(uuid)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Return an attempt only after checking authenticated ownership."
     },
     {
       "signature": "public.is_current_user_admin()",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Support authenticated admin RLS policies and invoker-rights admin views."
     },
     {
       "signature": "public.purchase_champion(uuid, text, bigint, integer)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Purchase a canonical champion for the authenticated owner using a locked wallet and idempotent command."
     },
     {
       "signature": "public.purge_expired_logs()",
-      "roles": [
-        "service_role"
-      ],
+      "roles": ["service_role"],
       "justification": "Run bounded diagnostic retention from trusted maintenance."
     },
     {
       "signature": "public.purge_expired_social_data()",
-      "roles": [
-        "service_role"
-      ],
+      "roles": ["service_role"],
       "justification": "Run social-data retention from trusted maintenance only."
     },
     {
       "signature": "public.reject_run_verification(uuid, uuid, text)",
-      "roles": [
-        "service_role"
-      ],
+      "roles": ["service_role"],
       "justification": "Persist a bounded verifier rejection from the trusted Edge worker."
     },
     {
       "signature": "public.reset_champion_enhancements(text, integer, uuid, integer)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Atomically refund only attested owned purchases with revision, policy and idempotency checks."
     },
     {
       "signature": "public.seal_run_attempt(uuid, uuid, integer)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Seal only the authenticated caller's attempt with idempotency checks."
     },
     {
       "signature": "public.set_champion_economy_enabled(boolean)",
-      "roles": [
-        "service_role"
-      ],
+      "roles": ["service_role"],
       "justification": "Control the economy flag and atomically grandfather accounts at the first trusted activation cutoff."
     },
     {
       "signature": "public.set_leaderboard_privacy(text, boolean)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Update only the authenticated caller's public alias and opt-out."
     },
     {
       "signature": "public.start_daily_run_attempt(uuid, text[], text[])",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Start the authenticated caller's canonical Daily attempt."
     },
     {
       "signature": "public.start_run_attempt(uuid, text[], text[], text, text)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Start the authenticated caller's canonical normal attempt."
     },
     {
       "signature": "public.submit_client_logs(jsonb)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Accept a bounded, recursively sanitized diagnostic batch for the caller."
     },
     {
       "signature": "public.touch_player_last_login()",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Record the current authenticated session without accepting an identity parameter."
     },
     {
       "signature": "public.unlock_champion_enhancement(text, text, integer, uuid)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Execute the idempotent, ownership-checked canonical enhancement command."
     },
     {
       "signature": "public.unlock_champion_enhancement_v2(text, text, integer, integer, uuid, integer)",
-      "roles": [
-        "authenticated"
-      ],
+      "roles": ["authenticated"],
       "justification": "Execute an ownership-checked enhancement purchase with strict revision and canonical eligibility."
     }
   ]

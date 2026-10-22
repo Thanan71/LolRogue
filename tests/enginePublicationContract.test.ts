@@ -10,7 +10,7 @@ const previousSql = readFileSync(
   'utf8',
 );
 // This audit proves the published structural 0.2.5 refactor, independently of later gameplay releases.
-const current = registry.versions.find(({engine}) => engine === 'run-engine-0.2.5')!;
+const current = registry.versions.find(({ engine }) => engine === 'run-engine-0.2.5')!;
 const migrationSql = readFileSync(new URL(`../${current.migration}`, import.meta.url), 'utf8');
 
 function finalizationContract(source: string): string {

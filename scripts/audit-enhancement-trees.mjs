@@ -48,13 +48,20 @@ export function parseEnhancementAuditArgs(argv) {
 }
 
 async function formatJson(root, source) {
+  // The tracked output is excluded from broad scans; this virtual included path
+  // keeps its dedicated formatting check active without creating another file.
+  const maxInputBytes = 2 * 1024 * 1024;
+  if (Buffer.byteLength(source, 'utf8') > maxInputBytes) {
+    throw new Error('Enhancement audit: JSON exceeds the dedicated 2 MiB formatting limit.');
+  }
   return new Promise((resolve, reject) => {
     const formatter = spawn(
       process.execPath,
       [
         path.join(root, 'node_modules/@biomejs/biome/bin/biome'),
         'format',
-        '--stdin-file-path=docs/audits/enhancement-trees.json',
+        '--stdin-file-path=tooling/enhancements/audit-output.json',
+        `--files-max-size=${maxInputBytes}`,
       ],
       { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] },
     );
@@ -80,11 +87,11 @@ async function formatJson(root, source) {
     formatter.on('close', (code) => {
       clearTimeout(timeout);
       const formatted = Buffer.concat(output).toString('utf8');
-      if (code !== 0 || !formatted.trim()) {
+      const diagnostic = Buffer.concat(errors).toString('utf8').trim();
+      // Biome can return zero while ignoring a path or a size-limited input.
+      if (code !== 0 || !formatted.trim() || diagnostic) {
         reject(
-          new Error(
-            `Enhancement audit: pinned Biome formatting failed (${Buffer.concat(errors).toString('utf8').trim() || code}).`,
-          ),
+          new Error(`Enhancement audit: pinned Biome formatting failed (${diagnostic || code}).`),
         );
       } else resolve(formatted);
     });

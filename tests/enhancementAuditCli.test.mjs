@@ -52,6 +52,15 @@ describe('enhancement audit CLI', () => {
     const second = await generateEnhancementAudit({ root });
     expect(second).toEqual(first);
     const report = JSON.parse(first.json);
+    // The tracked report is excluded from broad Biome scans. Its generator must
+    // still format JSON, rather than accepting Biome's ignored-path passthrough.
+    expect(
+      first.json.includes('"seeds": [17, 91, 401]'),
+      'Biome must format the JSON instead of passing through an ignored input',
+    ).toBe(true);
+    await expect(
+      stat(path.join(root, 'tooling/enhancements/audit-output.json')),
+    ).rejects.toMatchObject({ code: 'ENOENT' });
     expect(report.summary).toMatchObject({
       treeCount: 6,
       nodeCount: 88,
@@ -101,6 +110,21 @@ describe('enhancement audit CLI', () => {
       'enhancement-trees.json',
       'enhancement-trees.md',
     ]);
+  });
+
+  it('rejects semantically equal unformatted JSON in --check without rewriting it', async () => {
+    const outputRoot = await outputDirectory();
+    const generated = await runEnhancementAudit([], { root, outputRoot, stdout });
+    const unformatted = `${JSON.stringify(JSON.parse(generated.json), null, 2)}\n`;
+    expect(
+      unformatted !== generated.json,
+      'The pinned formatter must change the raw JSON layout',
+    ).toBe(true);
+    await writeFile(path.join(outputRoot, ENHANCEMENT_AUDIT_OUTPUTS[0]), unformatted);
+    await expect(runEnhancementAudit(['--check'], { root, outputRoot, stdout })).rejects.toThrow(
+      `stale ${ENHANCEMENT_AUDIT_OUTPUTS[0]}`,
+    );
+    expect(await outputContents(outputRoot)).toEqual([unformatted, generated.markdown]);
   });
 
   it('rejects missing reports in --check without creating an output directory', async () => {
