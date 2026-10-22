@@ -36,6 +36,8 @@ export function createTestPolicy(argv: readonly string[] = process.argv): ViteUs
         'src/features/champions/**/*.tsx',
         'src/features/daily/**/*.ts',
         'src/features/daily/**/*.tsx',
+        'src/features/enhancements/**/*.ts',
+        'src/features/enhancements/**/*.tsx',
         'src/infrastructure/**/*.ts',
         'src/pages/ProfilePage.tsx',
       ],
