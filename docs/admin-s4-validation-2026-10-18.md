@@ -4,6 +4,9 @@ Parent : `ee3cf5b29567e20d0ab20e4c5e973ab5ecd1a745` (`dev`, PR #225 et #226
 fusionnées). Branche : `feat/adm-s4-balance-workspace`, PR destinée à `dev`.
 Application **0.2.10**, patch notes FR/EN publication **15**.
 
+Ce rapport conserve l’état de S4 au 18 octobre. La dépendance ADM-20 décrite
+ci-dessous a depuis été levée par TREE-10 en 0.3.0, dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242) fusionnée vers `dev`. Voir la [validation dédiée](admin-20-validation-0.3.0.md).
+
 **ADM-17, ADM-18, ADM-19 et ADM-21 sont implémentés. ADM-20 reste ouvert en
 attente de TREE-10.** Le panneau d’attente est livré ; les achats/reset, nœuds
 bloqués, spécialisations et victoires par arbre ne sont pas inventés depuis un

@@ -185,6 +185,7 @@
     "config/veigar-run-progression-balance-0.3.0.json",
     "config/veigar-run-progression-balance-v22.json",
     "docs/accessibility.md",
+    "docs/admin-20-validation-0.3.0.md",
     "docs/admin-analytics.md",
     "docs/admin-balance.md",
     "docs/admin-diagnostics.md",
@@ -30975,7 +30976,7 @@
         },
         {
           "file": "docs/administration.md",
-          "line": 149,
+          "line": 153,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`service_role`. `npm run database -- security` compare les ACL réelles à ce manifest et",
@@ -31979,7 +31980,7 @@
         },
         {
           "file": "docs/administration.md",
-          "line": 149,
+          "line": 153,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`service_role`. `npm run database -- security` compare les ACL réelles à ce manifest et",
@@ -41062,6 +41063,22 @@
           "classification": "active"
         },
         {
+          "file": "docs/admin-20-validation-0.3.0.md",
+          "line": 70,
+          "kind": "npm-lifecycle",
+          "source": "documentation",
+          "excerpt": "npm test -- tests/adminTreeReport.test.ts tests/adminTreeUi.test.tsx tests/adminBalanceUi.test.tsx tests/adminBalanceClient.test.ts tests/adminBalanceStatistics.test.ts",
+          "classification": "active"
+        },
+        {
+          "file": "docs/admin-20-validation-0.3.0.md",
+          "line": 71,
+          "kind": "npm-lifecycle",
+          "source": "documentation",
+          "excerpt": "DB_TEST_REQUIRED=1 npm test -- --no-file-parallelism tests/adminTree.database.test.ts tests/adminBalancePrivileges.database.test.ts tests/enhancementPurchases.database.test.ts tests/enhancementReset.database.test.ts",
+          "classification": "active"
+        },
+        {
           "file": "docs/business-dependency-boundaries.md",
           "line": 96,
           "kind": "npm-run",
@@ -41142,6 +41159,22 @@
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run test -- tests/i18nSourceContract.test.ts tests/i18nCatalogContract.test.ts\",",
+          "classification": "active"
+        },
+        {
+          "file": "docs/admin-20-validation-0.3.0.md",
+          "line": 70,
+          "kind": "npm-lifecycle",
+          "source": "documentation",
+          "excerpt": "npm test -- tests/adminTreeReport.test.ts tests/adminTreeUi.test.tsx tests/adminBalanceUi.test.tsx tests/adminBalanceClient.test.ts tests/adminBalanceStatistics.test.ts",
+          "classification": "active"
+        },
+        {
+          "file": "docs/admin-20-validation-0.3.0.md",
+          "line": 71,
+          "kind": "npm-lifecycle",
+          "source": "documentation",
+          "excerpt": "DB_TEST_REQUIRED=1 npm test -- --no-file-parallelism tests/adminTree.database.test.ts tests/adminBalancePrivileges.database.test.ts tests/enhancementPurchases.database.test.ts tests/enhancementReset.database.test.ts",
           "classification": "active"
         },
         {
@@ -42529,6 +42562,22 @@
           "classification": "active"
         },
         {
+          "file": "docs/admin-20-validation-0.3.0.md",
+          "line": 72,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run test:e2e -- e2e/admin-balance.spec.ts --workers=1",
+          "classification": "active"
+        },
+        {
+          "file": "docs/admin-20-validation-0.3.0.md",
+          "line": 73,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "E2E_REQUIRE_CONNECTED=1 npm run test:e2e -- e2e/admin-balance-connected.spec.ts --workers=1",
+          "classification": "active"
+        },
+        {
           "file": "docs/admin-s7-validation-2026-10-21.md",
           "line": 106,
           "kind": "npm-run",
@@ -42628,6 +42677,22 @@
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"npm run test:e2e -- e2e/i18n-english-journey.spec.ts\"",
+          "classification": "active"
+        },
+        {
+          "file": "docs/admin-20-validation-0.3.0.md",
+          "line": 72,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "npm run test:e2e -- e2e/admin-balance.spec.ts --workers=1",
+          "classification": "active"
+        },
+        {
+          "file": "docs/admin-20-validation-0.3.0.md",
+          "line": 73,
+          "kind": "npm-run",
+          "source": "documentation",
+          "excerpt": "E2E_REQUIRE_CONNECTED=1 npm run test:e2e -- e2e/admin-balance-connected.spec.ts --workers=1",
           "classification": "active"
         },
         {
