@@ -21,10 +21,10 @@ const { values } = parseArgs({
     output: { type: 'string' },
   },
 });
-if (!['v22', '0.2.0', '0.2.5'].includes(values.engine))
-  throw new Error('--engine must be v22, 0.2.0 or 0.2.5.');
 const entry = registry.versions.find((version) => version.engine === `run-engine-${values.engine}`);
 if (!entry) throw new Error(`Unknown registered authority ${values.engine}.`);
+if (!entry.features.runProgression)
+  throw new Error('Veigar balance requires an authority with the runProgression capability.');
 const isCurrent = entry.status === 'current';
 const artifactPath = path.join(
   repositoryRoot,

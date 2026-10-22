@@ -94,9 +94,11 @@ describe('script CLI contract', () => {
       'v22',
       '0.2.0',
       '0.2.5',
+      '0.3.0',
       'run-engine-v22',
       'run-engine-0.2.0',
       'run-engine-0.2.5',
+      'run-engine-0.3.0',
     ]) {
       const result = executeCli([
         'balance',
@@ -175,11 +177,11 @@ describe('script CLI contract', () => {
     );
     expect(result.status).toBe(0);
     const plan = JSON.parse(result.stdout);
-    expect(plan.currentEngine).toBe('0.2.5');
+    expect(plan.currentEngine).toBe('0.3.0');
     expect(plan.steps[0].args).toEqual([
       path.join(root, 'scripts/generate-authority-cohort-baseline.mjs'),
       '--engine',
-      '0.2.5',
+      '0.3.0',
     ]);
   });
 
@@ -198,6 +200,7 @@ describe('script CLI contract', () => {
       'v22',
       '0.2.0',
       '0.2.5',
+      '0.3.0',
     ]);
   });
 
@@ -232,7 +235,7 @@ describe('script CLI contract', () => {
     expect(JSON.parse(field.stdout).steps[0].args.slice(1)).toEqual(['--output', 'out/field.json']);
   });
 
-  it.each(['0.2.5', 'run-engine-0.2.5'])(
+  it.each(['0.3.0', 'run-engine-0.3.0'])(
     'normalizes the current reproduction identity %s for the retained business script',
     (engine) => {
       const result = executeCli([
@@ -247,7 +250,7 @@ describe('script CLI contract', () => {
         '--dry-run',
       ]);
       expect(result.status).toBe(0);
-      expect(JSON.parse(result.stdout).steps[0].args).toContain('run-engine-0.2.5');
+      expect(JSON.parse(result.stdout).steps[0].args).toContain('run-engine-0.3.0');
     },
   );
 
@@ -273,6 +276,23 @@ describe('script CLI contract', () => {
     ]);
     expect(incompatible.status).toBe(1);
     expect(JSON.parse(incompatible.stderr).error.code).toBe('CLI_ENGINE_UNSUPPORTED');
+  });
+
+  it('routes Veigar generation to the current capable authority and rejects pre-progression engines', () => {
+    const current = executeCli(['balance', 'veigar', 'generate', '--dry-run']);
+    expect(current.status).toBe(0);
+    expect(JSON.parse(current.stdout).steps[0].args).toEqual([
+      path.join(root, 'scripts/generate-veigar-run-progression-balance.mjs'),
+      '--engine',
+      '0.3.0',
+    ]);
+    const incapable = spawnSync(
+      process.execPath,
+      [path.join(root, 'scripts/generate-veigar-run-progression-balance.mjs'), '--engine', 'v21'],
+      { cwd: root, encoding: 'utf8' },
+    );
+    expect(incapable.status).toBe(1);
+    expect(incapable.stderr).toContain('runProgression capability');
   });
 
   it('keeps local/linked economy audit mutually exclusive and explicit', async () => {
@@ -325,12 +345,13 @@ describe('script CLI contract', () => {
     expect(result.status).toBe(0);
     const steps = JSON.parse(result.stdout).steps;
     const names = steps.map((step) => path.basename(step.args[0] ?? step.command));
-    expect(names.slice(0, 10)).toEqual(Array(10).fill('generate-authority-cohort-baseline.mjs'));
-    expect(names.slice(10, 13)).toEqual(Array(3).fill('generate-early-top-cohort.mjs'));
-    expect(names.slice(13, 19)).toEqual([
+    expect(names.slice(0, 11)).toEqual(Array(11).fill('generate-authority-cohort-baseline.mjs'));
+    expect(names.slice(11, 14)).toEqual(Array(3).fill('generate-early-top-cohort.mjs'));
+    expect(names.slice(14, 21)).toEqual([
       'generate-champion-combat-matrix.mjs',
       'generate-map-economy-baseline.mjs',
       'generate-authority-field-calibration-baseline.mjs',
+      'generate-veigar-run-progression-balance.mjs',
       'generate-veigar-run-progression-balance.mjs',
       'generate-veigar-run-progression-balance.mjs',
       'generate-veigar-run-progression-balance.mjs',
@@ -478,14 +499,14 @@ describe('script CLI contract', () => {
 
 describe('frozen legacy command equivalence', () => {
   // Preserve equivalence against the registry generation captured by the frozen manifest.
-  // Current commands are checked separately with 0.2.5 and all retained/new artifacts.
+  // Current commands are checked separately with 0.3.0 and all retained/new artifacts.
   const legacyContext = {
     ...context,
     currentEngine: '0.2.0',
     registry: {
       ...registry,
       versions: registry.versions
-        .filter((entry) => entry.engine !== 'run-engine-0.2.5')
+        .filter((entry) => entry.gameplay <= 23)
         .map((entry) =>
           entry.engine === 'run-engine-0.2.0' ? { ...entry, status: 'current' } : entry,
         ),

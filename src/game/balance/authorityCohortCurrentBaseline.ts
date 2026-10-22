@@ -1,4 +1,4 @@
-import baselineJson from '../../../config/authority-cohort-baselines-0.2.5.json';
+import baselineJson from '../../../config/authority-cohort-baselines-0.3.0.json';
 import { loadAuthorityCohortBaseline } from './authorityCohortBaseline';
 import { AUTHORITY_COHORT_CURRENT_BASELINE_IDENTITY } from './authorityCohortCurrentBaselineFixture';
 

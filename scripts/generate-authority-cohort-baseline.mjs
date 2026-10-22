@@ -61,14 +61,15 @@ async function registeredSemanticVersion(engine) {
   };
 }
 
-const semanticVersion = ['0.2.0', '0.2.5'].includes(values.engine)
+const semanticVersion = /^\d+\.\d+\.\d+$/.test(values.engine)
   ? await registeredSemanticVersion(values.engine)
   : null;
 
-const version = {
-  v15: {
-    artifact: 'config/authority-cohort-baselines-v15.json',
-    entrySource: `
+const version =
+  {
+    v15: {
+      artifact: 'config/authority-cohort-baselines-v15.json',
+      entrySource: `
     import { getAuthorityVerifier } from './supabase/authority-archive/run-authority-v15.bundle.ts';
     import {
       AUTHORITY_COHORT_BASELINE_V15_IDENTITY,
@@ -82,10 +83,10 @@ const version = {
       return generateAuthorityCohortBaselineV15(authority);
     }
   `,
-  },
-  v16: {
-    artifact: 'config/authority-cohort-baselines-v16.json',
-    entrySource: `
+    },
+    v16: {
+      artifact: 'config/authority-cohort-baselines-v16.json',
+      entrySource: `
     import { getAuthorityVerifier } from './supabase/authority-archive/run-authority-v16.bundle.ts';
     import {
       AUTHORITY_COHORT_BASELINE_V16_IDENTITY,
@@ -99,10 +100,10 @@ const version = {
       return generateAuthorityCohortBaselineV16(authority);
     }
   `,
-  },
-  v17: {
-    artifact: 'config/authority-cohort-baselines-v17.json',
-    entrySource: `
+    },
+    v17: {
+      artifact: 'config/authority-cohort-baselines-v17.json',
+      entrySource: `
     import { getAuthorityVerifier } from './supabase/authority-archive/run-authority-v17.bundle.ts';
     import {
       AUTHORITY_COHORT_BASELINE_V17_IDENTITY,
@@ -116,10 +117,10 @@ const version = {
       return generateAuthorityCohortBaselineV17(authority);
     }
   `,
-  },
-  v18: {
-    artifact: 'config/authority-cohort-baselines-v18.json',
-    entrySource: `
+    },
+    v18: {
+      artifact: 'config/authority-cohort-baselines-v18.json',
+      entrySource: `
     import { getAuthorityVerifier } from './supabase/authority-archive/run-authority-v18.bundle.ts';
     import {
       AUTHORITY_COHORT_BASELINE_V18_IDENTITY,
@@ -133,10 +134,10 @@ const version = {
       return generateAuthorityCohortBaselineV18(authority);
     }
   `,
-  },
-  v19: {
-    artifact: 'config/authority-cohort-baselines-v19.json',
-    entrySource: `
+    },
+    v19: {
+      artifact: 'config/authority-cohort-baselines-v19.json',
+      entrySource: `
     import { getAuthorityVerifier } from './supabase/authority-archive/run-authority-v19.bundle.ts';
     import {
       AUTHORITY_COHORT_BASELINE_V19_IDENTITY,
@@ -150,10 +151,10 @@ const version = {
       return generateAuthorityCohortBaselineV19(authority);
     }
   `,
-  },
-  v20: {
-    artifact: 'config/authority-cohort-baselines-v20.json',
-    entrySource: `
+    },
+    v20: {
+      artifact: 'config/authority-cohort-baselines-v20.json',
+      entrySource: `
     import { getAuthorityVerifier } from './supabase/authority-archive/run-authority-v20.bundle.ts';
     import {
       AUTHORITY_COHORT_BASELINE_V20_IDENTITY,
@@ -167,10 +168,10 @@ const version = {
       return generateAuthorityCohortBaselineV20(authority);
     }
   `,
-  },
-  v21: {
-    artifact: 'config/authority-cohort-baselines-v21.json',
-    entrySource: `
+    },
+    v21: {
+      artifact: 'config/authority-cohort-baselines-v21.json',
+      entrySource: `
     import { getAuthorityVerifier } from './supabase/authority-archive/run-authority-v21.bundle.ts';
     import {
       AUTHORITY_COHORT_BASELINE_V21_IDENTITY,
@@ -183,10 +184,10 @@ const version = {
       return generateAuthorityCohortBaselineV21(authority);
     }
   `,
-  },
-  v22: {
-    artifact: 'config/authority-cohort-baselines-v22.json',
-    entrySource: `
+    },
+    v22: {
+      artifact: 'config/authority-cohort-baselines-v22.json',
+      entrySource: `
     import { getAuthorityVerifier } from ${JSON.stringify(v22Bundle)};
     import {
       AUTHORITY_COHORT_BASELINE_V22_IDENTITY,
@@ -199,13 +200,13 @@ const version = {
       return generateAuthorityCohortBaselineV22(authority);
     }
   `,
-  },
-  '0.2.0': semanticVersion,
-  '0.2.5': semanticVersion,
-}[values.engine];
+    },
+    '0.2.0': semanticVersion,
+    '0.2.5': semanticVersion,
+  }[values.engine] ?? semanticVersion;
 
 if (!version)
-  throw new Error('--engine must be one of: v15, v16, v17, v18, v19, v20, v21, v22, 0.2.0, 0.2.5.');
+  throw new Error('--engine must be a registered semantic version or one of v15 through v22.');
 if (values.check && values.output) throw new Error('--check and --output are mutually exclusive.');
 
 function serializeBaseline(document) {
