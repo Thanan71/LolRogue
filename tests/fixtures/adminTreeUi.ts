@@ -1,8 +1,9 @@
+import type { BalanceFilters } from '@/features/administration/domain/balance/balanceTypes';
 import type { BalanceTreeReport } from '@/features/administration/domain/balance/treeTypes';
 import { balanceBuildFixture } from './adminBalanceUi';
 
-export function balanceTreeFixture(): BalanceTreeReport {
-  const source = balanceBuildFixture();
+export function balanceTreeFixture(filters?: BalanceFilters): BalanceTreeReport {
+  const source = balanceBuildFixture(filters);
   return {
     snapshotAt: source.snapshotAt,
     filters: source.filters,
