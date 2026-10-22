@@ -50,3 +50,25 @@ Les tests numériques couvrent faibles et fortes valeurs, seuils RNG, totalité
 des ticks, boucliers, amplification, décès, cumul d’auras, hâte, types de dégâts
 et parité FR/EN. La matrice de parité TREE-04 complète ces preuves avec des
 identités de combattant distinguant les deux camps et des replays déterministes.
+
+L’identité d’un effet instantané est `(sourceId de formation, sourceSide,
+targetId de formation, targetSide)`. Les occurrences `Garen#1` et `Garen#2`
+restent distinctes des deux côtés ; une identité de camp absente est refusée.
+La même règle s’applique aux renvois, au mana, aux boucliers, aux soins et aux
+contrôles. Les ticks conservent le camp de leur source et le journal attribue
+l’absorption d’un bouclier à son propre camp. Les requêtes de statistiques,
+hâte, ténacité et amplification n’empruntent jamais le loadout du miroir ennemi.
+
+| Fixture | Rôles / portée | Preuve |
+| --- | --- | --- |
+| `enhancementEffectsContract.test.ts` | Formules, probabilités, boucliers, auras, dégâts et unités | Faibles/fortes valeurs, limites et état physique |
+| `enhancementBattleParity.test.ts` | Cinq rôles jouables et Veigar | Même trace en manuel et autoplay ; métriques, ressources et commandes rejouées identiques après restauration JSON |
+| `enhancementAuthorityParity.test.ts` | Même catalogue de builds légaux | Comparaison source/Edge au hash courant, session restaurée et tentative figée malgré un changement ultérieur du compte |
+| `enhancementAuthorityParity.test.ts` | Version 0.2.5 | SHA-256 des octets archivés et résultat de replay historique figés |
+
+Aucun des onze kits maintenus ne possède Assassin comme premier rôle. Phénix et
+les autres effets Assassin ont donc une preuve de moteur isolée, sans inventer
+de champion ni annoncer une run publique Assassin. Les douze effets indisponibles
+ne sont pas considérés actifs par ces builds légaux. La campagne source/Edge
+doit être exécutée après construction du bundle futur ; une validation du code
+source seule ne clôt pas cette gate.

@@ -1,7 +1,9 @@
 import { championDB } from '@/data';
 import { UNAVAILABLE_ENHANCEMENT_EFFECTS } from '@/game/rules/catalogSupport';
-import { combatCopy, combatEnhancementEffectId } from '@/i18n/combatContent';
+import { combatCopy } from '@/i18n/combatContent';
+import { getEnhancementNodeContent } from '@/i18n/enhancementContent';
 import { formatNumber } from '@/i18n/format';
+import { locale } from '@/i18n/fr';
 import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
 import { useEnhancementStore } from '@/stores/enhancementStore';
 import { useRunStore } from '@/stores/runStore';
@@ -63,8 +65,7 @@ export function getEnhancementDescriptions(championId: string): string[] {
     if (rank === 0) continue;
 
     for (const effect of node.effects ?? []) {
-      const effectId = combatEnhancementEffectId(node.id, effect.type);
-      const localizedDescription = effectId ? combatCopy.presenter.effects[effectId] : effect.type;
+      const localizedDescription = getEnhancementNodeContent(locale, node.id).description;
       const maxRanks = node.maxRanks || 1;
       const rankedDescription =
         maxRanks > 1 && rank < maxRanks

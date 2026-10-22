@@ -768,14 +768,14 @@ export class BattleManager {
     const effectiveDamage = totalAbsorbed + hpDamage;
     const shieldAbsorbedBySource = Object.fromEntries(
       Object.entries(absorbedBySource).map(([sourceId, amount]) => [
-        this._findCombatantByTargetId(sourceId)?.champion.id ?? sourceId,
+        this._findCombatantByTargetId(sourceId, target.side)?.champion.id ?? sourceId,
         amount,
       ]),
     );
     const shieldAbsorbedBySide = Object.entries(absorbedBySource).reduce<
       Partial<Record<TeamSide, number>>
     >((totals, [sourceId, amount]) => {
-      const side = this._findCombatantByTargetId(sourceId)?.side ?? target.side;
+      const side = this._findCombatantByTargetId(sourceId, target.side)?.side ?? target.side;
       totals[side] = (totals[side] ?? 0) + amount;
       return totals;
     }, {});
@@ -921,7 +921,8 @@ export class BattleManager {
         (stats[key] as number) = Math.max(0, (value + modifier.flat) * (1 + modifier.percent));
       }
     }
-    for (const modifier of this._rules?.getStatBonuses(combatant.champion.id) ?? []) {
+    for (const modifier of this._rules?.getStatBonuses(combatant.champion.id, combatant.side) ??
+      []) {
       const key = aliases[modifier.stat];
       if (!key) continue;
       const value = stats[key];
@@ -1242,6 +1243,7 @@ export class BattleManager {
             duration,
             canCrit: false,
             maxStacks,
+            sourceSide: attacker.side,
           }),
         );
         const hemorrhage = target.effectManager.dots.find(
@@ -1493,6 +1495,7 @@ export class BattleManager {
   private _toRuleActor(combatant: CombatantState): CombatRuleActor {
     return {
       id: combatant.champion.id,
+      combatantId: combatant.targetId,
       side: combatant.side,
       currentHp: combatant.currentHp,
       maxHp: combatant.maxHp,
@@ -1534,14 +1537,14 @@ export class BattleManager {
   private _resolveRuleEffect(effect: CombatRuleInstantEffect): void {
     resolveBattleRuleEffect(
       {
-        findCombatantByChampionId: this._findCombatantByChampionId.bind(this),
+        findCombatantByTargetId: this._findCombatantByTargetId.bind(this),
         applyHeal: this._applyHeal.bind(this),
         applyDamageToTarget: this._applyDamageToTarget.bind(this),
         syncEffectState: this._syncEffectState.bind(this),
         getAppliedControlDurationMultiplier: (source) =>
-          this._rules?.getAppliedControlDurationMultiplier(source.champion.id) ?? 1,
+          this._rules?.getAppliedControlDurationMultiplier(source.champion.id, source.side) ?? 1,
         getControlDurationMultiplier: (target) =>
-          this._rules?.getControlDurationMultiplier(target.champion.id) ?? 1,
+          this._rules?.getControlDurationMultiplier(target.champion.id, target.side) ?? 1,
         getShieldMultiplier: (source, target, amount) =>
           this._rules?.dispatch({
             type: 'before_shield',
@@ -1552,12 +1555,6 @@ export class BattleManager {
         emit: this._emit.bind(this),
       },
       effect,
-    );
-  }
-
-  private _findCombatantByChampionId(championId: string): CombatantState | undefined {
-    return [...this._playerCombatants, ...this._enemyCombatants].find(
-      (combatant) => combatant.champion.id === championId,
     );
   }
 

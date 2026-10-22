@@ -161,8 +161,12 @@ export class BattleSpellEffectResolver {
           const duration = capCrowdControlDuration(
             ccType,
             normalizeTurnDuration(effect.ccDuration, 1) *
-              (this.host.rules?.getAppliedControlDurationMultiplier(attacker.champion.id) ?? 1) *
-              (this.host.rules?.getControlDurationMultiplier(ccTarget.champion.id) ?? 1),
+              (this.host.rules?.getAppliedControlDurationMultiplier(
+                attacker.champion.id,
+                attacker.side,
+              ) ?? 1) *
+              (this.host.rules?.getControlDurationMultiplier(ccTarget.champion.id, ccTarget.side) ??
+                1),
           );
           ccTarget.effectManager.apply(
             new CCEffect({

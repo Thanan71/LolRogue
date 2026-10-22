@@ -321,14 +321,34 @@ export const ENHANCEMENT_SHARED_EFFECT_CONTRACTS = [
   {
     id: 'combatant-identity',
     behavior:
-      'Les événements du bus conservent id=champion.id et side ; les effets instantanés émis ne transportent que sourceId/targetId. Le résolveur retrouve le premier champion correspondant, en parcourant les joueurs avant les ennemis.',
+      'Les événements du bus conservent champion.id, combatantId et camp. Tous les effets instantanés portent sourceId/targetId de formation et sourceSide/targetSide ; le résolveur exige ces camps et retrouve chaque cible exacte.',
     limit:
-      'Combat miroir : avec Garen dans chaque camp, une attaque du joueur peut appliquer son saignement au Garen joueur au lieu du Garen ennemi. Renvois et contrôles émis partagent cette résolution ambiguë. TREE-04 : porter une identité de combattant non ambiguë et tester les deux camps, sans retoucher les replays historiques.',
+      'Les effets sans identité de camp valide sont refusés. Les champions miroirs et les occurrences multiples d’un champion ennemi restent distincts. Les requêtes de statistiques secondaires et les modificateurs de soins/boucliers sont limités au camp propriétaire ; aucun investissement du joueur ne modifie son homologue ennemi.',
     evidence: [
       battle('_toRuleActor'),
-      battle('_findCombatantByChampionId'),
+      battle('_findCombatantByTargetId'),
       { path: 'src/game/rules/types.ts', symbol: 'CombatRuleInstantEffect' },
       resolver,
+    ],
+  },
+  {
+    id: 'ui-source-and-parity',
+    behavior:
+      'L’arbre et le combat affichent la même description FR/EN du nœud. L’aperçu secondaire et le runtime partagent les contributions en points ainsi que les facteurs de recharge et de ténacité. Les fixtures comparent manuel, autoplay, replay et restauration des commandes avec les mêmes seed, équipe et rangs ; l’Edge est comparé au moteur source pour son hash exact.',
+    limit:
+      'Les cinq rôles jouables sont exercés par Garen, Annie, Ashe, Leona et Soraka ; Veigar ajoute une preuve de séparation des compteurs intra-run. Aucun kit maintenu n’a Assassin comme premier rôle : les effets Assassin ont des fixtures moteur isolées, sans prétendre prouver une run publique Assassin. Le moteur 0.2.5 conserve ses octets et son résultat de référence.',
+    evidence: [
+      {
+        path: 'src/features/combat/presentation/combatPresenter.ts',
+        symbol: 'getEnhancementDescriptions',
+      },
+      { path: 'src/game/rules/enhancementStats.ts', symbol: 'getEnhancementSecondaryStats' },
+      { path: 'tests/helpers/enhancementParityFixtures.ts', symbol: 'enhancementParityAttempt' },
+      { path: 'tests/enhancementBattleParity.test.ts', symbol: 'replayAuthorityRun' },
+      {
+        path: 'tests/enhancementAuthorityParity.test.ts',
+        symbol: 'resolveRegisteredAuthorityVerifier',
+      },
     ],
   },
   {

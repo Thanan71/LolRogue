@@ -5,6 +5,8 @@ import type { InventoryEntry } from '@/types/run';
 
 export interface CombatRuleActor {
   id: string;
+  /** Formation identity; champion ID remains the key for the account loadout. */
+  combatantId?: string;
   side: TeamSide;
   currentHp: number;
   maxHp: number;
@@ -71,6 +73,8 @@ export interface CombatRuleInstantEffect {
   type: 'heal' | 'damage' | 'shield' | 'mana' | 'dot' | 'slow' | 'snare';
   sourceId: string;
   targetId: string;
+  sourceSide: TeamSide;
+  targetSide: TeamSide;
   amount: number;
   duration?: number;
 }

@@ -90,8 +90,8 @@ function resolverFixture() {
   return {
     target: battle.getEnemyCombatants()[0],
     host: {
-      findCombatantByChampionId: (id: string) =>
-        combatants.find((entry) => entry.champion.id === id),
+      findCombatantByTargetId: (id: string, side: 'player' | 'enemy') =>
+        combatants.find((entry) => entry.targetId === id && entry.side === side),
       applyHeal: vi.fn(),
       applyDamageToTarget: vi.fn(),
       syncEffectState: vi.fn(),
@@ -171,7 +171,15 @@ describe('TREE-03: verified effect descriptions and calculations', () => {
     const second = runtime.dispatch(event);
     for (const result of [first, second]) {
       expect(result.instantEffects).toEqual([
-        { type: 'dot', sourceId: 'Garen', targetId: 'Darius', amount: 25, duration: 3 },
+        {
+          type: 'dot',
+          sourceId: 'Garen',
+          targetId: 'Darius',
+          sourceSide: 'player',
+          targetSide: 'enemy',
+          amount: 25,
+          duration: 3,
+        },
       ]);
     }
     expect(random).toHaveBeenCalledTimes(2);
@@ -215,7 +223,7 @@ describe('TREE-03: verified effect descriptions and calculations', () => {
     expect(getNodeEffectEvidence(node('assassin_sustain_3')).status).toBe('implemented');
   });
 
-  it('a mirrored champion receives its own emitted bleed because rule effects lose the target side', () => {
+  it('a mirrored champion applies its bleed to the enemy and retains the source side', () => {
     const garen = championDB.getById('Garen')!;
     const runtime = runtimeFor('marksman_dps_3', () => 0.1);
     const battle = new BattleManager(
@@ -241,10 +249,10 @@ describe('TREE-03: verified effect descriptions and calculations', () => {
     const enemy = battle.getEnemyCombatants()[0];
     expect(
       player.effectManager.effects.filter((entry) => entry instanceof DamageEffect),
-    ).toHaveLength(1);
+    ).toHaveLength(0);
     expect(
       enemy.effectManager.effects.filter((entry) => entry instanceof DamageEffect),
-    ).toHaveLength(0);
+    ).toHaveLength(1);
   });
 
   it('Phénix applies its before_damage shield before the incoming hit in an actual BattleManager turn', () => {
@@ -338,6 +346,8 @@ describe('TREE-03: verified effect descriptions and calculations', () => {
       type: 'damage',
       sourceId: 'Garen',
       targetId: 'Darius',
+      sourceSide: 'player',
+      targetSide: 'enemy',
       amount: 1,
     });
     const reflection = runtimeFor('tank_thorn_2').dispatch(event).instantEffects;
@@ -345,6 +355,8 @@ describe('TREE-03: verified effect descriptions and calculations', () => {
       type: 'damage',
       sourceId: 'Garen',
       targetId: 'Darius',
+      sourceSide: 'player',
+      targetSide: 'enemy',
       amount: 20,
     });
     const { host } = resolverFixture();

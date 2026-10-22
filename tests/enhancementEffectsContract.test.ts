@@ -280,7 +280,7 @@ describe('TREE-03: explicit numerical effect contracts', () => {
     const source = battle.getEnemyCombatants()[0];
     const target = battle.getPlayerCombatants()[0];
     const host = {
-      findCombatantByChampionId: (id: string) => (id === source.champion.id ? source : target),
+      findCombatantByTargetId: (id: string) => (id === source.champion.id ? source : target),
       applyHeal: vi.fn(),
       applyDamageToTarget: vi.fn(),
       syncEffectState: vi.fn(),
@@ -292,6 +292,8 @@ describe('TREE-03: explicit numerical effect contracts', () => {
       type: 'snare',
       sourceId: source.champion.id,
       targetId: target.champion.id,
+      sourceSide: source.side,
+      targetSide: target.side,
       amount: 1,
       duration: 1,
     });
