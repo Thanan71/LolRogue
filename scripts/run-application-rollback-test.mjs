@@ -3,6 +3,10 @@ import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import {
+  assertRollbackMigrationContents,
+  readRollbackAuthorityCompatibility,
+} from './lib/application-rollback-contract.mjs';
+import {
   assertRollbackCompatibleMigrationManifest,
   readCandidateMigrationVersions,
   readWorkspaceMigrationVersions,
@@ -34,6 +38,11 @@ if (compatibility.rollbackLatest !== contract.lastApplicationMigrationVersion) {
 if (compatibility.currentLatest !== contract.requiredCurrentMigrationVersion) {
   throw new Error('Current migration baseline does not match the rollback test contract.');
 }
+assertRollbackMigrationContents(contract.applicationSha, root);
+const authority = readRollbackAuthorityCompatibility(contract.applicationSha, root);
+const probes = [contract.probe, ...(contract.additionalProbes ?? [])];
+if (probes.some((probe) => !/^tests\/[A-Za-z0-9/_-]+\.database\.test\.(?:ts|mjs)$/.test(probe)))
+  throw new Error('Rollback probes must be explicit database test files.');
 
 const drift = spawnSync(process.execPath, ['scripts/check-database-migration-drift.mjs'], {
   cwd: root,
@@ -63,7 +72,7 @@ try {
   installRollbackDependencies(checkout);
 
   process.stdout.write(
-    `Testing rollback application ${contract.applicationSha} at migration ${compatibility.rollbackLatest} against current ${compatibility.currentLatest} (appended: ${compatibility.appendedVersions.join(', ')}).\n`,
+    `Testing rollback application ${contract.applicationSha} at migration ${compatibility.rollbackLatest} against current ${compatibility.currentLatest} (appended: ${compatibility.appendedVersions.join(', ')}), authority ${authority.engine}/${authority.contentHash}.\n`,
   );
   const probe = spawnSync(
     process.execPath,
@@ -71,7 +80,7 @@ try {
       resolve(checkout, 'node_modules/vitest/vitest.mjs'),
       'run',
       '--no-file-parallelism',
-      contract.probe,
+      ...probes,
     ],
     {
       cwd: checkout,
