@@ -153,6 +153,11 @@
       "file": "tests/adminModerationPrivileges.database.test.ts",
       "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
       "reason": "Skip only in generic unit runs without disposable loopback Supabase credentials; DB_TEST_REQUIRED fails instead of skipping."
+    },
+    {
+      "file": "tests/enhancementPurchases.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only outside disposable loopback database runs; DB_TEST_REQUIRED rejects missing credentials."
     }
   ]
 }
