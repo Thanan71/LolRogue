@@ -754,7 +754,7 @@ describeWithSupabase('verified run attempt live security', () => {
       expect(lateDefeatCompletion.error).toBeNull();
       expect(lateDefeatCompletion.data).toMatchObject({
         status: 'verified',
-        progression_version: 3,
+        progression_version: CURRENT_AUTHORITY_VERSION.progression,
         summary: {
           won: false,
           run_level: 2,
@@ -769,7 +769,7 @@ describeWithSupabase('verified run attempt live security', () => {
       expect(lateDefeatRun.error).toBeNull();
       expect(lateDefeatRun.data).toMatchObject({
         run_level: 2,
-        progression_version: 3,
+        progression_version: CURRENT_AUTHORITY_VERSION.progression,
         progression_payload_hash: expect.stringMatching(/^[0-9a-f]{64}$/),
       });
 
@@ -837,7 +837,7 @@ describeWithSupabase('verified run attempt live security', () => {
       expect(stackedVictoryCompletion.error).toBeNull();
       expect(stackedVictoryCompletion.data).toMatchObject({
         status: 'verified',
-        progression_version: 3,
+        progression_version: CURRENT_AUTHORITY_VERSION.progression,
         summary: {
           won: true,
           run_level: 6,

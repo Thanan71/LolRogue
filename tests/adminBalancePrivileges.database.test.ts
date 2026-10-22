@@ -15,7 +15,12 @@ if (process.env.DB_TEST_REQUIRED === '1' && !hasAdminExplorerCredentials)
   throw new Error(
     'Admin balance privilege tests require disposable loopback Supabase API and SQL credentials.',
   );
-const operations = ['admin_balance_champions', 'admin_balance_builds', 'admin_balance_config'];
+const operations = [
+  'admin_balance_champions',
+  'admin_balance_builds',
+  'admin_balance_trees',
+  'admin_balance_config',
+];
 const args = (name: string, valid = true) =>
   name === 'admin_balance_config'
     ? {}
@@ -80,14 +85,14 @@ describeDatabase('current administrator balance privileges', () => {
     }
   });
 
-  it('has only three invoker entrypoints and one guarded private definer with no unguarded helper grants', () => {
+  it('has only four invoker entrypoints and one guarded private definer with no unguarded helper grants', () => {
     const acl = JSON.parse(
       explorerSql(`SELECT jsonb_agg(jsonb_build_object('schema',n.nspname,'name',p.proname,'definer',p.prosecdef,
       'emptyPath',p.proconfig@>ARRAY['search_path=""'],'anon',has_function_privilege('anon',p.oid,'execute'),
       'authenticated',has_function_privilege('authenticated',p.oid,'execute'),'service',has_function_privilege('service_role',p.oid,'execute')))
       FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname IN('public','private') AND p.proname LIKE 'admin_balance%'`),
     );
-    expect(acl.filter((r: { schema: string }) => r.schema === 'public')).toHaveLength(3);
+    expect(acl.filter((r: { schema: string }) => r.schema === 'public')).toHaveLength(4);
     expect(acl.filter((r: { definer: boolean }) => r.definer)).toHaveLength(1);
     for (const row of acl)
       expect(row).toMatchObject({

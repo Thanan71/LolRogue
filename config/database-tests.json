@@ -4,11 +4,7 @@
   "fileSuffix": ".database.test.ts",
   "requiredFiles": [
     "tests/repositoryIntegration.database.test.ts",
-    {
-      "file": "tests/enhancementAuthority.database.test.ts",
-      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
-      "reason": "Skip only outside disposable loopback validation; DB_TEST_REQUIRED rejects missing credentials."
-    }
+    "tests/enhancementAuthority.database.test.ts"
   ],
   "skipAllowlist": [
     {
@@ -173,6 +169,11 @@
     },
     {
       "file": "tests/adminTree.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only outside disposable loopback validation; DB_TEST_REQUIRED rejects missing credentials."
+    },
+    {
+      "file": "tests/enhancementAuthority.database.test.ts",
       "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
       "reason": "Skip only outside disposable loopback validation; DB_TEST_REQUIRED rejects missing credentials."
     }

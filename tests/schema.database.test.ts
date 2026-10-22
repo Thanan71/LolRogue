@@ -237,6 +237,10 @@ describe('Supabase init migration', () => {
       '../supabase/migrations/20261018073001_admin_balance_workspace.sql',
       '../supabase/migrations/20261018082740_admin_audited_moderation.sql',
       '../supabase/migrations/20261018100541_admin_technical_diagnostics.sql',
+      '../supabase/migrations/20261022161216_enhancement_contract_v4_purchases.sql',
+      '../supabase/migrations/20261022162313_enhancement_atomic_resets.sql',
+      '../supabase/migrations/20261022164033_admin_enhancement_analytics.sql',
+      '../supabase/migrations/20261022164730_gameplay_ruleset_0_3_0_enhancement_trees.sql',
     ]);
   });
 
@@ -1223,7 +1227,7 @@ describeLive('Supabase live integration', () => {
       candy_cost: 20,
       max_rank: 1,
       remaining_candies: 80,
-      catalog_version: 3,
+      catalog_version: 4,
       replayed: false,
     });
 

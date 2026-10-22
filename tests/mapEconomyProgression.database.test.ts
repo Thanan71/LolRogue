@@ -72,7 +72,7 @@ function useArchivedV20Identity(attemptId: string): void {
       'ON_ERROR_STOP=1',
       '--command',
       `UPDATE public.run_attempts
-       SET engine_version = 'run-engine-v20',
+       SET ruleset_version = 3, engine_version = 'run-engine-v20',
            gameplay_ruleset_version = 20,
            gameplay_content_hash = '8308ebe66c3ee45850b68560b0449b6660b24c2a0e81a5070f6d1794620cac91'
        WHERE id = '${attemptId}'::UUID;`,
@@ -107,7 +107,7 @@ function useFrozenReleaseIdentity(
       '--set',
       'ON_ERROR_STOP=1',
       '--command',
-      `UPDATE public.run_attempts SET engine_version = '${version.engine}', gameplay_ruleset_version = ${version.gameplay}, gameplay_content_hash = '${version.contentHash}' WHERE id = '${attemptId}'::UUID;`,
+      `UPDATE public.run_attempts SET ruleset_version = 3, engine_version = '${version.engine}', gameplay_ruleset_version = ${version.gameplay}, gameplay_content_hash = '${version.contentHash}' WHERE id = '${attemptId}'::UUID;`,
     ],
     { stdio: 'pipe' },
   );
@@ -166,7 +166,7 @@ describeWithSupabase('gameplay v20 progression live contract', () => {
       expect(started.data).toMatchObject({
         engine_version: CURRENT_AUTHORITY_VERSION.engine,
         gameplay_ruleset_version: CURRENT_AUTHORITY_VERSION.gameplay,
-        ruleset_version: 3,
+        ruleset_version: CURRENT_AUTHORITY_VERSION.progression,
       });
       const attemptId = (started.data as { attempt_id: string }).attempt_id;
 
@@ -239,7 +239,7 @@ describeWithSupabase('gameplay v20 progression live contract', () => {
         candies_earned: 20,
         candies_per_champion: 0,
         candies_by_champion: { Garen: 15, Lux: 5 },
-        progression_version: 3,
+        progression_version: version.progression,
         gameplay_ruleset_version: version.gameplay,
         engine_version: version.engine,
       });
@@ -275,7 +275,7 @@ describeWithSupabase('gameplay v20 progression live contract', () => {
         candies_earned: 20,
         ledger_version: 2,
         run_ledger: result.ledger,
-        progression_version: 3,
+        progression_version: version.progression,
       });
 
       const members = await admin

@@ -1,3 +1,4 @@
+import { CURRENT_AUTHORITY_VERSION } from '@/game/authority/versionRegistry';
 import { randomUUID } from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { parseAdminExplorerPage } from '@/features/administration/domain/explorer/adminExplorerClient';
@@ -206,7 +207,7 @@ describeDatabase('admin explorer exact server projections', () => {
         mode: 'normal',
         minWaves: 3,
         maxWaves: 3,
-        progressionVersion: 3,
+        progressionVersion: CURRENT_AUTHORITY_VERSION.progression,
         ledgerVersion: 1,
       },
     });
@@ -266,7 +267,7 @@ describeDatabase('admin explorer exact server projections', () => {
         playerId: verified.playerId,
         status: 'verified',
         championId: 'Garen',
-        progressionVersion: 3,
+        progressionVersion: CURRENT_AUTHORITY_VERSION.progression,
       },
     };
     const page = await rpcData(admin.client, 'admin_search_attempts', args);
