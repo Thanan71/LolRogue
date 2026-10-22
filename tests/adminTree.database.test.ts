@@ -112,10 +112,17 @@ describeDatabase('TREE-10 canonical aggregate sources and privacy thresholds', (
       ).error,
     ).toBeNull();
     expect((await buy(2)).error).toBeNull();
-    const today = new Date().toISOString().slice(0, 10);
-    const filters = { from: today, to: today, progressionVersion: 4, championId: 'Garen' };
+    const filters = { ...balanceFilters, progressionVersion: 4, championId: 'Garen' };
     const report = parseAdminBalanceTrees(
-      await rpcData(admin.client, 'admin_balance_trees', { p_filters: filters }),
+      balanceScenario(
+        admin,
+        [a],
+        `UPDATE public.progression_commands SET created_at='2024-02-01T12:00:00Z',
+           completed_at='2024-02-01T12:00:00Z' WHERE user_id='${a.userId}';
+         UPDATE public.candy_transactions SET created_at='2024-02-01T12:00:00Z'
+           WHERE player_id='${a.playerId}';`,
+        `public.admin_balance_trees('${JSON.stringify(filters)}','${balanceSnapshot}')`,
+      ),
       filters,
     );
     expect(report.purchases).toMatchObject({
