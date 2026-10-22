@@ -47,11 +47,6 @@
       "justification": "Append an explicitly audited idempotent administrative shard adjustment without editing ledger history."
     },
     {
-      "signature": "public.admin_balance_trees(jsonb, timestamp with time zone)",
-      "roles": ["authenticated"],
-      "justification": "Read privacy-bounded aggregates from tree commands, the existing Candy ledger and canonical verified snapshots after an administrator check."
-    },
-    {
       "signature": "public.append_run_attempt_commands(uuid, jsonb)",
       "roles": ["authenticated"],
       "justification": "Append an authenticated caller's bounded, ownership-checked run journal batch."
