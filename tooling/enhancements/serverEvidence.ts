@@ -11,6 +11,7 @@ export const ENHANCEMENT_SERVER_SOURCES = {
   reset: 'supabase/migrations/20261022162313_enhancement_atomic_resets.sql',
   analytics: 'supabase/migrations/20261022164033_admin_enhancement_analytics.sql',
   snapshot: 'supabase/migrations/20260724090000_verified_run_attempts.sql',
+  snapshotV25: 'supabase/migrations/20261022164730_gameplay_ruleset_0_3_0_enhancement_trees.sql',
   quarantine: 'supabase/migrations/20260724190000_harden_verified_attempt_contract.sql',
 } as const;
 
@@ -538,12 +539,12 @@ export const ENHANCEMENT_SERVER_CONTRACT = {
   analytics: {
     function: 'private.admin_balance_tree_data',
     scope:
-      'Aggregate purchases, refunds and verified frozen run cohorts; no player IDs or exact individual builds in the report.',
+      'Aggregate purchases, refunds and verified frozen run cohorts; no account identifiers. Builds are grouped by frozen snapshot and exact authority context.',
     limitation:
       'Frozen cohort associations are descriptive, not causal evidence that an enhancement improves victory probability.',
   },
   snapshot:
-    'Run start freezes championId -> nodeId/rank maps. Later purchase/reset/gate changes must not rewrite an existing attempt; official Daily retains its neutral loadout.',
+    'private.active_enhancement_snapshot and freeze_run_attempt_enhancements_v25 freeze legal championId -> nodeId/rank maps using the actual mastery snapshot. Later purchase/reset/gate changes must not rewrite an existing attempt; official Daily retains its neutral loadout.',
   historicalRanks:
     'Unsupported purchased IDs remain owned for historical evidence and attested refund. Active bonuses filter illegal ancestry. Historical authority bundles are separate immutable artifacts; this offline report does not certify their replay or an Edge deployment.',
 } as const;
