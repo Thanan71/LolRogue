@@ -60,8 +60,8 @@ exports[`gated specialization autoplay comparison > reproduces 48 source autopla
             {
               "damage": 678,
               "damagePerRound": 67.8,
-              "damageTaken": 1577.581,
-              "healing": 307,
+              "damageTaken": 1571.581,
+              "healing": 301,
               "overhealing": 0,
               "rounds": 10,
               "seed": 17,
@@ -71,8 +71,8 @@ exports[`gated specialization autoplay comparison > reproduces 48 source autopla
             {
               "damage": 678,
               "damagePerRound": 67.8,
-              "damageTaken": 1577.581,
-              "healing": 307,
+              "damageTaken": 1571.581,
+              "healing": 301,
               "overhealing": 0,
               "rounds": 10,
               "seed": 91,
@@ -82,8 +82,8 @@ exports[`gated specialization autoplay comparison > reproduces 48 source autopla
             {
               "damage": 678,
               "damagePerRound": 67.8,
-              "damageTaken": 1577.581,
-              "healing": 307,
+              "damageTaken": 1571.581,
+              "healing": 301,
               "overhealing": 0,
               "rounds": 10,
               "seed": 401,
