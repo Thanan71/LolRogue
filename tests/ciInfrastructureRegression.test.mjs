@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
+import { parseDocument } from 'yaml';
 
 const root = new URL('../', import.meta.url);
 
@@ -13,6 +14,39 @@ describe('CI infrastructure regressions', () => {
     const unitJob = workflow.slice(workflow.indexOf('  unit:'), workflow.indexOf('  security:'));
 
     expect(unitJob).toContain('fetch-depth: 0');
+  });
+
+  it('requires the real application rollback after live database validation', async () => {
+    const document = parseDocument(await readProjectFile('.github/workflows/ci.yml'));
+    expect(document.errors).toEqual([]);
+    const jobs = document.toJS().jobs;
+    const database = jobs.database;
+    const checkout = database.steps.find((step) => step.uses?.startsWith('actions/checkout@'));
+    expect(checkout.with?.['fetch-depth']).toBe(0);
+
+    const credentials = database.steps.find(
+      (step) => step.name === 'Export local Supabase credentials',
+    );
+    expect(credentials.run).toContain('supabase status -o env');
+    expect(credentials.run).toContain('echo "SUPABASE_DB_URL=$DB_URL" >> "$GITHUB_ENV"');
+
+    const schemaIndex = database.steps.findIndex((step) => step.run === 'npm run check:db');
+    const rollbackIndex = database.steps.findIndex(
+      (step) => step.run === 'npm run test:db:rollback',
+    );
+    const stopIndex = database.steps.findIndex((step) => step.run === 'npm run database -- stop');
+    expect(schemaIndex).toBeGreaterThan(-1);
+    expect(rollbackIndex).toBe(schemaIndex + 1);
+    expect(stopIndex).toBeGreaterThan(rollbackIndex);
+    expect(database.if).toBeUndefined();
+    expect(database['continue-on-error']).toBeUndefined();
+    expect(database.steps[rollbackIndex].if).toBeUndefined();
+    expect(database.steps[rollbackIndex]['continue-on-error']).toBeUndefined();
+    expect(database.steps[stopIndex].if).toBe('always()');
+    expect(jobs['required-database'].needs).toBe('database');
+    expect(jobs['required-database'].steps[0].env.GATES_SUCCEEDED).toBe(
+      "${{ needs.database.result == 'success' }}",
+    );
   });
 
   it('keeps clean-room independent from cached or transferred application builds', async () => {
