@@ -148,11 +148,14 @@ existantes et publie la nouvelle identité avec ses catalogues vérifiés. Les p
 avant/après, les 23 bundles historiques et les contrats de finalisation sont
 décrits dans [engine-refactor-contract.md](engine-refactor-contract.md).
 
-Le checkpoint de retour applicatif est un commit compatible avec ce nouveau
-moteur, antérieur aux migrations UI d'ARCH-S4 ; il est enregistré dans
-`config/application-rollback.json`. Ses dépendances verrouillées et son probe DB
-sont exécutés sur le schéma local migré. Ce checkpoint est un candidat technique,
-pas un déploiement de production connu comme sain.
+Le checkpoint de retour applicatif enregistré dans `config/application-rollback.json`
+est désormais `3e285855a4a16181b8fb838931718245a83c7628` pour l'autorité0.3.0 et
+le schéma77. Le runner refuse un préfixe SQL réécrit ou une différence de hash,
+progression, catalogue, commandes, score ou capacités avec le moteur actif. Ses
+dépendances verrouillées et ses probes de repositories/achats/resets/snapshots
+sont exécutés sur le schéma local migré. Le client0.2.5 précédent ne peut pas
+remplacer ce checkpoint après activation de0.3.0. Ce commit est un candidat
+technique, pas un déploiement de production connu comme sain.
 
 Après merge, la commande de déploiement reste
 `npm run release -- deploy --project-ref <project-ref> --yes` sur la cible de branche
