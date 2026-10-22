@@ -158,7 +158,7 @@ describeDatabase('TREE-10 canonical aggregate sources and privacy thresholds', (
     const attempt = analyticsAttempt(templateId, a, '2024-02-01T12:00:00Z', {
       mastery_snapshot: {},
       enhancement_snapshot: snapshot,
-      progression_ruleset_version: 4,
+      ruleset_version: 4,
     });
     const finish = balanceFinish(attempt.id, a, { won });
     return {

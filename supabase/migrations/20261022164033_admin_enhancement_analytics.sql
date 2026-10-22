@@ -17,7 +17,7 @@ REVOKE ALL ON FUNCTION private.admin_tree_interval(BIGINT,BIGINT,BIGINT,BOOLEAN)
 CREATE FUNCTION private.admin_balance_tree_data(f JSONB,stamp TIMESTAMPTZ)
 RETURNS JSONB LANGUAGE sql STABLE SET search_path='' AS $$
 WITH base AS MATERIALIZED(SELECT * FROM private.admin_balance_population(f,stamp) b
-  WHERE (b.run).progression_version=(b.attempt).progression_ruleset_version),
+  WHERE (b.run).progression_version=(b.attempt).ruleset_version),
 events AS MATERIALIZED(
   SELECT c.*,p.id AS player_id,t.amount AS ledger_amount,
     CASE WHEN c.response->>'candy_cost' ~ '^[1-9][0-9]{0,9}$' THEN (c.response->>'candy_cost')::bigint END AS cost,
@@ -66,11 +66,11 @@ events AS MATERIALIZED(
   WHERE (NOT f ? 'championId' OR m.champion_id=f->>'championId')
 ), snapshots AS MATERIALIZED(
   SELECT o.*,COALESCE((SELECT jsonb_object_agg(v.key,v.value) FROM jsonb_each(raw) v
-    JOIN public.enhancement_node_catalog n ON n.ruleset_version=(o.attempt).progression_ruleset_version AND n.node_id=v.key
+    JOIN public.enhancement_node_catalog n ON n.ruleset_version=(o.attempt).ruleset_version AND n.node_id=v.key
     WHERE jsonb_typeof(v.value)='number' AND v.value::text ~ '^[1-9][0-9]{0,8}$'
       AND (CASE WHEN v.value::text ~ '^[1-9][0-9]{0,8}$' THEN v.value::text::bigint ELSE 0 END)<=n.max_rank),'{}'::jsonb) AS ranks,
     COALESCE(present,FALSE) AND NOT EXISTS(SELECT 1 FROM jsonb_each(raw) v LEFT JOIN public.enhancement_node_catalog n
-      ON n.ruleset_version=(o.attempt).progression_ruleset_version AND n.node_id=v.key
+      ON n.ruleset_version=(o.attempt).ruleset_version AND n.node_id=v.key
       WHERE n.node_id IS NULL OR jsonb_typeof(v.value)<>'number' OR NOT v.value::text ~ '^[0-9]{1,9}$'
         OR (CASE WHEN v.value::text ~ '^[0-9]{1,9}$' THEN v.value::text::bigint ELSE 0 END)>n.max_rank) AS complete
   FROM observations o
