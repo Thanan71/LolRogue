@@ -38,6 +38,11 @@ export type StatType =
   | 'abilityHaste'
   | 'attackRange';
 
+/** JSON-portable prerequisites; a node leaf requires the declared owned rank. */
+export type EnhancementRequirement =
+  | { kind: 'node'; nodeId: string; minRank?: number }
+  | { kind: 'and' | 'or'; conditions: EnhancementRequirement[] };
+
 // ─── Enhancement Node ────────────────────────────────────────────────────────
 
 export interface EnhancementNode {
@@ -65,6 +70,14 @@ export interface EnhancementNode {
   maxRanks?: number;
   /** Current rank (for tracking) */
   currentRank?: number;
+  /** Optional declarative replacement; absent keeps the legacy AND prerequisite list. */
+  requirement?: EnhancementRequirement;
+  /** Any owned rank in these nodes excludes this node. Authored exclusions are symmetric. */
+  exclusiveWith?: string[];
+  /** False keeps historical ownership/refunds while disabling purchases and active bonuses. */
+  enabled?: boolean;
+  /** A server-controlled capability; publishing a definition never enables the gate. */
+  gate?: 'champion_specializations';
 }
 
 // ─── Enhancement Stat Bonuses (computed) ─────────────────────────────────────
@@ -92,6 +105,8 @@ export interface EnhancementEffect {
   duration?: number;
   /** Cooldown in seconds */
   cooldown?: number;
+  /** Fraction in [0, 1]. An absent chance means an unconditional trigger. */
+  chance?: number;
 }
 
 // ─── Enhancement Branch ──────────────────────────────────────────────────────
@@ -122,6 +137,23 @@ export interface ChampionEnhancementTree {
   coreNodes: EnhancementNode[];
 }
 
+export interface EnhancementTreeContract {
+  schemaVersion: 1;
+  id: string;
+  championId: string;
+  primaryRole: ChampionTag;
+  /** Lifetime investment cap for this tree; null means no additional cap. */
+  budget: number | null;
+  branches: {
+    id: string;
+    name: string;
+    description: string;
+    theme: EnhancementBranch['theme'];
+    nodeIds: string[];
+  }[];
+  nodes: EnhancementNode[];
+}
+
 // ─── Player Enhancement State ────────────────────────────────────────────────
 
 export interface PlayerEnhancementState {
@@ -129,6 +161,10 @@ export interface PlayerEnhancementState {
   unlockedNodes: Record<string, number>;
   /** Total candies spent on enhancements */
   totalCandiesSpent: number;
+  /** Server optimistic concurrency; historical snapshots without a revision start at zero. */
+  revision?: number;
+  /** Audited resets performed for this champion; absent historical values mean zero. */
+  resetCount?: number;
 }
 
 // ─── Enhancement Tree Theme Colors ───────────────────────────────────────────
