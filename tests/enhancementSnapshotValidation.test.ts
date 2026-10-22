@@ -43,6 +43,17 @@ function withRequirement(requirement: EnhancementRequirement, targetId = 'fighte
 
 afterEach(() => vi.restoreAllMocks());
 
+const invalidOwnedStates: Record<string, number>[] = [
+  { fighter_duelist_1: 1 },
+  { fighter_duelist_1: 1, fighter_duelist_2: 1 },
+  { fighter_duelist_1: 1, fighter_duelist_2: 1, fighter_duelist_3: 1 },
+  { garen_durability_1: 1, garen_execution_1: 1 },
+  { garen_execution_2: 1 },
+  { annie_burst_1: 1 },
+  { tank_core_1: 1 },
+  { fighter_core_2: 1 },
+];
+
 describe('TREE-05: frozen authority enhancement state uses the canonical declarative contract', () => {
   it('accepts a legal role chain and already attested specialization despite closed publication', () => {
     expect(() =>
@@ -59,16 +70,7 @@ describe('TREE-05: frozen authority enhancement state uses the canonical declara
     expect(() => validateRunAttempt(attempt({ fighter_core_1: 0 }, {}))).not.toThrow();
   });
 
-  it.each([
-    { fighter_duelist_1: 1 },
-    { fighter_duelist_1: 1, fighter_duelist_2: 1 },
-    { fighter_duelist_1: 1, fighter_duelist_2: 1, fighter_duelist_3: 1 },
-    { garen_durability_1: 1, garen_execution_1: 1 },
-    { garen_execution_2: 1 },
-    { annie_burst_1: 1 },
-    { tank_core_1: 1 },
-    { fighter_core_2: 1 },
-  ])(
+  it.each(invalidOwnedStates)(
     'rejects unsupported, inherited, exclusive, incomplete or wrong champion/role ownership: %j',
     (ranks) => {
       invalid(attempt(ranks));
