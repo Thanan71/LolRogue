@@ -77,6 +77,11 @@
       "justification": "Publish the sanitized canonical Daily configuration and caller-scoped status."
     },
     {
+      "signature": "public.get_enhancement_contract()",
+      "roles": ["authenticated"],
+      "justification": "Read the registered caller's canonical tree catalogue and gated reset policy."
+    },
+    {
       "signature": "public.get_my_leaderboard_rank()",
       "roles": ["authenticated"],
       "justification": "Return only the authenticated caller's private rank."
@@ -150,6 +155,11 @@
       "signature": "public.unlock_champion_enhancement(text, text, integer, uuid)",
       "roles": ["authenticated"],
       "justification": "Execute the idempotent, ownership-checked canonical enhancement command."
+    },
+    {
+      "signature": "public.unlock_champion_enhancement_v2(text, text, integer, integer, uuid)",
+      "roles": ["authenticated"],
+      "justification": "Execute an ownership-checked enhancement purchase with strict revision and canonical eligibility."
     }
   ]
 }
