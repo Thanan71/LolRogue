@@ -654,6 +654,80 @@ export const PATCH_NOTES: readonly PatchNote[] = [
       },
     ],
   },
+  {
+    sequence: 20,
+    version: '0.3.0',
+    publishedOn: '2026-10-22',
+    title: {
+      'fr-FR': 'Des arbres plus clairs et des choix vérifiables',
+      'en-US': 'Clearer trees and verifiable choices',
+    },
+    entries: [
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Explore les rangs, les prérequis, le coût du chemin et l’aperçu avant/après. Chaque dépense demande une confirmation ; les branches se parcourent aussi au clavier, sur mobile et avec le zoom.',
+          'en-US':
+            'Explore ranks, prerequisites, path costs and before/after previews. Each purchase requires confirmation; branches also support keyboard navigation, mobile and zoom.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Réinitialise un arbre avec un devis détaillé. Le serveur rembourse les dépenses attestées sans frais, conserve la maîtrise et les Éclats et préserve les améliorations déjà figées dans une run active.',
+          'en-US':
+            'Reset a tree with a detailed quote. The server refunds attested spending without fees, keeps mastery and Shards, and preserves the enhancements already frozen in an active run.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les achats et les bonus de combat suivent les mêmes prérequis. Les effets non pris en charge sont signalés et refusés à l’achat ; les anciens achats restent conservés pour un remboursement vérifiable.',
+          'en-US':
+            'Purchases and combat bonuses follow the same prerequisites. Unsupported effects are marked and cannot be purchased; old purchases are preserved for a verifiable refund.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Phénix, le saignement à 15 %, Combustion, Canalisation et les auras ont des règles chiffrées cohérentes avec le combat. Les effets ciblent le bon champion et le bon camp.',
+          'en-US':
+            'Phoenix, the 15% bleed, Combustion, Channeling and auras now have explicit rules that match combat. Effects target the correct champion and side.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'Les voies de Garen, Annie, Soraka et Jinx sont consultables. Leur achat reste fermé en attente des playtests humains d’équilibrage ; les prix des arbres existants ne changent pas.',
+          'en-US':
+            'Garen, Annie, Soraka and Jinx paths can be inspected. Purchases remain closed pending human balance playtests; existing tree prices stay the same.',
+        },
+      },
+      {
+        category: 'fixes',
+        text: {
+          'fr-FR':
+            'Les nouvelles runs utilisent les règles 0.3.0. Une ancienne run encore compatible reprend ses combats en automatique avec son moteur d’origine, en conservant sa progression.',
+          'en-US':
+            'New runs use the 0.3.0 rules. A compatible older run resumes battles automatically with its original engine while preserving progression.',
+        },
+      },
+      {
+        category: 'new',
+        text: {
+          'fr-FR':
+            'L’administration Équilibrage rassemble les achats, resets et builds d’arbres des runs vérifiées, avec effectifs, couverture des données et avertissement pour les petits échantillons.',
+          'en-US':
+            'The Balance administration area now includes tree purchases, resets and verified run builds, with sample counts, data coverage and warnings for small samples.',
+        },
+      },
+    ],
+  },
 ];
 
 export function latestPatchNote(notes: readonly PatchNote[] = PATCH_NOTES): PatchNote | undefined {
