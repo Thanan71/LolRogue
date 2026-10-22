@@ -48,6 +48,7 @@ Contrôles locaux du 22 octobre 2026, sous Node 24 :
 | Schéma et identité | 77 migrations, types générés comparés, lint sans erreur ; 25 versions authority et hash courant vérifiés. |
 | Rollback applicatif réel | **33/33**, dépendances verrouillées du checkpoint `51cf0e675debafa166483d2ddc259f6c707291a4`, sur le schéma courant ; aucun reset de données. |
 | Nouvelle UI | 24 tests UI ; 5 scénarios de présentation FR/EN, 320 px, zoom natif 200/400 %, axe et retour du focus. |
+| Campagne connectée | **9/9**, avec de vraies sessions, RPC et permissions ; Daily, économie, administration et nouvel arbre. |
 | Arbre connecté | Achat réel 20 puis 30, solde 950 après reload ; reset commité puis réponse réseau abandonnée, même commande rejouée, un seul remboursement de 50, solde 1 000. Maîtrise, Éclats et snapshot de run active conservés. |
 | Administration connectée | Quatre RPC réels, catalogue de 88 nœuds, refus après révocation du rôle dans la base. |
 | Reproduction moteur | 213 tests ciblés et trois générations complètes reproductibles sous le hash final ; archive 0.2.5 et goldens historiques inchangés. |

@@ -214,4 +214,4 @@
 Contrôle CI obligatoire : consulter les checks du dernier SHA sur la [PR #242](https://github.com/Thanan71/LolRogue/pull/242/checks). Les résultats locaux ne présument pas leur succès.
 - [ ] PR, fusion éventuelle et déploiement migrations/Edge/frontend vérifiés séparément sur la cible autorisée ; aucun état distant attesté à ce stade.
 
-Preuves, dimensions moteur/hash et comptages finaux : [validation 0.3.0](../enhancement-trees-validation-0.3.0.md). Les sections « Prouver le résultat avant clôture » restent ouvertes tant que la livraison globale et les gates qui leur sont applicables ne sont pas acquises.
+Preuves, dimensions moteur/hash et comptages finaux : [validation 0.3.0](../enhancement-trees-validation-0.3.0.md). Les preuves techniques et VoiceOver sont consignées ; TREE-06/09 conservent la validation humaine de balance ouverte avant activation. Fusion et déploiement restent des étapes distinctes.
