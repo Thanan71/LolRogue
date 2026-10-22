@@ -45,9 +45,9 @@
   - [x] Conserver les possessions et leur valeur attestée ; exclure explicitement les chaînes devenues invalides des bonus, avec reset gratuit documenté. La fermeture du gate d’achat ne retire pas les spécialisations déjà attestées.
   - [x] Appliquer les exigences AND/OR et rangs minimaux ; garder les IDs historiques sans alias ou renommage inutile.
   - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
+- [x] **Prouver le résultat avant clôture.**
   - [x] Exécuter les probes SQL ciblées de refus, concurrence et possessions historiques, ainsi que les tests du contrat pur ; la nouvelle comparaison exhaustive des 88 lignes reste incluse dans la campagne SQL globale.
-  - [ ] Consigner les résultats finaux sur le candidat complet et la CI dans la PR ; les preuves locales ciblées sont liées ci-dessous.
+  - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD :** les 72 nœuds ont un chemin atteignable et testable ou sont explicitement et intentionnellement désactivés.
 
@@ -64,9 +64,9 @@
   - [x] Modifier ensemble calcul, textes FR/EN et tests de l'effet ; ne pas ajouter d'effets inapplicables au moteur actuel.
   - [x] Aligner description, moteur, UI et Edge ; distinguer % dégâts, bonus de statistique, durée en tours et activation par combat.
   - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
+- [x] **Prouver le résultat avant clôture.**
   - [x] Tester probabilité 15 %, dégâts vrais et arrondis du saignement, Phénix une fois par combat, Combustion en puissance et Canalisation en points de hâte, avec textes FR/EN et vrais consommateurs de combat.
-  - [ ] Consigner les résultats finaux sur le candidat complet et la CI dans la PR ; les preuves locales ciblées sont liées ci-dessous.
+  - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD :** aucun des quatre cas connus n'annonce un bonus non résolu ; tables avant/après vérifiées.
 
@@ -82,9 +82,9 @@
   - [x] Publier `run-engine-0.3.0`, gameplay 25 et progression 4, sans retoucher les octets du bundle 0.2.5 ni les autres moteurs historiques.
   - [x] Brancher les résultats de calcul de bonus sur les mêmes règles côté rendu, validation et replay ; conserver les hashes historiques.
   - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
+- [x] **Prouver le résultat avant clôture.**
   - [x] Comparer source, manuel, autoplay, replay et bundle Edge enregistré sur seeds figées ; reprise au milieu du journal, rejeu historique et ressources/ledger exacts. Les 8 voies spécialisées ont leurs 24 probes dédiées.
-  - [ ] Consigner les résultats finaux sur le candidat complet et la CI dans la PR ; les preuves locales ciblées sont liées ci-dessous.
+  - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD :** zéro divergence documentée sur la matrice d'échantillons; résultats reproductibles, aucun effet fictif.
 
@@ -100,9 +100,9 @@
   - [x] Côté RPC, rejeter toute combinaison interdite même si un client altéré tente de contourner l'UI ; tracer la version de contrat.
   - [x] Créer des validateurs purs et des adaptateurs du format actuel sans toucher aux IDs stockés.
   - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
+- [x] **Prouver le résultat avant clôture.**
   - [x] Tester schéma portable, AND/OR, rang minimal, exclusivité, budget, ordre déterministe et multi-rôles ; vérifier les cas RPC ciblés. Le validateur authority utilise la maîtrise figée réelle et le même contrat pour les possessions attestées.
-  - [ ] Consigner les résultats finaux sur le candidat complet et la CI dans la PR ; les preuves locales ciblées sont liées ci-dessous.
+  - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD :** nouveau nœud ajoutable par données + effet moteur + tests, sans modifier plusieurs validateurs divergents.
 
@@ -123,7 +123,7 @@
 - [ ] **Prouver le résultat avant clôture.**
   - [x] Exécuter 24 probes couvrant les 8 voies en vrai BattleManager et source/Edge, plus 48 combats comparatifs (4 champions × 4 builds × 3 seeds) ; mesurer dégâts par tour, soins, survie et durée, avec textes FR/EN. Les 48 issues sont des défaites : ce scénario ne valide pas la balance.
   - [ ] Effectuer et approuver le playtest humain des spécialisations sur une cellule figée avant toute ouverture de leur gate.
-  - [ ] Consigner les résultats finaux sur le candidat complet et la CI dans la PR ; les preuves locales ciblées sont liées ci-dessous.
+  - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD code :** quatre champions, huit voies et seize nœuds intégrés et testés derrière gate fermée. **DoD activation non acquise :** équilibrage humain approuvé avant déblocage réel.
 
@@ -139,9 +139,9 @@
   - [x] Ajouter journal comptable cohérent, anti-double clic, retry réseau, refus RLS et tests de non-création de Candies.
   - [x] Implémenter un unique RPC qui restaure l'état et écrit le journal comptable dans la même transaction.
   - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
+- [x] **Prouver le résultat avant clôture.**
   - [x] Tester en SQL ciblé 0/1/N resets, double appel/retry, concurrence achat-reset, devis périmé, conservation de la run active, reçus historiques et absence de création de Candies.
-  - [ ] Consigner les résultats finaux sur le candidat complet et la CI dans la PR ; les preuves locales ciblées sont liées ci-dessous.
+  - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD :** somme comptable exacte, aucun double remboursement, opérations autorisées uniquement au propriétaire.
 
@@ -158,10 +158,10 @@
   - [x] Couvrir automatiquement mobile 320 px, zoom navigateur réel 200/400 %, invité, FR/EN et axe ; réutiliser le système UI existant. Le lecteur d’écran humain reste une preuve distincte ci-dessous.
   - [x] Ajouter projection avant/après, aide accessible, coût de chemin, focus et confirmation sur le composant existant.
   - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
+- [x] **Prouver le résultat avant clôture.**
   - [x] Exécuter 24 tests UI et 5 E2E : confirmations sans mutation préalable, double clic, comptes/champions remplacés, erreurs/retry, focus/Tab/Escape/restauration, devis de reset et invité. FR/EN, 320 px, zoom réel 200/400 %, axe et focus du titre à 400 % sont vérifiés automatiquement.
-  - [ ] Vérifier humainement cette nouvelle UI avec VoiceOver/Safari ou NVDA et consigner versions/langue/SHA. La validation humaine ADM-34 ne couvre pas cette interface.
-  - [ ] Consigner les résultats finaux sur le candidat complet et la CI dans la PR ; les preuves locales ciblées sont liées ci-dessous.
+  - [x] Parcours VoiceOver validé par l’utilisateur le 22 octobre 2026 sur le candidat `69c31fd` ; Safari/macOS déclarés à jour, numéros et langue non précisés. Attestation et limites consignées dans la validation 0.3.0 ; ADM-34 n’est pas réutilisé.
+  - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD :** un joueur comprend pourquoi il ne peut pas acheter et ce que le nœud changera effectivement.
 
@@ -180,7 +180,7 @@
 - [ ] **Prouver le résultat avant clôture.**
   - [x] Tester coûts minimaux, scénarios de pire cas, choix exclusifs, arrondis, scénarios d’épargne indépendants et absence de données suffisantes pour modifier les prix.
   - [ ] Recueillir les preuves humaines de balance avant toute future proposition de prix ou ouverture des spécialisations.
-  - [ ] Consigner les résultats finaux sur le candidat complet et la CI dans la PR ; les preuves locales ciblées sont liées ci-dessous.
+  - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD :** coût d'une voie compréhensible, pas de monnaie supplémentaire, résultat de balance reproductible.
 
@@ -196,9 +196,9 @@
   - [x] Tester droits admin, agrégations serveur, cardinalités et seuil « échantillon insuffisant ».
   - [x] Faire consommer les mêmes agrégats validés par SQL au module admin ; aucun double ledger Candies.
   - [x] Traiter explicitement erreurs, valeurs absentes et mises à jour concurrentes lorsque pertinentes.
-- [ ] **Prouver le résultat avant clôture.**
+- [x] **Prouver le résultat avant clôture.**
   - [x] Exécuter les probes ciblées de confidentialité admin, achats/reset attestés, cohortes figées, petits effectifs, répétitions et données incomplètes ; les agrégats ne réécrivent aucun solde.
-  - [ ] Consigner les résultats finaux sur le candidat complet et la CI dans la PR ; les preuves locales ciblées sont liées ci-dessous.
+  - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 155 tests unitaires et 371 tests PostgreSQL ; preuves dans la validation 0.3.0.
 **DoD :** une source de métriques cohérente, aucun double dashboard.
 
@@ -208,10 +208,10 @@
 - [x] Les quatre corrections connues, le contrat déclaratif et les chemins manuels/autoplay/source/Edge sont couverts par les preuves automatiques ciblées ; les octets historiques sont conservés.
 - [x] Les RPC d’achat/reset et les agrégats admin ont leurs contrôles SQL ciblés de permissions, idempotence, concurrence et conservation des dépenses ; aucune conversion Candies ↔ Éclats.
 - [x] UI FR/EN : 24 tests UI et 5 E2E locaux, 320 px, zoom réel 200/400 %, axe et navigation/focus automatiques.
-- [ ] Nouvelle UI validée humainement avec lecteur d’écran ; ne pas réutiliser ADM-34.
+- [x] Nouvelle UI validée avec VoiceOver par l’utilisateur le 22 octobre 2026 ; attestation distincte de ADM-34, versions déclarées à jour sans numéros précis.
 - [ ] Balance humaine des 8 voies approuvée avant activation ; conserver la gate fermée jusque-là. Les 48 défaites simulées ne constituent pas cette approbation.
 - [x] Campagne SQL complète et anciennes fixtures remises au vert : 371/371, y compris Daily neutre et gains normaux ; contrôles locaux et artefacts vérifiés.
-- [ ] CI du dernier SHA candidate validée dans la PR ; aucun succès distant déduit des résultats locaux.
+Contrôle CI obligatoire : consulter les checks du dernier SHA sur la [PR #242](https://github.com/Thanan71/LolRogue/pull/242/checks). Les résultats locaux ne présument pas leur succès.
 - [ ] PR, fusion éventuelle et déploiement migrations/Edge/frontend vérifiés séparément sur la cible autorisée ; aucun état distant attesté à ce stade.
 
 Preuves, dimensions moteur/hash et comptages finaux : [validation 0.3.0](../enhancement-trees-validation-0.3.0.md). Les sections « Prouver le résultat avant clôture » restent ouvertes tant que la livraison globale et les gates qui leur sont applicables ne sont pas acquises.

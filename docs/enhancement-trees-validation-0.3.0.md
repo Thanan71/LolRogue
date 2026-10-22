@@ -43,7 +43,7 @@ Contrôles locaux du 22 octobre 2026, sous Node 24 :
 
 | Contrôle | Preuve |
 | --- | --- |
-| Suite complète avec couverture | 4 155 tests réussis, 327 probes connectés ignorés dans cette commande puis exécutés séparément ci-dessous. Aucun seuil réduit. |
+| Suite complète avec couverture | Clone propre `4ff2000` : 4 156 tests réussis, 327 probes connectés ignorés dans cette commande puis exécutés séparément ci-dessous. Couverture des lignes : 89,51 %, modules enhancements inclus ; aucun seuil réduit. |
 | PostgreSQL local migré | **371/371**, 34 fichiers ; achats, resets, concurrences, RLS/ACL, administration, versions historiques et finalisation Daily 25. |
 | Schéma et identité | 77 migrations, types générés comparés, lint sans erreur ; 25 versions authority et hash courant vérifiés. |
 | Rollback applicatif réel | **33/33**, dépendances verrouillées du checkpoint `51cf0e675debafa166483d2ddc259f6c707291a4`, sur le schéma courant ; aucun reset de données. |
@@ -53,7 +53,11 @@ Contrôles locaux du 22 octobre 2026, sous Node 24 :
 | Reproduction moteur | 213 tests ciblés et trois générations complètes reproductibles sous le hash final ; archive 0.2.5 et goldens historiques inchangés. |
 | Build et sécurité | Production-build et budgets réussis ; 0 vulnérabilité npm. JS total 890 129 octets gzip, marge 12,73 %, moteur historique différé hors Auth. |
 
-Le clone propre, la campagne navigateur globale et les liens de CI sont consignés dans la PR avec leur SHA. Les résultats locaux ne prouvent aucune migration distante, fusion ou mise en production. Les tests unitaires ne remplacent pas les tests PostgreSQL connectés ; les fixtures de présentation ne prouvent pas les débits et permissions réels.
+Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de privilèges et des fixtures navigateur sont contrôlées séparément et par la CI du dernier SHA.
+
+La campagne source a vérifié les 97 scénarios non affectés puis les 7 scénarios corrigés (quatre admin et trois sauvegarde/rechargement), soit 104 scénarios actuels. La matrice production locale passe Chromium et WebKit sur desktop/mobile ; les deux Firefox sont bloqués avant le scénario par leur profil local macOS (`Could not find profile folder`), à confirmer dans la CI Linux.
+
+Les liens et résultats de CI sont suivis sur [la PR #242 vers dev](https://github.com/Thanan71/LolRogue/pull/242). La Preview automatique a renvoyé HTTP 200 sur son identité de déploiement pour le commit `69c31fdd2c95fa5e88128f908feea1b78121ba27`. Cela atteste le frontend publié automatiquement, pas la migration ni les Edge Functions distantes. Les résultats locaux ne prouvent aucune migration distante, fusion ou mise en production. Les tests unitaires ne remplacent pas les tests PostgreSQL connectés ; les fixtures de présentation ne prouvent pas les débits et permissions réels.
 
 ```sh
 npm run typecheck
@@ -71,7 +75,7 @@ Utiliser Node 24 et Supabase local. Ne pas exécuter un reset ou les fixtures co
 
 ## Gates humaines et activation
 
-- Vérifier VoiceOver/Safari ou NVDA : exploration des branches et des blocages, annonce des rangs, ouverture/annulation de confirmation, confinement puis restauration du focus et lecture du devis de reset. Consigner outil, versions, langue et résultat sur le SHA testé.
+- **VoiceOver validé par l’utilisateur le 22 octobre 2026**, sur le parcours local proposé (branches, rangs, blocages, achat et reset annulés, retour du focus), candidat `69c31fdd2c95fa5e88128f908feea1b78121ba27`. L’utilisateur déclare Safari et macOS dans leur dernière version ; les numéros exacts et la langue ne sont pas fournis. Le parcours demandé utilisait les libellés FR. Cette attestation humaine est conservée avec ces limites, sans inventer de versions numériques ni de résultat NVDA.
 - Effectuer le protocole humain de balance sur une cellule figée (SHA, moteur, hash, difficulté, équipe et voie). Ne pas compter les simulations ni plusieurs runs d’un même joueur comme autant de joueurs indépendants.
 - Conserver `champion_specializations=false` tant que ces résultats ne sont pas approuvés. L’interface expose les voies en attente sans accepter leur achat ; les nœuds déjà attestés restent actifs si le flag est fermé après une publication.
 - Vérifier la CI et la Preview du candidat, puis appliquer les migrations et déployer les Edge Functions sur la cible autorisée. `dev` correspond à LolRogueDev ; la fusion et le déploiement ne sont pas déduits des tests locaux.
