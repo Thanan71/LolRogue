@@ -47,11 +47,15 @@ describeDatabase('TREE-07 attested and atomic free tree resets', () => {
       preview: { eligible: boolean; reason: string; refund_amount: number };
       rows: number;
       commands: number;
-    }>(`BEGIN;${claims(owner)}
+      accountVolatility: string;
+      previewVolatility: string;
+    }>(`BEGIN READ ONLY;${claims(owner)}
       SET LOCAL ROLE authenticated; SELECT public.get_enhancement_reset_preview('Garen'); RESET ROLE;
       SELECT json_build_object('audit',json_build_object('preview',public.get_enhancement_reset_preview('Garen'),
         'rows',(SELECT count(*) FROM public.champion_enhancements WHERE user_id='${owner.userId}'),
-        'commands',(SELECT count(*) FROM public.progression_commands WHERE user_id='${owner.userId}')));ROLLBACK;`);
+        'commands',(SELECT count(*) FROM public.progression_commands WHERE user_id='${owner.userId}'),
+        'accountVolatility',(SELECT provolatile FROM pg_proc WHERE oid='private.enhancement_require_account()'::regprocedure),
+        'previewVolatility',(SELECT provolatile FROM pg_proc WHERE oid='public.get_enhancement_reset_preview(text)'::regprocedure)));ROLLBACK;`);
     expect(result.preview).toMatchObject({
       eligible: false,
       reason: 'tree_empty',
@@ -59,6 +63,8 @@ describeDatabase('TREE-07 attested and atomic free tree resets', () => {
     });
     expect(result.rows).toBe(0);
     expect(result.commands).toBe(0);
+    expect(result.accountVolatility).toBe('s');
+    expect(result.previewVolatility).toBe('s');
   });
 
   it('refunds actual debits over repeated free resets and leaves all other profile and mastery values unchanged', () => {

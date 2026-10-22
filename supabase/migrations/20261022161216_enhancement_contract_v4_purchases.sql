@@ -69,7 +69,7 @@ FROM (VALUES ('Garen','fighter','durability','execution'),('Garen','fighter','ex
 UPDATE public.progression_rulesets SET is_active=TRUE WHERE version=4;
 
 CREATE FUNCTION private.enhancement_require_account()
-RETURNS UUID LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
+RETURNS UUID LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path='' AS $$
 DECLARE u UUID := (SELECT auth.uid());
 BEGIN
   IF u IS NULL THEN RAISE EXCEPTION 'authentication_required' USING ERRCODE='28000'; END IF;
