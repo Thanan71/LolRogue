@@ -10,7 +10,7 @@ VALUES (
   '0.3.0',
   'run-engine-0.3.0',
   2,
-  '1e1115346000b3c5ee57fc2cd481032c280df800d883ae244dd8c4f420ef7d4a',
+  'a5ba6703640a3f92595318d2a49ba0a4faebcbbbaa18d0a90bd0bb48074923f2',
   FALSE
 )
 ON CONFLICT (version) DO NOTHING;
@@ -24,7 +24,7 @@ BEGIN
       AND engine_version = 'run-engine-0.3.0'
       AND command_schema_version = 2
       AND content_hash =
-        '1e1115346000b3c5ee57fc2cd481032c280df800d883ae244dd8c4f420ef7d4a'
+        'a5ba6703640a3f92595318d2a49ba0a4faebcbbbaa18d0a90bd0bb48074923f2'
   ) THEN
     RAISE EXCEPTION 'gameplay_ruleset_0_3_0_contract_mismatch';
   END IF;

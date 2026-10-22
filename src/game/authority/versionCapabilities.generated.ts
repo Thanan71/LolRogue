@@ -12,6 +12,6 @@ export const CURRENT_AUTHORITY_VERSION = {
   "engine": "run-engine-0.3.0",
   "gameplay": 25,
   "progression": 4,
-  "contentHash": "1e1115346000b3c5ee57fc2cd481032c280df800d883ae244dd8c4f420ef7d4a",
+  "contentHash": "a5ba6703640a3f92595318d2a49ba0a4faebcbbbaa18d0a90bd0bb48074923f2",
   "dailyScore": 15
 } as const;

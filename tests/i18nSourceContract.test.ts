@@ -48,16 +48,10 @@ const PROJECT_INVARIANT_TOKENS = [
   'x',
 ] as const;
 
-// These exact internal values are part of the byte-pinned run-engine-v21 bundle. They are never
+// These remaining mastery descriptions also occur in the byte-pinned run-engine-v21 bundle. They are never
 // presentation copy: the enhancement store discards them and resolves localized UI messages from
 // stable validation conditions. Keep this exception exact so any additional service literal fails.
 const AUTHORITY_BOUND_INTERNAL_FINDINGS = [
-  "src/services/enhancementService.ts|copy-property|error|Cette amélioration n'est pas disponible dans le moteur de combat actuel",
-  'src/services/enhancementService.ts|copy-property|error|Niveau de maîtrise requis:',
-  'src/services/enhancementService.ts|copy-property|error|Candies insuffisants:',
-  'src/services/enhancementService.ts|copy-property|error|requis',
-  'src/services/enhancementService.ts|copy-property|error|Ce nœud est déjà au maximum',
-  'src/services/enhancementService.ts|copy-property|error|Prérequis non débloqués',
   'src/services/masteryService.ts|copy-property|description|Ajoute un champion au choix de départ, sans agrandir l’équipe.',
   'src/services/masteryService.ts|copy-property|description|Accorde une relance du choix de départ, sans avantage en combat.',
 ] as const;

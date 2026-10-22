@@ -110,7 +110,7 @@ export class EnhancementService implements IEnhancementService {
     availableCandies: number,
   ): { valid: boolean; error?: string } {
     const contract = contractForNode(node.id);
-    if (!contract) return { valid: false, error: 'Amélioration inconnue' };
+    if (!contract) return { valid: false, error: 'unknown_node' };
     const preview = previewEnhancementPurchase(node, {
       ...state,
       masteryLevel,
@@ -121,7 +121,7 @@ export class EnhancementService implements IEnhancementService {
       ? { valid: true }
       : {
           valid: false,
-          error: `Amélioration indisponible (${preview.reason?.code ?? 'invalid_state'})`,
+          error: preview.reason?.code ?? 'invalid_state',
         };
   }
   applyEnhancementBonuses<T extends Record<string, number>>(
