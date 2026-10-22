@@ -7,6 +7,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type {
+  EnhancementContractState,
   IEnhancementRepository,
   UnlockNodeResult,
 } from '@/services/interfaces/IEnhancementRepository';
@@ -44,6 +45,13 @@ function isNonNegativeInteger(value: unknown): value is number {
   return typeof value === 'number' && Number.isInteger(value) && value >= 0;
 }
 
+function versionFields(value: { revision?: unknown; reset_count?: unknown }) {
+  return {
+    ...(isNonNegativeInteger(value.revision) ? { revision: value.revision } : {}),
+    ...(isNonNegativeInteger(value.reset_count) ? { resetCount: value.reset_count } : {}),
+  };
+}
+
 /**
  * Database schema for champion enhancements
  */
@@ -64,6 +72,32 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
   private static readonly TABLE_NAME = 'champion_enhancements';
 
   constructor(private readonly client: SupabaseClient<Database> = supabase) {}
+
+  async getContractState(): Promise<EnhancementContractState> {
+    const { data, error } = await this.client.rpc('get_enhancement_contract');
+    if (error) throw error;
+    const row = data as Record<string, unknown> | null;
+    if (
+      !row ||
+      !isNonNegativeInteger(row.catalog_version) ||
+      row.catalog_version < 1 ||
+      row.contract_schema_version !== 1 ||
+      typeof row.champion_specializations_enabled !== 'boolean' ||
+      !isNonNegativeInteger(row.repeat_reset_fee_basis_points) ||
+      row.repeat_reset_fee_basis_points > 10000 ||
+      !isNonNegativeInteger(row.reset_policy_version) ||
+      row.reset_policy_version < 1
+    ) {
+      throw new Error('ENHANCEMENT_CONTRACT_INVALID_RESPONSE');
+    }
+    return {
+      catalogVersion: row.catalog_version,
+      contractSchemaVersion: 1,
+      enabledGates: { champion_specializations: row.champion_specializations_enabled },
+      repeatResetFeeBasisPoints: row.repeat_reset_fee_basis_points,
+      resetPolicyVersion: row.reset_policy_version,
+    };
+  }
 
   /**
    * Get enhancement state for an authenticated account/champion pair.
@@ -92,6 +126,7 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
       return {
         unlockedNodes: toNumberRecord(data.unlocked_nodes),
         totalCandiesSpent: data.total_candies_spent || 0,
+        ...versionFields(data as typeof data & { revision?: number; reset_count?: number }),
       };
     } catch (error) {
       logger.error('[SupabaseEnhancementRepository] Unexpected error:', error);
@@ -108,13 +143,21 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
     nodeId: string,
     expectedRank: number,
     commandId: string,
+    expectedRevision?: number,
   ): Promise<UnlockNodeResult> {
-    const { data, error } = await this.client.rpc('unlock_champion_enhancement', {
+    const request = {
       p_champion_id: championId,
       p_node_id: nodeId,
       p_expected_rank: expectedRank,
       p_command_id: commandId,
-    });
+    };
+    const { data, error } =
+      expectedRevision === undefined
+        ? await this.client.rpc('unlock_champion_enhancement', request)
+        : await this.client.rpc('unlock_champion_enhancement_v2', {
+            ...request,
+            p_expected_revision: expectedRevision,
+          });
     const result = data as {
       command_id?: string;
       champion_id?: string;
@@ -127,6 +170,8 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
       remaining_candies?: number;
       catalog_version?: number;
       replayed?: boolean;
+      revision?: number;
+      reset_count?: number;
     } | null;
 
     if (error || !result) {
@@ -160,7 +205,8 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
       !isNonNegativeInteger(result.remaining_candies) ||
       !isNonNegativeInteger(result.catalog_version) ||
       result.catalog_version === 0 ||
-      typeof result.replayed !== 'boolean'
+      typeof result.replayed !== 'boolean' ||
+      (expectedRevision !== undefined && !isNonNegativeInteger(result.revision))
     ) {
       return {
         success: false,
@@ -174,11 +220,15 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
       };
     }
 
+    const canonicalState = result.replayed
+      ? await this.getEnhancementState(authUserId, championId)
+      : null;
     return {
       success: true,
-      newState: {
+      newState: canonicalState ?? {
         unlockedNodes: toNumberRecord(result.unlocked_nodes),
         totalCandiesSpent: result.total_candies_spent,
+        ...versionFields(result),
       },
       candyCost,
       nodeId,
@@ -188,6 +238,7 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
       catalogVersion: result.catalog_version,
       replayed: result.replayed,
       commandId: result.command_id,
+      ...(isNonNegativeInteger(result.revision) ? { revision: result.revision } : {}),
     };
   }
 
@@ -214,6 +265,7 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
         states.set(row.champion_id, {
           unlockedNodes: toNumberRecord(row.unlocked_nodes),
           totalCandiesSpent: row.total_candies_spent || 0,
+          ...versionFields(row as typeof row & { revision?: number; reset_count?: number }),
         });
       }
 

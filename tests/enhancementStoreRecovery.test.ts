@@ -6,6 +6,7 @@ import type { PlayerEnhancementState } from '@/types/enhancementTree';
 
 const dependencies = vi.hoisted(() => {
   const unlockNode = vi.fn();
+  const getContractState = vi.fn();
   const getPlayer = vi.fn();
   const getChampionMastery = vi.fn();
   const getAllEnhancementStates = vi.fn();
@@ -28,6 +29,7 @@ const dependencies = vi.hoisted(() => {
     refreshPlayer,
     setPlayerCandyBalance,
     unlockNode,
+    getContractState,
     getPlayer,
     getChampionMastery,
     getAllEnhancementStates,
@@ -39,6 +41,7 @@ vi.mock('@/services/container', () => ({
     create: () => ({
       enhancement: {
         unlockNode: dependencies.unlockNode,
+        getContractState: dependencies.getContractState,
         getEnhancementState: vi.fn(),
         getAllEnhancementStates: dependencies.getAllEnhancementStates,
       },
@@ -99,6 +102,15 @@ function deferred<T>() {
 describe('enhancement unlock recovery', () => {
   beforeEach(() => {
     dependencies.unlockNode.mockReset();
+    dependencies.getContractState
+      .mockReset()
+      .mockResolvedValue({
+        catalogVersion: 4,
+        contractSchemaVersion: 1,
+        enabledGates: { champion_specializations: false },
+        repeatResetFeeBasisPoints: 0,
+        resetPolicyVersion: 1,
+      });
     dependencies.getPlayer.mockReset().mockResolvedValue({ data: null, error: null });
     dependencies.getChampionMastery.mockReset().mockResolvedValue({ data: [], error: null });
     dependencies.getAllEnhancementStates.mockReset().mockResolvedValue(new Map());
@@ -254,6 +266,7 @@ describe('enhancement unlock recovery', () => {
       'fighter_core_1',
       0,
       commandId,
+      0,
     );
     expect(useEnhancementStore.getState()).toMatchObject({
       enhancements: {
@@ -298,6 +311,7 @@ describe('enhancement unlock recovery', () => {
       'fighter_core_1',
       0,
       commandId,
+      0,
     ]);
     expect(dependencies.unlockNode.mock.calls[1]).toEqual(dependencies.unlockNode.mock.calls[0]);
     expect(useEnhancementStore.getState()).toMatchObject({
@@ -388,6 +402,7 @@ describe('enhancement unlock recovery', () => {
       'fighter_core_1',
       0,
       commandId,
+      0,
     );
     expect(useEnhancementStore.getState().statusMessage).toBe(
       'Strength was successfully upgraded.',

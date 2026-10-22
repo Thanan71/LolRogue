@@ -28,6 +28,7 @@ export interface UnlockNodeResult {
   catalogVersion?: number;
   replayed?: boolean;
   commandId?: string;
+  revision?: number;
   error?: string;
 }
 
@@ -36,11 +37,20 @@ export interface UnlockNodeResult {
  */
 export type { EnhancementStatBonuses } from '@/types/enhancementTree';
 
+export interface EnhancementContractState {
+  catalogVersion: number;
+  contractSchemaVersion: 1;
+  enabledGates: { champion_specializations: boolean };
+  repeatResetFeeBasisPoints: number;
+  resetPolicyVersion: number;
+}
+
 /**
  * Interface for enhancement data persistence
  * Single Responsibility Principle (SRP) - only handles enhancement data
  */
 export interface IEnhancementRepository {
+  getContractState(): Promise<EnhancementContractState>;
   /**
    * Get enhancement state for an authenticated account/champion pair.
    * `authUserId` is the UUID from `auth.users.id`, not `players.id`.
@@ -65,6 +75,7 @@ export interface IEnhancementRepository {
     nodeId: string,
     expectedRank: number,
     commandId: string,
+    expectedRevision?: number,
   ): Promise<UnlockNodeResult>;
 }
 
