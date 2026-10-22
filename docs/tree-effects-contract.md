@@ -72,3 +72,22 @@ de champion ni annoncer une run publique Assassin. Les douze effets indisponible
 ne sont pas considérés actifs par ces builds légaux. La campagne source/Edge
 doit être exécutée après construction du bundle futur ; une validation du code
 source seule ne clôt pas cette gate.
+
+La reprise d’une run historique n’utilise pas le moteur de combat courant. Le
+résolveur client est généré à partir des seules entrées `replay-only` du registre
+et charge leur bundle figé à la demande. L’écran explique que le combat reprend
+depuis son début en automatique avec ses règles d’origine ; les bundles archivés
+n’exposent pas de pilotage manuel tour par tour.
+
+Le préfixe entier du journal est rejoué avec la tentative et les améliorations
+figées. Les commandes de résolution et le snapshot autoritaire sont publiés
+ensemble : PV/PM, XP/niveaux, inventaire, ledger, récompenses et frontière de carte
+ne sont pas recalculés avec les formules actuelles. Les choix hors combat restent
+journalisés et entrent dans le prochain préfixe. Le terminal utilise ensuite le
+parcours de sauvegarde existant, avec son outbox et son résumé issus de ce snapshot.
+
+`historicalCombatReplay.test.ts` restaure réellement le schéma persistant, reprend
+plusieurs rencontres jusqu’au terminal et conserve le hash historique de la
+première résolution 0.2.5. `historicalCombatScreen.test.tsx` prouve l’absence de
+montage des hooks de combat actuels, le message FR/EN, le retry sans mutation,
+le rejet d’une autre identité de run et la finalisation d’une défaite figée.
