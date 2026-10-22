@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "applicationSha": "51cf0e675debafa166483d2ddc259f6c707291a4",
+  "applicationSha": "f5a3fed3587c34a61d7a8d70d18f01d9ebc464b8",
   "lastApplicationMigrationVersion": "20261022164730",
   "requiredCurrentMigrationVersion": "20261022164730",
   "probe": "tests/repositoryIntegration.database.test.ts",

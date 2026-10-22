@@ -149,7 +149,7 @@ avant/après, les 23 bundles historiques et les contrats de finalisation sont
 décrits dans [engine-refactor-contract.md](engine-refactor-contract.md).
 
 Le checkpoint de retour applicatif enregistré dans `config/application-rollback.json`
-est désormais `51cf0e675debafa166483d2ddc259f6c707291a4` pour l'autorité0.3.0 et
+est désormais `f5a3fed3587c34a61d7a8d70d18f01d9ebc464b8` pour l'autorité0.3.0 et
 le schéma77. Le runner refuse un préfixe SQL réécrit ou une différence de hash,
 progression, catalogue, commandes, score ou capacités avec le moteur actif. Ses
 dépendances verrouillées et ses probes de repositories/achats/resets/snapshots
