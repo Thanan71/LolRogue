@@ -72,7 +72,10 @@ describe('enhancement SQL catalog audit', () => {
       championSpecializationsEnabled: false,
       repeatResetFeeBasisPoints: 0,
     });
-    expect(catalog.sources).toHaveLength(9);
+    expect(catalog.sources).toHaveLength(10);
+    expect(catalog.sources.map((source) => source.path)).toContain(
+      ENHANCEMENT_SERVER_SOURCES.snapshotV25,
+    );
     expect(catalog.sources.every((source) => /^[a-f0-9]{64}$/.test(source.sha256))).toBe(true);
   });
 

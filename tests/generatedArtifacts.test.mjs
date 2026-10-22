@@ -73,8 +73,10 @@ describe('generated artifact contract', () => {
     const result = await checkGeneratedArtifacts({ root });
     expect(result).toMatchObject({
       families: 18,
-      artifacts: 305,
-      authorityVersions: 24,
+      // 0.3.0 adds three cohort JSONs, the frozen 0.2.5 JS bundle and
+      // the generated client replay resolver. Golden fixtures are outside the scopes.
+      artifacts: 310,
+      authorityVersions: 25,
       riotAssets: 231,
     });
     expect(result.conditionalReproduction.map(({ id }) => id)).toContain('database-types');
