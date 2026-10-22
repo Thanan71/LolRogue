@@ -11,6 +11,8 @@ import {
   within,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { balanceTreeFixture } from './fixtures/adminTreeUi';
+import { getAdminEnhancementTreesCopy } from '@/i18n/adminEnhancementTrees';
 import { getAdminBalanceCopy } from '@/i18n/adminBalance';
 import { AdminBalanceBuilds } from '@/features/administration/ui/balance/AdminBalanceBuilds';
 import { AdminBalanceChampions } from '@/features/administration/ui/balance/AdminBalanceChampions';
@@ -42,6 +44,7 @@ const mocks = vi.hoisted(() => ({
   builds: vi.fn(),
   config: vi.fn(),
   field: vi.fn(),
+  trees: vi.fn(),
 }));
 vi.mock(
   '@/features/administration/infrastructure/balance/adminBalanceClient',
@@ -56,6 +59,9 @@ vi.mock(
 );
 vi.mock('@/features/administration/infrastructure/balance/adminBalanceFieldClient', () => ({
   fetchAdminBalanceField: mocks.field,
+}));
+vi.mock('@/features/administration/infrastructure/balance/adminTreeClient', () => ({
+  fetchAdminBalanceTrees: mocks.trees,
 }));
 const copy = getAdminBalanceCopy('fr-FR');
 const accountA = {
@@ -82,6 +88,7 @@ async function ready(result: { readonly current: AdminBalance }) {
       result.current.builds,
       result.current.config,
       result.current.field,
+      result.current.trees,
     ]) {
       expect(section.hasData).toBe(true);
       expect(section.loading).toBe(false);
@@ -90,6 +97,7 @@ async function ready(result: { readonly current: AdminBalance }) {
   });
 }
 beforeEach(() => {
+  mocks.trees.mockReset().mockResolvedValue(balanceTreeFixture());
   mocks.champions
     .mockReset()
     .mockImplementation(async (filters: BalanceFilters) => balanceChampionFixture(filters));
@@ -225,6 +233,7 @@ describe('balance resource scopes and independent recovery', () => {
       result.current.builds,
       result.current.config,
       result.current.field,
+      result.current.trees,
     ])
       expect(section.data).toBeNull();
     await act(async () => {
@@ -480,7 +489,7 @@ describe('honest balance evidence and accessible presentation', () => {
       </>,
     );
     await screen.findByRole('table', { name: copy.champions });
-    expect(screen.getByText(copy.treeDependency)).toBeInTheDocument();
+    expect(screen.getByText(getAdminEnhancementTreesCopy('fr-FR').exposure)).toBeInTheDocument();
     mocks.builds.mockRejectedValueOnce({ code: '42501' });
     const section = document.getElementById('admin-balance-builds');
     if (!section) throw new Error('missing section');

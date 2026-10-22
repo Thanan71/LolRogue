@@ -122,22 +122,85 @@ SELECT jsonb_build_object(
 $$;
 REVOKE ALL ON FUNCTION private.admin_balance_tree_data(JSONB,TIMESTAMPTZ) FROM PUBLIC,anon,authenticated,service_role;
 
-CREATE FUNCTION public.admin_balance_trees(p_filters JSONB,p_snapshot TIMESTAMPTZ DEFAULT NULL)
-RETURNS JSONB LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path='' AS $$
-DECLARE stamp TIMESTAMPTZ:=COALESCE(p_snapshot,statement_timestamp());f JSONB;data JSONB;
+CREATE OR REPLACE FUNCTION private.admin_balance(p_resource TEXT, p_filters JSONB, p_snapshot TIMESTAMPTZ)
+  RETURNS JSONB
+  LANGUAGE plpgsql
+  STABLE
+  SECURITY DEFINER
+  SET search_path = ''
+  AS $$
+DECLARE
+  stamp TIMESTAMPTZ := COALESCE(p_snapshot, statement_timestamp());
+  f JSONB;
+  data JSONB;
 BEGIN
-  IF auth.uid() IS NULL OR NOT public.is_current_user_admin() OR NOT EXISTS(
-    SELECT 1 FROM auth.users WHERE id=auth.uid() AND NOT COALESCE(is_anonymous,FALSE)) THEN
-    RAISE EXCEPTION 'admin_access_denied' USING ERRCODE='42501'; END IF;
-  IF NOT isfinite(stamp) OR stamp>statement_timestamp() THEN
-    RAISE EXCEPTION 'admin_balance_invalid_snapshot' USING ERRCODE='22023'; END IF;
-  f:=private.admin_balance_filters(p_filters,stamp);data:=private.admin_balance_tree_data(f,stamp);
-  IF jsonb_array_length(data->'segments')>32 OR jsonb_array_length(data->'contexts')>128
-    OR jsonb_array_length(data->'purchases'->'nodes')>1024 OR jsonb_array_length(data->'purchases'->'branches')>1024
-    OR jsonb_array_length(data->'catalogue')>1024 THEN
-    RAISE EXCEPTION 'admin_balance_scope_too_large' USING ERRCODE='22023'; END IF;
-  RETURN jsonb_build_object('snapshotAt',private.admin_analytics_timestamp(stamp),'filters',f,'minimumSampleSize',30)||data;
-END;
+  IF auth.uid() IS NULL
+    OR NOT public.is_current_user_admin()
+    OR NOT EXISTS (
+    SELECT
+      1
+    FROM
+      auth.users
+    WHERE
+      id = auth.uid()
+      AND NOT COALESCE(is_anonymous, FALSE)
+  ) THEN
+    RAISE EXCEPTION 'admin_access_denied'
+      USING ERRCODE = '42501';
+  END IF;
+  IF p_resource IS NULL
+    OR p_resource NOT IN ('champions', 'builds', 'config', 'trees')
+    OR NOT isfinite(stamp)
+    OR stamp > statement_timestamp() THEN
+    RAISE EXCEPTION 'admin_balance_invalid_snapshot'
+      USING ERRCODE = '22023';
+  END IF;
+  IF p_resource = 'config' THEN
+    data := private.admin_balance_config_data(stamp);
+    IF jsonb_array_length(data -> 'gameplayRulesets') > 128
+      OR jsonb_array_length(data -> 'progressionRulesets') > 128 THEN
+      RAISE EXCEPTION 'admin_balance_too_many_rulesets'
+        USING ERRCODE = '22023';
+    END IF;
+    RETURN data;
+  END IF;
+  f := private.admin_balance_filters(p_filters, stamp);
+  data := CASE WHEN p_resource = 'champions' THEN
+    private.admin_balance_champion_data(f, stamp)
+  WHEN p_resource = 'trees' THEN
+    private.admin_balance_tree_data(f, stamp)
+  ELSE
+    private.admin_balance_build_data(f, stamp)
+  END;
+  IF jsonb_array_length(data -> 'segments') > 32
+    OR jsonb_array_length(data -> 'contexts') > 128
+    OR jsonb_array_length(data -> 'rows') > 1024
+    OR (p_resource = 'trees' AND (
+      jsonb_array_length(data -> 'purchases' -> 'nodes') > 1024
+      OR jsonb_array_length(data -> 'purchases' -> 'branches') > 1024
+      OR jsonb_array_length(data -> 'catalogue') > 1024
+    )) THEN
+    RAISE EXCEPTION 'admin_balance_scope_too_large'
+      USING ERRCODE = '22023';
+  END IF;
+  IF p_resource = 'champions' AND (
+    jsonb_array_length(data -> 'selections' -> 'segments') > 32
+    OR jsonb_array_length(data -> 'selections' -> 'rows') > 1024
+  ) THEN
+    RAISE EXCEPTION 'admin_balance_scope_too_large'
+      USING ERRCODE = '22023';
+  END IF;
+  RETURN jsonb_build_object(
+    'snapshotAt', private.admin_analytics_timestamp(stamp),
+    'filters', f,
+    'minimumSampleSize', 30
+  ) || data;
+END
+$$;
+
+CREATE FUNCTION public.admin_balance_trees(p_filters JSONB,p_snapshot TIMESTAMPTZ DEFAULT NULL)
+RETURNS JSONB LANGUAGE sql STABLE SECURITY INVOKER SET search_path='' AS $$
+  SELECT private.admin_balance('trees',p_filters,p_snapshot)
 $$;
 REVOKE ALL ON FUNCTION public.admin_balance_trees(JSONB,TIMESTAMPTZ) FROM PUBLIC,anon,authenticated,service_role;
 GRANT EXECUTE ON FUNCTION public.admin_balance_trees(JSONB,TIMESTAMPTZ) TO authenticated;

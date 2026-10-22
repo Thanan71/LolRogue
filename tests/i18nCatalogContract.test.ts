@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { PATCH_NOTES } from '@/data/patchNotes';
 import { getAdminAccessibilityCopy } from '@/i18n/adminAccessibility';
 import { adminAnalyticsContent } from '@/i18n/adminAnalytics';
+import { getAdminEnhancementTreesCopy } from '@/i18n/adminEnhancementTrees';
+import { getHistoricalCombatContent } from '@/i18n/historicalCombatContent';
 import { getAdminBalanceCopy } from '@/i18n/adminBalance';
 import { getAdminDiagnosticsCopy } from '@/i18n/adminDiagnostics';
 import { adminExportContent } from '@/i18n/adminExportContent';
@@ -69,6 +71,14 @@ const catalogs = {
   combat: combatContent,
   document: documentContent,
   enhancement: enhancementContent,
+  historicalCombat: {
+    'fr-FR': getHistoricalCombatContent('fr-FR'),
+    'en-US': getHistoricalCombatContent('en-US'),
+  },
+  adminEnhancementTrees: {
+    'fr-FR': getAdminEnhancementTreesCopy('fr-FR'),
+    'en-US': getAdminEnhancementTreesCopy('en-US'),
+  },
   enhancementReset: {
     'fr-FR': getEnhancementResetCopy('fr-FR'),
     'en-US': getEnhancementResetCopy('en-US'),
@@ -116,6 +126,8 @@ const catalogModules = {
   'en.ts': 'main',
   'enhancementContent.ts': 'enhancement',
   'enhancementReset.ts': 'enhancementReset',
+  'adminEnhancementTrees.ts': 'adminEnhancementTrees',
+  'historicalCombatContent.ts': 'historicalCombat',
   'fr.ts': 'main',
   'gameOverContent.ts': 'gameOver',
   'inventoryContent.ts': 'inventory',
@@ -234,6 +246,8 @@ const intentionallyIdenticalPaths: Readonly<
   ],
   document: [],
   enhancementReset: [],
+  historicalCombat: [],
+  adminEnhancementTrees: ['$.champion'],
   enhancement: [
     '$.coreNodes.fighter_core_2.name',
     '$.nodes.fighter_duelist_1.name',
@@ -279,7 +293,8 @@ const intentionallyIdenticalFunctionPaths: Readonly<
   combat: ['$.logs.action', '$.stage.actionTarget'],
   document: [],
   enhancementReset: [],
-  enhancementReset: [],
+  historicalCombat: [],
+  adminEnhancementTrees: [],
   enhancement: [],
   gameOver: [],
   inventory: [],
