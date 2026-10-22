@@ -313,6 +313,7 @@
     "e2e/connected-sprint-g.spec.ts",
     "e2e/css-maintenance.spec.ts",
     "e2e/database-mobile-navigation.spec.ts",
+    "e2e/enhancement-tree-connected.spec.ts",
     "e2e/enhancement-tree.spec.ts",
     "e2e/game-screens-responsive.spec.ts",
     "e2e/helpers/admin-browser-zoom.ts",
