@@ -35,9 +35,9 @@ const storedSnapshot = (user: string) =>
   `(SELECT enhancement_snapshot FROM public.run_attempts WHERE user_id='${user}')`;
 const startedId = `(SELECT (payload->>'attempt_id')::uuid FROM started)`;
 const token = `(SELECT (payload->>'lease_token')::uuid FROM claimed)`;
-function finishAndClaim() {
+function finishAndClaim(kind: 'abandon_run' | 'resolve_node' = 'abandon_run') {
   return `SELECT public.append_run_attempt_commands(${startedId},jsonb_build_array(jsonb_build_object(
-    'command_id',gen_random_uuid(),'sequence',1,'kind','abandon_run','payload','{}'::jsonb)));
+    'command_id',gen_random_uuid(),'sequence',1,'kind','${kind}','payload',${sqlJson(kind === 'resolve_node' ? { node_id: 'trusted-edge-result' } : {})})));
     SELECT public.seal_run_attempt(${startedId},gen_random_uuid(),1);
     CREATE TEMP TABLE claimed AS SELECT public.claim_run_verification(${startedId},gen_random_uuid()) payload;`;
 }
@@ -330,5 +330,117 @@ describeDatabase('TREE-04 catalogue 4 frozen authority and reward compatibility'
     expect(out.runs).toBe(0);
     expect(out.events).toBe(0);
     expect(out.candies).toBe(0);
+  });
+
+  it('publishes exactly one canonical Daily 25 score without changing its namespace, seed or ordinary participation rewards', () => {
+    const dailyResult = result();
+    dailyResult.team_members = [member('Garen', 6, ['top_lane', 'jungle'])];
+    dailyResult.ledger.champions = { Garen: dailyResult.ledger.champions.Garen };
+    const out = audit<{
+      first: object;
+      replay: object;
+      attempt: {
+        engine: string;
+        gameplay: number;
+        progression: number;
+        daily: number;
+        scoreVersion: number;
+        seed: number;
+        expectedSeed: number;
+        date: string;
+        snapshot: object;
+        mastery: object;
+      };
+      daily: {
+        daily_ruleset_version: number;
+        gameplay_ruleset_version: number;
+        score_version: number;
+        daily_seed: number;
+        daily_date: string;
+        score: number;
+      }[];
+      expectedScore: number;
+      candies: number;
+      masteryDelta: number;
+      otherMasteryChanges: number;
+      earned: number;
+      rewardEvents: number;
+      intermediate24: number;
+      leaderboard: { gameplay: number; daily: number; scoreVersion: number; score: number }[];
+    }>(`BEGIN;UPDATE public.players SET total_candies=100 WHERE id='${owner.playerId}';
+      INSERT INTO public.champion_mastery(player_id,champion_id,total_candies,mastery_level)
+        SELECT '${owner.playerId}',champion_id,700,4 FROM public.progression_champion_catalog WHERE ruleset_version=4 AND active;
+      CREATE TEMP TABLE before_mastery AS SELECT champion_id,total_candies FROM public.champion_mastery WHERE player_id='${owner.playerId}';${claims(owner)}
+      CREATE TEMP TABLE started AS SELECT public.start_daily_run_attempt(gen_random_uuid(),
+        ARRAY[(public.daily_starter_ids((clock_timestamp() AT TIME ZONE 'UTC')::date,25::smallint))[1]],ARRAY[]::text[]) payload;
+      CREATE TEMP TABLE daily_result AS SELECT jsonb_set(jsonb_set(${sqlJson(dailyResult)},'{team_members}',
+        jsonb_build_array((${sqlJson(dailyResult)}->'team_members'->0)||jsonb_build_object('champion_id',initial_team[1]))),
+        '{ledger,champions}',jsonb_build_object(initial_team[1],${sqlJson(dailyResult)}->'ledger'->'champions'->'Garen')) payload
+        FROM public.run_attempts WHERE id=${startedId};${finishAndClaim('resolve_node')}
+      CREATE TEMP TABLE first AS SELECT public.complete_run_verification(${startedId},${token},(SELECT payload FROM daily_result),NULL) payload;
+      CREATE TEMP TABLE replay AS SELECT public.complete_run_verification(${startedId},${token},(SELECT payload FROM daily_result),NULL) payload;
+      SELECT json_build_object('audit',json_build_object('first',(SELECT payload FROM first),'replay',(SELECT payload FROM replay),
+        'attempt',(SELECT json_build_object('engine',engine_version,'gameplay',gameplay_ruleset_version,'progression',ruleset_version,
+          'daily',daily_ruleset_version,'scoreVersion',daily_score_version,'seed',seed,
+          'expectedSeed',public.daily_seed_for_date(daily_date,'lolrogue.daily.0.3.0'),'date',daily_date,
+          'snapshot',enhancement_snapshot,'mastery',mastery_snapshot) FROM public.run_attempts WHERE id=${startedId}),
+        'daily',(SELECT json_agg(json_build_object('daily_ruleset_version',daily_ruleset_version,'gameplay_ruleset_version',gameplay_ruleset_version,
+          'score_version',score_version,'daily_seed',daily_seed,'daily_date',daily_date,'score',score)) FROM public.daily_runs WHERE run_attempt_id=${startedId}),
+        'expectedScore',(SELECT 6*wave_points+2*biome_points+2*run_level_points FROM public.daily_challenge_rulesets WHERE version=25),
+        'candies',(SELECT total_candies FROM public.players WHERE id='${owner.playerId}'),
+        'masteryDelta',(SELECT m.total_candies-b.total_candies FROM public.champion_mastery m JOIN before_mastery b USING(champion_id)
+          WHERE m.player_id='${owner.playerId}' AND m.champion_id=(SELECT initial_team[1] FROM public.run_attempts WHERE id=${startedId})),
+        'otherMasteryChanges',(SELECT count(*) FROM public.champion_mastery m JOIN before_mastery b USING(champion_id)
+          WHERE m.player_id='${owner.playerId}' AND m.champion_id<>(SELECT initial_team[1] FROM public.run_attempts WHERE id=${startedId}) AND m.total_candies<>b.total_candies),
+        'earned',(SELECT sum(amount) FROM public.candy_transactions WHERE player_id='${owner.playerId}' AND kind='earned'),
+        'rewardEvents',(SELECT count(*) FROM public.candy_transactions WHERE player_id='${owner.playerId}' AND kind='earned'),
+        'leaderboard',(SELECT json_agg(json_build_object('gameplay',e.gameplay_ruleset_version,'daily',e.daily_ruleset_version,
+          'scoreVersion',e.score_version,'score',e.score)) FROM private.daily_leaderboard_public_entries e
+          JOIN public.daily_runs d ON d.id=e.daily_run_key WHERE d.run_attempt_id=${startedId}),
+        'intermediate24',(SELECT count(*) FROM public.daily_runs WHERE run_attempt_id=${startedId} AND (daily_ruleset_version=24 OR gameplay_ruleset_version=24))));ROLLBACK;`);
+    expect(out.first).toMatchObject({
+      status: 'verified',
+      replayed: false,
+      progression_version: 4,
+      gameplay_ruleset_version: 25,
+      candies_earned: 20,
+    });
+    expect(out.replay).toMatchObject({ replayed: true, candies_earned: 20 });
+    expect(out.attempt).toMatchObject({
+      engine: 'run-engine-0.3.0',
+      gameplay: 25,
+      progression: 4,
+      daily: 25,
+      scoreVersion: 15,
+      snapshot: {},
+      mastery: {},
+    });
+    expect(out.attempt.seed).toBe(out.attempt.expectedSeed);
+    expect(out.daily).toEqual([
+      {
+        daily_ruleset_version: 25,
+        gameplay_ruleset_version: 25,
+        score_version: 15,
+        daily_seed: out.attempt.seed,
+        daily_date: out.attempt.date,
+        score: out.expectedScore,
+      },
+    ]);
+    expect(out.candies).toBe(120);
+    expect(out.earned).toBe(20);
+    expect(out.masteryDelta).toBe(20);
+    expect(out.otherMasteryChanges).toBe(0);
+    expect(out.rewardEvents).toBe(1);
+    expect(out.intermediate24).toBe(0);
+    expect(out.leaderboard.length).toBeGreaterThan(0);
+    expect(
+      out.leaderboard.every(
+        (entry) =>
+          entry.gameplay === 25 &&
+          entry.daily === 25 &&
+          entry.scoreVersion === 15 &&
+          entry.score === out.expectedScore,
+      ),
+    ).toBe(true);
   });
 });
