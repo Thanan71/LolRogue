@@ -383,3 +383,12 @@ lourdes. Il ne s’agit pas d’un relèvement de leur budget individuel.
 
 Les mesures finales et leurs limites figurent dans la
 [validation ADM-S4](admin-s4-validation-2026-10-18.md).
+
+
+## TREE — moteur 0.3.0 et compatibilité 0.2.5
+
+Le candidat TREE ajoute un chunk de replay historique chargé uniquement pour une run 0.2.5 encore rejouable. Le moteur archivé est conservé octet pour octet ; il n’est pas importé par la fermeture initiale ou Auth. Le contrôle d’isolation Auth reste obligatoire, ainsi que les contrôles de byte/hash des archives et du resolver généré.
+
+Mesure locale du build 0.3.0 : JavaScript total gzip **890 026 octets**, dont **169 108** pour le chunk historique différé ; plus gros chunk brut **775 351** ; initial **232 908 gzip**, fermeture Auth **237 731 gzip**, assets **9 115 895**. La fermeture Auth compte 11 entrées et ne contient aucun module admin ou base de champions différée. Les artefacts de `performance-report/bundle-report.json` détaillent chaque chunk.
+
+Les budgets version 15 sont ajustés à cette fonction de compatibilité : total JS 1 020 000, plus gros chunk brut 850 000 et assets 9 600 000. Les limites initial/Auth passent à 240 000/245 000 pour les contrats d’arbre, contrôles d’erreur et contenus ajoutés. La marge obligatoire de 10 % sur le total JS et les budgets de chunks individuels existants restent appliqués. Il ne s’agit ni d’une mesure terrain ni d’un assouplissement des objectifs Web Vitals ; la campagne mobile contrôlée conserve ses propres seuils.

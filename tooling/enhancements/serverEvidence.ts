@@ -13,7 +13,6 @@ export const ENHANCEMENT_SERVER_SOURCES = {
   snapshot: 'supabase/migrations/20260724090000_verified_run_attempts.sql',
   snapshotV25: 'supabase/migrations/20261022164730_gameplay_ruleset_0_3_0_enhancement_trees.sql',
   quarantine: 'supabase/migrations/20260724190000_harden_verified_attempt_contract.sql',
-  snapshotV25: 'supabase/migrations/20261022164730_gameplay_ruleset_0_3_0_enhancement_trees.sql',
 } as const;
 
 export type ServerEnhancementRequirement =
