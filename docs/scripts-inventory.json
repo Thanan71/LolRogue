@@ -2846,7 +2846,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 73,
+          "line": 75,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:build",
@@ -27073,7 +27073,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 73,
+          "line": 75,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:build",
@@ -28061,7 +28061,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 73,
+          "line": 75,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:build",
@@ -28129,7 +28129,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 73,
+          "line": 75,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:build",
@@ -28621,7 +28621,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 67,
+          "line": 69,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:db",
@@ -28688,7 +28688,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 67,
+          "line": 69,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:db",
@@ -29787,7 +29787,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:unit",
@@ -29831,7 +29831,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:unit",
@@ -32717,7 +32717,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 67,
+          "line": 69,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:db",
@@ -36510,7 +36510,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 73,
+          "line": 75,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:build",
@@ -38058,7 +38058,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 73,
+          "line": 75,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:build",
@@ -38725,7 +38725,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 70,
+          "line": 72,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run release -- artifacts check",
@@ -38893,7 +38893,7 @@
         },
         {
           "file": "scripts/generate-veigar-run-progression-balance.mjs",
-          "line": 55,
+          "line": 82,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "if (!sourceAuthority || !edgeAuthority) throw new Error('The source or exact registered Edge verifier is unavailable. Run npm run release -- edge bundle first.');",
@@ -39259,7 +39259,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 70,
+          "line": 72,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run release -- artifacts check",
@@ -39454,7 +39454,7 @@
         },
         {
           "file": "scripts/generate-veigar-run-progression-balance.mjs",
-          "line": 55,
+          "line": 82,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "if (!sourceAuthority || !edgeAuthority) throw new Error('The source or exact registered Edge verifier is unavailable. Run npm run release -- edge bundle first.');",
@@ -39888,7 +39888,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 73,
+          "line": 75,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:build",
@@ -41750,7 +41750,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:unit",
@@ -42324,7 +42324,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 68,
+          "line": 70,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run test:db:rollback",
@@ -42377,7 +42377,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 68,
+          "line": 70,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run test:db:rollback",
@@ -42546,7 +42546,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 71,
+          "line": 73,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run test:e2e -- e2e/enhancement-tree.spec.ts",
@@ -42554,7 +42554,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 72,
+          "line": 74,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "E2E_REQUIRE_CONNECTED=1 npm run test:e2e -- e2e/enhancement-tree-connected.spec.ts",
@@ -42648,7 +42648,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 71,
+          "line": 73,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run test:e2e -- e2e/enhancement-tree.spec.ts",
@@ -42656,7 +42656,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 72,
+          "line": 74,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "E2E_REQUIRE_CONNECTED=1 npm run test:e2e -- e2e/enhancement-tree-connected.spec.ts",
@@ -43763,7 +43763,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 69,
+          "line": 71,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run testing -- enhancements audit --check",
@@ -44220,7 +44220,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 69,
+          "line": 71,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run testing -- enhancements audit --check",
@@ -44894,7 +44894,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 73,
+          "line": 75,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:build",
@@ -45163,7 +45163,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 65,
+          "line": 67,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run typecheck",
@@ -45223,7 +45223,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 65,
+          "line": 67,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run typecheck",
@@ -46100,7 +46100,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 65,
+          "line": 67,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run typecheck",
@@ -46766,7 +46766,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 65,
+          "line": 67,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run typecheck",
@@ -47400,7 +47400,7 @@
         },
         {
           "file": "docs/enhancement-trees-validation-0.3.0.md",
-          "line": 65,
+          "line": 67,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run typecheck",

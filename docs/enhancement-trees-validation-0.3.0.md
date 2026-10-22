@@ -57,7 +57,9 @@ Contrôles locaux du 22 octobre 2026, sous Node 24 :
 
 Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de privilèges et des fixtures navigateur sont contrôlées séparément et par la CI du dernier SHA.
 
-La campagne source a vérifié les 97 scénarios non affectés puis les 7 scénarios corrigés (quatre admin et trois sauvegarde/rechargement), soit 104 scénarios actuels. La matrice production locale passe Chromium et WebKit sur desktop/mobile ; les deux Firefox sont bloqués avant le scénario par leur profil local macOS (`Could not find profile folder`), à confirmer dans la CI Linux.
+La campagne source locale a vérifié 97 scénarios puis un groupe de 7 après correction ciblée, dont un déjà vert : 103 scénarios distincts. La CI du candidat `595ccca` confirme 103 sources, 9 connectés et les 6 projets de production, sans flaky/retry déclaré. Firefox, bloqué au lancement du profil macOS local, passe dans la matrice Linux ; Chromium et WebKit passent aussi en local sur desktop/mobile.
+
+Le lab mobile du build `595ccca` mesure sur `/auth`, au p75 de 5 échantillons CPU ×4 et réseau contrôlé : LCP 1 812 ms, CLS 0 et INP 64 ms, sous les budgets existants. Il ne s’agit pas de mesures terrain. Les défauts advisors et matrice détectés sur ce candidat sont corrigés dans les commits suivants ; la CI complète du dernier SHA demeure le contrôle de livraison.
 
 Les liens et résultats de CI sont suivis sur [la PR #242 vers dev](https://github.com/Thanan71/LolRogue/pull/242). La Preview automatique a renvoyé HTTP 200 sur son identité de déploiement pour le commit `69c31fdd2c95fa5e88128f908feea1b78121ba27`. Cela atteste le frontend publié automatiquement, pas la migration ni les Edge Functions distantes. Les résultats locaux ne prouvent aucune migration distante, fusion ou mise en production. Les tests unitaires ne remplacent pas les tests PostgreSQL connectés ; les fixtures de présentation ne prouvent pas les débits et permissions réels.
 
