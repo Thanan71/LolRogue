@@ -21,7 +21,7 @@ const json = <T>(sql: string): T =>
       .find((line) => /^\{"audit"\s*:/.test(line))!,
   ).audit;
 const purchase = (champion: string, node: string, revision = 0) =>
-  `public.unlock_champion_enhancement_v2('${champion}','${node}',0,${revision},'${randomUUID()}'::uuid)`;
+  `public.unlock_champion_enhancement_v2('${champion}','${node}',0,${revision},'${randomUUID()}'::uuid,4)`;
 
 describeDatabase('TREE-02 canonical v4 eligibility and revision purchases', () => {
   const users: string[] = [];
@@ -65,7 +65,7 @@ describeDatabase('TREE-02 canonical v4 eligibility and revision purchases', () =
       CREATE TEMP TABLE refused(id text,error text); GRANT INSERT,SELECT ON refused TO authenticated;
       ${claims(owner)} SET LOCAL ROLE authenticated;
       DO $probe$ DECLARE node text; BEGIN FOREACH node IN ARRAY ARRAY['fighter_duelist_1','fighter_duelist_2','garen_durability_1'] LOOP
-        BEGIN PERFORM public.unlock_champion_enhancement_v2('Garen',node,0,0,gen_random_uuid());
+        BEGIN PERFORM public.unlock_champion_enhancement_v2('Garen',node,0,0,gen_random_uuid(),4);
         INSERT INTO refused VALUES(node,'UNEXPECTED_SUCCESS'); EXCEPTION WHEN OTHERS THEN INSERT INTO refused VALUES(node,SQLERRM); END;
       END LOOP; END $probe$; RESET ROLE;
       SELECT json_build_object('audit',json_build_object('errors',(SELECT json_object_agg(id,error) FROM refused),
@@ -119,8 +119,8 @@ describeDatabase('TREE-02 canonical v4 eligibility and revision purchases', () =
       ${claims(owner)} SET LOCAL ROLE authenticated;
       DO $probe$ BEGIN BEGIN PERFORM ${purchase('Garen', 'fighter_core_1')}; EXCEPTION WHEN OTHERS THEN INSERT INTO refused VALUES(SQLERRM); END; END $probe$;
       RESET ROLE; SELECT json_build_object('audit',json_build_object('error',(SELECT error FROM refused),
-        'anon',has_function_privilege('anon','public.unlock_champion_enhancement_v2(text,text,integer,integer,uuid)','EXECUTE'),
-        'service',has_function_privilege('service_role','public.unlock_champion_enhancement_v2(text,text,integer,integer,uuid)','EXECUTE'))); ROLLBACK;`);
+        'anon',has_function_privilege('anon','public.unlock_champion_enhancement_v2(text,text,integer,integer,uuid,integer)','EXECUTE'),
+        'service',has_function_privilege('service_role','public.unlock_champion_enhancement_v2(text,text,integer,integer,uuid,integer)','EXECUTE'))); ROLLBACK;`);
     expect(result).toEqual({ error: 'registered_account_required', anon: false, service: false });
   });
 
@@ -134,6 +134,7 @@ describeDatabase('TREE-02 canonical v4 eligibility and revision purchases', () =
       p_node_id: node,
       p_expected_rank: 0,
       p_expected_revision: 0,
+      p_expected_catalog_version: 4,
       p_command_id: randomUUID(),
     }));
     const outcomes = await Promise.all(

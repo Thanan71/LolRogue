@@ -158,6 +158,11 @@
       "file": "tests/enhancementPurchases.database.test.ts",
       "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
       "reason": "Skip only outside disposable loopback database runs; DB_TEST_REQUIRED rejects missing credentials."
+    },
+    {
+      "file": "tests/enhancementReset.database.test.ts",
+      "expression": "const describeDatabase = hasAdminExplorerCredentials ? describe : describe.skip;",
+      "reason": "Skip only without disposable loopback credentials; DB_TEST_REQUIRED fails instead of skipping."
     }
   ]
 }
