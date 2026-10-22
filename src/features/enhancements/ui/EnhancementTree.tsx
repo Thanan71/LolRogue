@@ -41,6 +41,7 @@ export interface EnhancementTreeProps {
   loadError?: boolean;
   onPreviewReset?: () => Promise<EnhancementResetPreview | null>;
   onResetTree?: (revision: number) => Promise<boolean>;
+  getResetRetryPreview?: () => EnhancementResetPreview | null;
 }
 
 export function EnhancementTree({
@@ -57,6 +58,7 @@ export function EnhancementTree({
   loadError = false,
   onPreviewReset,
   onResetTree,
+  getResetRetryPreview,
 }: EnhancementTreeProps) {
   const locale = useSettingsStore((state) => state.language);
   const copy = enhancementUiCopy[locale];
@@ -344,6 +346,7 @@ export function EnhancementTree({
           key={`${accountKey ?? 'local'}:${champion.id}`}
           previewReset={onPreviewReset}
           resetTree={onResetTree}
+          getRetryPreview={getResetRetryPreview}
           disabled={readOnly || busy || loadError}
           copy={copy}
           locale={locale}

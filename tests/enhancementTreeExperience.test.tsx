@@ -392,4 +392,26 @@ describe('TREE-08 audited reset confirmation', () => {
     expect(quote).toHaveBeenCalledTimes(2);
     expect(reset).toHaveBeenCalledTimes(1);
   });
+
+  it('retains the exact uncertain reset quote for an explicit receipt retry', async () => {
+    const quote = resetQuote();
+    const reset = vi.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    const preview = vi.fn(async () => quote);
+    renderTree({
+      onPreviewReset: preview,
+      onResetTree: reset,
+      getResetRetryPreview: () => quote,
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Réinitialiser cet arbre' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Vérifier le remboursement' });
+    const button = within(dialog).getByRole('button', { name: 'Réinitialiser et rembourser' });
+    await waitFor(() => expect(button).toBeEnabled());
+    fireEvent.click(button);
+    await waitFor(() => expect(within(dialog).getByRole('alert')).toBeInTheDocument());
+    expect(button).toBeEnabled();
+    fireEvent.click(button);
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(reset.mock.calls).toEqual([[quote.revision], [quote.revision]]);
+    expect(preview).toHaveBeenCalledTimes(1);
+  });
 });

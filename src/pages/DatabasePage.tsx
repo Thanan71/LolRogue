@@ -52,6 +52,7 @@ export function DatabasePage() {
     loadError: enhancementLoadError,
     previewReset,
     resetTree,
+    getResetRetryPreview,
     retryLoad,
   } = useChampionEnhancements(selectedChampion);
 
@@ -361,6 +362,7 @@ export function DatabasePage() {
                     onRetry={retryLoad}
                     onPreviewReset={previewReset}
                     onResetTree={resetTree}
+                    getResetRetryPreview={getResetRetryPreview}
                   />
                 </div>
               )}

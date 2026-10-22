@@ -8,12 +8,14 @@ import { historicalNodeName } from './presentation';
 export function EnhancementReset({
   previewReset,
   resetTree,
+  getRetryPreview,
   disabled,
   copy,
   locale,
 }: {
   previewReset: () => Promise<EnhancementResetPreview | null>;
   resetTree: (revision: number) => Promise<boolean>;
+  getRetryPreview?: () => EnhancementResetPreview | null;
   disabled: boolean;
   copy: EnhancementUiCopy;
   locale: EnhancementContentLocale;
@@ -61,13 +63,13 @@ export function EnhancementReset({
         if (success) setOpen(false);
         else {
           setError(true);
-          setPreview(null);
+          setPreview(getRetryPreview?.() ?? null);
         }
       }
     } catch {
       if (alive.current) {
         setError(true);
-        setPreview(null);
+        setPreview(getRetryPreview?.() ?? null);
       }
     } finally {
       inFlight.current = false;
