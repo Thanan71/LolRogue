@@ -55,6 +55,41 @@ describe('Veigar current balance campaign', () => {
     expect(normalized).toBe(JSON.stringify(previousArtifact));
   });
 
+  it.each([
+    {
+      engine: 'run-engine-v22',
+      contentHash: AUTHORITY_CONTENT_HASH,
+      features: { runProgression: true },
+    },
+    {
+      engine: AUTHORITY_ENGINE_VERSION,
+      contentHash: '0'.repeat(64),
+      features: { runProgression: true },
+    },
+    {
+      engine: AUTHORITY_ENGINE_VERSION,
+      contentHash: AUTHORITY_CONTENT_HASH,
+      features: { runProgression: false },
+    },
+  ])(
+    'rejects an offline contract that does not attest the replay identity and capability: %j',
+    (registeredAuthority) => {
+      const authority = getAuthorityVerifier(AUTHORITY_ENGINE_VERSION, AUTHORITY_CONTENT_HASH);
+      if (!authority) throw new Error('Current verifier is unavailable.');
+      const classes = { championDB, BattleManager, ChampionInstance };
+      expect(() =>
+        generateVeigarRunProgressionBalanceDocument({
+          sourceAuthority: authority,
+          edgeAuthority: authority,
+          sourceClasses: classes,
+          edgeClasses: classes,
+          registeredAuthority,
+          seeds: VEIGAR_BALANCE_SEEDS.slice(0, 2),
+        }),
+      ).toThrow('Expected matching supported source/Edge identities.');
+    },
+  );
+
   it('reports absent or dead checkpoint populations explicitly instead of inventing end-run means', () => {
     const base: VeigarBalanceRunObservation = {
       seed: 1,

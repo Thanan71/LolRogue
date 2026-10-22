@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -26,6 +27,32 @@ if (!entry) throw new Error(`Unknown registered authority ${values.engine}.`);
 if (!entry.features.runProgression)
   throw new Error('Veigar balance requires an authority with the runProgression capability.');
 const isCurrent = entry.status === 'current';
+const bundleBytes = await readFile(path.join(repositoryRoot, entry.bundle));
+const bundleSource = bundleBytes.toString('utf8').replace(/^\/\/ @ts-nocheck\r?\n/, '');
+const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex');
+if (
+  bundleSource.match(/AUTHORITY_CONTENT_HASH\s*=\s*["']([a-f0-9]{64})["']/)?.[1] !==
+    entry.contentHash ||
+  sha256(bundleSource.replace(entry.contentHash, '<AUTHORITY_CONTENT_HASH>')) !== entry.contentHash
+) {
+  throw new Error(`The registered Veigar authority content hash does not match ${entry.engine}.`);
+}
+if (!isCurrent) {
+  const frozen = JSON.parse(
+    await readFile(
+      path.join(repositoryRoot, 'tests/fixtures/engine-refactor-contract.json'),
+      'utf8',
+    ),
+  ).bundles.find((version) => version.engine === entry.engine);
+  if (
+    !frozen ||
+    frozen.contentHash !== entry.contentHash ||
+    frozen.bytes !== bundleBytes.length ||
+    frozen.sha256 !== sha256(bundleBytes)
+  ) {
+    throw new Error(`The frozen Veigar authority bytes do not match ${entry.engine}.`);
+  }
+}
 const artifactPath = path.join(
   repositoryRoot,
   `config/veigar-run-progression-balance-${values.engine}.json`,
@@ -56,6 +83,7 @@ try {
           return generateVeigarRunProgressionBalanceDocument({
             sourceAuthority, edgeAuthority,
             sourceClasses: ${!isCurrent ? 'edge' : '{ championDB, BattleManager, ChampionInstance }'}, edgeClasses: edge,
+            registeredAuthority: ${JSON.stringify({ engine: entry.engine, contentHash: entry.contentHash, features: { runProgression: entry.features.runProgression } })},
           });
         }
       `,
