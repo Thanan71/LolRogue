@@ -133,7 +133,9 @@ export interface BalanceConfig {
     activatedAt: string | null;
     updatedAt: string;
   } | null;
-  trees: { status: 'dependency_unavailable'; dependency: 'TREE-10' };
+  trees:
+    | { status: 'dependency_unavailable'; dependency: 'TREE-10' }
+    | { status: 'available'; catalogVersion: number; contractSchemaVersion: 1 };
   unsupportedMetrics: ['dps', 'crowd_control_duration', 'item_exposure'];
   minimumSampleSize: 30;
 }

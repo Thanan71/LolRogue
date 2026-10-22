@@ -178,7 +178,7 @@ function uniqueBy<T>(rows: T[], key: (value: T) => string): void {
   if (new Set(rows.map(key)).size !== rows.length) invalidBalance();
 }
 
-function parseBase(
+export function parseAdminBalanceBase(
   value: unknown,
   extraKeys: string[],
   expectedFilters?: BalanceFilters,
@@ -294,7 +294,7 @@ export function parseAdminBalanceChampions(
   value: unknown,
   expectedFilters?: BalanceFilters,
 ): BalanceChampionReport {
-  const { row, base, contextIds } = parseBase(
+  const { row, base, contextIds } = parseAdminBalanceBase(
     value,
     ['metrics', 'selections', 'rows'],
     expectedFilters,
@@ -357,7 +357,7 @@ export function parseAdminBalanceBuilds(
   value: unknown,
   expectedFilters?: BalanceFilters,
 ): BalanceBuildReport {
-  const { row, base, contextIds } = parseBase(
+  const { row, base, contextIds } = parseAdminBalanceBase(
     value,
     ['itemBasis', 'exposure', 'itemCatalog', 'rows'],
     expectedFilters,
