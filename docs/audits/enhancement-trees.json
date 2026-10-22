@@ -21161,7 +21161,7 @@
         },
         {
           "path": "supabase/migrations/20261022161216_enhancement_contract_v4_purchases.sql",
-          "sha256": "c64c9a77b770b90596834d330705299c710cc64d4ca8b19796a03164cd739f8e"
+          "sha256": "1c34f57bf8fa0d49c51d80d1199c96879cebb24c961f69570f594efdf01f7e93"
         },
         {
           "path": "supabase/migrations/20261022162313_enhancement_atomic_resets.sql",
@@ -36688,7 +36688,7 @@
   ],
   "provenance": {
     "algorithm": "sha256",
-    "inputsSha256": "578d5dd6e3ceac22eb65c67d4f46573f8c7fca2bfc7528a7d45392ab180ce569",
+    "inputsSha256": "e479f33d9d9555e4fbbe331e9d07d572ef72b0baade2ef19a96dc67654cef9dc",
     "inputs": [
       {
         "path": "biome.json",
@@ -37264,7 +37264,7 @@
       },
       {
         "path": "supabase/migrations/20261022161216_enhancement_contract_v4_purchases.sql",
-        "sha256": "c64c9a77b770b90596834d330705299c710cc64d4ca8b19796a03164cd739f8e"
+        "sha256": "1c34f57bf8fa0d49c51d80d1199c96879cebb24c961f69570f594efdf01f7e93"
       },
       {
         "path": "supabase/migrations/20261022162313_enhancement_atomic_resets.sql",

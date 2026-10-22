@@ -2066,4 +2066,4 @@ Le JSON contient les attributs et SHA-256 des migrations, la chaîne de copies d
 
 ## Provenance reproductible
 
-SHA-256 des 159 entrées et de la liste des 77 migrations : `578d5dd6e3ceac22eb65c67d4f46573f8c7fca2bfc7528a7d45392ab180ce569`. Les chemins et empreintes individuels figurent dans le JSON voisin. Aucun horodatage ni SHA de commit auto-référencé.
+SHA-256 des 159 entrées et de la liste des 77 migrations : `e479f33d9d9555e4fbbe331e9d07d572ef72b0baade2ef19a96dc67654cef9dc`. Les chemins et empreintes individuels figurent dans le JSON voisin. Aucun horodatage ni SHA de commit auto-référencé.

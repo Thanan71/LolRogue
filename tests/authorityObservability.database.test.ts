@@ -54,6 +54,16 @@ describeDatabase('authority observability contract', () => {
       .eq('id', administrator.playerId);
     expect(promoted.error).toBeNull();
 
+    const readAggregates = () =>
+      administrator.client
+        .from('authority_attempt_aggregates')
+        .select('*')
+        .eq('engine_version', CURRENT_AUTHORITY_VERSION.engine)
+        .eq('gameplay_ruleset_version', CURRENT_AUTHORITY_VERSION.gameplay)
+        .eq('rejection_code', 'pending_choice');
+    const previousAggregates = await readAggregates();
+    expect(previousAggregates.error).toBeNull();
+
     const started = await player.client.rpc('start_run_attempt', {
       p_command_id: randomUUID(),
       p_team: ['Garen'],
@@ -85,29 +95,45 @@ describeDatabase('authority observability contract', () => {
     const [hiddenFromPlayer, hiddenRejections, aggregates, recentRejections] = await Promise.all([
       player.client.from('authority_attempt_aggregates').select('*'),
       player.client.from('authority_recent_rejections').select('*'),
+      readAggregates(),
       administrator.client
-        .from('authority_attempt_aggregates')
+        .from('authority_recent_rejections')
         .select('*')
-        .eq('engine_version', CURRENT_AUTHORITY_VERSION.engine),
-      administrator.client.from('authority_recent_rejections').select('*'),
+        .eq('attempt_id', attemptId),
     ]);
     expect(hiddenFromPlayer).toMatchObject({ data: [], error: null });
     expect(hiddenRejections).toMatchObject({ data: [], error: null });
     expect(aggregates.error).toBeNull();
-    expect(aggregates.data).toHaveLength(1);
-    expect(aggregates.data?.[0]).toMatchObject({
-      engine_version: CURRENT_AUTHORITY_VERSION.engine,
-      gameplay_ruleset_version: CURRENT_AUTHORITY_VERSION.gameplay,
-      attempt_count: 1,
-      started_count: 0,
-      verified_count: 0,
-      rejected_count: 1,
-      expired_count: 0,
-      rejection_code: 'pending_choice',
-    });
-    expect(Object.keys(aggregates.data?.[0] ?? {})).not.toEqual(
-      expect.arrayContaining(['commands', 'payload', 'result', 'user_id']),
-    );
+    expect(aggregates.data?.length).toBeGreaterThan(0);
+    // Other real histories can share this engine and minute. Verify the exact
+    // lifecycle delta instead of assuming an otherwise empty local database.
+    for (const field of [
+      'attempt_count',
+      'started_count',
+      'finished_count',
+      'verified_count',
+      'rejected_count',
+      'expired_count',
+    ] as const) {
+      const before = (previousAggregates.data ?? []).reduce(
+        (sum, row) => sum + (row[field] ?? 0),
+        0,
+      );
+      const after = (aggregates.data ?? []).reduce((sum, row) => sum + (row[field] ?? 0), 0);
+      expect(after).toBe(
+        before + (field === 'attempt_count' || field === 'rejected_count' ? 1 : 0),
+      );
+    }
+    for (const row of aggregates.data ?? []) {
+      expect(row).toMatchObject({
+        engine_version: CURRENT_AUTHORITY_VERSION.engine,
+        gameplay_ruleset_version: CURRENT_AUTHORITY_VERSION.gameplay,
+        rejection_code: 'pending_choice',
+      });
+      for (const field of ['commands', 'payload', 'result', 'user_id', 'player_id']) {
+        expect(Object.keys(row)).not.toContain(field);
+      }
+    }
     expect(recentRejections).toMatchObject({
       data: [
         {
@@ -119,8 +145,10 @@ describeDatabase('authority observability contract', () => {
       ],
       error: null,
     });
-    expect(Object.keys(recentRejections.data?.[0] ?? {})).not.toEqual(
-      expect.arrayContaining(['commands', 'payload', 'result', 'user_id']),
-    );
+    for (const row of recentRejections.data ?? []) {
+      for (const field of ['commands', 'payload', 'result', 'user_id', 'player_id']) {
+        expect(Object.keys(row)).not.toContain(field);
+      }
+    }
   });
 });
