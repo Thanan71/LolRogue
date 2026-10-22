@@ -8,7 +8,7 @@ export default defineConfig({
     ...(process.env.E2E_REQUIRE_CONNECTED === '1'
       ? []
       : [
-          /(?:connected-(?:daily|sprint-g)|champion-economy-connected|admin-(?:analytics|balance|moderation|diagnostics|navigation)-connected)\.spec\.ts$/,
+          /(?:connected-(?:daily|sprint-g)|(?:champion-economy|enhancement-tree)-connected|admin-(?:analytics|balance|moderation|diagnostics|navigation)-connected)\.spec\.ts$/,
         ]),
   ],
   fullyParallel: true,
