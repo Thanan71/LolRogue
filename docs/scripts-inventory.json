@@ -1956,7 +1956,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 359,
+          "line": 365,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run assets -- verify",
@@ -2242,7 +2242,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 359,
+          "line": 365,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run assets -- verify",
@@ -2540,7 +2540,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -2962,7 +2962,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -26771,7 +26771,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -27159,7 +27159,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -27300,7 +27300,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -27428,7 +27428,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -27578,7 +27578,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -27796,7 +27796,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -28109,7 +28109,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -28405,7 +28405,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -28531,7 +28531,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 221,
+          "line": 224,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:db",
@@ -28575,6 +28575,14 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:db",
+          "classification": "active"
+        },
+        {
+          "file": "tests/ciInfrastructureRegression.test.mjs",
+          "line": 33,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "const schemaIndex = database.steps.findIndex((step) => step.run === 'npm run check:db');",
           "classification": "active"
         },
         {
@@ -28590,7 +28598,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 221,
+          "line": 224,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:db",
@@ -28634,6 +28642,14 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:db",
+          "classification": "active"
+        },
+        {
+          "file": "tests/ciInfrastructureRegression.test.mjs",
+          "line": 33,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "const schemaIndex = database.steps.findIndex((step) => step.run === 'npm run check:db');",
           "classification": "active"
         },
         {
@@ -28749,7 +28765,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -29045,7 +29061,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -29254,7 +29270,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -29550,7 +29566,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -29762,7 +29778,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -30058,7 +30074,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -30556,7 +30572,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 207,
+          "line": 209,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
@@ -30564,7 +30580,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 225,
+          "line": 231,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -30572,7 +30588,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 270,
+          "line": 276,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
@@ -30580,7 +30596,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 319,
+          "line": 325,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -30588,7 +30604,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 362,
+          "line": 368,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
@@ -30596,7 +30612,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 376,
+          "line": 382,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- lint",
@@ -30604,7 +30620,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 386,
+          "line": 392,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- reset --yes",
@@ -30612,7 +30628,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 387,
+          "line": 393,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- lint",
@@ -30620,7 +30636,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 408,
+          "line": 414,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -31472,6 +31488,14 @@
           "kind": "npm-run",
           "source": "source",
           "excerpt": "npm run database -- types generate",
+          "classification": "active"
+        },
+        {
+          "file": "tests/ciInfrastructureRegression.test.mjs",
+          "line": 37,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "const stopIndex = database.steps.findIndex((step) => step.run === 'npm run database -- stop');",
           "classification": "active"
         },
         {
@@ -31552,7 +31576,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 207,
+          "line": 209,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
@@ -31560,7 +31584,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 225,
+          "line": 231,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -31568,7 +31592,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 270,
+          "line": 276,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
@@ -31576,7 +31600,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 319,
+          "line": 325,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -31584,7 +31608,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 362,
+          "line": 368,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
@@ -31592,7 +31616,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 376,
+          "line": 382,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- lint",
@@ -31600,7 +31624,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 386,
+          "line": 392,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- reset --yes",
@@ -31608,7 +31632,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 387,
+          "line": 393,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- lint",
@@ -31616,7 +31640,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 408,
+          "line": 414,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -32480,6 +32504,14 @@
           "classification": "active"
         },
         {
+          "file": "tests/ciInfrastructureRegression.test.mjs",
+          "line": 37,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "const stopIndex = database.steps.findIndex((step) => step.run === 'npm run database -- stop');",
+          "classification": "active"
+        },
+        {
           "file": "tests/criticalScriptSafety.test.mjs",
           "line": 176,
           "kind": "npm-run",
@@ -32547,7 +32579,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 221,
+          "line": 224,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:db",
@@ -32606,6 +32638,17 @@
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "npm run check:db",
+          "classification": "active",
+          "via": [
+            "check:db"
+          ]
+        },
+        {
+          "file": "tests/ciInfrastructureRegression.test.mjs",
+          "line": 33,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "const schemaIndex = database.steps.findIndex((step) => step.run === 'npm run check:db');",
           "classification": "active",
           "via": [
             "check:db"
@@ -34318,7 +34361,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -34651,7 +34694,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -34866,7 +34909,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -35199,7 +35242,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -35450,7 +35493,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -35783,7 +35826,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -36011,7 +36054,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -36475,7 +36518,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -36693,7 +36736,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 204,
+          "line": 206,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -36701,7 +36744,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 257,
+          "line": 263,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -36709,7 +36752,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 356,
+          "line": 362,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -36981,7 +37024,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 25,
+          "line": 59,
           "source": "test",
           "kind": "implicit-install-hook",
           "excerpt": "expect(cleanRoomJob).toContain('npm ci');",
@@ -37091,7 +37134,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 204,
+          "line": 206,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -37099,7 +37142,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 257,
+          "line": 263,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -37107,7 +37150,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 356,
+          "line": 362,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -37397,7 +37440,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 25,
+          "line": 59,
           "source": "test",
           "kind": "implicit-install-hook",
           "excerpt": "expect(cleanRoomJob).toContain('npm ci');",
@@ -37530,7 +37573,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -37994,7 +38037,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -39348,7 +39391,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -39807,7 +39850,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -40339,7 +40382,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -40672,7 +40715,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -41264,7 +41307,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -41619,7 +41662,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -41749,7 +41792,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 388,
+          "line": 394,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run test:db",
@@ -41838,7 +41881,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 27,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run test:db');",
@@ -41866,7 +41909,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 388,
+          "line": 394,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run test:db",
@@ -41955,7 +41998,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 27,
+          "line": 61,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run test:db');",
@@ -42075,6 +42118,14 @@
       "historicalDependencies": [],
       "activeCallers": [
         {
+          "file": ".github/workflows/ci.yml",
+          "line": 227,
+          "kind": "npm-run",
+          "source": "workflow",
+          "excerpt": "run: npm run test:db:rollback",
+          "classification": "active"
+        },
+        {
           "file": "docs/incident-runbooks.md",
           "line": 68,
           "kind": "npm-run",
@@ -42089,6 +42140,14 @@
           "kind": "dynamic-process-arguments",
           "source": "script",
           "excerpt": "const tests = spawnSync(npmCommand, ['run', testScript], {",
+          "classification": "active"
+        },
+        {
+          "file": "tests/ciInfrastructureRegression.test.mjs",
+          "line": 35,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "(step) => step.run === 'npm run test:db:rollback',",
           "classification": "active"
         },
         {
@@ -42104,6 +42163,14 @@
       "historicalCallers": [],
       "callers": [
         {
+          "file": ".github/workflows/ci.yml",
+          "line": 227,
+          "kind": "npm-run",
+          "source": "workflow",
+          "excerpt": "run: npm run test:db:rollback",
+          "classification": "active"
+        },
+        {
           "file": "docs/incident-runbooks.md",
           "line": 68,
           "kind": "npm-run",
@@ -42118,6 +42185,14 @@
           "kind": "dynamic-process-arguments",
           "source": "script",
           "excerpt": "const tests = spawnSync(npmCommand, ['run', testScript], {",
+          "classification": "active"
+        },
+        {
+          "file": "tests/ciInfrastructureRegression.test.mjs",
+          "line": 35,
+          "kind": "npm-run",
+          "source": "test",
+          "excerpt": "(step) => step.run === 'npm run test:db:rollback',",
           "classification": "active"
         },
         {
@@ -42218,7 +42293,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 289,
+          "line": 295,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run test:e2e -- --output=test-results/source",
@@ -42312,7 +42387,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 289,
+          "line": 295,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run test:e2e -- --output=test-results/source",
@@ -42458,7 +42533,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 302,
+          "line": 308,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run test:e2e:production -- --output=test-results/production",
@@ -42498,7 +42573,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 44,
+          "line": 78,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "browserJob.indexOf('npm run test:e2e:production'),",
@@ -42528,7 +42603,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 302,
+          "line": 308,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run test:e2e:production -- --output=test-results/production",
@@ -42586,7 +42661,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 44,
+          "line": 78,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "browserJob.indexOf('npm run test:e2e:production'),",
@@ -44277,7 +44352,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -44687,7 +44762,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -44961,7 +45036,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -45294,7 +45369,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -45483,7 +45558,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -45887,7 +45962,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -46136,7 +46211,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -46540,7 +46615,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
@@ -46757,7 +46832,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 391,
+          "line": 397,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -47161,7 +47236,7 @@
         },
         {
           "file": "tests/ciInfrastructureRegression.test.mjs",
-          "line": 26,
+          "line": 60,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(cleanRoomJob).toContain('npm run check');",
