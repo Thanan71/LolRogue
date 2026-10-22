@@ -8,17 +8,27 @@
  */
 
 import { create } from 'zustand';
-import { getEnhancementNodeUnavailableReasons } from '@/game/rules/catalogSupport';
+import {
+  getEnhancementContractForChampion,
+  getEnhancementTreeForChampion,
+} from '@/game/enhancements/catalog';
+import {
+  type EnhancementPurchaseReason,
+  previewEnhancementPurchase,
+} from '@/game/enhancements/eligibility';
 import {
   type EnhancementValidationReason,
   enhancementContent,
   getEnhancementNodeContent,
   getEnhancementValidationMessage,
 } from '@/i18n/enhancementContent';
+import { getEnhancementResetCopy } from '@/i18n/enhancementReset';
 import { accountProgressionService } from '@/services/accountProgressionService';
 import { applicationRepositories as container } from '@/services/container/applicationRepositories';
-import { enhancementService, enhancementTreeProvider } from '@/services/enhancementService';
-import type { EnhancementContractState } from '@/services/interfaces/IEnhancementRepository';
+import type {
+  EnhancementContractState,
+  EnhancementResetPreview,
+} from '@/services/interfaces/IEnhancementRepository';
 import { useAuthStore } from '@/stores/authStore';
 import { useMasteryStore } from '@/stores/masteryStore';
 import { useSettingsStore } from '@/stores/settingsStore';
@@ -34,6 +44,7 @@ interface PendingUnlockCommand {
   commandId: string;
   expectedRank: number;
   expectedRevision: number;
+  expectedCatalogVersion: number;
 }
 
 /**
@@ -42,6 +53,10 @@ interface PendingUnlockCommand {
  * instead of attempting (and charging for) a second rank.
  */
 const pendingUnlockCommands = new Map<string, PendingUnlockCommand>();
+const pendingResetCommands = new Map<
+  string,
+  { commandId: string; expectedRevision: number; policyVersion: number }
+>();
 let progressionGeneration = 0;
 let contractRequestGeneration = 0;
 
@@ -50,28 +65,14 @@ function getPendingUnlockKey(userId: string, championId: string, nodeId: string)
 }
 
 function getUnlockValidationReason(
-  node: EnhancementNode,
-  state: PlayerEnhancementState,
-  masteryLevel: number,
-  availableCandies: number,
+  reason: EnhancementPurchaseReason | null,
 ): EnhancementValidationReason {
-  if (getEnhancementNodeUnavailableReasons(node).length > 0) {
-    return { code: 'unavailable' };
-  }
-  if (masteryLevel < node.requiredMasteryLevel) {
-    return { code: 'mastery_level', requiredLevel: node.requiredMasteryLevel };
-  }
-  if (availableCandies < node.candyCost) {
-    return { code: 'candies', requiredCandies: node.candyCost };
-  }
-
-  const maximumRank = node.maxRanks || 1;
-  if ((state.unlockedNodes[node.id] || 0) >= maximumRank) {
-    return { code: 'maxed' };
-  }
-  if (node.prerequisites.some((id) => (state.unlockedNodes[id] || 0) === 0)) {
-    return { code: 'prerequisite' };
-  }
+  if (reason?.code === 'mastery_level')
+    return { code: 'mastery_level', requiredLevel: reason.required ?? 0 };
+  if (reason?.code === 'candies') return { code: 'candies', requiredCandies: reason.required ?? 0 };
+  if (reason?.code === 'maxed') return { code: 'maxed' };
+  if (reason?.code === 'prerequisite') return { code: 'prerequisite' };
+  if (reason?.code === 'unavailable' || reason?.code === 'gated') return { code: 'unavailable' };
   return { code: 'fallback' };
 }
 
@@ -100,6 +101,7 @@ function applyCanonicalCandyBalance(candies: number): void {
 // ─── Enhancement Store State ─────────────────────────────────────────────────
 
 interface EnhancementStoreState {
+  resetPreview: EnhancementResetPreview | null;
   contractState: EnhancementContractState | null;
   contractError: string | null;
   /** Map of championId -> enhancement state */
@@ -133,6 +135,9 @@ interface EnhancementStoreState {
 // ─── Enhancement Store Actions ───────────────────────────────────────────────
 
 interface EnhancementStoreActions {
+  previewReset: () => Promise<EnhancementResetPreview | null>;
+  resetTree: (expectedRevision: number) => Promise<boolean>;
+  retryLoad: () => Promise<void>;
   loadContract: () => Promise<void>;
   /** Initialize store with player data */
   initialize: (authUserId: string, availableCandies?: number) => Promise<void>;
@@ -167,6 +172,140 @@ export type EnhancementStore = EnhancementStoreState & EnhancementStoreActions;
 // ─── Store Implementation ────────────────────────────────────────────────────
 
 export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
+  resetPreview: null,
+  retryLoad: async () => {
+    const auth = useAuthStore.getState();
+    if (!auth.user || auth.isGuest) return;
+    const userId = auth.user.id;
+    const selected = get().selectedChampion;
+    await get().initialize(userId, auth.player?.total_candies ?? 0);
+    if (
+      useAuthStore.getState().user?.id === userId &&
+      !useAuthStore.getState().isGuest &&
+      !get().selectedChampion
+    )
+      get().setSelectedChampion(selected);
+  },
+  previewReset: async () => {
+    const { selectedChampion, ownerUserId, isLoading } = get();
+    const auth = useAuthStore.getState();
+    const copy = getEnhancementResetCopy(useSettingsStore.getState().language);
+    if (!selectedChampion || isLoading) return null;
+    if (!auth.user || auth.isGuest || ownerUserId !== auth.user.id) {
+      set({ error: copy.accountRequired });
+      return null;
+    }
+    const userId = auth.user.id;
+    const generation = progressionGeneration;
+    const current = () =>
+      generation === progressionGeneration &&
+      get().ownerUserId === userId &&
+      useAuthStore.getState().user?.id === userId &&
+      !useAuthStore.getState().isGuest;
+    set({ isLoading: true, error: null, resetPreview: null });
+    try {
+      const preview = await container.enhancement.previewReset(userId, selectedChampion.id);
+      if (!current() || get().selectedChampion?.id !== selectedChampion.id) return null;
+      set({ resetPreview: preview });
+      return preview;
+    } catch {
+      if (current()) set({ error: copy.loadFailed });
+      return null;
+    } finally {
+      if (current()) set({ isLoading: false });
+    }
+  },
+  resetTree: async (expectedRevision) => {
+    const { selectedChampion, resetPreview, isLoading, ownerUserId } = get();
+    const auth = useAuthStore.getState();
+    const copy = getEnhancementResetCopy(useSettingsStore.getState().language);
+    if (!selectedChampion || isLoading) return false;
+    if (!auth.user || auth.isGuest || ownerUserId !== auth.user.id) {
+      set({ error: copy.accountRequired });
+      return false;
+    }
+    const userId = auth.user.id;
+    if (
+      !resetPreview ||
+      resetPreview.championId !== selectedChampion.id ||
+      resetPreview.revision !== expectedRevision ||
+      !resetPreview.eligible
+    ) {
+      set({ error: resetPreview?.historyUnavailable ? copy.historyUnavailable : copy.conflict });
+      return false;
+    }
+    if (!globalThis.crypto?.randomUUID) {
+      set({ error: copy.saveFailed });
+      return false;
+    }
+    const key = `${userId}:${selectedChampion.id}`;
+    const existing = pendingResetCommands.get(key);
+    const command =
+      existing?.expectedRevision === expectedRevision
+        ? existing
+        : {
+            commandId: globalThis.crypto.randomUUID(),
+            expectedRevision,
+            policyVersion: resetPreview.policyVersion,
+          };
+    pendingResetCommands.set(key, command);
+    const generation = progressionGeneration;
+    const current = () =>
+      generation === progressionGeneration &&
+      get().ownerUserId === userId &&
+      useAuthStore.getState().user?.id === userId &&
+      !useAuthStore.getState().isGuest;
+    set({ isLoading: true, error: null, statusMessage: null });
+    try {
+      const result = await container.enhancement.resetTree(
+        userId,
+        selectedChampion.id,
+        expectedRevision,
+        command.commandId,
+        command.policyVersion,
+      );
+      if (!current()) return false;
+      if (!result.success) {
+        const conflict =
+          !!result.error &&
+          /^enhancement_(revision_conflict|reset_policy_conflict|reset_ineligible)/.test(
+            result.error,
+          );
+        if (conflict) pendingResetCommands.delete(key);
+        set((s) => ({
+          enhancements: { ...s.enhancements, [selectedChampion.id]: result.newState },
+          resetPreview: conflict ? null : s.resetPreview,
+          error: result.error?.includes('history_unavailable')
+            ? copy.historyUnavailable
+            : conflict
+              ? copy.conflict
+              : copy.saveFailed,
+        }));
+        const balance = await refreshCanonicalCandyBalance(userId, current);
+        if (current() && balance !== undefined) set({ availableCandies: balance });
+        return false;
+      }
+      pendingResetCommands.delete(key);
+      const balance = result.replayed
+        ? await refreshCanonicalCandyBalance(userId, current)
+        : result.remainingCandies;
+      if (!current()) return false;
+      set((s) => ({
+        enhancements: { ...s.enhancements, [selectedChampion.id]: result.newState },
+        resetPreview: null,
+        error: null,
+        statusMessage: copy.succeeded,
+        availableCandies: balance ?? s.availableCandies,
+      }));
+      if (balance !== undefined) applyCanonicalCandyBalance(balance);
+      return true;
+    } catch {
+      if (current()) set({ error: copy.saveFailed });
+      return false;
+    } finally {
+      if (current()) set({ isLoading: false });
+    }
+  },
   contractState: null,
   contractError: null,
   loadContract: async () => {
@@ -293,7 +432,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
   getSelectedChampionTree: () => {
     const { selectedChampion } = get();
     if (!selectedChampion) return null;
-    return enhancementTreeProvider.getTreeForChampion(selectedChampion);
+    return getEnhancementTreeForChampion(selectedChampion);
   },
 
   // Check if a node can be unlocked
@@ -309,7 +448,15 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
     // Use champion-specific mastery level instead of global player level
     const masteryLevel = championMasteryLevels[selectedChampion.id] || 0;
 
-    return enhancementService.validateUnlock(node, state, masteryLevel, availableCandies).valid;
+    return previewEnhancementPurchase(node, {
+      ...state,
+      masteryLevel,
+      availableCandies,
+      enabledGates: get().contractState?.enabledGates.champion_specializations
+        ? ['champion_specializations']
+        : [],
+      contract: getEnhancementContractForChampion(selectedChampion),
+    }).eligible;
   },
 
   // Unlock a node
@@ -329,7 +476,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
     const masteryLevel = championMasteryLevels[selectedChampion.id] || 0;
 
     // Get the actual node to validate
-    const tree = enhancementTreeProvider.getTreeForChampion(selectedChampion);
+    const tree = getEnhancementTreeForChampion(selectedChampion);
     let nodeToUnlock: EnhancementNode | null = null;
 
     // Find node in core nodes
@@ -392,24 +539,27 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
     // A replay keeps the exact original command and must reach the server even
     // if the local balance became stale after a response was lost.
     if (!retryCommand) {
-      const validation = enhancementService.validateUnlock(
-        nodeToUnlock,
-        currentState,
+      const validation = previewEnhancementPurchase(nodeToUnlock, {
+        ...currentState,
         masteryLevel,
         availableCandies,
-      );
+        enabledGates: get().contractState?.enabledGates.champion_specializations
+          ? ['champion_specializations']
+          : [],
+        contract: getEnhancementContractForChampion(selectedChampion),
+      });
 
-      if (!validation.valid) {
-        if (validation.error) {
+      if (!validation.eligible) {
+        if (validation.reason) {
           logger.warn('[EnhancementStore] Unlock validation rejected:', {
             nodeId,
-            error: validation.error,
+            reason: validation.reason.code,
           });
         }
         set({
           error: getEnhancementValidationMessage(
             contentLocale,
-            getUnlockValidationReason(nodeToUnlock, currentState, masteryLevel, availableCandies),
+            getUnlockValidationReason(validation.reason),
           ),
           statusMessage: null,
         });
@@ -430,6 +580,8 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
       expectedRank,
       commandId,
       expectedRevision: retryCommand?.expectedRevision ?? expectedRevision,
+      expectedCatalogVersion:
+        retryCommand?.expectedCatalogVersion ?? get().contractState?.catalogVersion ?? 0,
     });
     set({ isLoading: true, error: null, statusMessage: null });
 
@@ -441,13 +593,14 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
         expectedRank,
         commandId,
         retryCommand?.expectedRevision ?? expectedRevision,
+        retryCommand?.expectedCatalogVersion ?? get().contractState?.catalogVersion ?? 0,
       );
       if (!isCurrent()) return false;
 
       if (!result.success) {
         if (
           result.error &&
-          /^enhancement_(revision_conflict|rank_conflict|exclusive_conflict|budget_exceeded|feature_disabled)/.test(
+          /^enhancement_(catalog_conflict|revision_conflict|rank_conflict|exclusive_conflict|budget_exceeded|feature_disabled)/.test(
             result.error,
           )
         ) {
@@ -544,7 +697,7 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
 
   // Set selected champion
   setSelectedChampion: (champion: Champion | null) => {
-    set({ selectedChampion: champion, error: null, statusMessage: null });
+    set({ selectedChampion: champion, error: null, statusMessage: null, resetPreview: null });
   },
 
   // Reset store
@@ -552,7 +705,9 @@ export const useEnhancementStore = create<EnhancementStore>()((set, get) => ({
     progressionGeneration += 1;
     contractRequestGeneration += 1;
     pendingUnlockCommands.clear();
+    pendingResetCommands.clear();
     set({
+      resetPreview: null,
       contractState: null,
       contractError: null,
       enhancements: {},
@@ -576,6 +731,10 @@ import { useEffect } from 'react';
  * Hook to get enhancement data for a specific champion
  */
 export function useChampionEnhancements(champion: Champion | null) {
+  const resetPreview = useEnhancementStore((s) => s.resetPreview);
+  const previewReset = useEnhancementStore((s) => s.previewReset);
+  const resetTree = useEnhancementStore((s) => s.resetTree);
+  const retryLoad = useEnhancementStore((s) => s.retryLoad);
   const contractState = useEnhancementStore((s) => s.contractState);
   const contractError = useEnhancementStore((s) => s.contractError);
   const loadContract = useEnhancementStore((s) => s.loadContract);
@@ -596,9 +755,13 @@ export function useChampionEnhancements(champion: Champion | null) {
 
   const state = champion ? getEnhancementState(champion.id) : null;
   const masteryLevel = champion ? getChampionMasteryLevel(champion.id) : 0;
-  const tree = champion ? enhancementTreeProvider.getTreeForChampion(champion) : null;
+  const tree = champion ? getEnhancementTreeForChampion(champion) : null;
 
   return {
+    resetPreview,
+    previewReset,
+    resetTree,
+    retryLoad,
     contractState,
     contractError,
     loadContract,

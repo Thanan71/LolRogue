@@ -8,6 +8,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type {
   EnhancementContractState,
+  EnhancementResetPreview,
+  EnhancementResetResult,
   IEnhancementRepository,
   UnlockNodeResult,
 } from '@/services/interfaces/IEnhancementRepository';
@@ -15,6 +17,7 @@ import { supabase } from '@/services/supabaseClient';
 import type { Database, Json } from '@/types/database';
 import type { PlayerEnhancementState } from '@/types/enhancementTree';
 import { logger } from '@/utils/logger';
+import { parseEnhancementResetPreview } from './enhancementResetParser';
 
 export const ENHANCEMENT_REPOSITORY_ERROR_CODES = {
   rpcFailed: 'ENHANCEMENT_UNLOCK_RPC_FAILED',
@@ -99,6 +102,68 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
     };
   }
 
+  async previewReset(authUserId: string, championId: string): Promise<EnhancementResetPreview> {
+    if (!authUserId) throw new Error('authentication_required');
+    const { data, error } = await this.client.rpc('get_enhancement_reset_preview', {
+      p_champion_id: championId,
+    });
+    if (error) throw error;
+    return parseEnhancementResetPreview(data, championId);
+  }
+
+  async resetTree(
+    authUserId: string,
+    championId: string,
+    expectedRevision: number,
+    commandId: string,
+    expectedPolicyVersion: number,
+  ): Promise<EnhancementResetResult> {
+    const { data, error } = await this.client.rpc('reset_champion_enhancements', {
+      p_champion_id: championId,
+      p_expected_revision: expectedRevision,
+      p_command_id: commandId,
+      p_expected_policy_version: expectedPolicyVersion,
+    });
+    const failure = async (message: string): Promise<EnhancementResetResult> => ({
+      success: false,
+      newState: (await this.getEnhancementState(authUserId, championId)) ?? {
+        unlockedNodes: {},
+        totalCandiesSpent: 0,
+      },
+      error: message,
+    });
+    if (error) return failure(error.message);
+    try {
+      const parsed = parseEnhancementResetPreview(data, championId);
+      const row = data as Record<string, unknown>;
+      if (
+        row.command_id !== commandId ||
+        row.new_revision !== expectedRevision + 1 ||
+        typeof row.replayed !== 'boolean' ||
+        row.total_candies_spent !== 0 ||
+        Object.keys(parsed.unlockedNodes).length > 0
+      ) {
+        return failure('ENHANCEMENT_RESET_INVALID_RESPONSE');
+      }
+      const current = row.replayed ? await this.getEnhancementState(authUserId, championId) : null;
+      return {
+        success: true,
+        newState: current ?? {
+          unlockedNodes: {},
+          totalCandiesSpent: 0,
+          ...versionFields({ revision: row.new_revision, reset_count: parsed.resetCount }),
+        },
+        remainingCandies: parsed.remainingCandies,
+        refundAmount: parsed.refundAmount,
+        feeAmount: parsed.feeAmount,
+        commandId,
+        replayed: row.replayed,
+      };
+    } catch {
+      return failure('ENHANCEMENT_RESET_INVALID_RESPONSE');
+    }
+  }
+
   /**
    * Get enhancement state for an authenticated account/champion pair.
    */
@@ -144,6 +209,7 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
     expectedRank: number,
     commandId: string,
     expectedRevision?: number,
+    expectedCatalogVersion?: number,
   ): Promise<UnlockNodeResult> {
     const request = {
       p_champion_id: championId,
@@ -157,6 +223,7 @@ export class SupabaseEnhancementRepository implements IEnhancementRepository {
         : await this.client.rpc('unlock_champion_enhancement_v2', {
             ...request,
             p_expected_revision: expectedRevision,
+            p_expected_catalog_version: expectedCatalogVersion ?? 0,
           });
     const result = data as {
       command_id?: string;

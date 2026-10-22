@@ -19,6 +19,8 @@ function setup() {
     mastery: { getChampionMastery, getChampionMasteryByChampion: vi.fn() },
     enhancement: {
       getContractState: vi.fn(),
+      previewReset: vi.fn(),
+      resetTree: vi.fn(),
       getAllEnhancementStates,
       getEnhancementState: vi.fn(),
       unlockNode: vi.fn(),

@@ -45,12 +45,51 @@ export interface EnhancementContractState {
   resetPolicyVersion: number;
 }
 
+export interface EnhancementResetPreview {
+  championId: string;
+  revision: number;
+  catalogVersion: number;
+  contractSchemaVersion: 1;
+  unlockedNodes: Record<string, number>;
+  removedNodeIds: string[];
+  actualSpend: number;
+  refundAmount: number;
+  feeAmount: number;
+  feeExempt: boolean;
+  resetCount: number;
+  remainingCandies: number;
+  policyVersion: number;
+  eligible: boolean;
+  historyUnavailable: boolean;
+  reason: string | null;
+  activeRunPreserved: true;
+}
+
+export interface EnhancementResetResult {
+  success: boolean;
+  newState: PlayerEnhancementState;
+  remainingCandies?: number;
+  refundAmount?: number;
+  feeAmount?: number;
+  commandId?: string;
+  replayed?: boolean;
+  error?: string;
+}
+
 /**
  * Interface for enhancement data persistence
  * Single Responsibility Principle (SRP) - only handles enhancement data
  */
 export interface IEnhancementRepository {
   getContractState(): Promise<EnhancementContractState>;
+  previewReset(authUserId: string, championId: string): Promise<EnhancementResetPreview>;
+  resetTree(
+    authUserId: string,
+    championId: string,
+    expectedRevision: number,
+    commandId: string,
+    expectedPolicyVersion: number,
+  ): Promise<EnhancementResetResult>;
   /**
    * Get enhancement state for an authenticated account/champion pair.
    * `authUserId` is the UUID from `auth.users.id`, not `players.id`.
@@ -76,6 +115,7 @@ export interface IEnhancementRepository {
     expectedRank: number,
     commandId: string,
     expectedRevision?: number,
+    expectedCatalogVersion?: number,
   ): Promise<UnlockNodeResult>;
 }
 
