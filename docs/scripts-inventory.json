@@ -148,6 +148,7 @@
     "config/application-rollback.json",
     "config/authority-cohort-baselines-0.2.0.json",
     "config/authority-cohort-baselines-0.2.5.json",
+    "config/authority-cohort-baselines-0.3.0.json",
     "config/authority-cohort-baselines-v15.json",
     "config/authority-cohort-baselines-v16.json",
     "config/authority-cohort-baselines-v17.json",
@@ -181,6 +182,7 @@
     "config/supabase-advisors.json",
     "config/veigar-run-progression-balance-0.2.0.json",
     "config/veigar-run-progression-balance-0.2.5.json",
+    "config/veigar-run-progression-balance-0.3.0.json",
     "config/veigar-run-progression-balance-v22.json",
     "docs/accessibility.md",
     "docs/admin-analytics.md",
@@ -1191,6 +1193,7 @@
     "tests/enhancementResetParser.test.ts",
     "tests/enhancementSecondaryStats.test.ts",
     "tests/enhancementServerEvidence.test.ts",
+    "tests/enhancementSnapshotValidation.test.ts",
     "tests/enhancementSpecializationComparison.test.ts",
     "tests/enhancementSpecializations.test.ts",
     "tests/enhancementStoreRecovery.test.ts",
@@ -4082,7 +4085,7 @@
         },
         {
           "file": "scripts/generate-authority-resolver.mjs",
-          "line": 98,
+          "line": 99,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "return `// Generated from config/authority-versions.json by npm run authority:generate.",
@@ -4149,7 +4152,7 @@
         },
         {
           "file": "scripts/generate-authority-resolver.mjs",
-          "line": 98,
+          "line": 99,
           "kind": "npm-run",
           "source": "script",
           "excerpt": "return `// Generated from config/authority-versions.json by npm run authority:generate.",
@@ -13895,6 +13898,1446 @@
           "classification": "active"
         },
         {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 218,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 313,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 366,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 461,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 528,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 595,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 619,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 658,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 753,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 777,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 816,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 869,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 964,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1003,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1070,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1094,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1147,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1186,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1253,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1320,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1415,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1510,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1605,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1672,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1739,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1763,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1802,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1897,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1964,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2031,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2177,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2272,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2325,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2420,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2487,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2582,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2606,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2701,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2796,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2820,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2859,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2926,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3021,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3088,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3183,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3207,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3260,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3299,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3366,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3461,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3556,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3651,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3746,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3841,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3908,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3932,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3971,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4066,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4133,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4200,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4346,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4441,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4494,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4589,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4656,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4737,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4832,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4927,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5022,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5061,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5100,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5167,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5262,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5329,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5396,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5491,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5544,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5583,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5650,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5717,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5812,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5907,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6002,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6097,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6164,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6259,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6326,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6421,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6488,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6555,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6729,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6824,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6877,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6972,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7067,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7134,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7229,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7324,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7419,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7458,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7497,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7564,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7659,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7740,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7807,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7902,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7997,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8036,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8131,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8233,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8328,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8423,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8518,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8613,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8680,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8775,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8842,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8937,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9004,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9085,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9259,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9354,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9407,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9502,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9583,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9678,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9773,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9868,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9963,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10002,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10069,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10136,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10231,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10312,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10379,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10474,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10569,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10608,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10675,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10777,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10872,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10967,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11062,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11157,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11224,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11319,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11414,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11509,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11576,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11657,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11803,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11898,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11951,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12046,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12141,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12236,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12331,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12426,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12521,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12560,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12599,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12666,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12761,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12828,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12895,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12990,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13085,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13124,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13191,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13258,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13353,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13455,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13550,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13645,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13712,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13807,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13902,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13997,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 14064,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 14131,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
           "file": "config/veigar-run-progression-balance-v22.json",
           "line": 218,
           "kind": "npm-run",
@@ -22071,6 +23514,1446 @@
           "kind": "npm-run",
           "source": "configuration",
           "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.2.5-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 218,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 313,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 366,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 461,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 528,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 595,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 619,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 658,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 753,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 777,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 816,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 869,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 964,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1003,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1070,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1094,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1147,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1186,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1253,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1320,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1415,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1510,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1605,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1672,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1739,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1763,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1802,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1897,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 1964,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2031,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2177,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2272,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2325,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2420,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2487,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2582,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2606,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2701,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2796,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2820,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2859,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 2926,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3021,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3088,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3183,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3207,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3260,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3299,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3366,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3461,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3556,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3651,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3746,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3841,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3908,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3932,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 3971,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4066,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4133,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4200,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%2",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4346,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4441,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4494,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4589,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4656,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4737,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4832,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 4927,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5022,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5061,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5100,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5167,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5262,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5329,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5396,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5491,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5544,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5583,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5650,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5717,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5812,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 5907,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6002,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6097,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6164,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6259,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6326,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6421,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6488,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6555,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-normal-fresh%22%2C%22difficulty%22%3A%22normal%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22c",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6729,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6824,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6877,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 6972,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7067,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7134,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7229,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7324,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7419,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7458,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7497,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7564,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7659,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7740,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7807,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7902,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 7997,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8036,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8131,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8233,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8328,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8423,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8518,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8613,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8680,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8775,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8842,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 8937,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9004,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9085,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-veigar-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22ch",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9259,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9354,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9407,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9502,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9583,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9678,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9773,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9868,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 9963,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10002,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10069,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10136,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10231,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10312,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10379,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10474,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10569,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10608,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10675,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10777,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10872,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 10967,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11062,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11157,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11224,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11319,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11414,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11509,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11576,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11657,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-annie-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22cha",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11803,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11898,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 11951,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12046,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12141,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12236,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12331,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12426,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12521,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12560,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12599,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12666,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12761,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12828,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12895,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 12990,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13085,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13124,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13191,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13258,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13353,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13455,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13550,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13645,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13712,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13807,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13902,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 13997,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 14064,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
+          "classification": "active"
+        },
+        {
+          "file": "config/veigar-run-progression-balance-0.3.0.json",
+          "line": 14131,
+          "kind": "npm-run",
+          "source": "configuration",
+          "excerpt": "\"reproductionCommand\": \"npm run balance:repro -- --scenario-json '%7B%22id%22%3A%22veigar-0.3.0-garen-lux-easy-fresh%22%2C%22difficulty%22%3A%22easy%22%2C%22team%22%3A%5B%7B%22championId%22%3A%22Garen%22%7D%2C%7B%22champ",
           "classification": "active"
         },
         {
