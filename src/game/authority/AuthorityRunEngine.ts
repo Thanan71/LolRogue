@@ -95,7 +95,7 @@ import type {
 
 export const AUTHORITY_ENGINE_VERSION = 'run-engine-0.3.0';
 export const AUTHORITY_CONTENT_HASH =
-  '22b050a99c3e7166729aefdf03bfdb187f64fe81185b9a79b28ff35ef3f5f91b';
+  '1e1115346000b3c5ee57fc2cd481032c280df800d883ae244dd8c4f420ef7d4a';
 
 assertValidRuleCatalogs();
 

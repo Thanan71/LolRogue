@@ -75,6 +75,7 @@ export const CURRENT_AUTHORITY_VERSION = ${JSON.stringify(
     {
       engine: current.engine,
       gameplay: current.gameplay,
+      progression: current.progression,
       contentHash: current.contentHash,
       dailyScore: current.dailyScore,
     },
