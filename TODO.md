@@ -55,7 +55,7 @@ Une tâche n'est terminée que lorsque :
 | **Nettoyage technique / scripts npm** | ARCH-S1 à S5 implémentés ; validation et livraison distinctes | P2, déploiement P1 | [ARCH — 18 tâches / 5 sprints](docs/backlog/architecture-maintenance.md) |
 | **Arbres Candies** | TREE-01..10 implémentés en code ; 8 voies gated, preuves humaines et livraison globale ouvertes | P1 puis P2/P3 | [TREE — 10 lots très détaillés](docs/backlog/champion-enhancement-trees.md) |
 | **Bot tactique selon champion/équipe** | À concevoir derrière flag ; legacy conservé | P1 puis P2 | [AI — 49 tâches / 9 sprints](docs/backlog/tactical-bot.md) |
-| **Administration** | ADM-S1 à S7 implémentés en code ; ADM-20 intégré par TREE-10 ; validation humaine ADM-34 antérieure, distincte de la nouvelle UI TREE | P1 puis P2 | [ADM — 36 tâches / 7 sprints](docs/backlog/admin-console.md) |
+| **Administration** | ADM-S1 à S7 implémentés en code ; [ADM-20 validé](docs/admin-20-validation-0.3.0.md), intégré par TREE-10 dans la PR #242 fusionnée vers dev ; validation humaine ADM-34 antérieure, distincte de la nouvelle UI TREE | P1 puis P2 | [ADM — 36 tâches / 7 sprints](docs/backlog/admin-console.md) |
 | **Économie des champions** | Code livré, flag OFF, rollout distant distinct | P3 | `P3-ECO-01` + [procédure](docs/champion-economy.md) |
 | **Nouveaux champions** | Veigar réalisé en code ; cinq sprints en attente | P3 | `P3-CHAMP-01..06` ci-dessous ; [archive Veigar](docs/archive/p3-champ-01-veigar-completed-2026-10-10.md) |
 
