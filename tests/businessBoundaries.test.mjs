@@ -173,6 +173,23 @@ describe('bounded Edge replay locator', () => {
 
 describe('explicit service entries and import graph evidence', () => {
   it.each([
+    ["type Value = import('@/types/fixture').Value;", 'import-type', true],
+    ["type Module = typeof import('@/types/fixture');", 'import-type', true],
+    ["const module = await import('@/types/fixture');", 'dynamic-import', false],
+  ])('preserves the literal module source for %s', (source, kind, typeOnly) => {
+    const graph = graphFor(source, [['src/types/fixture.ts']]);
+    expect(graph.edges).toEqual([
+      expect.objectContaining({
+        specifier: '@/types/fixture',
+        target: 'src/types/fixture.ts',
+        kind,
+        typeOnly,
+      }),
+    ]);
+    expect(checkBusinessBoundaries(graph)).toEqual([]);
+  });
+
+  it.each([
     ['@/pages/CombatPage', 'src/pages/CombatPage.tsx'],
     ['@/components/ui/Controls', 'src/components/ui/Controls.tsx'],
     ['@/hooks/useBattleManager', 'src/hooks/useBattleManager.ts'],
