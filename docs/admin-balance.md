@@ -21,7 +21,7 @@ un solde ou un résultat. La clé service-role reste hors du navigateur.
 | Runes et augments | Identifiants conservés avec le résultat vérifié ; multiplicité des augments préservée | Une sélection n’indique pas les choix proposés ou refusés |
 | Calibration terrain | Agrégats FieldCalibration existants et baselines versionnées du moteur de balance | Une simulation ne constitue pas un playtest humain ; une version incompatible n’est pas comparée |
 | Versions et flags | Configuration lue sur la base interrogée | Un flag absent est inconnu ; le code local ne prouve pas son activation distante |
-| Arbres Candies | Futur contrat TREE-10 | Indisponible tant que TREE-10 ne fournit pas ses événements et agrégats validés |
+| Arbres Candies | Contrat TREE-10 : commandes et reçus de progression, registre Candies existant et snapshots des tentatives vérifiées | Achats et remboursements attestés ; disponibilité courante distincte des builds historiques ; exposition au catalogue non collectée |
 
 Les comptes supprimés entraînent les suppressions prévues par la politique de
 confidentialité. Les résultats décrivent les données conservées, pas toute
@@ -79,13 +79,42 @@ Toute évolution des règles suit le registre authority, ses générateurs, les
 replays et les procédures de déploiement/rollback du dépôt. Elle ne réécrit pas
 les anciennes archives et ne contourne pas RLS depuis le navigateur.
 
-## Dépendance TREE-10
+## Arbres Candies et spécialisations — ADM-20 / TREE-10
 
-ADM-20 est **en attente de TREE-10**. Le panneau annonce cette dépendance, sans
-déduire des achats de la différence entre deux soldes, sans inventer des resets
-ou spécialisations et sans second ledger Candies. Les cas achat double, reset
-remboursé et victoire par build historique ne sont pas déclarés validés avant
-la disponibilité de ce contrat. Le backlog conserve ces cases ouvertes.
+Le panneau **Arbres et Candies**, dans l’espace Équilibrage existant, consomme
+`admin_balance_trees`. Cette lecture rejoint les commandes terminées de
+`progression_commands` et les transactions `candy_transactions` par leur reçu
+d’achat ou de remboursement. Elle présente les achats par nœud et branche, les
+acheteurs uniques, les dépenses et les resets remboursés. La date de couverture,
+les commandes non classées et une réconciliation incomplète restent visibles.
+Les lectures ne modifient ni portefeuille, ni achat, ni résultat.
+
+Les achats suivent la période UTC, la version de progression et le champion.
+Les filtres moteur, gameplay, commandes, contenu, mode et difficulté concernent
+les runs seulement. La part des acheteurs est masquée sous 30 acheteurs pour
+le nœud ou la branche ; elle ne représente pas une conversion, puisque les
+expositions au catalogue ne sont pas collectées.
+
+Les builds reposent sur les rangs figés au départ des tentatives liées aux runs
+vérifiées, sous leur identité exacte de règles et de composition. Un reset
+ultérieur ne réécrit pas cette observation. Les snapshots partiels et les
+échantillons de moins de 30 runs ou 30 joueurs n’affichent pas de taux de victoire.
+L’intervalle Wilson est également masqué en présence de joueurs répétés. Ces
+observations restent descriptives. Au-delà de 200 builds, l’interface annonce
+la limite ; la réponse fournit aussi le total et le statut de troncature.
+Les autres cardinalités excessives exigent d’affiner les filtres.
+
+Le catalogue courant distingue les nœuds disponibles, désactivés, bloqués par
+un prérequis et les spécialisations en attente de validation humaine. Il ne
+mesure pas les tentatives d’achat refusées ni les blocages individuels. Les
+8 voies spécialisées restent derrière `champion_specializations=false` ; leur
+affichage dans l’administration n’autorise pas leur achat.
+
+La RPC publique est `SECURITY INVOKER` et réutilise le dispatcher privé gardé.
+Les droits admin sont vérifiés dans la base à chaque appel, y compris après
+révocation avec le même JWT. Chargement, état vide, erreur, données anciennes et
+réessai sont indépendants ; un refus de permission purge toutes les ressources
+d’équilibrage. Voir les [requêtes et preuves ADM-20](admin-20-validation-0.3.0.md).
 
 ## États et vérification
 
