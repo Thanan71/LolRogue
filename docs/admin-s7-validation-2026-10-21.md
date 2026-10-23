@@ -130,7 +130,7 @@ S7 n’ajoute ni migration ni changement de permissions ; les 73 migrations
 existantes constituent la base de la preuve. Le registre authority, le moteur
 `run-engine-0.2.5`, le gameplay **24** et les bundles archivés gardent leurs
 versions et leur contenu. Aucun résultat historique, gain Candies, événement
-d’arbre, appareil ou connexion manquante n’est reconstruit. ADM-20 attend TREE-10.
+d’arbre, appareil ou connexion manquante n’est reconstruit. À la date de S7, ADM-20 attendait TREE-10 ; cette dépendance est depuis levée en 0.3.0, voir les [preuves ADM-20](admin-20-validation-0.3.0.md).
 
 Un retour arrière restaure un frontend précédent compatible avec le schéma et
 les RPC actuels, après les contrôles du [runbook](incident-runbooks.md#rollback-applicatif).

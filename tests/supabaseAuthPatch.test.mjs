@@ -103,6 +103,11 @@ describe('Supabase Auth postinstall patch', () => {
     mkdirSync(scripts);
     const script = path.join(scripts, 'apply-supabase-auth-patch.mjs');
     copyFileSync(path.join(root, 'scripts', 'apply-supabase-auth-patch.mjs'), script);
+    mkdirSync(path.join(scripts, 'lib'));
+    copyFileSync(
+      path.join(root, 'scripts/lib/dependency-type-patches.mjs'),
+      path.join(scripts, 'lib/dependency-type-patches.mjs'),
+    );
     rmSync(files[1].file);
     const result = spawnSync(process.execPath, [script], { cwd: directory, encoding: 'utf8' });
     expect(result.status).toBe(1);
