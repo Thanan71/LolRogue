@@ -52,9 +52,9 @@ jobs:
           DISPATCH_PROFILE: ${{ inputs.profile }}
         run: |
           case "$GITHUB_EVENT_NAME" in
-            pull_request) profile=pr ;;
-            schedule) profile=nightly ;;
-            release) profile=release ;;
+            pull_request) profile='pr' ;;
+            schedule) profile='nightly' ;;
+            release) profile='release' ;;
             workflow_dispatch) profile="$DISPATCH_PROFILE" ;;
             *) exit 2 ;;
           esac

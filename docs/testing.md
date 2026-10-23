@@ -155,22 +155,19 @@ Il exclut uniquement le témoin négatif `node-globals.ts`. Cela **ne remplace p
 la compilation Node sans DOM : le wrapper strict et le workflow l'exécutent aussi,
 et aucune exception n'est autorisée dans cette première compilation.
 
-Deux incompatibilités de déclarations amont restent précisément autorisées dans
-`scripts/strict-typecheck-exceptions.json`, jusqu'au **23 octobre 2026 exclu** :
+Les incompatibilités de déclarations amont sont corrigées à l'installation par
+`scripts/lib/dependency-type-patches.mjs` : le type WebAuthn conserve son
+`toJSON` spécifique au SDK avec `Omit<PublicKeyCredential, 'toJSON'>`, et Speed Insights
+référence `import('react').JSX` pour React 19. Les quatre fichiers de déclarations
+CJS/ESM sont verrouillés par version et empreinte SHA-256 avant toute écriture.
+Le runtime Auth conserve séparément son patch de lecture `localStorage`.
 
-- `@supabase/auth-js` 2.117.2 / TS2430 : la représentation JSON WebAuthn `largeBlob`
-  diffère de celle du DOM TypeScript 7 (`ArrayBuffer` contre `string`).
-- `@vercel/speed-insights` 2.0.0 / TS2503 : le paquet référence le namespace global
-  `JSX`, supprimé des types React 19, au lieu de `React.JSX`.
-
-Chaque exception fixe le chemin `.d.ts`/`.d.mts`, le code, le message complet
-(empreinte SHA-256), les scopes, la version du paquet et celle de TypeScript.
-Une erreur supplémentaire, une exception obsolète, un doublon, un changement de
-version ou l'expiration fait échouer la gate. Les quatre diagnostics acceptés
-(trois scopes Supabase, un scope React) restent visibles ; il n'y a ni patch des
-déclarations tierces, ni namespace global artificiel, ni `continue-on-error`.
-Lors d'une mise à jour, relancer la commande, corriger d'abord le projet et retirer
-les exceptions résolues ; tout renouvellement doit être justifié explicitement.
+`scripts/strict-typecheck-exceptions.json` ne contient plus aucune exception.
+Les compilations app, scripts et E2E passent avec `skipLibCheck=false`, sans
+namespace global artificiel. Le contrôle des exceptions reste actif : toute erreur
+inattendue ou future exception obsolète, modifiée ou expirée bloque la gate.
+Lors d'une mise à jour des paquets, vérifier les déclarations publiées et retirer
+les correctifs intégrés en amont ; toute divergence de fichier bloque l'installation.
 
 Les types Jest racine et l'ancienne augmentation Vitest de `jest-dom` ne sont plus
 chargés : les matchers standalone utilisent une augmentation compatible Vitest 5,

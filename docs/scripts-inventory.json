@@ -399,6 +399,7 @@
     "scripts/lib/database-test-discovery.mjs",
     "scripts/lib/database-types.mjs",
     "scripts/lib/dependency-audit.mjs",
+    "scripts/lib/dependency-type-patches.mjs",
     "scripts/lib/environment-config.mjs",
     "scripts/lib/generated-artifacts.mjs",
     "scripts/lib/generated-authority-artifacts.mjs",
@@ -1158,6 +1159,7 @@
     "tests/databaseTypeGeneration.test.mjs",
     "tests/dbLogger.test.ts",
     "tests/dependencyAudit.test.mjs",
+    "tests/dependencyTypePatches.test.mjs",
     "tests/deployedAssetsVerifier.test.ts",
     "tests/deploymentWorkflow.test.ts",
     "tests/dialogAccessibility.test.tsx",
@@ -1957,7 +1959,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 365,
+          "line": 369,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run assets -- verify",
@@ -2243,7 +2245,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 365,
+          "line": 369,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run assets -- verify",
@@ -2541,7 +2543,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -2939,7 +2941,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -26783,7 +26785,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -27171,7 +27173,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -27324,7 +27326,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -27452,7 +27454,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -27610,7 +27612,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -27828,7 +27830,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -28149,7 +28151,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -28445,7 +28447,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -28582,7 +28584,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 224,
+          "line": 226,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:db",
@@ -28590,7 +28592,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 62,
+          "line": 64,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:db",
@@ -28649,7 +28651,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 224,
+          "line": 226,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:db",
@@ -28657,7 +28659,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 62,
+          "line": 64,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:db",
@@ -28816,7 +28818,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -29112,7 +29114,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -29332,7 +29334,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -29628,7 +29630,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -29851,7 +29853,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -30147,7 +30149,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -30664,7 +30666,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 231,
+          "line": 233,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -30672,7 +30674,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 276,
+          "line": 278,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
@@ -30680,7 +30682,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 325,
+          "line": 329,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -30688,7 +30690,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 368,
+          "line": 372,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
@@ -30696,7 +30698,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 382,
+          "line": 388,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- lint",
@@ -30704,7 +30706,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 392,
+          "line": 398,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- reset --yes",
@@ -30712,7 +30714,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 393,
+          "line": 399,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- lint",
@@ -30720,7 +30722,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 414,
+          "line": 420,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -30736,7 +30738,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -30744,7 +30746,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 112,
+          "line": 114,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -30752,7 +30754,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 118,
+          "line": 120,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --preview",
@@ -30760,7 +30762,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 121,
+          "line": 123,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -30768,7 +30770,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 124,
+          "line": 126,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrations check --linked --project-ref \"$EXPECTED_PROJECT_REF\"",
@@ -30776,7 +30778,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 173,
+          "line": 175,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -30784,7 +30786,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 179,
+          "line": 181,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --preview",
@@ -30792,7 +30794,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 182,
+          "line": 184,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -30800,7 +30802,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 185,
+          "line": 187,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrations check --linked --project-ref \"$EXPECTED_PROJECT_REF\"",
@@ -31456,7 +31458,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 192,
+          "line": 189,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- advisors` applique ce contrat à la stack locale. `npm run database -- validate --yes`",
@@ -31464,7 +31466,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 192,
+          "line": 189,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- advisors` applique ce contrat à la stack locale. `npm run database -- validate --yes`",
@@ -31472,7 +31474,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 218,
+          "line": 215,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "suite générique sans Supabase local d'ignorer les tests live ; `npm run database -- validate --yes` passe par",
@@ -31668,7 +31670,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 231,
+          "line": 233,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -31676,7 +31678,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 276,
+          "line": 278,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
@@ -31684,7 +31686,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 325,
+          "line": 329,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -31692,7 +31694,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 368,
+          "line": 372,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- start",
@@ -31700,7 +31702,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 382,
+          "line": 388,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- lint",
@@ -31708,7 +31710,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 392,
+          "line": 398,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- reset --yes",
@@ -31716,7 +31718,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 393,
+          "line": 399,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run database -- lint",
@@ -31724,7 +31726,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 414,
+          "line": 420,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -31740,7 +31742,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 66,
+          "line": 68,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- stop",
@@ -31748,7 +31750,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 112,
+          "line": 114,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -31756,7 +31758,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 118,
+          "line": 120,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --preview",
@@ -31764,7 +31766,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 121,
+          "line": 123,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -31772,7 +31774,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 124,
+          "line": 126,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrations check --linked --project-ref \"$EXPECTED_PROJECT_REF\"",
@@ -31780,7 +31782,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 173,
+          "line": 175,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- link --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -31788,7 +31790,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 179,
+          "line": 181,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --preview",
@@ -31796,7 +31798,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 182,
+          "line": 184,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrate --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -31804,7 +31806,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 185,
+          "line": 187,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run database -- migrations check --linked --project-ref \"$EXPECTED_PROJECT_REF\"",
@@ -32460,7 +32462,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 192,
+          "line": 189,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- advisors` applique ce contrat à la stack locale. `npm run database -- validate --yes`",
@@ -32468,7 +32470,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 192,
+          "line": 189,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run database -- advisors` applique ce contrat à la stack locale. `npm run database -- validate --yes`",
@@ -32476,7 +32478,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 218,
+          "line": 215,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "suite générique sans Supabase local d'ignorer les tests live ; `npm run database -- validate --yes` passe par",
@@ -32663,7 +32665,7 @@
       "indirectCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 224,
+          "line": 226,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:db",
@@ -32674,7 +32676,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 62,
+          "line": 64,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check:db",
@@ -34445,7 +34447,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -34778,7 +34780,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -35005,7 +35007,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -35338,7 +35340,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -35601,7 +35603,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -35934,7 +35936,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -36174,7 +36176,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -36616,7 +36618,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -36877,7 +36879,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 263,
+          "line": 265,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -36885,7 +36887,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 362,
+          "line": 366,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -36909,7 +36911,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 104,
+          "line": 106,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -36917,7 +36919,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 165,
+          "line": 167,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -37283,7 +37285,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 263,
+          "line": 265,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -37291,7 +37293,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 362,
+          "line": 366,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -37315,7 +37317,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 104,
+          "line": 106,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -37323,7 +37325,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 165,
+          "line": 167,
           "source": "workflow",
           "kind": "implicit-install-hook",
           "excerpt": "run: npm ci",
@@ -37722,7 +37724,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -38164,7 +38166,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -38478,7 +38480,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 127,
+          "line": 129,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run release -- edge deploy --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -38486,7 +38488,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 188,
+          "line": 190,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run release -- edge deploy --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -39012,7 +39014,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 127,
+          "line": 129,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run release -- edge deploy --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -39020,7 +39022,7 @@
         },
         {
           "file": ".github/workflows/database-deployment.yml",
-          "line": 188,
+          "line": 190,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run release -- edge deploy --project-ref \"$EXPECTED_PROJECT_REF\" --yes",
@@ -39553,7 +39555,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -39988,7 +39990,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -40556,7 +40558,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -40889,7 +40891,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -41525,7 +41527,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -41880,7 +41882,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -42022,7 +42024,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 394,
+          "line": 400,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run test:db",
@@ -42086,7 +42088,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 216,
+          "line": 213,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:db`, sauf correspondance exacte avec une entrée justifiée de",
@@ -42094,7 +42096,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 223,
+          "line": 220,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "fichier que `npm run test:db` transmettra à Vitest. Cette commande ne démarre ni",
@@ -42139,7 +42141,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 394,
+          "line": 400,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run test:db",
@@ -42203,7 +42205,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 216,
+          "line": 213,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run test:db`, sauf correspondance exacte avec une entrée justifiée de",
@@ -42211,7 +42213,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 223,
+          "line": 220,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "fichier que `npm run test:db` transmettra à Vitest. Cette commande ne démarre ni",
@@ -42349,7 +42351,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 227,
+          "line": 229,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run test:db:rollback",
@@ -42402,7 +42404,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 227,
+          "line": 229,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run test:db:rollback",
@@ -42539,7 +42541,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 295,
+          "line": 299,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run test:e2e -- --output=test-results/source",
@@ -42657,7 +42659,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 295,
+          "line": 299,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "npm run test:e2e -- --output=test-results/source",
@@ -42827,7 +42829,7 @@
       "activeCallers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 308,
+          "line": 312,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run test:e2e:production -- --output=test-results/production",
@@ -42897,7 +42899,7 @@
       "callers": [
         {
           "file": ".github/workflows/ci.yml",
-          "line": 308,
+          "line": 312,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run test:e2e:production -- --output=test-results/production",
@@ -43932,7 +43934,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 222,
+          "line": 219,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run testing -- database --list` applique ces mêmes règles et affiche, dans l'ordre, chaque",
@@ -43940,7 +43942,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 280,
+          "line": 277,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run testing -- performance budgets`. Ils couvrent le JavaScript total, le plus gros",
@@ -43948,7 +43950,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 285,
+          "line": 282,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après le build, `npm run testing -- performance preview` démarre une vraie preview Vite,",
@@ -43956,7 +43958,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 301,
+          "line": 298,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run testing -- styles check` analyse tous les fichiers source et refuse les styles",
@@ -43964,7 +43966,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 305,
+          "line": 302,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "la carte. `productionConfig.test.ts` et `npm run testing -- production-build` vérifient les politiques",
@@ -44389,7 +44391,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 222,
+          "line": 219,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run testing -- database --list` applique ces mêmes règles et affiche, dans l'ordre, chaque",
@@ -44397,7 +44399,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 280,
+          "line": 277,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run testing -- performance budgets`. Ils couvrent le JavaScript total, le plus gros",
@@ -44405,7 +44407,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 285,
+          "line": 282,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après le build, `npm run testing -- performance preview` démarre une vraie preview Vite,",
@@ -44413,7 +44415,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 301,
+          "line": 298,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "`npm run testing -- styles check` analyse tous les fichiers source et refuse les styles",
@@ -44421,7 +44423,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 305,
+          "line": 302,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "la carte. `productionConfig.test.ts` et `npm run testing -- production-build` vérifient les politiques",
@@ -44646,7 +44648,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -45056,7 +45058,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -45342,7 +45344,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -45675,7 +45677,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -45876,7 +45878,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -46280,7 +46282,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -46542,7 +46544,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -46946,7 +46948,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
@@ -47176,7 +47178,7 @@
         },
         {
           "file": ".github/workflows/ci.yml",
-          "line": 397,
+          "line": 403,
           "kind": "npm-run",
           "source": "workflow",
           "excerpt": "run: npm run check",
@@ -47580,7 +47582,7 @@
         },
         {
           "file": "docs/testing.md",
-          "line": 263,
+          "line": 260,
           "kind": "npm-run",
           "source": "documentation",
           "excerpt": "Après `npm run check`, `scripts/verify-production-build.mjs` sert `dist` avec le",
