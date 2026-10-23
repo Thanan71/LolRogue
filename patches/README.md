@@ -43,7 +43,7 @@ inattendus, sans toucher au SDK installé.
 
 Les déclarations tierces sont corrigées séparément par
 `scripts/lib/dependency-type-patches.mjs`, appelé par le même postinstall.
-Supabase Auth 2.117.2 redéfinit `toJSON` via `Omit<PublicKeyCredential, 'toJSON'>`.
+Supabase Auth 2.118.0 redéfinit `toJSON` via `Omit<PublicKeyCredential, 'toJSON'>`.
 Son sérialiseur de compatibilité conserve des champs optionnels et les extensions
 brutes ; son résultat diffère du JSON natif du DOM TypeScript 7. Ce correctif
 préserve ce contrat SDK au lieu d'imposer des champs absents du runtime.
@@ -51,5 +51,5 @@ Speed Insights 2.0.0 utilise le namespace JSX exporté par React 19.
 Ces corrections portent uniquement sur les déclarations CJS/ESM ; chaque fichier
 complet est vérifié par SHA-256 et chaque version est exigée avant toute écriture.
 Aucune exception du typecheck strict n'est nécessaire. Sources de référence :
-https://github.com/supabase/supabase-js/blob/v2.117.2/packages/core/auth-js/src/lib/webauthn.dom.ts
+https://github.com/supabase/supabase-js/blob/v2.118.0/packages/core/auth-js/src/lib/webauthn.dom.ts
 et https://react.dev/blog/2024/04/25/react-19-upgrade-guide#the-jsx-namespace-in-typescript.
