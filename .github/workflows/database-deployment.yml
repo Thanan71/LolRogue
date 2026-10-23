@@ -54,9 +54,11 @@ jobs:
           : "${ANON_KEY:?Supabase local anon key missing}"
           : "${SERVICE_ROLE_KEY:?Supabase local service role missing}"
           echo "::add-mask::$SERVICE_ROLE_KEY"
-          echo "VITE_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
-          echo "VITE_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
-          echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
+          {
+            echo "VITE_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "VITE_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+          } >> "$GITHUB_ENV"
 
       - name: Validate schema, migrations, RLS, types and database tests
         run: npm run check:db
