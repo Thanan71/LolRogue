@@ -1,6 +1,7 @@
 import { readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { applyDependencyTypePatches } from './lib/dependency-type-patches.mjs';
 
 // Reviewed against the published 2.118.0 CJS/ESM locks; upstream still reads Web Storage unguarded.
 const authVersion = '2.118.0';
@@ -76,4 +77,6 @@ if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.me
   const root = fileURLToPath(new URL('..', import.meta.url));
   const changed = applySupabaseAuthPatch(root);
   console.log(`Supabase Auth ${authVersion} storage patch verified (${changed} files updated).`);
+  const declarationsChanged = applyDependencyTypePatches(root);
+  console.log(`Dependency declaration patches verified (${declarationsChanged} files updated).`);
 }

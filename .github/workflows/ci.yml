@@ -104,7 +104,7 @@ jobs:
 
       - name: Upload detailed coverage report
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: coverage-report
           path: coverage/
@@ -163,7 +163,7 @@ jobs:
 
       - name: Upload immutable signed build
         id: build-artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: production-build-${{ github.sha }}-${{ github.run_attempt }}
           path: ci-build/
@@ -179,7 +179,7 @@ jobs:
 
       - name: Upload performance reports and samples
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: performance-reports
           path: performance-report/
@@ -215,10 +215,12 @@ jobs:
           : "${ANON_KEY:?Supabase ANON_KEY missing}"
           : "${SERVICE_ROLE_KEY:?Supabase SERVICE_ROLE_KEY missing}"
           : "${DB_URL:?Supabase DB_URL missing}"
-          echo "VITE_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
-          echo "VITE_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
-          echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
-          echo "SUPABASE_DB_URL=$DB_URL" >> "$GITHUB_ENV"
+          {
+            echo "VITE_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "VITE_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+            echo "SUPABASE_DB_URL=$DB_URL"
+          } >> "$GITHUB_ENV"
 
       - name: Validate schema and live integration
         run: npm run check:db
@@ -278,8 +280,10 @@ jobs:
       - name: Export local Supabase credentials
         run: |
           eval "$(./node_modules/.bin/supabase status -o env)"
-          echo "E2E_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
-          echo "E2E_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+          {
+            echo "E2E_SUPABASE_URL=$API_URL"
+            echo "E2E_SUPABASE_ANON_KEY=$ANON_KEY"
+          } >> "$GITHUB_ENV"
           echo "::add-mask::$SERVICE_ROLE_KEY"
           echo "E2E_SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
           echo "::add-mask::$DB_URL"
@@ -309,7 +313,7 @@ jobs:
 
       - name: Upload admin UI screenshots and browser zoom evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: admin-ui-evidence
           path: |
@@ -370,10 +374,12 @@ jobs:
       - name: Export local Supabase credentials
         run: |
           eval "$(./node_modules/.bin/supabase status -o env)"
-          echo "VITE_PUBLIC_SUPABASE_URL=$API_URL" >> "$GITHUB_ENV"
-          echo "VITE_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY" >> "$GITHUB_ENV"
-          echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY" >> "$GITHUB_ENV"
-          echo "SUPABASE_DB_URL=$DB_URL" >> "$GITHUB_ENV"
+          {
+            echo "VITE_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "VITE_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+            echo "SUPABASE_DB_URL=$DB_URL"
+          } >> "$GITHUB_ENV"
 
       - name: Upgrade a v9 schema snapshot to the latest migration
         run: |
@@ -398,7 +404,7 @@ jobs:
 
       - name: Upload clean-room diagnostics
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: clean-room-diagnostics
           path: |

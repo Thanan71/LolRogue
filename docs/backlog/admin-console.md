@@ -1,6 +1,6 @@
 # ADM — Administration fiable et exploitable
 
-**Statut : ADM-S1 à S3 implémentés ; ADM-S4 implémenté hors ADM-20, en attente de TREE-10 ; ADM-S5 et ADM-S6 implémentés ; ADM-S7 est implémenté en code et automatisation locale ; validation humaine ADM-34 confirmée par l’utilisateur le 21 octobre.** 7 sprints, **36 tâches** (`ADM-01` à `ADM-36`). Cible : wrapper `src/pages/AdminPage.tsx`, module `src/features/administration`, vues/RPC PostgreSQL et `docs/administration.md`. [Retour au TODO](../../TODO.md) · [Architecture](architecture-maintenance.md).
+**Statut : ADM-S1 à S7 implémentés en code ; ADM-20 livré par TREE-10 dans la PR #242 fusionnée vers dev le 22 octobre ; validation humaine ADM-34 confirmée par l’utilisateur le 21 octobre.** Les preuves et limites d’ADM-20 sont [consignées séparément](../admin-20-validation-0.3.0.md) ; fusion, déploiement distant et activation des spécialisations restent distincts. 7 sprints, **36 tâches** (`ADM-01` à `ADM-36`). Cible : wrapper `src/pages/AdminPage.tsx`, module `src/features/administration`, vues/RPC PostgreSQL et `docs/administration.md`. [Retour au TODO](../../TODO.md) · [Architecture](architecture-maintenance.md).
 
 ## État initial et frontières
 
@@ -274,7 +274,7 @@ fusion et déploiement restent distincts de cette clôture code.
 
 ## ADM-S4 — Équilibrage séparé de l'exploitation (P2 ; ADM-17..21)
 
-**Application 0.2.10 : ADM-17, 18, 19 et 21 implémentés.** [Contrat des populations et limites](../admin-balance.md) · [validation](../admin-s4-validation-2026-10-18.md). **ADM-20 reste ouvert : TREE-10 ne fournit pas encore sa source commune.** Son panneau affiche cette dépendance ; aucun achat/reset ni indicateur d’arbre n’est inventé. Les picks utilisent tous les départs ; les performances finales ont une population distincte et les métriques non collectées restent indisponibles.
+**Application 0.2.10 : ADM-17, 18, 19 et 21 implémentés ; 0.3.0 : ADM-20 complété par TREE-10.** [Contrat des populations et limites](../admin-balance.md) · [validation initiale S4](../admin-s4-validation-2026-10-18.md) · [preuves ADM-20](../admin-20-validation-0.3.0.md). La PR #242 remplace le panneau d’attente par les agrégats des achats, resets, disponibilités et builds figés, sans second ledger. Les picks utilisent tous les départs ; les performances finales ont une population distincte et les métriques non collectées restent indisponibles.
 
 ### ADM-17 — Espace « Équilibrage »
 - [x] **Définir les données, permissions et comportements attendus.**
@@ -319,18 +319,20 @@ fusion et déploiement restent distincts de cette clôture code.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-20 — Arbres Candies et spécialisations
-- [ ] **Définir les données, permissions et comportements attendus.**
-  - [ ] Réutiliser **TREE-10** comme source des événements/agrégats : achats, nœuds bloqués, spécialisations et victoire par build.
-  - [ ] Consommer une seule source d'événements et agrégats des arbres issue de TREE-10.
-  - [ ] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
-- [ ] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
-  - [ ] Ne pas créer un second ledger, second achat ou second dashboard économique indépendant.
-  - [ ] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
-  - [ ] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
-- [ ] **Vérifier données, sécurité et accessibilité avant clôture.**
-  - [ ] Tester achat double, reset remboursé, build historique et permission sur agrégation.
-  - [ ] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
-  - [ ] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+- [x] **Définir les données, permissions et comportements attendus.**
+  - [x] Réutiliser **TREE-10** comme source des événements/agrégats : achats, nœuds bloqués, spécialisations et victoire par build. La disponibilité est celle du catalogue courant ; les blocages individuels et expositions ne sont pas collectés.
+  - [x] Consommer une seule source d'événements et agrégats des arbres issue de TREE-10.
+  - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
+- [x] **Mettre en œuvre avec une source unique et des erreurs maîtrisées.**
+  - [x] Ne pas créer un second ledger, second achat ou second dashboard économique indépendant.
+  - [x] Utiliser filtres/count/agrégats serveur quand requis plutôt que résultats tronqués côté navigateur.
+  - [x] Prévoir chargement, erreur, état vide, rechargement et interdiction d'opération non autorisée.
+- [x] **Vérifier données, sécurité et accessibilité avant clôture.**
+  - [x] Tester achat double, reset remboursé, build historique et permission sur agrégation.
+  - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
+  - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
+
+**Clôture code ADM-20 — 0.3.0 :** [PR #242](https://github.com/Thanan71/LolRogue/pull/242), fusionnée vers `dev` le 22 octobre. [Contrat](../admin-balance.md#arbres-candies-et-spécialisations--adm-20--tree-10) · [requêtes et preuves dédiées](../admin-20-validation-0.3.0.md). Les seuils de présentation, la couverture du registre et les limites de cardinalité sont explicites. La gate d’achat des spécialisations reste fermée jusqu’aux playtests humains ; cette clôture ne prouve aucun déploiement distant.
 
 ### ADM-21 — Politique de calibration et flags
 - [x] **Définir les données, permissions et comportements attendus.**
@@ -505,7 +507,7 @@ par l’utilisateur sur la Preview le 21 octobre (voir le rapport de validation)
 [validation du 21 octobre](../admin-s7-validation-2026-10-21.md).
 Le build candidat local passe ; la reconstruction indépendante finale, les
 checks CI/Preview et le SHA livré sont à joindre à la PR vers `dev`. Aucune fusion, livraison distante, migration, activation ou
-notification n’est implicite. ADM-20 reste dépendant de TREE-10.
+notification n’est implicite. ADM-20, alors en attente, est complété en 0.3.0 par TREE-10 ; voir sa preuve dédiée ci-dessus.
 
 ### ADM-32 — Isoler le domaine administration
 - [x] **Définir les données, permissions et comportements attendus.**

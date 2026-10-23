@@ -30,8 +30,12 @@ tentatives et les performances finales des runs vérifiées. Les contextes de
 composition et de règles, effectifs, incertitudes et données manquantes sont
 explicites. Il réutilise la calibration existante et lit les versions/flags sans
 action de mutation. Il nécessite la migration
-`20261018073001_admin_balance_workspace.sql`. ADM-20 reste en attente de TREE-10 ;
-son panneau ne reconstruit aucune métrique d’arbre depuis les soldes Candies.
+`20261018073001_admin_balance_workspace.sql`. Depuis 0.3.0, le panneau
+**Arbres et Candies** d’ADM-20 réutilise les reçus TREE-10 et le registre existant
+pour les achats, resets, disponibilités et builds figés. Il requiert aussi les
+migrations TREE jusqu’à `20261022164730` ; aucun agrégat n’est reconstruit depuis
+les soldes. Voir le [contrat](admin-balance.md#arbres-candies-et-spécialisations--adm-20--tree-10)
+et les [preuves ADM-20](admin-20-validation-0.3.0.md).
 
 ## Interface ADM-S7
 

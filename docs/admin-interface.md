@@ -119,8 +119,7 @@ Il n’existe pas de second système d’injection de dépendances.
 
 S7 ne crée aucune migration, aucune nouvelle permission ni version de gameplay.
 Le moteur `run-engine-0.2.5`, le gameplay 24 et les archives authority restent
-inchangés. ADM-20 reste dépendant de TREE-10 ; aucune métrique d’arbre n’est
-reconstruite depuis un solde.
+inchangés dans cette livraison S7. Depuis 0.3.0, [ADM-20 est complété par TREE-10](admin-20-validation-0.3.0.md) ; ses métriques d’arbres proviennent des reçus et snapshots, jamais d’une différence de solde.
 
 La livraison prévue est une PR vers `dev`. Les tests locaux ne prouvent pas une
 fusion, une Preview, une activation ou un déploiement distant. Avant promotion,
