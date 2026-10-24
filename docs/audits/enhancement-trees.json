@@ -36688,7 +36688,7 @@
   ],
   "provenance": {
     "algorithm": "sha256",
-    "inputsSha256": "bc650dd0c70ad1243fa357a454b3607592dd2dd53522dee45de2a45791a2bfaf",
+    "inputsSha256": "194b26c5ea7b16dd3b5ec214223c6d603e4541ad33b6e370b8536ea581713d5b",
     "inputs": [
       {
         "path": "biome.json",
@@ -36700,11 +36700,11 @@
       },
       {
         "path": "package-lock.json",
-        "sha256": "e18a607bff7b77025d8588a37d55388828f9a1af6c2364b54d6593aa61759577"
+        "sha256": "1572ed6029c0e1e4d54edbc4ee42c02e7efc7dcd035861378ff468e4146b4ac7"
       },
       {
         "path": "package.json",
-        "sha256": "d304090b1545b2d027687942ad88ec1128cd4876fff91ccdcbffc2ea0dd20b7e"
+        "sha256": "bf6644c6792d6bc4b1776f1c19909dfcb35c3d991e1e99821aa734fd1f283039"
       },
       {
         "path": "scripts/audit-enhancement-trees.mjs",

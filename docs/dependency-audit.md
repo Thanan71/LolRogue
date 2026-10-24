@@ -124,7 +124,7 @@ sans réseau ni modification de l'installation du projet.
 
 | Sujet | Responsable | Condition de réexamen |
 | --- | --- | --- |
-| Patch Auth `2.117.2` | Mainteneurs authentication/outillage | Vérifier un correctif amont sur les vrais SDK ESM/CJS avec Web Storage bloqué, puis les parcours Auth, avant montée de version ou retrait du postinstall |
+| Patch Auth `2.118.0` | Mainteneurs authentication/outillage | Vérifier un correctif amont sur les vrais SDK ESM/CJS avec Web Storage bloqué, puis les parcours Auth, avant montée de version ou retrait du postinstall |
 | esbuild authority `0.25.0` | Mainteneurs authority/balance | Refaire les checks de sources, hashes et toutes les reproductions historiques avant toute migration de l'outil ; conserver les anciens octets |
 | SCC historique des six stores | Mainteneurs architecture | Tranche métier dédiée avec tests de cycle de vie ; aucune rupture de store dans cet audit |
 | `format` / `test:watch` sans appelant automatique | Mainteneurs outillage | Vérifier l'usage interactif et une migration autorisée avant retrait |
@@ -193,3 +193,30 @@ Early Top, 7 560 combats par moteur, 1 000 seeds de carte/économie et les trois
 campagnes Veigar de 180 runs appariées ; ses 148 tests dans 31 fichiers passent
 (phase Vitest : 172,64 s). Les résultats CI/distants et les validations complètes
 de la tranche sont rapportés séparément dans la validation ARCH-S5.
+
+## Mise à jour Supabase du 23 octobre 2026
+
+Le SDK JS et ses paquets internes passent de `2.117.2` à `2.118.0` (PR #233).
+Le [code Auth publié en 2.118.0](https://github.com/supabase/supabase-js/blob/v2.118.0/packages/core/auth-js/src/lib/locks.ts)
+évalue toujours le drapeau de diagnostic des verrous en lisant `localStorage`
+sans protéger l'ensemble de l'expression. Le test de capacité protège ses propres
+accès, mais un `getItem` refusé ou un getter devenu inaccessible après ce test
+peut encore empêcher l'import du SDK. Ce défaut de disponibilité n'est pas
+un contournement de l'authentification ou des règles RLS.
+
+Le patch est donc conservé et relu pour la version exacte `2.118.0` : les deux
+hunks CJS/ESM correspondent sans changement au tarball npm. Le postinstall
+continue de refuser toute autre version, tout contenu divergent et toute cible
+non revue avant d'écrire. Les tests exécutent les vrais points d'entrée CJS/ESM
+avec des getters et lectures Web Storage qui lèvent `SecurityError` ou
+`QuotaExceededError`, et vérifient que le drapeau retombe sur `false`. Les tests
+de stockage conservent les sessions en mémoire quand les écritures échouent
+et empêchent le retour d'une session après une déconnexion non persistable.
+
+Les [notes de version 2.118.0](https://github.com/supabase/supabase-js/releases/tag/v2.118.0)
+ajoutent la prise en charge de `content-encoding` aux uploads Storage et corrigent
+le typage PostgREST des champs calculés et des surcharges RPC sans argument.
+Elles n'annoncent pas de correction Auth pour ce défaut. Les corrections de
+sécurité Next/sharp mentionnées concernent l'outillage et les exemples amont ;
+elles ne démontrent pas de vulnérabilité corrigée dans le client LolRogue.
+Aucun schéma, migration, secret ou déploiement distant n'est modifié par ce lot.

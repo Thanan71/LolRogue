@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { applySupabaseAuthPatch } from '../scripts/apply-supabase-auth-patch.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const patchName = '@supabase+auth-js+2.117.2.patch';
+const patchName = '@supabase+auth-js+2.118.0.patch';
 const patch = readFileSync(path.join(root, 'patches', patchName), 'utf8');
 const temporaryRoots = [];
 
@@ -23,7 +23,7 @@ function fixture() {
   const auth = path.join(directory, 'node_modules', '@supabase', 'auth-js');
   mkdirSync(auth, { recursive: true });
   const manifest = path.join(auth, 'package.json');
-  writeFileSync(manifest, JSON.stringify({ name: '@supabase/auth-js', version: '2.117.2' }));
+  writeFileSync(manifest, JSON.stringify({ name: '@supabase/auth-js', version: '2.118.0' }));
   mkdirSync(path.join(directory, 'patches'));
   const patchFile = path.join(directory, 'patches', patchName);
   writeFileSync(patchFile, patch);
@@ -64,12 +64,15 @@ describe('Supabase Auth postinstall patch', () => {
     for (const { file, expected } of files) expect(readFileSync(file, 'utf8')).toBe(expected);
   });
 
-  it('rejects another SDK version before writing either distribution', () => {
-    const { directory, files, manifest } = fixture();
-    writeFileSync(manifest, JSON.stringify({ name: '@supabase/auth-js', version: '2.117.3' }));
-    expect(() => applySupabaseAuthPatch(directory)).toThrow('requires @supabase/auth-js@2.117.2');
-    for (const { file, original } of files) expect(readFileSync(file, 'utf8')).toBe(original);
-  });
+  it.each(['2.117.2', '2.118.1'])(
+    'rejects unreviewed SDK version %s before writing either distribution',
+    (version) => {
+      const { directory, files, manifest } = fixture();
+      writeFileSync(manifest, JSON.stringify({ name: '@supabase/auth-js', version }));
+      expect(() => applySupabaseAuthPatch(directory)).toThrow('requires @supabase/auth-js@2.118.0');
+      for (const { file, original } of files) expect(readFileSync(file, 'utf8')).toBe(original);
+    },
+  );
 
   it.each(['missing', 'divergent', 'duplicate', 'mixed'])(
     'rejects a %s second distribution before changing the first',
