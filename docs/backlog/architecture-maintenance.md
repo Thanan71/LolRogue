@@ -18,6 +18,7 @@
 Livrables : [guide CLI](../script-cli.md), [table d’équivalence](../script-inventory.md) et [inventaire machine](../scripts-inventory.json). Les 105 noms initiaux restent dans l'historique. La migration des appelants a été livrée dans la [PR #213](https://github.com/Thanan71/LolRogue/pull/213), avec 18 checks verts au SHA `1b7ab8eea16574e81394c2212417d432d5459c0c`. Après recherche globale sans appel actif restant, 72 alias sont retirés et 40 entrées restent publiques. Le [manifeste de retrait](../../config/script-alias-retirement.json) conserve la preuve CI et les exceptions historiques bornées ; l'inventaire bloque tout appel actif à un alias retiré. `balance:repro` et `authority:generate` restent disponibles pour les contrats inscrits dans les artefacts figés et les résolveurs générés.
 
 ### ARCH-01 — Inventorier les scripts, propriétaires et appelants
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Extraire la liste des 105 entrées `scripts` de `package.json` ; classer usage courant, CI, déploiement, génération, maintenance, diagnostic, historique.
   - [x] Scanner les références exactes à `npm run …` dans `.github/workflows`, `README.md`, `docs`, tests et scripts ; marquer « contrat externe » / « interne ».
@@ -34,6 +35,7 @@ Livrables : [guide CLI](../script-cli.md), [table d’équivalence](../script-in
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-02 — Créer une CLI sans dépendance superflue
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Ajouter `scripts/cli.mjs` et des routeurs `scripts/commands/{balance,database,assets,release,testing}/` ; préserver le code des scripts métier existants.
   - [x] Fournir `--help`, messages d'erreur utiles, validation des arguments et code de sortie non nul en cas d'échec.
@@ -50,6 +52,7 @@ Livrables : [guide CLI](../script-cli.md), [table d’équivalence](../script-in
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-03 — Réduire les commandes publiques et dédupliquer les versions
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Remplacer les alias `balance:baseline:generate:v15`…`v22` et `balance:early-top:generate:v17`… par des options `--engine` documentées.
   - [x] Lire la version par défaut depuis `config/authority-versions.json` : la commande `generate` du moteur courant ne doit plus retomber sur `v21` pendant que `v22` est actif.
@@ -66,6 +69,7 @@ Livrables : [guide CLI](../script-cli.md), [table d’équivalence](../script-in
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-04 — Sécuriser les scripts critiques
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Tester les modes lecture/`--check` sans modifier les fichiers suivis ; documenter précisément les générateurs qui écrivent volontairement.
   - [x] Introduire `--dry-run`/confirmation explicite pour les commandes destructives, en respectant les contrats Supabase CLI existants.
@@ -80,7 +84,7 @@ Livrables : [guide CLI](../script-cli.md), [table d’équivalence](../script-in
   - [x] Simuler branche interdite, CLI absente, échec patch Supabase et reset destructif sans toucher à une vraie base.
   - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
-La version par défaut vient du registre authority (actuellement `run-engine-0.2.0`). Les anciennes commandes early-top/affordability conservent explicitement leurs moteurs v21/v18 ; la CLI refuse un moteur non pris en charge au lieu de modifier leurs protocoles historiques.
+    La version par défaut vient du registre authority (actuellement `run-engine-0.2.0`). Les anciennes commandes early-top/affordability conservent explicitement leurs moteurs v21/v18 ; la CLI refuse un moteur non pris en charge au lieu de modifier leurs protocoles historiques.
 
 **Acceptation S1 :** même sortie et mêmes artefacts pour les commandes existantes et nouvelles ; `npm ci`/CI ne régressent pas ; aucun nom de check GitHub requis n'est cassé.
 
@@ -89,6 +93,7 @@ La version par défaut vient du registre authority (actuellement `run-engine-0.2
 Livrables : [contrat des environnements](../environment-contract.md), [preuve de validation S2](../architecture-s2-validation-2026-10-11.md), plugins dans `tooling/vite/plugins/`, politique Vitest dans `tooling/vitest/testPolicy.ts` et gardes `scripts/lib/remote-operation.mjs`. Les tests des commandes distantes sont entièrement simulés ; aucun déploiement ni changement de base distante ne fait partie de cette implémentation.
 
 ### ARCH-05 — Source unique de configuration d'environnement
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Mutualiser les références publiques Supabase de `vite.config.ts` et `scripts/deploy-backend.mjs` dans un module compatible Node/Vite ; aucune clé privée versionnée.
   - [x] Documenter les environnements local, preview `dev` et production `main`, ainsi que la provenance des variables Vercel.
@@ -105,6 +110,7 @@ Livrables : [contrat des environnements](../environment-contract.md), [preuve de
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-06 — Protéger chaque commande DB distante
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Passer en revue `migrate`, `edge:deploy`, `backend:deploy`, commandes `--linked` et `--project-ref` ; expliciter quelles entrées peuvent atteindre la production.
   - [x] Conserver le blocage `backend:deploy` hors `main`/`dev` et exiger une cible explicite contrôlée pour toute opération distancée ; ne pas transformer `db:reset` local en opération distante.
@@ -121,6 +127,7 @@ Livrables : [contrat des environnements](../environment-contract.md), [preuve de
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-07 — Extraire les plugins Vite et les responsabilités Vitest
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Extraire les plugins internes d'injection d'identité, ressources PWA, assets Riot et catalogue champion dans `build/plugins/` ou `tooling/vite/`.
   - [x] Séparer la configuration couverture Vitest des politiques de déploiement tout en maintenant les mêmes seuils, exclusions et budgets.
@@ -135,11 +142,12 @@ Livrables : [contrat des environnements](../environment-contract.md), [preuve de
   - [x] Comparer manifests, identité SHA, chemins PWA et chunks navigateur avant/après sur build propre.
   - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
-**Acceptation S2 :** matrices `dev`/`main`/branche interdite testées ; `check:build`, contrôles d'assets et tests de déploiement inchangés ; aucune fuite de `service_role`.
+    **Acceptation S2 :** matrices `dev`/`main`/branche interdite testées ; `check:build`, contrôles d'assets et tests de déploiement inchangés ; aucune fuite de `service_role`.
 
 ## ARCH-S3 — Frontières métier et stores (P2, taille L/XL)
 
 ### ARCH-08 — Cartographier les dépendances
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Générer la carte `pages → hooks → services → repositories` et les cycles éventuels, avec preuves par imports.
   - [x] Définir une règle CI vérifiable : `src/game` n'importe ni `pages`, ni `stores`, ni `services/supabaseClient`.
@@ -156,6 +164,7 @@ Livrables : [contrat des environnements](../environment-contract.md), [preuve de
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-09 — Découper `runStoreLifecycleSlice.ts` (~41 Ko)
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Séparer les orchestrations `start`, `end/finalize`, `retry/save`, `sync progression` et `authority journal` des mutations Zustand.
   - [x] Conserver les signatures publiques `useRunStore` et l'unique politique de persistance/merge ; aucune migration de sauvegarde sans test de migration.
@@ -172,6 +181,7 @@ Livrables : [contrat des environnements](../environment-contract.md), [preuve de
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-10 — Stabiliser le conteneur de repositories
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Conserver `RepositoryContainer` et ses interfaces comme point d'accès DB ; éviter de créer un deuxième système DI parallèle.
   - [x] Isoler le rafraîchissement des données serveur et l'état UI pour éviter qu'un service métier dépende directement des hooks/stores.
@@ -188,6 +198,7 @@ Livrables : [contrat des environnements](../environment-contract.md), [preuve de
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-11 — Contrats de données et invariants
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Documenter la propriété de chaque type : catalogue champion, instance de combat, état run, tentative authority, progression de compte et devise.
   - [x] Ajouter des tests de frontières et d'import ; suivre explicitement schémas générés `src/types/database.ts` versus modèles métiers.
@@ -201,11 +212,12 @@ Livrables : [contrat des environnements](../environment-contract.md), [preuve de
   - [x] Contrôler compilations app/scripts/e2e et migration des snapshots sans conversion de nombres ou enums.
   - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
-**Acceptation S3 :** sauvegardes anciennes restaurées, composants inchangés extérieurement, invariants authoritative conservés et aucune nouvelle dépendance circulaire.
+    **Acceptation S3 :** sauvegardes anciennes restaurées, composants inchangés extérieurement, invariants authoritative conservés et aucune nouvelle dépendance circulaire.
 
 ## ARCH-S4 — Modules UI orientés fonctionnalités (P2, taille XL)
 
 ### ARCH-12 — Migrer par tranche, pas par renommage global
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Introduire progressivement `src/features/{combat,champions,champion-economy,progression,runs,daily,inventory,authentication,administration}`.
   - [x] Conserver `src/game/{battle,authority,rules,effects,map,balance}` ; déplacer seulement l'UI et les orchestrations concernées.
@@ -222,6 +234,7 @@ Livrables : [contrat des environnements](../environment-contract.md), [preuve de
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-13 — Alléger `CombatPage.tsx` (~39 Ko)
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Extraire un hook/contrôleur des décisions UI : sélection des actions et cibles, autoplay, statut du combat, effets visuels.
   - [x] Conserver validations dans `BattleActionValidator` et calculs dans le moteur, pas de règles dupliquées en JSX.
@@ -238,6 +251,7 @@ Livrables : [contrat des environnements](../environment-contract.md), [preuve de
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-14 — Alléger `StarterSelectPage.tsx` (~31 Ko)
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Extraire la préparation de run et la sélection du mode Daily/standard, filtres du catalogue, affichage de l'économie.
   - [x] Remplacer l'instanciation directe de `SupabaseDailyRunRepository` dans la page par une orchestration testable et des interfaces existantes.
@@ -253,6 +267,7 @@ Livrables : [contrat des environnements](../environment-contract.md), [preuve de
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-15 — Refactor moteur `BattleManager`/`AuthorityRunEngine` sous contrat
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Extraire en petites unités les résolveurs/gestionnaires déjà identifiés sans changer ordre RNG, ordre événements ni sérialisation.
   - [x] Ne modifier le moteur autoritaire courant qu'avec versioning/parité si la sémantique change ; jamais réécrire un bundle `replay-only` ou `unsupported`.
@@ -266,7 +281,7 @@ Livrables : [contrat des environnements](../environment-contract.md), [preuve de
   - [x] Comparer traces octet à octet, seeds versionnées, snapshots de versions historiques et rapports de cohorte.
   - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
-Preuves : [validation ARCH-S4](../architecture-s4-validation-2026-10-13.md), [contrat des modules](../feature-module-contract.md), [contrat combat](../feature-combat-contract.md), [contrat sélection](../feature-starter-contract.md) et [contrat moteur](../engine-refactor-contract.md). Le pilote est Daily ; les autres domaines sont migrés uniquement lorsqu’une tranche le nécessite. Les résultats distants du commit final sont consignés dans la PR.
+    Preuves : [validation ARCH-S4](../architecture-s4-validation-2026-10-13.md), [contrat des modules](../feature-module-contract.md), [contrat combat](../feature-combat-contract.md), [contrat sélection](../feature-starter-contract.md) et [contrat moteur](../engine-refactor-contract.md). Le pilote est Daily ; les autres domaines sont migrés uniquement lorsqu’une tranche le nécessite. Les résultats distants du commit final sont consignés dans la PR.
 
 **Acceptation S4 :** UX inchangée, modules autonomes, testabilité augmentée, pas de divergence client/authority.
 
@@ -278,6 +293,7 @@ et [audit des dépendances](../dependency-audit.md). Les résultats CI du commit
 sont consignés dans la PR vers `dev` ; fusion et déploiement restent séparés.
 
 ### ARCH-16 — Classer les fichiers générés
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Définir pour `src/data/generated`, `config`, bundles authority, types DB et `public/assets` : source, commande de génération, contrôle d'intégrité, politique Git et consommateur.
   - [x] Vérifier pourquoi `run-authority.bundle.js` apparaît suivi malgré sa règle `.gitignore` ; conserver sa présence si nécessaire au registre/gates.
@@ -294,6 +310,7 @@ sont consignés dans la PR vers `dev` ; fusion et déploiement restent séparés
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-17 — Rationaliser CSS et composants
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Cartographier les 26 feuilles sous `src/styles` et les doublons de tokens/composants ; relever spécificité et dépendances aux imports.
   - [x] Garder les variables de design, accessibilité, réduction d'animation, focus et responsive ; mutualiser seulement après vérification visuelle.
@@ -309,6 +326,7 @@ sont consignés dans la PR vers `dev` ; fusion et déploiement restent séparés
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
 
 ### ARCH-18 — Audit des dépendances et qualité
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Vérifier packages directs/indirects, versions épinglées, patch Supabase Auth, imports morts et scripts non référencés ; ne retirer que sur preuve.
   - [x] Faire passer `npm ci`, `npm run check`, `npm run check:db`, `npm run check:browser`, `npm run balance -- check` et workflows spécialisés pertinents.
@@ -323,7 +341,7 @@ sont consignés dans la PR vers `dev` ; fusion et déploiement restent séparés
   - [x] Vérifier audit, compilation et CI propre puis documenter gains chiffrés et éventuels compromis.
   - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
-**Acceptation générale ARCH :** aucune fonctionnalité perdue, pas de changement silencieux de contrat de déploiement/authority ; démonstration chiffrée de la simplification.
+    **Acceptation générale ARCH :** aucune fonctionnalité perdue, pas de changement silencieux de contrat de déploiement/authority ; démonstration chiffrée de la simplification.
 
 ## Interfaces et doublons évités
 

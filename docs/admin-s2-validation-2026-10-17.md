@@ -19,13 +19,13 @@ Aucune image, dépendance ou action métier publique n’est ajoutée.
 
 ## Données et sécurité
 
-| Tâche | Contrat | Preuves ciblées |
-| --- | --- | --- |
-| ADM-07 | Pages 1–100, compte complet, keyset date/ID, équipes jointes pour la page | PostgreSQL >100 joueurs, 1 005 runs, six tris, insertions, dernière page ; retour UI |
-| ADM-08 | Recherche serveur NFC littérale, 300 ms, filtres UTC et compte réel | Casse, Unicode composé/décomposé, `%`/`_`/ponctuation, recherche hors page, filtres invalides |
-| ADM-09 | Profil minimal, progression, monnaies distinctes, provenances et inconnus explicites | Comptes sans runs, historiques incomplets, wallet absent, grands nombres, permissions |
-| ADM-10 | Populations runs/tentatives séparées, filtres serveur, détails en mémoire | Filtres combinés et refus de filtres non applicables, journal sûr, rejet, retour, aucune URL personnelle |
-| ADM-11 | Page CSV ou export complet atomique confirmé, plafond 5 000 | >1 000 lignes, anti-formule/UTF-8, précision bigint, drift, annulation et refus de cap |
+| Tâche  | Contrat                                                                              | Preuves ciblées                                                                                          |
+| ------ | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| ADM-07 | Pages 1–100, compte complet, keyset date/ID, équipes jointes pour la page            | PostgreSQL >100 joueurs, 1 005 runs, six tris, insertions, dernière page ; retour UI                     |
+| ADM-08 | Recherche serveur NFC littérale, 300 ms, filtres UTC et compte réel                  | Casse, Unicode composé/décomposé, `%`/`_`/ponctuation, recherche hors page, filtres invalides            |
+| ADM-09 | Profil minimal, progression, monnaies distinctes, provenances et inconnus explicites | Comptes sans runs, historiques incomplets, wallet absent, grands nombres, permissions                    |
+| ADM-10 | Populations runs/tentatives séparées, filtres serveur, détails en mémoire            | Filtres combinés et refus de filtres non applicables, journal sûr, rejet, retour, aucune URL personnelle |
+| ADM-11 | Page CSV ou export complet atomique confirmé, plafond 5 000                          | >1 000 lignes, anti-formule/UTF-8, précision bigint, drift, annulation et refus de cap                   |
 
 Les tests de permissions utilisent PostgreSQL/PostgREST locaux : anon, utilisateur,
 metadata forgées, service sans identité et révocation d’un admin avec le même JWT.
@@ -55,30 +55,30 @@ Les catalogues FR/EN expliquent l’augmentation initiale ; le code des écrans 
 reste différé et l’isolation de la route Auth est vérifiée par manifest.
 
 
-| Mesure | Parent `ae51c452` | Candidat code |
-| --- | ---: | ---: |
-| JavaScript gzip | 627 036 | 642 756 |
-| Plus gros chunk brut | 466 265 | 466 265 |
-| Initial gzip | 220 859 | 226 437 |
-| Auth gzip | 225 648 | 231 251 |
-| Assets déployables | 8 011 051 | 8 071 596 |
+| Mesure               | Parent `ae51c452` | Candidat code |
+| -------------------- | ----------------: | ------------: |
+| JavaScript gzip      |           627 036 |       642 756 |
+| Plus gros chunk brut |           466 265 |       466 265 |
+| Initial gzip         |           220 859 |       226 437 |
+| Auth gzip            |           225 648 |       231 251 |
+| Assets déployables   |         8 011 051 |     8 071 596 |
 
 Marge JavaScript finale locale : **11,95 %**. Les 40 entrées npm publiques sont conservées.
 
 ## Résultats locaux et clôture
 
-| Gate | Résultat acquis |
-| --- | --- |
-| Base recréée | PASS ; 69 migrations, lint, ACL, RLS, advisors, neuf index mesurés et types générés concordants |
-| Suite DB complète | PASS ; 174 tests / 21 fichiers, zéro skip, phase Vitest finale 46,17 s ; inclut 22 tests ADM-S2 et parseurs UI sur réponses réelles |
-| Rollback applicatif | PASS ; 10/10 tests, checkpoint `968c0b3a` sur migration courante `20261017055016` |
-| Couverture complète | PASS ; 3 260 tests, 130 skips liés à la base (suite DB séparée obligatoire) ; 285 fichiers verts, 377,96 s ; statements 86,35 %, branches 78,73 %, fonctions 91,06 %, lignes 88,40 % |
-| Frontend ciblé | PASS ; 18 tests pagination/projection commune, 17 joueurs, 22 runs/export ; contrat de langues 7/7 après ajout des invariants exacts |
-| Nouveaux navigateurs | PASS ; 4/4 sans retry, FR desktop et EN 320 px/clavier/axe ; export 1 001 lignes, détail/retour, pagination joueurs 123 |
-| Statique / sécurité / strict | PASS ; inventaire, frontières, format/lint, CSS, types app/scripts/E2E, contenu et aucun high/critical ; quatre diagnostics upstream stricts exactement autorisés |
-| Clone indépendant du code | PASS sur `2e6722b6` ; installation 4,63 s, artefacts 0,79 s, build 8,28 s ; aucun cache/npm privé ni Git alternate, Git propre avant/après |
-| Invariants | PASS ; 24 bundles identiques et empreintes vérifiées, 68 migrations historiques identiques, dépendances inchangées, aucun asset/binaire ajouté |
-| Preview du code | HTML, entrée JS et identité HTTP 200 ; commit `2e6722b6`, hostname public du backend conforme à la cible Dev approuvée |
+| Gate                         | Résultat acquis                                                                                                                                                                      |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Base recréée                 | PASS ; 69 migrations, lint, ACL, RLS, advisors, neuf index mesurés et types générés concordants                                                                                      |
+| Suite DB complète            | PASS ; 174 tests / 21 fichiers, zéro skip, phase Vitest finale 46,17 s ; inclut 22 tests ADM-S2 et parseurs UI sur réponses réelles                                                  |
+| Rollback applicatif          | PASS ; 10/10 tests, checkpoint `968c0b3a` sur migration courante `20261017055016`                                                                                                    |
+| Couverture complète          | PASS ; 3 260 tests, 130 skips liés à la base (suite DB séparée obligatoire) ; 285 fichiers verts, 377,96 s ; statements 86,35 %, branches 78,73 %, fonctions 91,06 %, lignes 88,40 % |
+| Frontend ciblé               | PASS ; 18 tests pagination/projection commune, 17 joueurs, 22 runs/export ; contrat de langues 7/7 après ajout des invariants exacts                                                 |
+| Nouveaux navigateurs         | PASS ; 4/4 sans retry, FR desktop et EN 320 px/clavier/axe ; export 1 001 lignes, détail/retour, pagination joueurs 123                                                              |
+| Statique / sécurité / strict | PASS ; inventaire, frontières, format/lint, CSS, types app/scripts/E2E, contenu et aucun high/critical ; quatre diagnostics upstream stricts exactement autorisés                    |
+| Clone indépendant du code    | PASS sur `2e6722b6` ; installation 4,63 s, artefacts 0,79 s, build 8,28 s ; aucun cache/npm privé ni Git alternate, Git propre avant/après                                           |
+| Invariants                   | PASS ; 24 bundles identiques et empreintes vérifiées, 68 migrations historiques identiques, dépendances inchangées, aucun asset/binaire ajouté                                       |
+| Preview du code              | HTML, entrée JS et identité HTTP 200 ; commit `2e6722b6`, hostname public du backend conforme à la cible Dev approuvée                                                               |
 
 La première exécution DB a dépassé cinq secondes sur deux tests existants de
 l’économie pendant d’autres vérifications locales. La relance passe les 174 cas

@@ -77,7 +77,6 @@ Les catalogues de champions sont versionnés pour que la régénération d'une c
 les offres de recrutement et les événements d'un ancien run gardent leur population.
 
 Les migrations locales sont :
-
 1. `20261009173939_gameplay_ruleset_v22_veigar_run_progression.sql` : publication
    du contrat v22 inactif, catalogue gameplay étendu et finalizer compatible.
 2. `20261009174447_champion_catalog_v2_veigar.sql` : catalogue économique v2,

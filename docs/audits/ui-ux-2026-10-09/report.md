@@ -24,32 +24,32 @@ Preuves conservées : [mesures navigateur](browser-evidence.json), [tests origin
 
 ## Points à conserver
 
-| Axe | Observation positive |
-| --- | --- |
-| Identité visuelle | Palette, typographie de titre et illustrations constituent un univers reconnaissable. Les actions principales se distinguent des surfaces secondaires. |
-| Navigation | Titres de page, focus après navigation, contrôles natifs et onglets accessibles au clavier. Aucun débordement horizontal sur les vues principales capturées. |
-| Apprentissage | Tutoriels carte/combat réouvrables, étapes courtes, gestion du focus et fermeture avec Échap. Guide avec recherche et catégories. |
-| Confort | Réglages de taille du texte, vitesse, particules et son; réduction des animations et couleurs forcées. |
-| Confiance | Mode invité et sauvegarde locale explicités; confirmation d'abandon au menu; écran de fin distinguant sauvegarde, erreur récupérable et rejet. |
-| Décisions | Aperçu des soins au repos; détails des champions accessibles depuis la préparation. |
+| Axe               | Observation positive                                                                                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Identité visuelle | Palette, typographie de titre et illustrations constituent un univers reconnaissable. Les actions principales se distinguent des surfaces secondaires.       |
+| Navigation        | Titres de page, focus après navigation, contrôles natifs et onglets accessibles au clavier. Aucun débordement horizontal sur les vues principales capturées. |
+| Apprentissage     | Tutoriels carte/combat réouvrables, étapes courtes, gestion du focus et fermeture avec Échap. Guide avec recherche et catégories.                            |
+| Confort           | Réglages de taille du texte, vitesse, particules et son; réduction des animations et couleurs forcées.                                                       |
+| Confiance         | Mode invité et sauvegarde locale explicités; confirmation d'abandon au menu; écran de fin distinguant sauvegarde, erreur récupérable et rejet.               |
+| Décisions         | Aperçu des soins au repos; détails des champions accessibles depuis la préparation.                                                                          |
 
 ## Problèmes prioritaires
 
 P1 signifie une correction prioritaire d'un parcours ou d'une information essentielle. P2 signifie une amélioration de compréhension ou de confort. La priorité ne préjuge pas de l'effort de développement.
 
-| ID | Priorité | Problème | Niveau de preuve |
-| --- | --- | --- | --- |
-| UX-01 | P1 | La « confirmation » du combat ne valide pas la commande choisie | Navigateur + code |
-| UX-02 | P1 | Préparation d'équipe trop longue, confirmation éloignée | Mesures + captures + tests |
-| UX-03 | P1 | Connexion depuis le profil bloquée pendant une partie invitée | Navigateur avec fournisseur simulé + code |
-| UI-04 | P1 | Focus invisible sur les interrupteurs des réglages | Styles calculés + code |
-| UI-05 | P1 | Détails des sorts indisponibles inaccessibles au clavier | Navigateur avec état simulé + code |
-| UI-06 | P2 | Textes de décision trop petits sur mobile | Styles calculés + captures |
-| UI-07 | P2 | Infobulles hors écran avec texte agrandi, défilement mal prévu | Débordement reproduit; défilement examiné dans le code |
-| UI-08 | P2 | Contraste insuffisant des compteurs d'inventaire sélectionnés | Couleurs calculées + code |
-| UX-09 | P2 | Informations insuffisantes ou trompeuses avant recrutement | Code |
-| UX-10 | P2 | Récupération de mot de passe absente | Interface + recherche du parcours |
-| UX-11 | P2 | Informations secondaires avant « Jouer » au premier accès | Capture + mesure |
+| ID    | Priorité | Problème                                                        | Niveau de preuve                                       |
+| ----- | -------- | --------------------------------------------------------------- | ------------------------------------------------------ |
+| UX-01 | P1       | La « confirmation » du combat ne valide pas la commande choisie | Navigateur + code                                      |
+| UX-02 | P1       | Préparation d'équipe trop longue, confirmation éloignée         | Mesures + captures + tests                             |
+| UX-03 | P1       | Connexion depuis le profil bloquée pendant une partie invitée   | Navigateur avec fournisseur simulé + code              |
+| UI-04 | P1       | Focus invisible sur les interrupteurs des réglages              | Styles calculés + code                                 |
+| UI-05 | P1       | Détails des sorts indisponibles inaccessibles au clavier        | Navigateur avec état simulé + code                     |
+| UI-06 | P2       | Textes de décision trop petits sur mobile                       | Styles calculés + captures                             |
+| UI-07 | P2       | Infobulles hors écran avec texte agrandi, défilement mal prévu  | Débordement reproduit; défilement examiné dans le code |
+| UI-08 | P2       | Contraste insuffisant des compteurs d'inventaire sélectionnés   | Couleurs calculées + code                              |
+| UX-09 | P2       | Informations insuffisantes ou trompeuses avant recrutement      | Code                                                   |
+| UX-10 | P2       | Récupération de mot de passe absente                            | Interface + recherche du parcours                      |
+| UX-11 | P2       | Informations secondaires avant « Jouer » au premier accès       | Capture + mesure                                       |
 
 ### UX-01 — Le combat exécute avant la confirmation annoncée
 
@@ -189,12 +189,12 @@ Sources : `src/pages/MenuPage.tsx:140`, `:141`, `:174`. [Capture](mobile-menu.pn
 
 ## Validation effectuée
 
-| Exécution | Résultat | Interprétation |
-| --- | --- | --- |
-| 8 fichiers E2E existants, 25 tests | **15 réussis, 10 échoués, 0 ignoré** | 8 échecs de fixtures de champions verrouillés; 2 échecs de hauteur mobile |
-| 3 fichiers copiés dans `/tmp`, paire Annie/Ashe autorisée, 8 tests | **8 réussis, 0 échoué, 0 ignoré** | Restaure la couverture de carte/combat/tutoriels sans modifier les tests du projet |
-| Axe sur les routes principales dans le second groupe | **0 violation détectée** pour les tags A/AA configurés | États testés en Chromium; ne couvre pas tous les focus, survols, tailles et parcours |
-| Reproductions ciblées | Confirmation immédiate, focus invisible, sort indisponible, infobulle agrandie, connexion simulée | Défauts qui complètent les contrôles automatisés |
+| Exécution                                                          | Résultat                                                                                          | Interprétation                                                                       |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| 8 fichiers E2E existants, 25 tests                                 | **15 réussis, 10 échoués, 0 ignoré**                                                              | 8 échecs de fixtures de champions verrouillés; 2 échecs de hauteur mobile            |
+| 3 fichiers copiés dans `/tmp`, paire Annie/Ashe autorisée, 8 tests | **8 réussis, 0 échoué, 0 ignoré**                                                                 | Restaure la couverture de carte/combat/tutoriels sans modifier les tests du projet   |
+| Axe sur les routes principales dans le second groupe               | **0 violation détectée** pour les tags A/AA configurés                                            | États testés en Chromium; ne couvre pas tous les focus, survols, tailles et parcours |
+| Reproductions ciblées                                              | Confirmation immédiate, focus invisible, sort indisponible, infobulle agrandie, connexion simulée | Défauts qui complètent les contrôles automatisés                                     |
 
 Les huit erreurs initiales viennent de la paire Garen/Lux utilisée par d'anciens tests, alors que Lux est verrouillée pour un invité neuf dans le catalogue observé. Ces erreurs surviennent avant les assertions de carte/combat. Elles ne constituent pas huit bugs du jeu; elles laissent cependant des protections de régression inopérantes.
 

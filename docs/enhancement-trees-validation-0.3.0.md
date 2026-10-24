@@ -4,18 +4,18 @@ Cette livraison traite TREE-02 à TREE-10 sur la base de l’audit TREE-01. La v
 
 ## Contrats livrés
 
-| Sujet | Comportement |
-| --- | --- |
-| Catalogue | Version de progression 4, contrat de graphe 1 : 72 nœuds historiques et 16 extensions de champion. IDs, prix et achats historiques conservés. |
-| Disponibilité | 12 effets non pris en charge restent explicitement désactivés ; leurs 3 descendants sont bloqués par leur prérequis. Aucun chemin fictif n’est créé. Les effets pris en charge et les descriptions FR/EN concordent. |
-| Graphe | Préconditions AND/OR, rang minimal, maîtrise, exclusions, budget et publication évalués par les fonctions pures et le serveur. Le planificateur ne dépense rien. |
-| Activation | Seuls les rangs légaux et leurs ancêtres actifs contribuent au combat. Les anciens achats incompatibles restent dans le compte pour le remboursement attesté. |
-| Effets | Phénix : bouclier 200 pendant 2 tours, une fois par combat ; Tir déchirant : probabilité 15 %, total exact de 5 % des PV maximum en 3 ticks ; Combustion : +15 % de puissance ; Canalisation : +10 points de hâte. Auras et effets sont rattachés au bon camp et au bon combattant. |
-| Spécialisations | Garen, Annie, Soraka et Jinx : deux voies exclusives de deux nœuds par champion, maîtrise 2/3 et coûts 80/120. Le flag `champion_specializations` reste fermé avant validation humaine. |
-| Reset | Tous les resets sont gratuits. Seules les dépenses réellement attestées sont restituées, sans double remboursement. Révision, version de catalogue et politique sont contrôlées à la confirmation. Maîtrise, Éclats, acquisitions et snapshot d’une run active sont conservés. |
-| Interface | Solde du compte et maîtrise séparés ; rangs, blocages, coût du chemin, exemple avant/après et confirmation. Navigation clavier, focus, mobile, zoom et deux langues sont couverts par les contrôles dédiés. |
-| Économie | Prix inchangés, pas de conversion de monnaie. Simulations reproductibles avec hypothèses et censure explicites ; les 400 Éclats de l’acquisition permanente restent inchangés. |
-| Administration | ADM-20 consomme les agrégats du registre existant : achats, resets, branches, disponibilité et builds figés des runs vérifiées. Aucun second wallet ni second dashboard. |
+| Sujet           | Comportement                                                                                                                                                                                                                                                                        |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Catalogue       | Version de progression 4, contrat de graphe 1 : 72 nœuds historiques et 16 extensions de champion. IDs, prix et achats historiques conservés.                                                                                                                                       |
+| Disponibilité   | 12 effets non pris en charge restent explicitement désactivés ; leurs 3 descendants sont bloqués par leur prérequis. Aucun chemin fictif n’est créé. Les effets pris en charge et les descriptions FR/EN concordent.                                                                |
+| Graphe          | Préconditions AND/OR, rang minimal, maîtrise, exclusions, budget et publication évalués par les fonctions pures et le serveur. Le planificateur ne dépense rien.                                                                                                                    |
+| Activation      | Seuls les rangs légaux et leurs ancêtres actifs contribuent au combat. Les anciens achats incompatibles restent dans le compte pour le remboursement attesté.                                                                                                                       |
+| Effets          | Phénix : bouclier 200 pendant 2 tours, une fois par combat ; Tir déchirant : probabilité 15 %, total exact de 5 % des PV maximum en 3 ticks ; Combustion : +15 % de puissance ; Canalisation : +10 points de hâte. Auras et effets sont rattachés au bon camp et au bon combattant. |
+| Spécialisations | Garen, Annie, Soraka et Jinx : deux voies exclusives de deux nœuds par champion, maîtrise 2/3 et coûts 80/120. Le flag `champion_specializations` reste fermé avant validation humaine.                                                                                             |
+| Reset           | Tous les resets sont gratuits. Seules les dépenses réellement attestées sont restituées, sans double remboursement. Révision, version de catalogue et politique sont contrôlées à la confirmation. Maîtrise, Éclats, acquisitions et snapshot d’une run active sont conservés.      |
+| Interface       | Solde du compte et maîtrise séparés ; rangs, blocages, coût du chemin, exemple avant/après et confirmation. Navigation clavier, focus, mobile, zoom et deux langues sont couverts par les contrôles dédiés.                                                                         |
+| Économie        | Prix inchangés, pas de conversion de monnaie. Simulations reproductibles avec hypothèses et censure explicites ; les 400 Éclats de l’acquisition permanente restent inchangés.                                                                                                      |
+| Administration  | ADM-20 consomme les agrégats du registre existant : achats, resets, branches, disponibilité et builds figés des runs vérifiées. Aucun second wallet ni second dashboard.                                                                                                            |
 
 La politique de reset gratuite est une décision de cette livraison. La proposition de taxe de 10 % n’était pas validée ; les simulations montrent une perte de 50 à 78 Candies par arbre supporté et ne fournissent pas de justification à ce prélèvement. Voir [le modèle économique](enhancement-economy.md).
 
@@ -41,19 +41,19 @@ Le catalogue de champions maintenu ne contient actuellement aucun premier rôle 
 
 Contrôles locaux du 22 octobre 2026, sous Node 24 :
 
-| Contrôle | Preuve |
-| --- | --- |
-| Suite complète avec couverture | Clone propre `4ff2000` : 4 156 tests réussis, 327 probes connectés ignorés dans cette commande puis exécutés séparément ci-dessous. Couverture des lignes : 89,51 %, modules enhancements inclus ; aucun seuil réduit. |
-| PostgreSQL local migré | **373/373**, 34 fichiers ; achats, resets, concurrences, RLS/ACL, administration, versions historiques et finalisation Daily 25. |
-| Schéma et identité | 77 migrations, types générés comparés, lint et sécurité sans erreur ; 25 versions authority et hash courant vérifiés. |
-| Advisors et index | FK du contrat champion indexée. Quatre exceptions INFO exactes, revues au 31 octobre 2026 : configuration privée deny-all et trois index sans trafic dans une base neuve. Niveaux bloquants et refus des findings inconnus conservés. |
-| Rollback applicatif réel | **34/34**, dépendances verrouillées du checkpoint `f5a3fed3587c34a61d7a8d70d18f01d9ebc464b8`, sur le schéma courant ; aucun reset de données. |
-| Nouvelle UI | 24 tests UI ; 5 scénarios de présentation FR/EN, 320 px, zoom natif 200/400 %, axe et retour du focus. |
-| Campagne connectée | **9/9**, avec de vraies sessions, RPC et permissions ; Daily, économie, administration et nouvel arbre. |
-| Arbre connecté | Achat réel 20 puis 30, solde 950 après reload ; reset commité puis réponse réseau abandonnée, même commande rejouée, un seul remboursement de 50, solde 1 000. Maîtrise, Éclats et snapshot de run active conservés. |
-| Administration connectée | Quatre RPC réels, catalogue de 88 nœuds, refus après révocation du rôle dans la base. |
-| Reproduction moteur | 213 tests ciblés et trois générations complètes reproductibles sous le hash final ; archive 0.2.5 et goldens historiques inchangés. |
-| Build et sécurité | Production-build et budgets réussis ; 0 vulnérabilité npm. JS total 890 129 octets gzip, marge 12,73 %, moteur historique différé hors Auth. |
+| Contrôle                       | Preuve                                                                                                                                                                                                                                |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Suite complète avec couverture | Clone propre `4ff2000` : 4 156 tests réussis, 327 probes connectés ignorés dans cette commande puis exécutés séparément ci-dessous. Couverture des lignes : 89,51 %, modules enhancements inclus ; aucun seuil réduit.                |
+| PostgreSQL local migré         | **373/373**, 34 fichiers ; achats, resets, concurrences, RLS/ACL, administration, versions historiques et finalisation Daily 25.                                                                                                      |
+| Schéma et identité             | 77 migrations, types générés comparés, lint et sécurité sans erreur ; 25 versions authority et hash courant vérifiés.                                                                                                                 |
+| Advisors et index              | FK du contrat champion indexée. Quatre exceptions INFO exactes, revues au 31 octobre 2026 : configuration privée deny-all et trois index sans trafic dans une base neuve. Niveaux bloquants et refus des findings inconnus conservés. |
+| Rollback applicatif réel       | **34/34**, dépendances verrouillées du checkpoint `f5a3fed3587c34a61d7a8d70d18f01d9ebc464b8`, sur le schéma courant ; aucun reset de données.                                                                                         |
+| Nouvelle UI                    | 24 tests UI ; 5 scénarios de présentation FR/EN, 320 px, zoom natif 200/400 %, axe et retour du focus.                                                                                                                                |
+| Campagne connectée             | **9/9**, avec de vraies sessions, RPC et permissions ; Daily, économie, administration et nouvel arbre.                                                                                                                               |
+| Arbre connecté                 | Achat réel 20 puis 30, solde 950 après reload ; reset commité puis réponse réseau abandonnée, même commande rejouée, un seul remboursement de 50, solde 1 000. Maîtrise, Éclats et snapshot de run active conservés.                  |
+| Administration connectée       | Quatre RPC réels, catalogue de 88 nœuds, refus après révocation du rôle dans la base.                                                                                                                                                 |
+| Reproduction moteur            | 213 tests ciblés et trois générations complètes reproductibles sous le hash final ; archive 0.2.5 et goldens historiques inchangés.                                                                                                   |
+| Build et sécurité              | Production-build et budgets réussis ; 0 vulnérabilité npm. JS total 890 129 octets gzip, marge 12,73 %, moteur historique différé hors Auth.                                                                                          |
 
 Le clone propre `4ff2000` a réussi `npm ci` avec cache vierge et environnement nettoyé, puis `npm run check` complet (statique, couverture, sécurité, assets et production). Les corrections ultérieures du manifeste de privilèges et des fixtures navigateur sont contrôlées séparément et par la CI du dernier SHA.
 

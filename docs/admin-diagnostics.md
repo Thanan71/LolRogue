@@ -31,12 +31,12 @@ une enveloppe versionnée : `schemaVersion: 1`, section, filtres normalisés,
 `snapshotAt` et données minimales. Le client valide l’entrée et la réponse sans
 convertir silencieusement les types ou conserver de champs supplémentaires.
 
-| Section | Filtres serveur | Résultat |
-| --- | --- | --- |
-| `logs` | dates, niveau, opération, UUID de session diagnostic et tentative | page, total filtré, curseur et rétention |
-| `authority` | dates de départ, moteur, gameplay, statut et code | page de tentatives, décomptes et fenêtre d’alertes indépendante |
-| `service` | dates, moteur, gameplay, heure/jour | tranches UTC, résumé mesuré et backlog |
-| `correlation` | dates et UUID exact de tentative | métadonnées serveur et page de logs explicitement liés |
+| Section       | Filtres serveur                                                   | Résultat                                                        |
+| ------------- | ----------------------------------------------------------------- | --------------------------------------------------------------- |
+| `logs`        | dates, niveau, opération, UUID de session diagnostic et tentative | page, total filtré, curseur et rétention                        |
+| `authority`   | dates de départ, moteur, gameplay, statut et code                 | page de tentatives, décomptes et fenêtre d’alertes indépendante |
+| `service`     | dates, moteur, gameplay, heure/jour                               | tranches UTC, résumé mesuré et backlog                          |
+| `correlation` | dates et UUID exact de tentative                                  | métadonnées serveur et page de logs explicitement liés          |
 
 Les dates sont des jours UTC : début inclus, lendemain de fin exclu. La période
 maximale est de 31 jours, celle par défaut de 7 jours. Les pages sont de 25 lignes

@@ -9,13 +9,13 @@ rg -n "style=\\{" src --glob '*.tsx'
 La baseline contient 45 attributs React `style` dans 12 fichiers, ainsi que sept
 écritures directes via l'API `HTMLElement.style` et un nettoyage `removeProperty`.
 
-| Catégorie | Occurrences | Décision |
-| --- | ---: | --- |
-| `EnhancementTree` statique ou mixte | 30 | Migrer vers les classes déjà amorcées dans `database.css` ; représenter états et thèmes par classes. |
-| Styles statiques hors arbre | 6 | Migrer notification, canvas, curseur de carte et couleurs de logs vers des classes. |
-| Custom properties dynamiques déjà contrôlées | 7 | Conserver : dimensions du combat, jauges PV/PM, tooltip, taille des libellés et barres Event/Rest. |
-| Largeurs dynamiques directes PV/XP | 2 | Remplacer `width` par une custom property numérique bornée entre 0 et 100 %. |
-| Écritures `HTMLElement.style` | 7 | Remplacer les fallbacks image par `hidden`, le verrou de scroll par une classe et la taille de texte par un attribut d'état discret. |
+| Catégorie                                    | Occurrences | Décision                                                                                                                             |
+| -------------------------------------------- | ----------: | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `EnhancementTree` statique ou mixte          |          30 | Migrer vers les classes déjà amorcées dans `database.css` ; représenter états et thèmes par classes.                                 |
+| Styles statiques hors arbre                  |           6 | Migrer notification, canvas, curseur de carte et couleurs de logs vers des classes.                                                  |
+| Custom properties dynamiques déjà contrôlées |           7 | Conserver : dimensions du combat, jauges PV/PM, tooltip, taille des libellés et barres Event/Rest.                                   |
+| Largeurs dynamiques directes PV/XP           |           2 | Remplacer `width` par une custom property numérique bornée entre 0 et 100 %.                                                         |
+| Écritures `HTMLElement.style`                |           7 | Remplacer les fallbacks image par `hidden`, le verrou de scroll par une classe et la taille de texte par un attribut d'état discret. |
 
 Les six styles statiques hors arbre sont répartis entre `AdminPage` (1),
 `NotificationRegion` (1), `ParticleBackground` (1) et `RunMapCanvas` (3). Les neuf

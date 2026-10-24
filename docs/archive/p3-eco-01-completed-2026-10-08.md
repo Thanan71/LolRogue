@@ -15,7 +15,6 @@ Le rollout distant conserve le flag OFF jusqu’aux contrôles opérateur docume
 
 Mettre en place une boucle de progression longue durée qui permet d'augmenter le
 nombre de champions jouables sans rendre tout le roster immédiatement disponible :
-
 1. conserver les **Candies** comme progression de maîtrise propre à chaque champion ;
 2. ajouter une monnaie globale permanente, les **Éclats**, indépendante de la maîtrise ;
 3. laisser un petit noyau de champions gratuits en permanence ;
@@ -64,7 +63,6 @@ Implémenter les récompenses uniquement à partir de runs **verified/authority*
 jamais à partir d'un compteur client.
 
 Barème initial à versionner :
-
 - [x] fin d'une run ayant validé au moins une vague : **+25 Éclats** ;
 - [x] par biome terminé/validé : **+10 Éclats** ;
 - [x] victoire : **+50 Éclats** ;
@@ -81,7 +79,6 @@ d'économie utilisés.
 ### Modèle de données Supabase — migration append-only
 
 Créer les structures minimales suivantes, ou un modèle équivalent documenté :
-
 - [x] `account_wallets`
   - `user_id uuid primary key references auth.users`;
   - `shards_balance bigint not null default 0 check (shards_balance >= 0)`;
@@ -172,7 +169,6 @@ Créer les structures minimales suivantes, ou un modèle équivalent documenté 
 Centraliser la décision dans une seule policy, par exemple :
 
 `ChampionAccess = permanent_free | owned | weekly_rotation | locked`.
-
 - [x] `permanent_free` : Garen/Annie/Ashe, toujours sélectionnables.
 - [x] `owned` : unlock permanent du compte.
 - [x] `weekly_rotation` : sélectionnable jusqu'à `rotation.ends_at`.
@@ -188,7 +184,6 @@ Centraliser la décision dans une seule policy, par exemple :
 ### Expérience invité
 
 Éviter une économie locale impossible à sécuriser ou à fusionner proprement :
-
 - [x] un guest peut utiliser les champions gratuits permanents et la rotation ;
 - [x] un guest peut gagner de la maîtrise locale selon les règles guest existantes ;
 - [x] un guest **ne peut pas acheter durablement** un champion avec une wallet locale ;
@@ -346,7 +341,6 @@ Centraliser la décision dans une seule policy, par exemple :
 ### Critères d'acceptation du Sprint H
 
 Le sprint n'est terminé que si toutes les conditions suivantes sont vraies :
-
 - [x] Candies et maîtrise existantes n'ont subi aucune régression ;
 - [x] une nouvelle monnaie globale Éclats existe avec ledger serveur auditable ;
 - [x] aucun client ne peut créer/modifier directement des Éclats ou unlocks ;
@@ -368,7 +362,6 @@ Le sprint n'est terminé que si toutes les conditions suivantes sont vraies :
 - [x] aucune monétisation réelle n'est introduite.
 
 **Ordre d'implémentation recommandé :**
-
 1. figer contrat produit et prix/rotation/guest/grandfathering ;
 2. migrations + RLS + ledger + wallets + unlocks ;
 3. policy pure d'accès et rotation déterministe ;

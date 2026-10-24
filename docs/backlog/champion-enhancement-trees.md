@@ -16,6 +16,7 @@
 **Ordre suivi en code :** fiabilité (TREE-01..04), contrat/extensions/reset (TREE-05..07), puis UX/économie/admin (TREE-08..10). Les prix restent inchangés et tous les resets restent gratuits avec remboursement attesté. L’activation des spécialisations et tout futur changement de prix exigent encore des mesures et playtests humains `P2-BAL-01`.
 
 ### TREE-01 — Audit complet des graphes (P1, M)
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Générer la liste stable des 72 nœuds par rôle, puis les 16 extensions séparées : ID, libellé FR/EN, rang, branche, Candies, mastery requis, parents, effet, attribut serveur, visibilité.
   - [x] Vérifier unicité des IDs, références existantes, cycles, racines, chemins atteignables et coûts possibles sous les plafonds actuels.
@@ -31,9 +32,10 @@
   - [x] Tester une branche valide, un cycle volontaire, un parent inconnu, un nœud dupliqué et le seuil de maîtrise maximal.
   - [x] Consigner les tests automatiques à exécuter, leurs résultats et le diff avant/après dans la PR.
   - [x] Vérifier les consommateurs existants, les droits d'accès, les versions et l'absence de régression fonctionnelle.
-**DoD :** une matrice exhaustive reproductible, zéro nœud orphelin non documenté, tests échouant sur les cas signalés.
+    **DoD :** une matrice exhaustive reproductible, zéro nœud orphelin non documenté, tests échouant sur les cas signalés.
 
 ### TREE-02 — Réparer dépendances et déblocages (P1, L ; dépend TREE-01)
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Justifier les 12 désactivations de mécaniques non supportées et les 3 descendants bloqués ; aligner le refus SQL/client et l’activation des possessions. Conserver tous les IDs et leurs reçus sans modifier artificiellement une topologie déjà valide.
   - [x] Formaliser verrouillage par niveau de maîtrise, Candies, nœud parent, capacité maximale, branche/rang, choix exclusif et limite de budget.
@@ -49,9 +51,10 @@
   - [x] Exécuter les probes SQL ciblées de refus, concurrence et possessions historiques, ainsi que les tests du contrat pur ; la nouvelle comparaison exhaustive des 88 lignes reste incluse dans la campagne SQL globale.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
-**DoD :** les 72 nœuds ont un chemin atteignable et testable ou sont explicitement et intentionnellement désactivés.
+    **DoD :** les 72 nœuds ont un chemin atteignable et testable ou sont explicitement et intentionnellement désactivés.
 
 ### TREE-03 — Corriger les descriptions et les calculs d'effets (P1, L ; dépend TREE-01)
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] « Tir Déchirant »/saignement : comparer le **15 %** annoncé à l'application réelle du DoT (base, durée, cumul, source, mitigation et arrondis) ; aligner contrat et tooltip.
   - [x] « Phénix » : résoudre l'incohérence **60 secondes** contre **une utilisation par combat**. Comme le jeu est au tour par tour, choisir et tester une sémantique explicite en tours/combats ; pas de cooldown temps réel fictif.
@@ -68,9 +71,10 @@
   - [x] Tester probabilité 15 %, dégâts vrais et arrondis du saignement, Phénix une fois par combat, Combustion en puissance et Canalisation en points de hâte, avec textes FR/EN et vrais consommateurs de combat.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
-**DoD :** aucun des quatre cas connus n'annonce un bonus non résolu ; tables avant/après vérifiées.
+    **DoD :** aucun des quatre cas connus n'annonce un bonus non résolu ; tables avant/après vérifiées.
 
 ### TREE-04 — Parité UI/combat/authority et RNG (P1, L ; dépend TREE-02/03)
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Créer une matrice nœud → règle runtime → effet combat → indicateur UI → sérialisation de run → vérification autoritaire.
   - [x] Comparer déterministiquement combats manuel/autoplay/Edge avec mêmes seed, roster, équipement, arbre et achats.
@@ -86,9 +90,10 @@
   - [x] Comparer source, manuel, autoplay, replay et bundle Edge enregistré sur seeds figées ; reprise au milieu du journal, rejeu historique et ressources/ledger exacts. Les 8 voies spécialisées ont leurs 24 probes dédiées.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
-**DoD :** zéro divergence documentée sur la matrice d'échantillons; résultats reproductibles, aucun effet fictif.
+    **DoD :** zéro divergence documentée sur la matrice d'échantillons; résultats reproductibles, aucun effet fictif.
 
 ### TREE-05 — Contrat déclaratif d'arbre extensible (P2, L ; après TREE-01..04)
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Définir graphe d'arbre versionné : branches, étapes, prérequis simples/composites (`AND`/`OR`), maîtrise requise, nœuds exclusifs et budget.
   - [x] Séparer l'éligibilité pure côté moteur de l'affichage React et de l'écriture Supabase ; API stable pour prévisualiser un achat sans mutation.
@@ -104,9 +109,10 @@
   - [x] Tester schéma portable, AND/OR, rang minimal, exclusivité, budget, ordre déterministe et multi-rôles ; vérifier les cas RPC ciblés. Le validateur authority utilise la maîtrise figée réelle et le même contrat pour les possessions attestées.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
-**DoD :** nouveau nœud ajoutable par données + effet moteur + tests, sans modifier plusieurs validateurs divergents.
+    **DoD :** nouveau nœud ajoutable par données + effet moteur + tests, sans modifier plusieurs validateurs divergents.
 
 ### TREE-06 — Spécialisations Garen, Annie, Soraka, Jinx (P3, XL ; après TREE-05)
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Garen : proposer une voie de durabilité et une voie d'exécution/pression cohérentes avec son kit ; pas de nouvelle mécanique de position inexistante.
   - [x] Annie : proposer burst versus contrôle/utilité en utilisant les statuts/états déjà exécutables ; documenter l'interaction avec le passif.
@@ -125,9 +131,10 @@
   - [ ] Effectuer et approuver le playtest humain des spécialisations sur une cellule figée avant toute ouverture de leur gate.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
-**DoD code :** quatre champions, huit voies et seize nœuds intégrés et testés derrière gate fermée. **DoD activation non acquise :** équilibrage humain approuvé avant déblocage réel.
+    **DoD code :** quatre champions, huit voies et seize nœuds intégrés et testés derrière gate fermée. **DoD activation non acquise :** équilibrage humain approuvé avant déblocage réel.
 
 ### TREE-07 — Réinitialisation sécurisée de l'arbre (P2/P3, L ; après TREE-05)
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Décider/documenter les resets gratuits, y compris les répétitions ; écarter la proposition de frais de 10 %. Le remboursement provient des achats réellement attestés, jamais d’un total fourni par le client.
   - [x] Prototyper aperçu avant confirmation : état remis à zéro, nœuds retirés, coût éventuel, Candies remboursées, solde final et conséquences sur les builds.
@@ -143,9 +150,10 @@
   - [x] Tester en SQL ciblé 0/1/N resets, double appel/retry, concurrence achat-reset, devis périmé, conservation de la run active, reçus historiques et absence de création de Candies.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
-**DoD :** somme comptable exacte, aucun double remboursement, opérations autorisées uniquement au propriétaire.
+    **DoD :** somme comptable exacte, aucun double remboursement, opérations autorisées uniquement au propriétaire.
 
 ### TREE-08 — UI/UX lisible, mobile et accessible (P2, L ; dépend TREE-02/05)
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Représenter connexions/branches/rangs avec distinction visible acheté/disponible/bloqué/exclusif ; navigation clavier, focus, aria et lecture sans couleur.
   - [x] Afficher solde **Candies du compte**, dépenses de cet arbre et niveau de maîtrise séparément ; Éclats uniquement dans l'économie des champions.
@@ -163,9 +171,10 @@
   - [x] Parcours VoiceOver validé par l’utilisateur le 22 octobre 2026 sur le candidat `69c31fd` ; Safari/macOS déclarés à jour, numéros et langue non précisés. Attestation et limites consignées dans la validation 0.3.0 ; ADM-34 n’est pas réutilisé.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
-**DoD :** un joueur comprend pourquoi il ne peut pas acheter et ce que le nœud changera effectivement.
+    **DoD :** un joueur comprend pourquoi il ne peut pas acheter et ce que le nœud changera effectivement.
 
 ### TREE-09 — Économie, coûts, plafonds (P2, L ; dépend TREE-01/04)
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Recalculer les coûts réels : socle 20/30/40, branches 50/80/150–200 ; publier le total du catalogue et les rangs supportés séparément. `supportedRanksMaximumCandies` vaut 650/650/780/780/500/750 par rôle ; `reachableMaximumCandies` reste null pour les six rôles à cause des exceptions. Chaque voie spécialisée coûte 200, les voies opposées ne se cumulent pas.
   - [x] Simuler une épargne casual/régulière avec seeds, cadence et probabilités déclarées ; 35 minutes par run est une durée supposée, pas un temps réel observé ni une mesure de rétention.
@@ -182,9 +191,10 @@
   - [ ] Recueillir les preuves humaines de balance avant toute future proposition de prix ou ouverture des spécialisations.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
-**DoD :** coût d'une voie compréhensible, pas de monnaie supplémentaire, résultat de balance reproductible.
+    **DoD :** coût d'une voie compréhensible, pas de monnaie supplémentaire, résultat de balance reproductible.
 
 ### TREE-10 — Statistiques et exploitation admin (P2, M ; dépend TREE-07/09)
+
 - [x] **Définir le contrat et les cas à couvrir.**
   - [x] Définir évènements minimalistes, agrégés et respectueux de la vie privée : nœud acheté, spécialisation choisie, reset, solde, progression, victoire par build.
   - [x] Distinguer achats permanents et récompenses authority ; aucun point de statistiques ne modifie le solde.
@@ -200,7 +210,7 @@
   - [x] Exécuter les probes ciblées de confidentialité admin, achats/reset attestés, cohortes figées, petits effectifs, répétitions et données incomplètes ; les agrégats ne réécrivent aucun solde.
   - [x] Consigner les résultats locaux globaux dans la validation 0.3.0 et suivre la CI du dernier SHA dans la [PR #242](https://github.com/Thanan71/LolRogue/pull/242).
   - [x] Validation locale globale des consommateurs, permissions, versions et anciennes fixtures SQL : 4 157 tests unitaires et 373 tests PostgreSQL ; preuves dans la validation 0.3.0.
-**DoD :** une source de métriques cohérente, aucun double dashboard.
+    **DoD :** une source de métriques cohérente, aucun double dashboard.
 
 ## Gate de clôture
 
@@ -211,7 +221,7 @@
 - [x] Nouvelle UI validée avec VoiceOver par l’utilisateur le 22 octobre 2026 ; attestation distincte de ADM-34, versions déclarées à jour sans numéros précis.
 - [ ] Balance humaine des 8 voies approuvée avant activation ; conserver la gate fermée jusque-là. Les 48 défaites simulées ne constituent pas cette approbation.
 - [x] Campagne SQL complète et anciennes fixtures remises au vert : 373/373, y compris Daily neutre et gains normaux ; contrôles locaux et artefacts vérifiés.
-Contrôle CI obligatoire : consulter les checks du dernier SHA sur la [PR #242](https://github.com/Thanan71/LolRogue/pull/242/checks). Les résultats locaux ne présument pas leur succès.
+  Contrôle CI obligatoire : consulter les checks du dernier SHA sur la [PR #242](https://github.com/Thanan71/LolRogue/pull/242/checks). Les résultats locaux ne présument pas leur succès.
 - [ ] PR, fusion éventuelle et déploiement migrations/Edge/frontend vérifiés séparément sur la cible autorisée ; aucun état distant attesté à ce stade.
 
 Preuves, dimensions moteur/hash et comptages finaux : [validation 0.3.0](../enhancement-trees-validation-0.3.0.md). Les preuves techniques et VoiceOver sont consignées ; TREE-06/09 conservent la validation humaine de balance ouverte avant activation. Fusion et déploiement restent des étapes distinctes.

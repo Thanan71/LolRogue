@@ -40,35 +40,35 @@ Les nombres décrivent le point de départ ; ce ne sont pas des budgets imposés
 Les familles de media queries sont détaillées pour conserver leurs seuils
 propres, plutôt que forcer un breakpoint unique.
 
-| Feuille | Importateur | Règles | Max. spécificité | `!important` | Media queries |
-| --- | --- | ---: | --- | ---: | --- |
-| `ui.css` | `index.css`, primitives `shared/ui` | 129 | (0,3,2) | 2 | largeur 42rem ; mouvement réduit |
-| `game-mobile.css` | `index.css`, adaptations transverses | 75 | (0,1,1) | 34 | largeurs 22/48/40rem ; pointer coarse |
-| `admin.css` | `AdminPage` | 154 | (0,3,1) | 3 | largeurs 46rem, 768/480px |
-| `auth.css` | `AuthPage` | 123 | (0,3,1) | 0 | largeurs 56/42rem ; hauteurs 30/44rem ; forced-colors |
-| `champion-economy.css` | `ChampionEconomy` | 44 | (0,4,0) | 0 | largeur 560px ; mouvement réduit |
-| `combat-ui.css` | `features/combat/ui/CombatScreen` | 339 | (0,4,0) | 2 | largeur 40rem ; mouvement réduit |
-| `daily-run.css` | `features/daily/ui/DailyRunScreen` | 54 | (0,2,2) | 1 | largeur 38rem |
-| `database.css` | `DatabasePage`, `StarterSelectScreen` | 116 | (0,2,1) | 0 | largeurs 48/32rem |
-| `encounter.css` | `EncounterLayout` | 24 | (0,2,1) | 0 | largeur 32rem ; mouvement réduit |
-| `event.css` | `EventPage` | 62 | (0,2,0) | 0 | mouvement réduit |
-| `game-over.css` | `GameOverPage` | 105 | (0,2,0) | 0 | mouvement réduit |
-| `legal-credits.css` | `LegalPage`, `CreditsPage` | 52 | (0,3,0) | 0 | largeurs 48/34rem ; forced-colors |
-| `main-menu.css` | `MenuPage` | 121 | (0,3,0) | 0 | hover ; largeurs 52/37.5/35/25rem ; hauteur 40rem ; forced-colors |
-| `patch-notes.css` | `PatchNotesPage`, `PatchNotesSummary` | 14 | (0,2,1) | 0 | largeur 420px ; mouvement réduit |
-| `recruit.css` | `RecruitPage` | 69 | (0,2,0) | 0 | largeur 30rem ; mouvement réduit |
-| `rest.css` | `RestPage` | 41 | (0,3,0) | 0 | mouvement réduit |
-| `run-empty.css` | `RunPage` | 16 | (0,2,0) | 0 | largeur 30rem ; mouvement réduit |
-| `run-history.css` | `history/RunHistoryFilters` | 4 | (0,1,1) | 0 | aucune |
-| `run-inventory.css` | `RunInventoryPanel` | 68 | (0,2,1) | 0 | largeur 30rem ; mouvement réduit |
-| `run-map.css` | `RunMapScreen` | 173 | (0,3,0) | 5 | pointer coarse ; largeurs 64/42/22rem ; mouvement réduit ; forced-colors |
-| `run-progress.css` | `RunProgressCounters` | 15 | (0,2,1) | 0 | aucune |
-| `run-team-stats.css` | `RunTeamStatsPanel` | 50 | (0,2,0) | 0 | largeur 22rem ; pointer coarse ; mouvement réduit |
-| `shop.css` | `ShopPage` | 54 | (0,3,0) | 0 | largeur 32rem ; mouvement réduit |
-| `spell-upgrade.css` | `SpellUpgradePanel` | 66 | (0,3,0) | 0 | largeur 34rem ; mouvement réduit ; forced-colors |
-| `starter-select.css` | `features/champions/ui/StarterSelectScreen` | 133 | (0,4,0) | 0 | largeurs 360/1200/850/550px ; forced-colors |
-| `treasure.css` | `TreasurePage` | 60 | (0,3,0) | 0 | largeur 32rem ; mouvement réduit |
-| `index.css` | `main.tsx` | 84 | (1,0,0) | 22 | pointer coarse ; largeur 42rem ; mouvement réduit ; forced-colors |
+| Feuille                | Importateur                                 | Règles | Max. spécificité | `!important` | Media queries                                                            |
+| ---------------------- | ------------------------------------------- | -----: | ---------------- | -----------: | ------------------------------------------------------------------------ |
+| `ui.css`               | `index.css`, primitives `shared/ui`         |    129 | (0,3,2)          |            2 | largeur 42rem ; mouvement réduit                                         |
+| `game-mobile.css`      | `index.css`, adaptations transverses        |     75 | (0,1,1)          |           34 | largeurs 22/48/40rem ; pointer coarse                                    |
+| `admin.css`            | `AdminPage`                                 |    154 | (0,3,1)          |            3 | largeurs 46rem, 768/480px                                                |
+| `auth.css`             | `AuthPage`                                  |    123 | (0,3,1)          |            0 | largeurs 56/42rem ; hauteurs 30/44rem ; forced-colors                    |
+| `champion-economy.css` | `ChampionEconomy`                           |     44 | (0,4,0)          |            0 | largeur 560px ; mouvement réduit                                         |
+| `combat-ui.css`        | `features/combat/ui/CombatScreen`           |    339 | (0,4,0)          |            2 | largeur 40rem ; mouvement réduit                                         |
+| `daily-run.css`        | `features/daily/ui/DailyRunScreen`          |     54 | (0,2,2)          |            1 | largeur 38rem                                                            |
+| `database.css`         | `DatabasePage`, `StarterSelectScreen`       |    116 | (0,2,1)          |            0 | largeurs 48/32rem                                                        |
+| `encounter.css`        | `EncounterLayout`                           |     24 | (0,2,1)          |            0 | largeur 32rem ; mouvement réduit                                         |
+| `event.css`            | `EventPage`                                 |     62 | (0,2,0)          |            0 | mouvement réduit                                                         |
+| `game-over.css`        | `GameOverPage`                              |    105 | (0,2,0)          |            0 | mouvement réduit                                                         |
+| `legal-credits.css`    | `LegalPage`, `CreditsPage`                  |     52 | (0,3,0)          |            0 | largeurs 48/34rem ; forced-colors                                        |
+| `main-menu.css`        | `MenuPage`                                  |    121 | (0,3,0)          |            0 | hover ; largeurs 52/37.5/35/25rem ; hauteur 40rem ; forced-colors        |
+| `patch-notes.css`      | `PatchNotesPage`, `PatchNotesSummary`       |     14 | (0,2,1)          |            0 | largeur 420px ; mouvement réduit                                         |
+| `recruit.css`          | `RecruitPage`                               |     69 | (0,2,0)          |            0 | largeur 30rem ; mouvement réduit                                         |
+| `rest.css`             | `RestPage`                                  |     41 | (0,3,0)          |            0 | mouvement réduit                                                         |
+| `run-empty.css`        | `RunPage`                                   |     16 | (0,2,0)          |            0 | largeur 30rem ; mouvement réduit                                         |
+| `run-history.css`      | `history/RunHistoryFilters`                 |      4 | (0,1,1)          |            0 | aucune                                                                   |
+| `run-inventory.css`    | `RunInventoryPanel`                         |     68 | (0,2,1)          |            0 | largeur 30rem ; mouvement réduit                                         |
+| `run-map.css`          | `RunMapScreen`                              |    173 | (0,3,0)          |            5 | pointer coarse ; largeurs 64/42/22rem ; mouvement réduit ; forced-colors |
+| `run-progress.css`     | `RunProgressCounters`                       |     15 | (0,2,1)          |            0 | aucune                                                                   |
+| `run-team-stats.css`   | `RunTeamStatsPanel`                         |     50 | (0,2,0)          |            0 | largeur 22rem ; pointer coarse ; mouvement réduit                        |
+| `shop.css`             | `ShopPage`                                  |     54 | (0,3,0)          |            0 | largeur 32rem ; mouvement réduit                                         |
+| `spell-upgrade.css`    | `SpellUpgradePanel`                         |     66 | (0,3,0)          |            0 | largeur 34rem ; mouvement réduit ; forced-colors                         |
+| `starter-select.css`   | `features/champions/ui/StarterSelectScreen` |    133 | (0,4,0)          |            0 | largeurs 360/1200/850/550px ; forced-colors                              |
+| `treasure.css`         | `TreasurePage`                              |     60 | (0,3,0)          |            0 | largeur 32rem ; mouvement réduit                                         |
+| `index.css`            | `main.tsx`                                  |     84 | (1,0,0)          |           22 | pointer coarse ; largeur 42rem ; mouvement réduit ; forced-colors        |
 
 ## Tokens et doublons
 
@@ -196,11 +196,11 @@ sont identiques, le focus est présent, le débordement horizontal reste inféri
 ou égal à 1px et la préférence reduced-motion est active. Les contrôles relevés
 sont `main`, titres et contrôles visibles, pas l'ensemble des nœuds du document.
 
-| Viewport | PNG strictement identiques dans la matrice | Écart observé |
-| --- | ---: | --- |
-| Desktop 1280×900 | 5/7 | 362 pixels sur le libellé Cible ; 4 pixels de rasterisation Database |
-| Mobile 390×844 | 6/7 | 362 pixels sur le libellé Cible |
-| Reflow 400 % équivalent 320×225 | 6/7 | 362 pixels sur le libellé Cible |
+| Viewport                        | PNG strictement identiques dans la matrice | Écart observé                                                        |
+| ------------------------------- | -----------------------------------------: | -------------------------------------------------------------------- |
+| Desktop 1280×900                |                                        5/7 | 362 pixels sur le libellé Cible ; 4 pixels de rasterisation Database |
+| Mobile 390×844                  |                                        6/7 | 362 pixels sur le libellé Cible                                      |
+| Reflow 400 % équivalent 320×225 |                                        6/7 | 362 pixels sur le libellé Cible                                      |
 
 Les **1 086 pixels de changement intentionnel** sont tous dans les boîtes du
 libellé Cible. Le résidu Database est limité à quatre pixels du coin arrondi
@@ -218,14 +218,14 @@ La vérification des durées CSS et des consommateurs canvas/SVG reste couverte
 par le scénario existant `e2e/accessibility-display.spec.ts` ; le présent harness
 atteste le rendu et la préférence, sans prétendre remplacer ce scénario.
 
-| Inventaire CSS | Avant | Après |
-| --- | ---: | ---: |
-| Feuilles (`src/styles` + `index.css`) | 27 | 27 |
-| Lignes | 15 601 | 15 609 |
-| Règles AST | 2 245 | 2 247 |
-| Déclarations | 8 205 | 8 202 |
-| `!important` | 69 | 69 |
-| Tokens `:root` | 58 | 63 |
+| Inventaire CSS                        |  Avant |  Après |
+| ------------------------------------- | -----: | -----: |
+| Feuilles (`src/styles` + `index.css`) |     27 |     27 |
+| Lignes                                | 15 601 | 15 609 |
+| Règles AST                            |  2 245 |  2 247 |
+| Déclarations                          |  8 205 |  8 202 |
+| `!important`                          |     69 |     69 |
+| Tokens `:root`                        |     58 |     63 |
 
 Les maxima de spécificité, imports, couches et media queries restent inchangés.
 Biome sur les quatre feuilles et le harness, `npm run typecheck:e2e` et

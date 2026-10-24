@@ -13,13 +13,13 @@ requise devient `20261017070341`.
 
 ## Périmètre
 
-| Tâche | Comportement |
-| --- | --- |
-| ADM-12 | Agrégats UTC serveur jour/semaine, périodes vides, acquisitions globales, départs, joueurs actifs, fins vérifiées, victoires et Daily séparés |
-| ADM-13 | Cohortes de création, retours exacts D1/D7/D30, distinction retour même identité/toute identité, couverture et maturité explicites |
-| ADM-14 | Funnel de comptes sur sept jours, première tentative, commande combat acceptée, fin vérifiée puis retour ordonnés ; retries sans doublon |
+| Tâche  | Comportement                                                                                                                                     |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ADM-12 | Agrégats UTC serveur jour/semaine, périodes vides, acquisitions globales, départs, joueurs actifs, fins vérifiées, victoires et Daily séparés    |
+| ADM-13 | Cohortes de création, retours exacts D1/D7/D30, distinction retour même identité/toute identité, couverture et maturité explicites               |
+| ADM-14 | Funnel de comptes sur sept jours, première tentative, commande combat acceptée, fin vérifiée puis retour ordonnés ; retries sans doublon         |
 | ADM-15 | Identités exactes moteur/hash/gameplay/progression/commandes/mode/difficulté, ancienneté explicite, acquisition globale indépendante des filtres |
-| ADM-16 | N et numérateur/dénominateur, Wilson 95 %, N=0 indisponible, seuil descriptif N=30 et périodes incomplètes exclues des taux |
+| ADM-16 | N et numérateur/dénominateur, Wilson 95 %, N=0 indisponible, seuil descriptif N=30 et périodes incomplètes exclues des taux                      |
 
 Aucune mesure invitée ou appareil n’est inventée. `last_login_at` n’est pas une
 série d’activité. Le marqueur d’observation créé par la migration n’est jamais
@@ -33,13 +33,13 @@ Le parent est cloné indépendamment, sans alternates Git, installé avec un cac
 npm initialement vide sous Node 24.19.0/npm 11.17.0. Son build et l’isolation Auth
 passent avec le budget v11 existant.
 
-| Mesure | Parent `4f765799` |
-| --- | ---: |
-| JavaScript gzip | 642 756 |
-| Plus gros chunk brut | 466 265 |
-| Initial gzip | 226 437 |
-| Auth gzip | 231 251 |
-| Assets déployables | 8 071 596 |
+| Mesure               | Parent `4f765799` |
+| -------------------- | ----------------: |
+| JavaScript gzip      |           642 756 |
+| Plus gros chunk brut |           466 265 |
+| Initial gzip         |           226 437 |
+| Auth gzip            |           231 251 |
+| Assets déployables   |         8 071 596 |
 
 ## Jeux de données et résultats attendus
 
@@ -48,16 +48,16 @@ annulée. Elles peuvent y déplacer le marqueur pour vérifier des jours complet
 le marqueur installé demeure inchangé après chaque cas. Les comptes éphémères
 sont supprimés. Aucun override de date ou de couverture n’est exposé au client.
 
-| Jeu de données | Résultat acquis |
-| --- | --- |
-| 1 005 tentatives d’un joueur le 1er février 2024, statuts modifiés | 1 005 départs, un joueur actif, aucun total limité par les lignes PostgREST |
-| Départ le 31 janvier à 23:59:59 UTC, vérification le 1er février à 00:00 | Le 1er février : zéro départ, une fin vérifiée et une victoire |
-| Daily démarré le 31 janvier et vérifié le lendemain | Départs Daily `[1,0]`, fins Daily `[0,1]` ; le jour du défi ne déplace pas la fin |
-| Semaines du 28 février au 5 mars 2024, lecture le 5 à midi | Deux périodes coupées aux bornes, fin observée à midi ; année bissextile acceptée |
-| Aucun départ et première tentative appartenant à une autre version | Groupe sans tentative explicite ; le filtre ne réattribue pas la première tentative à une version ultérieure |
-| Retours D1, D7, D30, jours voisins et changements de règles | Retours exacts, même identité séparée de toute identité, aucun taux pour les cohortes non couvertes ou immatures |
-| Première tentative abandonnée, seconde terminée, commandes réessayées | Funnel de la première tentative conservé, étapes ordonnées et joueurs uniques |
-| Même requête préparée en UTC puis UTC+14 | Résultats identiques ; les helpers ne figent pas une conversion dépendante du fuseau |
+| Jeu de données                                                           | Résultat acquis                                                                                                  |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| 1 005 tentatives d’un joueur le 1er février 2024, statuts modifiés       | 1 005 départs, un joueur actif, aucun total limité par les lignes PostgREST                                      |
+| Départ le 31 janvier à 23:59:59 UTC, vérification le 1er février à 00:00 | Le 1er février : zéro départ, une fin vérifiée et une victoire                                                   |
+| Daily démarré le 31 janvier et vérifié le lendemain                      | Départs Daily `[1,0]`, fins Daily `[0,1]` ; le jour du défi ne déplace pas la fin                                |
+| Semaines du 28 février au 5 mars 2024, lecture le 5 à midi               | Deux périodes coupées aux bornes, fin observée à midi ; année bissextile acceptée                                |
+| Aucun départ et première tentative appartenant à une autre version       | Groupe sans tentative explicite ; le filtre ne réattribue pas la première tentative à une version ultérieure     |
+| Retours D1, D7, D30, jours voisins et changements de règles              | Retours exacts, même identité séparée de toute identité, aucun taux pour les cohortes non couvertes ou immatures |
+| Première tentative abandonnée, seconde terminée, commandes réessayées    | Funnel de la première tentative conservé, étapes ordonnées et joueurs uniques                                    |
+| Même requête préparée en UTC puis UTC+14                                 | Résultats identiques ; les helpers ne figent pas une conversion dépendante du fuseau                             |
 
 Les permissions utilisent de vrais JWT/PostgREST/PostgreSQL : anon, utilisateur,
 métadonnées admin forgées, utilisateur Auth anonyme, service sans identité et
@@ -76,9 +76,9 @@ Sur une transaction locale annulée de 20 000 tentatives/fins, une lecture de 24
 lignes donne les mesures suivantes. Il s’agit des chemins d’accès, pas d’un
 benchmark de la RPC complète ni d’une garantie de production.
 
-| Accès | Avant | Après |
-| --- | --- | --- |
-| Départs par `started_at` | 228 blocs, 0,551 ms | 31 blocs, 0,083 ms |
+| Accès                                          | Avant               | Après              |
+| ---------------------------------------------- | ------------------- | ------------------ |
+| Départs par `started_at`                       | 228 blocs, 0,551 ms | 31 blocs, 0,083 ms |
 | Fins vérifiées par index partiel `verified_at` | 530 blocs, 1,674 ms | 26 blocs, 0,035 ms |
 
 Trois exceptions advisors **exactes et temporaires**, échéance 31 octobre 2026,
@@ -88,19 +88,19 @@ inchangés ; ces exceptions ne valent pas validation d’usage en production.
 
 ## Vérifications
 
-| Gate | Résultat acquis |
-| --- | --- |
-| Base fraîche | PASS ; 70 migrations, lint strict vide, ACL, RLS, advisors, 11 index et types générés concordants |
-| Suite DB complète | PASS ; 208 tests / 23 fichiers, zéro skip, 45,20 s de tests et 94,60 s de gate ; inclut 34 nouveaux cas |
-| Rollback applicatif | PASS ; 10/10, checkpoint `968c0b3a` sur migration `20261017070341` |
-| Couverture complète | PASS ; 3 330 tests unitaires, 164 skips DB attendus et couverts par la suite DB ; 288 fichiers verts, 15 skipped, 307,69 s ; statements 86,35 %, branches 78,73 %, fonctions 91,06 %, lignes 88,40 % |
-| Parseurs et statistiques | PASS ; 45/45, également sous `TZ=Pacific/Honolulu`, N=0/1/30, 0/100 %, données invalides, bornes et Wilson |
-| UI ciblée | PASS ; 22 cas sur trois graines, y compris compte/droits A→B→A, filtre différé et refus 42501 partagé aux trois ressources |
-| Build final local | PASS ; JavaScript gzip 656 239, initial 226 444, Auth 231 252, assets 8 121 484 octets ; marge 10,10 % sous budget v11 inchangé |
-| Navigateurs ciblés | PASS ; 3/3 contrôlés en 14,6 s, sans retry, dont EN 320 px/clavier/axe ; 1/1 connecté réel en 9,3 s, sans retry, y compris révocation même JWT |
-| Statique et strict | PASS ; inventaire, frontières, format/lint, CSS, types app/scripts/E2E et contenu ; quatre diagnostics upstream stricts exactement autorisés |
-| Sécurité des dépendances | PASS ; aucun high/critical, dépendances inchangées |
-| Invariants historiques | PASS ; 24/24 bundles suivis et registre, 69/69 anciennes migrations identiques au parent |
+| Gate                     | Résultat acquis                                                                                                                                                                                      |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Base fraîche             | PASS ; 70 migrations, lint strict vide, ACL, RLS, advisors, 11 index et types générés concordants                                                                                                    |
+| Suite DB complète        | PASS ; 208 tests / 23 fichiers, zéro skip, 45,20 s de tests et 94,60 s de gate ; inclut 34 nouveaux cas                                                                                              |
+| Rollback applicatif      | PASS ; 10/10, checkpoint `968c0b3a` sur migration `20261017070341`                                                                                                                                   |
+| Couverture complète      | PASS ; 3 330 tests unitaires, 164 skips DB attendus et couverts par la suite DB ; 288 fichiers verts, 15 skipped, 307,69 s ; statements 86,35 %, branches 78,73 %, fonctions 91,06 %, lignes 88,40 % |
+| Parseurs et statistiques | PASS ; 45/45, également sous `TZ=Pacific/Honolulu`, N=0/1/30, 0/100 %, données invalides, bornes et Wilson                                                                                           |
+| UI ciblée                | PASS ; 22 cas sur trois graines, y compris compte/droits A→B→A, filtre différé et refus 42501 partagé aux trois ressources                                                                           |
+| Build final local        | PASS ; JavaScript gzip 656 239, initial 226 444, Auth 231 252, assets 8 121 484 octets ; marge 10,10 % sous budget v11 inchangé                                                                      |
+| Navigateurs ciblés       | PASS ; 3/3 contrôlés en 14,6 s, sans retry, dont EN 320 px/clavier/axe ; 1/1 connecté réel en 9,3 s, sans retry, y compris révocation même JWT                                                       |
+| Statique et strict       | PASS ; inventaire, frontières, format/lint, CSS, types app/scripts/E2E et contenu ; quatre diagnostics upstream stricts exactement autorisés                                                         |
+| Sécurité des dépendances | PASS ; aucun high/critical, dépendances inchangées                                                                                                                                                   |
+| Invariants historiques   | PASS ; 24/24 bundles suivis et registre, 69/69 anciennes migrations identiques au parent                                                                                                             |
 
 La première couverture a relevé deux littéraux de présentation (`UTC` et `D`)
 à remplacer par les clés existantes du catalogue, ainsi que l’attendu strict du

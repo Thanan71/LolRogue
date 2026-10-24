@@ -17,13 +17,13 @@ attestée par cette validation.
 
 ## Périmètre
 
-| Tâche | Résultat local |
-| --- | --- |
-| ADM-32 | 97 modules migrés vers un module `features/administration` avec couches domain/infrastructure/hooks/ui, wrapper de route, entrée publique et garde d’imports |
-| ADM-33 | Six groupes, sous-vues et contexte appliqué dans l’URL ; liens directs, historique, filtres validés et sélections joueur/run indépendantes |
+| Tâche  | Résultat local                                                                                                                                                                    |
+| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ADM-32 | 97 modules migrés vers un module `features/administration` avec couches domain/infrastructure/hooks/ui, wrapper de route, entrée publique et garde d’imports                      |
+| ADM-33 | Six groupes, sous-vues et contexte appliqué dans l’URL ; liens directs, historique, filtres validés et sélections joueur/run indépendantes                                        |
 | ADM-34 | Colonnes essentielles, détails, focus, clavier, FR/EN, 320 px et zoom natif 200–400 % validés automatiquement ; parcours humain demandé confirmé par l’utilisateur sur la Preview |
-| ADM-35 | Matrice locale SQL/Auth/UI/E2E, populations aux seuils de pagination, rôles réels et reprise après interruption |
-| ADM-36 | [Contrat d’interface](admin-interface.md), contrats KPI/rôles réutilisés, restauration et limites des preuves documentées |
+| ADM-35 | Matrice locale SQL/Auth/UI/E2E, populations aux seuils de pagination, rôles réels et reprise après interruption                                                                   |
+| ADM-36 | [Contrat d’interface](admin-interface.md), contrats KPI/rôles réutilisés, restauration et limites des preuves documentées                                                         |
 
 Les définitions et populations restent celles des contrats
 [métriques](admin-metrics.md), [exploration](admin-explorer.md),
@@ -36,20 +36,20 @@ retirées des liens/captures partagés.
 
 ## Preuves exécutées localement
 
-| Contrôle | Résultat observé |
-| --- | --- |
-| Couverture complète | **3 800 tests passés**, 304 fichiers ; 293 cas DB conditionnels exclus de cette passe générique et vérifiés séparément en base fraîche. Statements **86,80 %**, branches **79,76 %**, fonctions **89,92 %**, lignes **88,88 %** ; seuils inchangés et module administration inclus |
-| Base locale fraîche | Reset et application des **73 migrations** ; **337/337 tests**, **29 fichiers**, **100,24 s**, aucun skip |
-| Seuils de pagination | **5/5** cas : **0, 100, 101, 1 000, 1 001** joueurs ; chaque UUID apparaît une fois, total global et métrique serveur concordent, dernier curseur nul |
-| Matrice source complète | **98/98**, 28 fichiers, zéro skip, **11,2 min** ; inclut les parcours complets défaite et six biomes |
-| E2E existants | **21/21** verts |
-| Nouveaux E2E interface | **5/5** verts : navigation, tables, historique et accessibilité automatisée FR/EN |
-| Nouveau E2E connecté | **1/1** vert sur Supabase local réel : anonyme/utilisateur refusés, admin autorisé, révocation, 101 runs et reprise après une requête interrompue |
-| Zoom natif | Extension Chromium utilisant le zoom navigateur : **200 % → 640 CSS px**, **400 % → 320 CSS px**, FR/EN ; actions, tableaux et export utilisables |
-| Accessibilité automatisée | Clavier/focus et audits axe : **zéro violation** sur les parcours vérifiés |
-| Frontières | Garde du candidat local : **539 fichiers, 2 481 imports, zéro violation** ; imports lazy conservés |
-| Catalogues finaux | **87/87** contrôles bilingues et frontières après la correction finale des libellés de confidentialité |
-| TypeScript | App, scripts et E2E vérifiés localement |
+| Contrôle                  | Résultat observé                                                                                                                                                                                                                                                                   |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Couverture complète       | **3 800 tests passés**, 304 fichiers ; 293 cas DB conditionnels exclus de cette passe générique et vérifiés séparément en base fraîche. Statements **86,80 %**, branches **79,76 %**, fonctions **89,92 %**, lignes **88,88 %** ; seuils inchangés et module administration inclus |
+| Base locale fraîche       | Reset et application des **73 migrations** ; **337/337 tests**, **29 fichiers**, **100,24 s**, aucun skip                                                                                                                                                                          |
+| Seuils de pagination      | **5/5** cas : **0, 100, 101, 1 000, 1 001** joueurs ; chaque UUID apparaît une fois, total global et métrique serveur concordent, dernier curseur nul                                                                                                                              |
+| Matrice source complète   | **98/98**, 28 fichiers, zéro skip, **11,2 min** ; inclut les parcours complets défaite et six biomes                                                                                                                                                                               |
+| E2E existants             | **21/21** verts                                                                                                                                                                                                                                                                    |
+| Nouveaux E2E interface    | **5/5** verts : navigation, tables, historique et accessibilité automatisée FR/EN                                                                                                                                                                                                  |
+| Nouveau E2E connecté      | **1/1** vert sur Supabase local réel : anonyme/utilisateur refusés, admin autorisé, révocation, 101 runs et reprise après une requête interrompue                                                                                                                                  |
+| Zoom natif                | Extension Chromium utilisant le zoom navigateur : **200 % → 640 CSS px**, **400 % → 320 CSS px**, FR/EN ; actions, tableaux et export utilisables                                                                                                                                  |
+| Accessibilité automatisée | Clavier/focus et audits axe : **zéro violation** sur les parcours vérifiés                                                                                                                                                                                                         |
+| Frontières                | Garde du candidat local : **539 fichiers, 2 481 imports, zéro violation** ; imports lazy conservés                                                                                                                                                                                 |
+| Catalogues finaux         | **87/87** contrôles bilingues et frontières après la correction finale des libellés de confidentialité                                                                                                                                                                             |
+| TypeScript                | App, scripts et E2E vérifiés localement                                                                                                                                                                                                                                            |
 
 Ces E2E totalisent **27 cas verts**. Les fixtures SQL sont déterministes,
 privilégiées uniquement côté Node et nettoyées ; aucune clé privilégiée n’est
@@ -70,21 +70,21 @@ la branche après toute modification ultérieure.
 Le parent indépendant `bafc1c18969d7484aa9d511682fd035acb94b5b3`, reconstruit
 sur clone propre avec cache npm vide, mesure :
 
-| Mesure parent | Octets |
-| --- | ---: |
-| JavaScript total gzip | 694 022 |
-| Chargement initial gzip | 226 971 |
-| Fermeture Auth gzip | 231 774 |
-| Assets déployables | 8 253 013 |
+| Mesure parent           |    Octets |
+| ----------------------- | --------: |
+| JavaScript total gzip   |   694 022 |
+| Chargement initial gzip |   226 971 |
+| Fermeture Auth gzip     |   231 774 |
+| Assets déployables      | 8 253 013 |
 
 La fermeture Auth possède **10 entrées et aucun module admin**. Le candidat local validé mesure :
 
-| Mesure candidat local | Octets | Écart parent |
-| --- | ---: | ---: |
-| JavaScript total gzip | 699 097 | +5 075 |
-| Chargement initial gzip | 227 272 | +301 |
-| Fermeture Auth gzip | 232 069 | +295 |
-| Assets déployables | 8 270 304 | +17 291 |
+| Mesure candidat local   |    Octets | Écart parent |
+| ----------------------- | --------: | -----------: |
+| JavaScript total gzip   |   699 097 |       +5 075 |
+| Chargement initial gzip |   227 272 |         +301 |
+| Fermeture Auth gzip     |   232 069 |         +295 |
+| Assets déployables      | 8 270 304 |      +17 291 |
 
 La marge JS est de **10,37 %**, sans modification des budgets. La fermeture Auth
 conserve **10 entrées et aucun module admin**. Le build local et les contrôles de
@@ -114,15 +114,14 @@ exige les identifiants de l’instance locale et échoue dans sa gate obligatoir
 si la cible ou les paramètres manquent. Les jobs de la PR doivent identifier le
 SHA, la version Node, la cible locale, les commandes, compteurs et liens d’artefacts.
 CI, Preview, fusion et déploiement restent des étapes distinctes.
-
 - [x] Vérification humaine demandée sur la Preview : retour utilisateur positif
   le 21 octobre (« la verification humaine est ok »), pour le commit `7c157b4`.
   Outil, appareil, versions et annonces détaillées non renseignés ; il s’agit
   d’un retour déclaré, pas d’une exécution VoiceOver/NVDA observée par l’agent.
   La suite P3-A11Y-01 du jeu entier reste indépendante de cette validation admin.
-Avant fusion, vérifier dans la PR les résultats unitaires complets, la
-reconstruction indépendante, les checks CI et le smoke test Preview du SHA final.
-Ces preuves complètent le présent relevé local daté.
+  Avant fusion, vérifier dans la PR les résultats unitaires complets, la
+  reconstruction indépendante, les checks CI et le smoke test Preview du SHA final.
+  Ces preuves complètent le présent relevé local daté.
 
 ## Schéma, archives et retour arrière
 

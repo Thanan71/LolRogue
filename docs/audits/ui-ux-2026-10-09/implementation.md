@@ -4,19 +4,19 @@ Les observations du [rapport initial](report.md) sont conservées comme état av
 
 ## Changements vérifiés
 
-| Observation | Correction |
-| --- | --- |
-| UX-01 — confirmation de combat ambiguë | Action et cible restent en attente jusqu’à la confirmation, par bouton, Entrée ou Espace. Les tours empêchés avancent via un adaptateur de présentation; l’IA ne choisit pas une commande à la place du joueur manuel. |
-| UX-02 — préparation trop longue | Recherche par nom/rôle, filtre d’accès « Disponibles » par défaut, tri et pagination de 12 champions. L’équipe choisie survit aux recherches et aux changements de page. Runes facultatives dans un panneau dépliable et confirmation fixe sur mobile. |
-| UX-03 — connexion depuis une partie invitée | Refus avant appel au fournisseur, chargement terminé et erreur visible. Le profil utilise la confirmation d’abandon existante. L’entrée invitée attend aussi la fin de l’initialisation. |
-| UI-04 — focus des réglages | Utilisation du jeton de focus existant sur la piste de l’interrupteur. |
-| UI-05 — sorts indisponibles inaccessibles | Sorts focalisables avec `aria-disabled`, informations persistantes et bouton de fermeture. Une inspection ouverte reste prioritaire sur les aperçus de survol. |
-| UI-06 — petits textes | Textes utiles du combat et du catalogue relevés à au moins 12 px. |
-| UI-07 — infobulle hors écran | Position calculée selon la taille réellement rendue; largeur et hauteur bornées, défilement possible et accès au panneau depuis son déclencheur. La largeur minimale du document ne grandit plus avec la taille du texte. |
-| UI-08 — contraste inventaire | Compteurs et métadonnées utilisent le texte secondaire plus contrasté. |
-| UX-09 — statistiques du recrutement | Niveau d’arrivée et huit statistiques issus du constructeur de l’équipe utilisé en combat, avec multiplicateur, maîtrise, améliorations et augments applicables. Compétences et passif consultables en boutique avant achat. |
-| UX-10 — récupération du mot de passe | Demande, réception d’une session de récupération, confirmation du nouveau mot de passe et gestion du lien expiré en français et en anglais. |
-| UX-11 — accès à Jouer | Actions de partie placées avant les nouveautés et les informations de monnaie sur le menu. |
+| Observation                                 | Correction                                                                                                                                                                                                                                             |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| UX-01 — confirmation de combat ambiguë      | Action et cible restent en attente jusqu’à la confirmation, par bouton, Entrée ou Espace. Les tours empêchés avancent via un adaptateur de présentation; l’IA ne choisit pas une commande à la place du joueur manuel.                                 |
+| UX-02 — préparation trop longue             | Recherche par nom/rôle, filtre d’accès « Disponibles » par défaut, tri et pagination de 12 champions. L’équipe choisie survit aux recherches et aux changements de page. Runes facultatives dans un panneau dépliable et confirmation fixe sur mobile. |
+| UX-03 — connexion depuis une partie invitée | Refus avant appel au fournisseur, chargement terminé et erreur visible. Le profil utilise la confirmation d’abandon existante. L’entrée invitée attend aussi la fin de l’initialisation.                                                               |
+| UI-04 — focus des réglages                  | Utilisation du jeton de focus existant sur la piste de l’interrupteur.                                                                                                                                                                                 |
+| UI-05 — sorts indisponibles inaccessibles   | Sorts focalisables avec `aria-disabled`, informations persistantes et bouton de fermeture. Une inspection ouverte reste prioritaire sur les aperçus de survol.                                                                                         |
+| UI-06 — petits textes                       | Textes utiles du combat et du catalogue relevés à au moins 12 px.                                                                                                                                                                                      |
+| UI-07 — infobulle hors écran                | Position calculée selon la taille réellement rendue; largeur et hauteur bornées, défilement possible et accès au panneau depuis son déclencheur. La largeur minimale du document ne grandit plus avec la taille du texte.                              |
+| UI-08 — contraste inventaire                | Compteurs et métadonnées utilisent le texte secondaire plus contrasté.                                                                                                                                                                                 |
+| UX-09 — statistiques du recrutement         | Niveau d’arrivée et huit statistiques issus du constructeur de l’équipe utilisé en combat, avec multiplicateur, maîtrise, améliorations et augments applicables. Compétences et passif consultables en boutique avant achat.                           |
+| UX-10 — récupération du mot de passe        | Demande, réception d’une session de récupération, confirmation du nouveau mot de passe et gestion du lien expiré en français et en anglais.                                                                                                            |
+| UX-11 — accès à Jouer                       | Actions de partie placées avant les nouveautés et les informations de monnaie sur le menu.                                                                                                                                                             |
 
 Les états proviennent des effets actifs du moteur : étourdissement, immobilisation, silence, ralentissement, projection, peur, charme, bouclier et effets persistants. Les portraits et la scène affichent leurs libellés, icônes, durées restantes et valeurs utiles. Les PV faibles et les champions hors combat ont aussi un indicateur. Les noms accessibles des cibles incluent leurs états.
 
@@ -44,7 +44,6 @@ Le scénario connecté utilise le nouveau libellé des nouveautés et vérifie e
 ## Captures et mesures après correction
 
 Les captures sont conservées localement et exclues de Git. Les liens d’images ci-dessous sont consultables dans ce workspace; les mesures et comptes rendus textuels sont versionnés.
-
 - [Sélection à 390 px](after/mobile-selection.png), [320 px](after/small-selection.png) et [1440 px](after/desktop-selection.png).
 - [Menu à 390 px](after/mobile-menu.png) : accès à Jouer avant les informations secondaires.
 - [Combat avec immobilisation réelle](after/combat-root-390.png).

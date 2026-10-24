@@ -6,8 +6,8 @@ support privé décrit par la [procédure](run-incident-policy.md).
 
 ## Incidents connus
 
-| Incident | Moteur / code | Fenêtre UTC affectée | Preuve et état | Compensation |
-| --- | --- | --- | --- | --- |
+| Incident                     | Moteur / code                                                   | Fenêtre UTC affectée                                                                                                                                    | Preuve et état                                                                                                                                                                                             | Compensation                                                                          |
+| ---------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | `INC-RUN-V13-PENDING-CHOICE` | `run-engine-v13` / `pending_choice` ; ruleset exact à confirmer | Bornes exactes inconnues. Le réaudit du 8 août 2026 rapporte 4 rejets sur les 7 jours précédents ; ce constat ne définit pas une fenêtre d'éligibilité. | Incident historique documenté dans `TODO.md`, sections constats live et `P1-RUN-01`. Bug client corrigé selon ce réaudit ; déploiement exact et fin d'impact à reconstituer depuis les archives opérateur. | Aucune attribution enregistrée dans ce registre ; aucune population éligible validée. |
 
 Les données de ce premier incident proviennent de l'audit historique du dépôt,
@@ -18,7 +18,6 @@ L'absence d'une entrée ne prouve pas l'absence d'incident.
 ## Ouvrir et mettre à jour une entrée
 
 Attribuer un identifiant stable et consigner :
-
 - moteur et ruleset exacts, code fermé et environnements affectés ;
 - début inclusif et fin exclusive au format UTC ISO 8601, ou explicitement
   « inconnu » tant que la borne n'est pas établie ;

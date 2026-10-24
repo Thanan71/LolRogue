@@ -22,15 +22,15 @@ flowchart LR
 
 La flèche représente une dépendance autorisée. Les pages existantes consomment aussi des règles de présentation pures et quelques endpoints administratifs/authentification ; cette carte ne prétend pas que chaque écran passe obligatoirement par un hook ou un repository. Les interfaces de données sont séparées des adaptations Supabase : voir [les contrats de données](domain-data-contracts.md).
 
-| Couche | Entrées et préconditions | Responsabilité et sorties |
-| --- | --- | --- |
-| Pages, composants, hooks | État sélectionné, actions publiques et paramètres de route | Présentation, navigation et feedback ; déclenchent les opérations, sans décider les règles du replay |
-| Stores | État Zustand, mutations atomiques et politique existante de persistance/merge | Publication de l'état et raccord des ports de l'application ; les opérations de run délèguent leur orchestration |
-| Orchestrations de run | Snapshots de run, horloge/identifiants, ports de services et de progression | Démarrage, journal d'autorité, finalisation, sauvegarde/retry et progression ; contrôlent l'idempotence et les opérations concurrentes |
-| Moteur `src/game` et domaine | Données métier et RNG explicite lorsque nécessaire | Règles, validation, calculs et replay ; aucune dépendance React, page, store ou transport DB |
-| Interfaces de repositories | Identifiants, filtres, pagination et résultats métier typés | Contrat des opérations DB ; aucun client Supabase ni construction d'implémentation |
-| `RepositoryContainer` | Client Supabase fourni à la construction, options de journalisation | Unique construction/cache des repositories concrets ; `applicationRepositories` raccorde ce même conteneur à l'application |
-| Repositories Supabase | Client fourni, DTO de schéma et contrats métier | Requêtes, pagination, erreurs et adaptation schéma→métier ; ne pilotent pas les stores |
+| Couche                       | Entrées et préconditions                                                      | Responsabilité et sorties                                                                                                              |
+| ---------------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Pages, composants, hooks     | État sélectionné, actions publiques et paramètres de route                    | Présentation, navigation et feedback ; déclenchent les opérations, sans décider les règles du replay                                   |
+| Stores                       | État Zustand, mutations atomiques et politique existante de persistance/merge | Publication de l'état et raccord des ports de l'application ; les opérations de run délèguent leur orchestration                       |
+| Orchestrations de run        | Snapshots de run, horloge/identifiants, ports de services et de progression   | Démarrage, journal d'autorité, finalisation, sauvegarde/retry et progression ; contrôlent l'idempotence et les opérations concurrentes |
+| Moteur `src/game` et domaine | Données métier et RNG explicite lorsque nécessaire                            | Règles, validation, calculs et replay ; aucune dépendance React, page, store ou transport DB                                           |
+| Interfaces de repositories   | Identifiants, filtres, pagination et résultats métier typés                   | Contrat des opérations DB ; aucun client Supabase ni construction d'implémentation                                                     |
+| `RepositoryContainer`        | Client Supabase fourni à la construction, options de journalisation           | Unique construction/cache des repositories concrets ; `applicationRepositories` raccorde ce même conteneur à l'application             |
+| Repositories Supabase        | Client fourni, DTO de schéma et contrats métier                               | Requêtes, pagination, erreurs et adaptation schéma→métier ; ne pilotent pas les stores                                                 |
 
 Le checker analyse `src/**/*.{ts,tsx,mjs,js}` et les sources de `data/` si ce répertoire existe. Il résout les chemins relatifs, les extensions source et les alias déclarés dans `tsconfig.json`. Les imports, réexports, imports de type, `require` et imports dynamiques littéraux donnent chacun une preuve `source:ligne → cible`. Une syntaxe invalide fait échouer l'analyse. Un import interne non résolu ou calculé depuis le moteur est refusé : il ne disparaît pas silencieusement du graphe.
 
@@ -51,11 +51,11 @@ Il n'existe aucune exception `src/game → stores`. Les contrats `CombatantInfo`
 
 Les trois adaptateurs auparavant rangés sous `game/run` ont été déplacés sans reexport dans le moteur :
 
-| Avant | Après | Motif |
-| --- | --- | --- |
-| `game/run/runFinalization.ts` | `stores/runCombatFinalization.ts` | Raccord UI vers les actions du store à la fin d'un combat |
-| `game/run/runPersistence.ts` | `stores/persistence/runPersistence.ts` | Migration/merge Zustand, stockage navigateur et quarantaine |
-| `game/run/runStartCoordinator.ts` | `services/runLifecycle/runStartCoordinator.ts` | Verrou de démarrage navigateur et inspection du stockage |
+| Avant                             | Après                                          | Motif                                                       |
+| --------------------------------- | ---------------------------------------------- | ----------------------------------------------------------- |
+| `game/run/runFinalization.ts`     | `stores/runCombatFinalization.ts`              | Raccord UI vers les actions du store à la fin d'un combat   |
+| `game/run/runPersistence.ts`      | `stores/persistence/runPersistence.ts`         | Migration/merge Zustand, stockage navigateur et quarantaine |
+| `game/run/runStartCoordinator.ts` | `services/runLifecycle/runStartCoordinator.ts` | Verrou de démarrage navigateur et inspection du stockage    |
 
 `isRecord` a été extrait dans `utils/valueGuards.ts`. La validation métier d'une sauvegarde importe ce helper pur ; `utils/persistence.ts` conserve son réexport compatible. Cela supprime le chemin `game/run/runPersistenceValidation → utils/persistence → observability → dbLogger → supabaseClient`.
 
@@ -63,20 +63,19 @@ Les trois adaptateurs auparavant rangés sous `game/run` ont été déplacés sa
 
 La mesure initiale est figée depuis l'arbre Git `9e2c66f5`, avant tout changement concurrent. Les imports comptent les déclarations et les réexports ; ils ne comptent pas les noms importés individuellement. Les cycles sont des composantes fortement connexes (SCC), avec toutes les lignes d'import qui les prouvent, et non une énumération exponentielle de tous les parcours possibles.
 
-| Mesure | Avant `9e2c66f5` | Après ARCH-S3 |
-| --- | ---: | ---: |
-| Fichiers sources | 374 | 388 (+14) |
-| Imports | 1 825 | 1 885 (+60) |
-| Imports internes | 1 648 | 1 706 (+58) |
-| Imports exclusivement de type | 380 | 426 (+46) |
-| Consommateurs du barrel services | 0 | 0 |
-| Imports directs `game → stores` | 4 | 0 |
-| Imports UI → repositories concrets | 4 | 0 |
-| SCC avec syntaxe valeur | 1, six modules | 1, six modules de stores |
-| SCC tous imports, types inclus | 2 | 2 |
+| Mesure                             | Avant&#32;`9e2c66f5` |            Après ARCH-S3 |
+| ---------------------------------- | -------------------: | -----------------------: |
+| Fichiers sources                   |                  374 |                388 (+14) |
+| Imports                            |                1 825 |              1 885 (+60) |
+| Imports internes                   |                1 648 |              1 706 (+58) |
+| Imports exclusivement de type      |                  380 |                426 (+46) |
+| Consommateurs du barrel services   |                    0 |                        0 |
+| Imports directs `game → stores`    |                    4 |                        0 |
+| Imports UI → repositories concrets |                    4 |                        0 |
+| SCC avec syntaxe valeur            |       1, six modules | 1, six modules de stores |
+| SCC tous imports, types inclus     |                    2 |                        2 |
 
 Le cycle valeur initial est prouvé notamment par les imports suivants :
-
 - `services/runLifecycleService.ts:3 → stores/authStore.ts` ;
 - `stores/authStore.ts:172 → stores/runStore.ts` (import dynamique) ;
 - `stores/runStore.ts:13 → stores/runStoreLifecycleSlice.ts` ;

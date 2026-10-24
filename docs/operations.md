@@ -1,7 +1,6 @@
 # Déploiement et exploitation
 
 Ce document est le point d'entrée opérationnel. Les procédures détaillées sont :
-
 - `docs/incident-runbooks.md` pour migration, rollback, indisponibilité, classement,
   secret exposé et sauvegarde défaillante ;
 - `docs/backup-and-restore.md` pour RPO/RTO, dumps, exercice trimestriel et
@@ -153,7 +152,6 @@ et vérifier l’admin réel, la pagination et les données sans signal selon
 [le contrat de diagnostic](admin-diagnostics.md). Ne pas remettre un ancien
 panneau lisant les logs bruts lors d’un rollback : le candidat compatible inclut
 le client RPC et doit être validé séparément d’un déploiement connu comme sain.
-
 - ouvrir directement `/auth` et vérifier l'absence de 404 ;
 - créer une session ou entrer en invité ;
 - démarrer une run connectée et vérifier la présence d'un `run_attempt` possédé par
@@ -292,7 +290,6 @@ bloque les suivantes en cas d'échec.
 Une nouvelle version de moteur comprise par le navigateur doit être livrée en
 trois étapes afin qu'aucun ancien frontend ne démarre une ruleset qu'il ne sait pas
 journaliser :
-
 1. `npm run release -- deploy --project-ref <project-ref> --yes` publie le vérificateur compatible avec les anciennes et
    nouvelles versions ;
 2. la même commande déploie le frontend et attend la réussite de Vercel, sans
@@ -324,7 +321,6 @@ visible.
 
 L’alerte courte utilise les **15 minutes UTC closes précédentes**, séparées par
 `engine_version` et `gameplay_ruleset_version`. Elle se déclenche sur l'un des cas :
-
 - tout `rejection_code` inconnu ;
 - au moins 3 rejets portant le même code ;
 - au moins 20 % de rejets dès 5 attempts observés.
@@ -370,7 +366,6 @@ Le navigateur conserve au plus 100 entrées en attente, envoie des lots de 10
 maximum et ne retente que deux fois une erreur réseau temporaire. La RPC refuse
 les clients anonymes et les écritures directes, impose l'identité de la session,
 sanitise récursivement messages, stack et metadata, puis applique :
-
 - 30 lignes par minute et 500 par période de 24 heures et par utilisateur ;
 - 1 000 lignes globales par minute ;
 - 64 Kio par lot, 32 Kio de metadata avant sanitation et 8 Kio après ;
@@ -388,7 +383,6 @@ le build courant, pas tous les clients. Les buffers et corrélations sont purgé
 au changement d’identité ; les batches sont liés à leur session d’origine.
 
 Pour un incident :
-
 1. noter l'heure, l'environnement, la route, le `runId` et l'`attemptId` ;
 2. reproduire sans données personnelles si possible ;
 3. consulter les logs Vercel/Supabase et les erreurs du navigateur ;

@@ -17,10 +17,10 @@ and rolls back every inserted row. It requires one existing fixture player.
 The baseline temporarily dropped the new index in the same rollback-only
 transaction. Both plans used the actual SQL predicate emitted by the repository.
 
-| Plan | Execution | Shared buffers | Rows read before limit |
-| --- | ---: | ---: | ---: |
-| Existing indexes: sequential scan + top-N sort | 6.322 ms | 668 | 10,000 |
-| Cursor index: bounded index scan, no run sort | 0.208 ms | 6 | 22 |
+| Plan                                           | Execution | Shared buffers | Rows read before limit |
+| ---------------------------------------------- | --------: | -------------: | ---------------------: |
+| Existing indexes: sequential scan + top-N sort |  6.322 ms |            668 |                 10,000 |
+| Cursor index: bounded index scan, no run sort  |  0.208 ms |              6 |                     22 |
 
 These are local synthetic measurements, not production latency promises.
 Actual timings vary with cache, player history size and concurrent traffic.

@@ -6,14 +6,14 @@ Le [rapport Markdown généré](audits/enhancement-trees.md) et le [JSON exhaust
 
 Les six graphes de rôle conservent leurs 72 IDs. Ils n’ont aucun cycle, parent inconnu, doublon ou seuil supérieur au plafond réel de maîtrise 4. **57 nœuds de rôle ont un chemin légal ; 12 sont explicitement désactivés pour mécanique non supportée ; 3 autres héritent d’un parent désactivé.** Le modèle SQL extrait des migrations et le validateur client concordent sur les 88 définitions et leurs chemins publiés. Cette concordance de sources ne prouve pas un état déployé.
 
-| Rôle | Désactivés directement | Blocages hérités uniquement |
-| --- | --- | --- |
-| Assassin | `assassin_mobility_1`, `assassin_mobility_2`, `assassin_mobility_3` | — |
-| Combattant | `fighter_duelist_1` | `fighter_duelist_2`, `fighter_duelist_3` |
-| Mage | `mage_burst_3` | — |
-| Tireur | `marksman_survival_3` | — |
-| Support | `support_tanky_3`, `support_utility_1`, `support_utility_2`, `support_utility_3` | — |
-| Tank | `tank_support_1`, `tank_support_3` | `tank_support_2` |
+| Rôle       | Désactivés directement                                                           | Blocages hérités uniquement              |
+| ---------- | -------------------------------------------------------------------------------- | ---------------------------------------- |
+| Assassin   | `assassin_mobility_1`, `assassin_mobility_2`, `assassin_mobility_3`              | —                                        |
+| Combattant | `fighter_duelist_1`                                                              | `fighter_duelist_2`, `fighter_duelist_3` |
+| Mage       | `mage_burst_3`                                                                   | —                                        |
+| Tireur     | `marksman_survival_3`                                                            | —                                        |
+| Support    | `support_tanky_3`, `support_utility_1`, `support_utility_2`, `support_utility_3` | —                                        |
+| Tank       | `tank_support_1`, `tank_support_3`                                               | `tank_support_2`                         |
 
 Les motifs restent précis : absence de déplacement, broussailles, invisibilité, proximité, interception ou répétition de sort selon le nœud. Les trois descendants restent présents dans le catalogue ; leur achat et leur activation sont refusés même si l’ancien parent désactivé apparaît dans les rangs possédés. Les IDs et leurs reçus ne sont pas supprimés : un remboursement exige la dépense attestée.
 
@@ -35,14 +35,14 @@ Les nouveaux nœuds utilisent seulement les mécanismes existants : durabilité/
 
 Le rapport inclut `createEnhancementEconomyReport()` et ses hypothèses de cohortes, seed, fréquence, durée supposée et probabilités de victoire. Il s’agit de scénarios d’épargne indépendants, pas de rétention mesurée ; un même portefeuille ne peut pas financer simultanément tous les objectifs rapportés. Voir la [décision économique](enhancement-economy.md) : prix conservés et réinitialisations répétées gratuites avec remboursement audité.
 
-| Rôle | `supportedRanksMaximumCandies` | `reachableMaximumCandies` |
-| --- | ---: | --- |
-| Assassin | 650 | null |
-| Combattant | 650 | null |
-| Mage | 780 | null |
-| Tireur | 780 | null |
-| Support | 500 | null |
-| Tank | 750 | null |
+| Rôle       | `supportedRanksMaximumCandies` | `reachableMaximumCandies` |
+| ---------- | -----------------------------: | ------------------------- |
+| Assassin   |                            650 | null                      |
+| Combattant |                            650 | null                      |
+| Mage       |                            780 | null                      |
+| Tireur     |                            780 | null                      |
+| Support    |                            500 | null                      |
+| Tank       |                            750 | null                      |
 
 Le premier champ additionne les rangs supportés et cumulables du rôle. Le second répond à une autre question : tous les nœuds de ce rôle peuvent-ils être acquis ? Il reste null car chaque rôle comporte au moins un chemin fermé. Les voies spécialisées exclusives ne sont pas additionnées comme un build légal.
 
@@ -53,7 +53,6 @@ La fixture `tests/helpers/enhancementSpecializationComparison.ts` compare **48 c
 L’extracteur part des 72 lignes du seed, contrôle les copies 1→2→3 puis projette la copie 3→4 et l’expansion SQL de huit voies sur deux rangs. Il ne maintient pas une seconde copie des 88 définitions. Les paramètres d’achat, motifs de désactivation, portée champion, conditions, exclusions, gate et budget sont comparés au client. Toute nouvelle mutation de catalogue ou de configuration privée non reconnue échoue explicitement.
 
 Les migrations suivies incluent :
-
 - `20261022161216_enhancement_contract_v4_purchases.sql` : catalogue 4, comptes enregistrés, gate privée fermée, révision et contrat d’achat.
 - `20261022162313_enhancement_atomic_resets.sql` : exigences récursives avec maîtrise/rangs, catalogue attendu, devis et remboursement atomique.
 - `20261022164033_admin_enhancement_analytics.sql` : métriques agrégées de dépenses, remboursements et cohortes de runs figées, sans identifiants de joueurs dans la sortie admin.

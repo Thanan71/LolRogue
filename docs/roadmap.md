@@ -49,18 +49,18 @@ La checklist opérable et les critères de rollback normatifs sont dans
 
 - [ ] La branche de release est à jour et le diff ne contient aucun secret.
 - [ ] `npm ci`, `npm run check`, `npm run test:e2e` et
-      `npm run test:e2e:production` réussissent avec Node 24.
+  `npm run test:e2e:production` réussissent avec Node 24.
 - [ ] Les changements de gameplay ont des tests déterministes.
 - [ ] Les versions d'assets sont épinglées et leurs licences/sources respectées.
 - [ ] `npm run testing -- security` ne signale aucune vulnérabilité critique/haute non
-      acceptée et aucune exception dépassée.
+  acceptée et aucune exception dépassée.
 
 ### Supabase
 
 - [ ] Toute évolution SQL possède une nouvelle migration horodatée.
 - [ ] `npm run database -- validate --yes` réussit sur une base locale jetable.
 - [ ] `npm run database -- migrations check --linked --project-ref <project-ref>` confirme la parité du commit et du projet
-      Supabase ciblé, dernière version comprise.
+  Supabase ciblé, dernière version comprise.
 - [ ] Les types ont été régénérés avec `npm run database -- types generate` si le schéma a changé.
 - [ ] Les nouvelles tables et RPC ont des tests Auth/RLS positifs et négatifs.
 - [ ] Une sauvegarde distante récente et une procédure de restauration existent.
@@ -69,7 +69,7 @@ La checklist opérable et les critères de rollback normatifs sont dans
 ### Déploiement
 
 - [ ] Les variables `VITE_PUBLIC_SUPABASE_URL` et
-      `VITE_PUBLIC_SUPABASE_ANON_KEY` ciblent le bon environnement.
+  `VITE_PUBLIC_SUPABASE_ANON_KEY` ciblent le bon environnement.
 - [ ] Aucune clé service-role n'est exposée dans Vercel côté client.
 - [ ] Les URL Auth Supabase incluent le domaine de production.
 - [ ] La CSP autorise uniquement les nouvelles origines nécessaires.

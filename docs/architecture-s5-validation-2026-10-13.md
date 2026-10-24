@@ -17,11 +17,11 @@ restent inchangés. Aucune migration nouvelle n'est nécessaire pour cette tranc
 
 ## Contrats
 
-| Tranche | Contrat | Vérification |
-| --- | --- | --- |
+| Tranche | Contrat                                     | Vérification                                                                   |
+| ------- | ------------------------------------------- | ------------------------------------------------------------------------------ |
 | ARCH-16 | [Artefacts générés](generated-artifacts.md) | Vérification en lecture seule, dérive, archives et reproduction conditionnelle |
-| ARCH-17 | [Maintenance CSS](css-maintenance.md) | Inventaire, cascade, parité visuelle et accessibilité |
-| ARCH-18 | [Dépendances](dependency-audit.md) | Usages, versions verrouillées, patch Auth et rapports d'audit invalides |
+| ARCH-17 | [Maintenance CSS](css-maintenance.md)       | Inventaire, cascade, parité visuelle et accessibilité                          |
+| ARCH-18 | [Dépendances](dependency-audit.md)          | Usages, versions verrouillées, patch Auth et rapports d'audit invalides        |
 
 Les rapports JSON, traces et captures temporaires restent dans les répertoires
 ignorés. Le backlog actif conserve les décisions et les liens vers les preuves.
@@ -42,20 +42,20 @@ et les 24 SHA-256 des bundles sont identiques à la base `70b0a614`. Git reste
 propre. Le build local invité sans variables privées ne prouve pas une connexion
 Supabase ; les trois parcours connectés sont validés séparément sur la DB locale.
 
-| Mesure | Avant (dev) | Après |
-| --- | ---: | ---: |
-| Dépendances directes runtime / dev | 8 / 21 | 8 / 21 |
-| Entrées du lock / noms uniques | 284 / 267 | 284 / 267 |
-| Entrées npm publiques | 40 | 40 |
-| Source TS/TSX / imports internes | 429 / 1 819 | 429 / 1 819 |
-| Imports totaux / de types | 2 001 / 457 | 2 001 / 457 |
-| Consommateurs du barrel services / violations | 0 / 0 | 0 / 0 |
-| JavaScript gzip | 621 103 octets | 621 519 octets |
-| Chargement initial / auth gzip | 220 440 / 225 220 octets | 220 434 / 225 215 octets |
-| Assets déployables | 7 992 356 octets | 7 994 061 octets |
-| Bundle authority courant | 861 126 octets | 861 126 octets |
-| Déclarations CSS / règles / `!important` | 8 205 / 2 245 / 69 | 8 202 / 2 247 / 69 |
-| Tokens racine | 58 | 63 |
+| Mesure                                        |              Avant (dev) |                    Après |
+| --------------------------------------------- | -----------------------: | -----------------------: |
+| Dépendances directes runtime / dev            |                   8 / 21 |                   8 / 21 |
+| Entrées du lock / noms uniques                |                284 / 267 |                284 / 267 |
+| Entrées npm publiques                         |                       40 |                       40 |
+| Source TS/TSX / imports internes              |              429 / 1 819 |              429 / 1 819 |
+| Imports totaux / de types                     |              2 001 / 457 |              2 001 / 457 |
+| Consommateurs du barrel services / violations |                    0 / 0 |                    0 / 0 |
+| JavaScript gzip                               |           621 103 octets |           621 519 octets |
+| Chargement initial / auth gzip                | 220 440 / 225 220 octets | 220 434 / 225 215 octets |
+| Assets déployables                            |         7 992 356 octets |         7 994 061 octets |
+| Bundle authority courant                      |           861 126 octets |           861 126 octets |
+| Déclarations CSS / règles / `!important`      |       8 205 / 2 245 / 69 |       8 202 / 2 247 / 69 |
+| Tokens racine                                 |                       58 |                       63 |
 
 Les budgets v9 restent inchangés : 11,21 % de marge JavaScript, au-dessus des
 10 % requis. L'augmentation de 416 octets gzip inclut les nouvelles patch notes
@@ -74,18 +74,18 @@ temps isolée à la seule modification de code.
 
 ## Vérifications
 
-| Gate | Résultat |
-| --- | --- |
-| `npm run check` | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |
-| DB locale migrée, types et sécurité | PASS, 130 tests / 17 fichiers, aucun skip ; 67 migrations, dernière `20261011134126` ; 65,24 s |
-| `npm run balance -- check` | PASS ; cohortes historiques, 7 560 combats, 1 000 seeds carte, trois versions Veigar à 180 runs appariées puis 148 tests / 31 fichiers |
-| `npm run typecheck:strict` | PASS ; quatre diagnostics upstream autorisés inchangés |
-| Comparaison CSS avant/après | PASS, deux matrices de 3 parcours ; 42 PNG et relevés JSON conservés sous `/tmp`, aucun asset dans les commits |
-| Suite navigateur source | 72 scénarios : 71 PASS directs, 1 PASS après retry sur la sélection tactile à 320px ; cause et correctif du locator documentés, puis 10/10 sans retry ni trace |
-| Parcours connectés | PASS, 3/3 sans retry ni skip : Daily, historique/patch notes, économie/reconnexion mobile |
-| Matrice production locale | 4/6 PASS (Chromium et WebKit, desktop/mobile) ; les deux Firefox échouent au lancement du profil avant toute page |
-| Clone neuf | PASS, installation et build indépendants, artefacts inchangés avant/après et 24 empreintes figées conservées |
-| CI distante | Résultats et durées du SHA candidat consignés dans la PR ; les six projets navigateur restent obligatoires |
+| Gate                                | Résultat                                                                                                                                                            |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run check`                     | PASS ; 3 157 tests / 277 fichiers, 86 tests ignorés dans la suite globale ; gates DB/balance/connectés exécutés séparément ; couverture et budgets verts ; 459,81 s |
+| DB locale migrée, types et sécurité | PASS, 130 tests / 17 fichiers, aucun skip ; 67 migrations, dernière `20261011134126` ; 65,24 s                                                                      |
+| `npm run balance -- check`          | PASS ; cohortes historiques, 7 560 combats, 1 000 seeds carte, trois versions Veigar à 180 runs appariées puis 148 tests / 31 fichiers                              |
+| `npm run typecheck:strict`          | PASS ; quatre diagnostics upstream autorisés inchangés                                                                                                              |
+| Comparaison CSS avant/après         | PASS, deux matrices de 3 parcours ; 42 PNG et relevés JSON conservés sous `/tmp`, aucun asset dans les commits                                                      |
+| Suite navigateur source             | 72 scénarios : 71 PASS directs, 1 PASS après retry sur la sélection tactile à 320px ; cause et correctif du locator documentés, puis 10/10 sans retry ni trace      |
+| Parcours connectés                  | PASS, 3/3 sans retry ni skip : Daily, historique/patch notes, économie/reconnexion mobile                                                                           |
+| Matrice production locale           | 4/6 PASS (Chromium et WebKit, desktop/mobile) ; les deux Firefox échouent au lancement du profil avant toute page                                                   |
+| Clone neuf                          | PASS, installation et build indépendants, artefacts inchangés avant/après et 24 empreintes figées conservées                                                        |
+| CI distante                         | Résultats et durées du SHA candidat consignés dans la PR ; les six projets navigateur restent obligatoires                                                          |
 
 La limitation Firefox macOS est reproduite par un lancement `about:blank`
 indépendant du projet : dossiers temporaires et profil persistant explicitement

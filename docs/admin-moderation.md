@@ -39,10 +39,10 @@ Le navigateur prépare une décision, affiche cible, date, justification, porté
 conséquences, puis exige de recopier l’UUID exact du score. Il génère une clé de
 requête et fige le contenu confirmé avant l’envoi.
 
-| Action | Effet atomique |
-| --- | --- |
+| Action             | Effet atomique                                                                                                                                           |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `invalidate_score` | Exclut un score terminé et encore valide du classement Daily ; traite tous ses signalements ouverts ; écrit une seule décision dans le journal canonique |
-| `dismiss_report` | Rejette uniquement le signalement sélectionné ; laisse le score et les autres signalements dans leur état actuel |
+| `dismiss_report`   | Rejette uniquement le signalement sélectionné ; laisse le score et les autres signalements dans leur état actuel                                         |
 
 Le serveur vérifie le dossier encore ouvert, la cible et la date confirmées sous
 verrou. Une invalidation ne réécrit aucune run, commande ou résultat autoritaire.
@@ -66,11 +66,11 @@ journal ; la protection métier sur le dossier et le score reste applicable.
 
 ## Contrat RPC et autorisations
 
-| RPC publique invoker | Paramètres | Résultat |
-| --- | --- | --- |
-| `admin_moderation_queue` | statut, limite, curseur, borne de création, dates UTC et UUID de score facultatifs | File, totaux filtrés et prochain curseur |
-| `admin_moderation_history` | UUID du score, limite, curseur et borne de création | Événements minimaux conservés |
-| `admin_moderation_decide` | clé de requête, dossier, UUID/date confirmés, action, motif et portée `daily_score` | Reçu appliqué, rejoué ou refusé |
+| RPC publique invoker       | Paramètres                                                                          | Résultat                                 |
+| -------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------- |
+| `admin_moderation_queue`   | statut, limite, curseur, borne de création, dates UTC et UUID de score facultatifs  | File, totaux filtrés et prochain curseur |
+| `admin_moderation_history` | UUID du score, limite, curseur et borne de création                                 | Événements minimaux conservés            |
+| `admin_moderation_decide`  | clé de requête, dossier, UUID/date confirmés, action, motif et portée `daily_score` | Reçu appliqué, rejoué ou refusé          |
 
 Les fonctions publiques délèguent à un definer privé à `search_path` vide. Les
 lectures et les actions ont des entrées distinctes ; le rôle admin actuel dans
@@ -105,12 +105,12 @@ HTTP avant l’entrée dans la fonction ne créent pas un faux événement attri
   serveur des secrets et données privées courantes. Les rejets n’enregistrent pas
   le motif brut. Aucun export de modération n’est introduit.
 
-| Donnée | Seuil de purge |
-| --- | --- |
-| Dossier ouvert | Jusqu’à décision ou suppression du compte concerné |
-| Signalement traité/rejeté | 365 jours après sa revue |
-| Décision et ancien audit d’invalidation | 365 jours après l’événement |
-| Rejet, abus et fenêtres de limitation | 30 jours |
+| Donnée                                  | Seuil de purge                                     |
+| --------------------------------------- | -------------------------------------------------- |
+| Dossier ouvert                          | Jusqu’à décision ou suppression du compte concerné |
+| Signalement traité/rejeté               | 365 jours après sa revue                           |
+| Décision et ancien audit d’invalidation | 365 jours après l’événement                        |
+| Rejet, abus et fenêtres de limitation   | 30 jours                                           |
 
 Le job existant `lolrogue-purge-expired-social-data` est replanifié quotidiennement
 à 04:43 UTC ; aucun second job n’est créé. Les seuils entraînent une suppression

@@ -4,12 +4,12 @@ Ce contrat décrit le moteur futur intégré à la release 0.3.0. Les bundles et
 hashes historiques restent figés ; les anciennes runs sont rejouées par leur
 version. Les Candies et les rangs du compte ne créent aucun compteur Veigar.
 
-| Nœud stable | Observation TREE-01 | Contrat corrigé |
-| --- | --- | --- |
-| `marksman_dps_3` — Tir Déchirant | Aucun tirage malgré 15 % ; 25 dégâts sur 3 tours donnaient 24 après trois arrondis. | Après une attaque de base infligeant des dégâts HP, un tirage injecté `< 0,15` applique un DoT vrai total `round(PVmax cible × 0,05)` sur 3 tours. Chaque application est indépendante. |
-| `assassin_sustain_3` — Phénix | Émission du bouclier perdue par le combat ; recharge fictive de 60 secondes. | Si les PV sont déjà strictement sous 20 % avant un coup, bouclier de base 200 PV pendant 2 tours, appliqué avant ce coup, une utilisation par combat. Le simple franchissement du seuil pendant le coup n’est pas le déclencheur. |
-| `mage_burst_2` — Combustion | +15 % de puissance annoncé comme +15 % de dégâts magiques. | Le mécanisme reste un bonus de puissance : `(AP de base + bonus plats) × (1 + somme des bonus AP relatifs)`. Aucun multiplicateur direct des dégâts ni seconde application. |
-| `mage_control_2` — Canalisation | Fraction 0,1 convertie implicitement en 10 points ; aperçu secondaire absent. | 10 points de hâte plats, additionnés aux autres points. Recharge `× max(0,1 ; 100/(100+hâte) × facteur R)`. Le facteur R vaut `1 - somme(cdr_ultimate)` pour R et 1 sinon. |
+| Nœud stable                      | Observation TREE-01                                                                 | Contrat corrigé                                                                                                                                                                                                                   |
+| -------------------------------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `marksman_dps_3` — Tir Déchirant | Aucun tirage malgré 15 % ; 25 dégâts sur 3 tours donnaient 24 après trois arrondis. | Après une attaque de base infligeant des dégâts HP, un tirage injecté `< 0,15` applique un DoT vrai total `round(PVmax cible × 0,05)` sur 3 tours. Chaque application est indépendante.                                           |
+| `assassin_sustain_3` — Phénix    | Émission du bouclier perdue par le combat ; recharge fictive de 60 secondes.        | Si les PV sont déjà strictement sous 20 % avant un coup, bouclier de base 200 PV pendant 2 tours, appliqué avant ce coup, une utilisation par combat. Le simple franchissement du seuil pendant le coup n’est pas le déclencheur. |
+| `mage_burst_2` — Combustion      | +15 % de puissance annoncé comme +15 % de dégâts magiques.                          | Le mécanisme reste un bonus de puissance : `(AP de base + bonus plats) × (1 + somme des bonus AP relatifs)`. Aucun multiplicateur direct des dégâts ni seconde application.                                                       |
+| `mage_control_2` — Canalisation  | Fraction 0,1 convertie implicitement en 10 points ; aperçu secondaire absent.       | 10 points de hâte plats, additionnés aux autres points. Recharge `× max(0,1 ; 100/(100+hâte) × facteur R)`. Le facteur R vaut `1 - somme(cdr_ultimate)` pour R et 1 sinon.                                                        |
 
 Le total entier d’un DoT d’amélioration est réparti par différences de planchers :
 `tick(i) = floor(total × (i+1) / durée) - floor(total × i / durée)`. Par exemple,
@@ -59,12 +59,12 @@ contrôles. Les ticks conservent le camp de leur source et le journal attribue
 l’absorption d’un bouclier à son propre camp. Les requêtes de statistiques,
 hâte, ténacité et amplification n’empruntent jamais le loadout du miroir ennemi.
 
-| Fixture | Rôles / portée | Preuve |
-| --- | --- | --- |
-| `enhancementEffectsContract.test.ts` | Formules, probabilités, boucliers, auras, dégâts et unités | Faibles/fortes valeurs, limites et état physique |
-| `enhancementBattleParity.test.ts` | Cinq rôles jouables et Veigar | Même trace en manuel et autoplay ; métriques, ressources et commandes rejouées identiques après restauration JSON |
-| `enhancementAuthorityParity.test.ts` | Même catalogue de builds légaux | Comparaison source/Edge au hash courant, session restaurée et tentative figée malgré un changement ultérieur du compte |
-| `enhancementAuthorityParity.test.ts` | Version 0.2.5 | SHA-256 des octets archivés et résultat de replay historique figés |
+| Fixture                              | Rôles / portée                                             | Preuve                                                                                                                 |
+| ------------------------------------ | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `enhancementEffectsContract.test.ts` | Formules, probabilités, boucliers, auras, dégâts et unités | Faibles/fortes valeurs, limites et état physique                                                                       |
+| `enhancementBattleParity.test.ts`    | Cinq rôles jouables et Veigar                              | Même trace en manuel et autoplay ; métriques, ressources et commandes rejouées identiques après restauration JSON      |
+| `enhancementAuthorityParity.test.ts` | Même catalogue de builds légaux                            | Comparaison source/Edge au hash courant, session restaurée et tentative figée malgré un changement ultérieur du compte |
+| `enhancementAuthorityParity.test.ts` | Version 0.2.5                                              | SHA-256 des octets archivés et résultat de replay historique figés                                                     |
 
 Aucun des onze kits maintenus ne possède Assassin comme premier rôle. Phénix et
 les autres effets Assassin ont donc une preuve de moteur isolée, sans inventer

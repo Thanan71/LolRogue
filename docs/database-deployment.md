@@ -4,10 +4,10 @@ Workflow : [`.github/workflows/database-deployment.yml`](../.github/workflows/da
 
 ## Routage verrouillé
 
-| Branche GitHub | Projet Supabase | Référence | Environnement GitHub |
-| --- | --- | --- | --- |
-| `dev` | LolRogueDev | `misdmtpfcbxbhheacehm` | `supabase-dev` |
-| `main` | LolRogue | `mmpvmclqdgfnpfgcqnyu` | `main` |
+| Branche GitHub | Projet Supabase | Référence              | Environnement GitHub |
+| -------------- | --------------- | ---------------------- | -------------------- |
+| `dev`          | LolRogueDev     | `misdmtpfcbxbhheacehm` | `supabase-dev`       |
+| `main`         | LolRogue        | `mmpvmclqdgfnpfgcqnyu` | `main`               |
 
 Le workflow est exécuté sur **chaque push** vers ces branches, ou manuellement avec `workflow_dispatch` depuis la branche désirée. Il ne s'exécute **jamais sur une PR** avec des secrets distants. Aucun filtre de chemins n'est appliqué : si un commit de migration est dépassé par un commit applicatif avant son checkout, le nouveau commit doit reprendre les migrations en attente.
 
@@ -16,14 +16,12 @@ Au début de chaque job, le SHA du checkout doit correspondre exactement au SHA 
 ## Configuration nécessaire dans GitHub
 
 Dans **Settings → Environments**, créer deux environnements GitHub :
-
 - `supabase-dev` : autoriser uniquement la branche `dev`.
 - `main` : autoriser uniquement la branche `main`.
 
 Ces noms doivent correspondre exactement aux champs `environment` du workflow. Le projet Supabase de production reste LolRogue ; `main` est ici le nom de l'environnement GitHub.
 
 Ajouter **dans chacun** les secrets d'environnement suivants (valeurs distinctes adaptées au projet) :
-
 - `SUPABASE_ACCESS_TOKEN` : jeton Supabase autorisé sur le projet concerné, avec **Project Settings : Read**, **API Keys : Read** et **API Key Secrets : Read** pour le rattachement, ainsi que **Edge Functions : Read-write** pour publier les fonctions. Si un jeton limité ne possède pas ce dernier droit, le recréer avec ces permissions puis remplacer le secret GitHub correspondant. Les permissions d'un jeton limité ne se modifient pas après sa création ; voir la [documentation des jetons Supabase](https://supabase.com/docs/guides/platform/personal-access-tokens).
 - `SUPABASE_DB_PASSWORD` : mot de passe de la base Postgres de ce même projet Supabase.
 

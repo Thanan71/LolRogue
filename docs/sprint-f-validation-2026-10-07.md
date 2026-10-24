@@ -6,13 +6,13 @@ Cette livraison ne constitue pas une autorisation de bêta.
 
 ## Livrables et branches
 
-| Tâche | Branche | Résultat |
-| --- | --- | --- |
-| `P1-SEC-03` | `feat/p1-sec-03-server-only` | Inventaire des 22 tables `public`, décision motivée de conserver les trois tables internes sous RLS sans grants clients, tests SQL/Data API réels et exceptions INFO limitées aux trois objets. |
-| `P1-RUN-02` | `feat/p1-run-02-rejection-ux` | Messages FR/EN actionnables, diagnostics copiables, absence de récompenses/retry après rejet terminal, retry conservant commande et snapshot, persistance après refresh/menu et priorité de l'erreur amélioration sur Game Over. |
-| `P1-RUN-03` | `feat/p1-run-03-incident-policy` | Politique de preuve serveur, trace rejetée immuable, registre d'incidents avec inconnues explicites et procédure support/audit privée. |
-| `P2-OBS-01` | `feat/p2-obs-01-technical-slo` | Compteurs locaux minimisés avec versions gameplay/progression distinctes, seuils et rétention ; rapport SQL opérateur par moteur/gameplay avec dénominateurs complets et backlog ancien. |
-| `P2-DOC-01` | `feat/p2-doc-01-evidence-status` | Inventaire objectif des onze P0, statuts et gates recalculés, contrats DB réels, Node/types 24 et contrôles reproductibles des grants/advisors/cron de la cible. |
+| Tâche       | Branche                          | Résultat                                                                                                                                                                                                                         |
+| ----------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `P1-SEC-03` | `feat/p1-sec-03-server-only`     | Inventaire des 22 tables `public`, décision motivée de conserver les trois tables internes sous RLS sans grants clients, tests SQL/Data API réels et exceptions INFO limitées aux trois objets.                                  |
+| `P1-RUN-02` | `feat/p1-run-02-rejection-ux`    | Messages FR/EN actionnables, diagnostics copiables, absence de récompenses/retry après rejet terminal, retry conservant commande et snapshot, persistance après refresh/menu et priorité de l'erreur amélioration sur Game Over. |
+| `P1-RUN-03` | `feat/p1-run-03-incident-policy` | Politique de preuve serveur, trace rejetée immuable, registre d'incidents avec inconnues explicites et procédure support/audit privée.                                                                                           |
+| `P2-OBS-01` | `feat/p2-obs-01-technical-slo`   | Compteurs locaux minimisés avec versions gameplay/progression distinctes, seuils et rétention ; rapport SQL opérateur par moteur/gameplay avec dénominateurs complets et backlog ancien.                                         |
+| `P2-DOC-01` | `feat/p2-doc-01-evidence-status` | Inventaire objectif des onze P0, statuts et gates recalculés, contrats DB réels, Node/types 24 et contrôles reproductibles des grants/advisors/cron de la cible.                                                                 |
 
 L'historique conserve les commits par sous-tâche. Le correctif de dépendance
 `c96b888` résout `source-map-js` en `1.2.2` dans le lockfile, sans nouvelle exception
@@ -28,7 +28,6 @@ modifie seulement ce compte rendu et le TODO.
 Le clone indépendant `/tmp/lolrogue-sprint-f-cleanroom-20261007` utilise Node
 `24.19.0` et ses propres dépendances installées par `npm ci`, sans symlink de
 `node_modules`. Sur le SHA de code ci-dessus :
-
 - `npm run check` : **224 fichiers et 2 084 tests réussis**, 7 fichiers/43 tests
   ignorés dans cette suite ; les contrats DB ont la preuve séparée ci-dessous.
   Format, lint, CSP, trois typechecks, contrat Node, audit, cohérence documentaire
@@ -122,7 +121,6 @@ défaut fonctionne sur ce Mac.
 ## Journaux locaux
 
 Les résultats détaillés sont conservés hors Git :
-
 - `/tmp/lolrogue-sprint-f-final-check.log`
 - `/tmp/lolrogue-sprint-f-final-db.log`
 - `/tmp/lolrogue-sprint-f-final-e2e.log`

@@ -30,7 +30,6 @@ et `run-loadout-panels.spec.ts`.
 ## 0. Périmètre du réaudit
 
 Le réaudit a recoupé :
-
 - `main` après les correctifs authority v13 et historique de runs ;
 - la configuration Node / TypeScript / Vite / Vitest / Playwright / Biome ;
 - `.github/workflows/ci.yml` ;
@@ -95,7 +94,6 @@ Le réaudit a recoupé :
 ### Définition de Done obligatoire
 
 Une tâche n'est terminée que lorsque :
-
 - le comportement réel est corrigé, pas uniquement le mock ;
 - la migration est append-only si la base est concernée ;
 - les permissions finales sont testées avec les rôles concernés ;
@@ -119,7 +117,6 @@ Une tâche n'est terminée que lorsque :
 
 La couverture doit porter sur **tout contenu visible ou annoncé à l'utilisateur**, pas
 seulement les pages et boutons React :
-
 - interface complète : navigation, menus, formulaires, paramètres, admin, erreurs,
   notifications, tutoriels, ARIA, titres de page et textes de chargement ;
 - champions : titres, rôles, descriptions, textes de présentation, maîtrise,
@@ -201,7 +198,6 @@ Preuve Sprint G : `docs/sprint-g-i18n.md`, parcours FR → EN desktop et mobile 
 ### Problème vérifié
 
 Supabase live signale :
-
 - `public.leaderboard` : `security_invoker=false` ;
 - `public.daily_leaderboard` : `security_invoker=false`.
 
@@ -259,7 +255,6 @@ ne sont pas minimalistes.
 ### Catégorisation à appliquer
 
 **Doivent rester client-callable après audit, avec contrôle interne explicite :**
-
 - `start_run_attempt`
 - `start_daily_run_attempt`
 - `append_run_attempt_commands`
@@ -274,7 +269,6 @@ ne sont pas minimalistes.
   si `is_current_user_admin()` est systématiquement imposé.
 
 **À réexaminer / réduire :**
-
 - `handle_new_user()` : trigger interne, pas une API ;
 - `is_current_user_admin()` : `anon` n'a pas besoin de l'exécuter ;
 - `expire_stale_run_attempts()` : peut être absorbée par les RPC de start ;
@@ -395,7 +389,6 @@ avant le build de production.
 ### Problème
 
 `docs/beta-readiness.md` affirme encore :
-
 - « Aucun P0 ouvert » ;
 - « dix critères techniques démontrés » ;
 - trois CI historiques validées.
@@ -689,7 +682,6 @@ il ne remplace ni `P1-BAL-01` (AoE, CC, difficulté globale, IA) ni `P1-BAL-02`
 ## P1-SEC-01 — Activer la protection contre les mots de passe compromis
 
 **Taille : S**
-
 - [ ] Activer **Leaked Password Protection** dans Supabase Auth.
 - [ ] Vérifier la politique minimale de longueur/complexité et les messages UI.
 - [ ] Tester inscription et changement de mot de passe avec un mot de passe refusé.
@@ -703,7 +695,6 @@ il ne remplace ni `P1-BAL-01` (AoE, CC, difficulté globale, IA) ni `P1-BAL-02`
 ## P1-SEC-02 — Auditer les fonctions admin privilégiées
 
 **Taille : M**
-
 - [x] Vérifier que `players.is_admin` ne peut jamais être modifié par le propriétaire
   du profil via table, RPC générique ou metadata Auth.
 - [x] Tester `invalidate_daily_score` avec utilisateur normal, admin et anon.
@@ -751,7 +742,6 @@ Les advisors signalent des tables RLS sans policy (`daily_challenge_rulesets`,
 `progression_commands`, `progression_enhancement_security_baselines`). Les grants
 clients sont actuellement absents, ce qui limite le risque, mais la frontière est
 peu explicite.
-
 - [x] Documenter pour chaque table : exposée Data API ou interne.
 - [x] Pour les tables purement internes, évaluer un déplacement vers un schéma
   `private` non exposé.
@@ -771,7 +761,6 @@ Preuve locale du 7 octobre 2026 : inventaire des 22 tables, refus SQL/Data API r
 
 Le bug v13 a été découvert par un message utilisateur, alors que 4 attempts avaient
 déjà été rejetées avec le même code.
-
 - [x] Créer un agrégat technique des attempts : started / verified / rejected /
   expired, par `engine_version`, `gameplay_ruleset_version`, `rejection_code`.
 - [x] Définir une alerte sur un taux de rejet anormal ou un nouveau code de rejet.
@@ -786,7 +775,6 @@ déjà été rejetées avec le même code.
 ## P1-RUN-02 — Améliorer l'UX d'une progression rejetée
 
 **Taille : M**
-
 - [x] Mapper les `rejection_code` serveur vers des messages français actionnables.
 - [x] Distinguer : tentative expirée, trace invalide, conflit de version, choix
   manquant, séquence incorrecte, erreur serveur retryable.
@@ -804,7 +792,6 @@ Preuve locale du 7 octobre 2026 : présentation FR/EN, 4 E2E Chromium et preview
 ## P1-RUN-03 — Définir le traitement des attempts affectées par un bug client
 
 **Taille : M — décision produit + sécurité.**
-
 - [x] Formaliser la règle : aucune récompense rétroactive sans preuve serveur
   suffisante.
 - [x] Décider si une compensation non liée au résultat de la run est possible pour
@@ -971,7 +958,6 @@ Une PR cassant ses assets ne peut pas passer parce que la production précédent
 **Taille : S**
 
 `test:db` contient actuellement une liste fixe de fichiers.
-
 - [x] Ajouter une convention claire (`*.database.test.ts`).
 - [x] Exécuter automatiquement tout fichier respectant cette convention.
 - [x] Faire échouer la CI si un test DB est ignoré/skippé sans allowlist explicite.
@@ -984,7 +970,6 @@ Une PR cassant ses assets ne peut pas passer parce que la production précédent
 ## P1-CI-03 — Vérifier la dérive migrations production ↔ dépôt
 
 **Taille : M**
-
 - [x] Ajouter un preflight de release comparant les versions de
   `supabase_migrations.schema_migrations` au commit candidat.
 - [x] Détecter migration manquante, migration live inconnue, ordre divergent.
@@ -1028,7 +1013,6 @@ Les types Node 26 peuvent rendre compilable l'utilisation d'une API absente de N
 
 Le `tsconfig.json` principal inclut `src`, `data` et `tests`, mais pas nécessairement
 les scripts Node, configs Vite/Playwright et E2E dans un contrat dédié.
-
 - [x] Ajouter `tsconfig.scripts.json` pour `scripts/**/*.mjs|ts` / configs TypeScript
   quand applicable.
 - [x] Ajouter `tsconfig.e2e.json` pour les helpers Playwright TS.
@@ -1045,7 +1029,6 @@ les scripts Node, configs Vite/Playwright et E2E dans un contrat dédié.
 **Taille : M**
 
 Les advisors live signalent des foreign keys non couvertes, notamment :
-
 - `daily_challenge_rulesets.gameplay_ruleset_version` ;
 - `daily_runs.daily_ruleset_version` ;
 - `daily_runs.gameplay_ruleset_version` ;
@@ -1079,7 +1062,6 @@ Preuve : `npm run db:indexes:measure` et `npm run db:indexes:check`, résultats 
 **Taille : S**
 
 L'advisor le marque « unused ». Ne pas le supprimer automatiquement.
-
 - [x] Vérifier la requête réelle du worker/verifier qui revendique les attempts.
 - [x] Vérifier si `pg_stat_user_indexes` a été remis à zéro récemment.
 - [x] Tester sous charge synthétique.
@@ -1105,7 +1087,6 @@ Le budget historique de 398 kB gzip a permis de ramener la première passe à
 349 961 octets. La passe UI animée du 13 août relève explicitement le plafond global
 à 410 kB, conserve tous les sous-budgets et atteint 360 110 octets, soit 12,17 % de
 marge.
-
 - [x] Fixer un objectif de headroom, par exemple ≥10 % sous le plafond, plutôt que
   de relever le plafond à chaque upgrade.
 - [x] Générer un rapport par chunk dans l'artefact CI.
@@ -1126,7 +1107,6 @@ Preuves et décisions : `docs/frontend-performance.md`.
 
 `config/performance-budgets.json` contient LCP/CLS/INP, mais le script de bundle
 `check-performance-budgets.mjs` ne valide que les tailles statiques.
-
 - [x] Identifier le test qui mesure effectivement LCP/CLS/INP et vérifier qu'il est
   bloquant dans la CI actuelle.
 - [x] Si absent/non bloquant, ajouter une mesure Lighthouse/Playwright contrôlée sur
@@ -1147,7 +1127,6 @@ archive les échantillons pendant 30 jours. Résultats dans
 ## P2-TEST-01 — Étendre la couverture aux frontières qui ont réellement cassé
 
 **Taille : M**
-
 - [x] Ajouter l'historique Profil / repository nested-select à la couverture critique.
 - [x] Ajouter `runAuthorityJournal.ts` à un seuil spécifique élevé
 - [x] Ajouter les adaptateurs PostgREST critiques au périmètre de mutation/branches.
@@ -1165,7 +1144,6 @@ Preuves et seuils : `docs/testing.md`.
 
 La suite Vitest mélange l'ordre avec une seed fixe. C'est reproductible mais ne
 cherche pas les dépendances d'ordre au-delà de cette permutation.
-
 - [x] Garder une seed fixe dans la CI principale pour reproductibilité.
 - [x] Ajouter une job planifiée avec plusieurs seeds aléatoires conservées dans les logs.
 - [x] En cas d'échec, imprimer la seed exacte pour reproduction locale.
@@ -1181,7 +1159,6 @@ Commandes de reproduction et limites : `docs/testing.md`.
 ## P2-TEST-03 — Tester avec `skipLibCheck=false` dans une gate dédiée
 
 **Taille : S/M**
-
 - [x] Garder éventuellement `skipLibCheck=true` pour le cycle rapide.
 - [x] Ajouter périodiquement/CI une compilation avec `skipLibCheck=false` afin de
   détecter les incompatibilités React 19 / TS7 / types Node / Supabase.
@@ -1198,7 +1175,6 @@ reste obligatoire. Détails et condition d'activation du cron : `docs/testing.md
 ## P2-TEST-04 — Tester les advisors Supabase comme une politique versionnée
 
 **Taille : M**
-
 - [x] Définir les niveaux bloquants : toute `ERROR` sécurité = échec.
 - [x] Définir une allowlist précise des warnings intentionnels avec ID + justification.
 - [x] Faire expirer les exceptions à une date donnée.
@@ -1210,7 +1186,6 @@ reste obligatoire. Détails et condition d'activation du cron : `docs/testing.md
 ## P2-BAL-01 — Confronter les cohortes autoritaires aux playtests et au terrain
 
 **Taille : M/L**
-
 - [x] Définir au moins deux politiques automatisées distinctes — sûre et économique —
   pour ne pas confondre équilibre et comportement d'un seul bot.
 - [ ] Organiser des playtests humains par difficulté, taille d'équipe et expérience ;
@@ -1246,7 +1221,6 @@ agrégats terrain seuls.
 ## P2-CI-01 — Ajouter protection de branche et required checks vérifiables
 
 **Taille : S/M**
-
 - [ ] Vérifier que `main` exige réellement `validate`, `e2e`, `database`,
   `clean-room` avant merge.
 - [ ] Interdire le merge avec check annulé/neutralisé.
@@ -1264,7 +1238,6 @@ agrégats terrain seuls.
 Actuellement `npm run check` fait format, lint, types, audit, couverture, asset clean,
 build et production-build. C'est robuste mais peu diagnostique et répète du travail
 entre jobs.
-
 - [x] Garder une commande locale « tout-en-un ».
 - [x] En CI, produire des checks nommés et lisibles : static, unit, security,
   build/assets, DB, browser.
@@ -1279,7 +1252,6 @@ entre jobs.
 ## P2-WEB-01 — Réduire `style-src 'unsafe-inline'` dans la CSP
 
 **Taille : M/L**
-
 - [x] Inventorier les styles inline restants (`style={...}`, bibliothèques, variables).
 - [x] Déplacer ce qui peut l'être vers classes / custom properties contrôlées.
 - [x] Évaluer `style-src-attr` séparé si nécessaire.
@@ -1292,7 +1264,6 @@ entre jobs.
 ## P2-WEB-02 — Fuzz de réhydratation et stockage navigateur
 
 **Taille : M**
-
 - [x] Générer des payloads localStorage tronqués, anciens, surdimensionnés et mal typés.
 - [x] Vérifier qu'aucun payload ne peut restaurer un état authority impossible.
 - [x] Tester quotas / `SecurityError` / stockage indisponible sur toutes les clés
@@ -1335,7 +1306,6 @@ testées. Preuves supplémentaires : `persistence.test.ts`,
 **Taille : M**
 
 Mesures minimales :
-
 - taux de start run réussi ;
 - taux de seal réussi ;
 - taux de verification `verified/rejected/expired` ;
@@ -1360,7 +1330,6 @@ Preuve locale du 7 octobre 2026 : compteurs minimisés et rapport SLO PostgreSQL
 **Taille : L**
 
 Le dépôt documente les procédures, mais la preuve distante reste requise.
-
 - [ ] Restaurer un backup sur un projet Supabase isolé distant. La répétition locale
   jetable est réussie ; la cible hébergée dédiée reste à fournir.
 - [x] Vérifier migrations, Auth, RLS, cron, functions, storage/config nécessaires
@@ -1378,7 +1347,6 @@ Le dépôt documente les procédures, mais la preuve distante reste requise.
 ## P2-DOC-01 — Recalculer tous les statuts après le réaudit
 
 **Taille : M**
-
 - [x] `docs/beta-readiness.md` : repasser les gates ouvertes en bloqué.
 - [x] `docs/feature-status.md` : ajouter « risque réouvert » / « validation live requise ».
 - [x] `docs/dependency-audit.md` : corriger la contradiction Node24 / types Node26.
@@ -1397,7 +1365,6 @@ Preuve locale du 7 octobre 2026 : `check`, `db:validate` et contrôles spéciali
 ## P3-PROD-01 — Historique de runs plus exploitable
 
 **Taille : M**
-
 - [x] Ajouter filtres victoire/défaite, difficulté, mode, moteur/ruleset.
 - [x] Afficher clairement « legacy / non comparable ».
 - [x] Ajouter détail de rejet technique uniquement pour le propriétaire/admin.
@@ -1419,7 +1386,6 @@ contenus de gameplay et chaînes dynamiques ; ce sujet n'est plus différé en P
 **Taille : M/L**
 
 Décision utilisateur Sprint G : **PWA installable, sans mode hors ligne**.
-
 - [x] Décider officiellement : PWA en ligne uniquement (`productDecisions` v3).
 - [x] Ajouter manifeste, icônes, lancement en ligne ; aucun cache applicatif ni offline shell.
 - [x] Ne jamais permettre de démarrer une run authentifiée hors ligne.
@@ -1432,7 +1398,6 @@ Preuves : `e2e/pwa-online.spec.ts`, `runSaveRecovery.test.ts`, `docs/product-dec
 ## P3-PROD-04 — Enrichissement de contenu avec gate de support moteur
 
 **Taille : continue**
-
 - [x] Aucun champion/rune/augment/item/encounter ajouté sans handler supporté.
 - [x] Ajouter un test de catalogue qui bloque toute mécanique non implémentée.
 - [x] Versionner chaque changement affectant le replay / Daily.
@@ -1495,7 +1460,6 @@ techniques ni afficher une modale à chaque déploiement.**
 ## P3-A11Y-01 — Validation humaine avant bêta
 
 **Taille : M**
-
 - [ ] NVDA + Firefox : parcours Auth → Starter → Map → Combat → Game Over.
 - [ ] VoiceOver + Safari macOS.
 - [ ] VoiceOver + Safari iOS sur petit écran.
@@ -1508,7 +1472,6 @@ techniques ni afficher une modale à chaque déploiement.**
 ## P3-LEGAL-01 — Fermer les blockers externes de diffusion
 
 **Taille : externe / non estimable**
-
 - [ ] Compléter identité/adresse éditeur et directeur de publication.
 - [ ] Publier/tester un canal privé pour les demandes de droits.
 - [ ] Vérifier région Supabase, DPA, transferts et sous-traitants.
@@ -1527,7 +1490,7 @@ techniques ni afficher une modale à chaque déploiement.**
 3. [x] `P0-DATA-01` integration repositories DB.
 4. [x] `P0-RUN-01` registre authority.
 5. [x] `P0-REL-01` readiness réelle.
-5 bis. [ ] `P0-I18N-01` internationalisation FR/EN 100 % du projet.
+   5 bis. \[ \] `P0-I18N-01` internationalisation FR/EN 100 % du projet.
 
 ## Sprint B — rendre l'équilibrage mesurable et comparable
 
@@ -1535,7 +1498,7 @@ techniques ni afficher une modale à chaque déploiement.**
 7. [x] `P0-BAL-02` vraies cohortes via le moteur authority et baseline versionnée.
 8. [x] `P0-BAL-03` Daily neutralisé et budgets de départ comparables.
 9. [x] `P0-BAL-04` hiérarchie augments/drops et économie non dominante.
-9 bis. [x] `P0-BAL-05` sortir l'early Top du 0 % avant le tuning structurel.
+   9 bis. [x] `P0-BAL-05` sortir l'early Top du 0 % avant le tuning structurel.
 10. [x] `P1-BAL-01` AoE, CC, difficulté, IA puis tuning champions.
 11. [x] `P1-BAL-02` carte, shop, repos, trésors et recrutement.
 12. [ ] `P2-BAL-01` playtests et comparaison simulation/terrain.
@@ -1543,7 +1506,7 @@ techniques ni afficher une modale à chaque déploiement.**
 ## Sprint C — sécurité et exploitation
 
 13. [ ] `P1-SEC-01` mots de passe compromis — différé explicitement tant que
-   l'option payante n'est pas souhaitée.
+    l'option payante n'est pas souhaitée.
 14. [x] `P1-PRIV-01` cron rétention sociale.
 15. [x] `P1-CI-01` preview SHA-correcte.
 16. [x] `P1-CI-02` auto-discovery DB tests.
@@ -1584,7 +1547,7 @@ techniques ni afficher une modale à chaque déploiement.**
 38. [ ] `P0-I18N-01` internationalisation FR/EN 100 % — promue au P0 et à fermer avant bêta.
 39. [x] `P3-PROD-03` PWA installable en ligne, sans mode hors ligne.
 40. [x] `P3-PROD-04` enrichissement avec gate moteur.
-40 bis. [x] `P3-PROD-05` notes de mise à jour et nouveautés depuis la dernière visite.
+    40 bis. [x] `P3-PROD-05` notes de mise à jour et nouveautés depuis la dernière visite.
 
 ## Sprint H — validations humaines et externes
 
@@ -1605,7 +1568,6 @@ techniques ni afficher une modale à chaque déploiement.**
 # 3. Nouvelle gate de bêta proposée
 
 La bêta technique ne redevient candidate que lorsque :
-
 - [ ] aucun `P0-*` n'est ouvert ;
 - [ ] internationalisation FR/EN à 100 %, y compris champions, compétences et contenus dynamiques ;
 - [ ] advisors sécurité live : aucune `ERROR` non acceptée ;

@@ -1,7 +1,6 @@
 # Cycle canonique d'un tour de combat
 
 `BattleManager` résout chaque tour dans cet ordre :
-
 1. **Début du tour** — le combattant courant et les effets déjà présents sont
    figés pour ce tour.
 2. **Contrôles** — stun, knockup, fear et charm empêchent toute action. Silence

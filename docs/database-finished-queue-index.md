@@ -29,7 +29,6 @@ L'index équivalent qui couvre le verifier est donc la clé primaire
 servir ce lookup par identifiant.
 
 Les vues d'exploitation ne changent pas ce constat :
-
 - `authority_attempt_aggregates` agrège toutes les tentatives par `started_at` ;
 - `authority_recent_rejections` filtre `status = 'rejected'` ;
 - le SLI sur 30 jours filtre des états terminaux `verified`/`rejected`.
@@ -43,10 +42,10 @@ npm run database -- finished-queue stats
 npm run database -- finished-queue stats --linked --project-ref <project-ref>
 ```
 
-| Base | Dernier reset | Âge à la mesure | `finished_queue` | clé primaire |
-| --- | --- | ---: | ---: | ---: |
-| locale | 12 août 2026 17:50 UTC | 8 h 53 | 0 scan | 275 scans |
-| liée | 15 juillet 2026 13:16 UTC | 28 j 13 h | 0 scan | 5 569 scans |
+| Base   | Dernier reset             | Âge à la mesure | `finished_queue` | clé primaire |
+| ------ | ------------------------- | --------------: | ---------------: | -----------: |
+| locale | 12 août 2026 17:50 UTC    |          8 h 53 |           0 scan |    275 scans |
+| liée   | 15 juillet 2026 13:16 UTC |       28 j 13 h |           0 scan |  5 569 scans |
 
 Le reset local est récent et ne permet pas de conclure. En revanche, la base liée
 n'a pas été remise à zéro pendant les 28 jours précédant la mesure : sur la même
@@ -63,7 +62,6 @@ npm run database -- finished-queue measure
 ```
 
 Elle mesure deux formes distinctes :
-
 1. le vrai claim `WHERE id = p_attempt_id FOR UPDATE` ;
 2. une file globale hypothétique `WHERE status = 'finished' ORDER BY finished_at`
    qui permet de vérifier que l'index testé fonctionne, sans la confondre avec le
@@ -71,10 +69,10 @@ Elle mesure deux formes distinctes :
 
 Résultat local du 13 août 2026 :
 
-| Requête | Avec l'index partiel | Sans l'index partiel |
-| --- | --- | --- |
-| claim réel par `id` | `run_attempts_pkey`, 0,038 ms | `run_attempts_pkey`, 0,028 ms |
-| file globale hypothétique | index partiel, 0,049 ms | scan séquentiel + tri, 13,832 ms |
+| Requête                   | Avec l'index partiel          | Sans l'index partiel             |
+| ------------------------- | ----------------------------- | -------------------------------- |
+| claim réel par `id`       | `run_attempts_pkey`, 0,038 ms | `run_attempts_pkey`, 0,028 ms    |
+| file globale hypothétique | index partiel, 0,049 ms       | scan séquentiel + tri, 13,832 ms |
 
 Le vrai claim conserve exactement son plan par clé primaire après suppression de
 l'index partiel. La faible variation de temps est du bruit de laboratoire. La
@@ -85,7 +83,6 @@ pour rendre l'index visible au planner : il occupe 240 kB et évite bien le scan
 ## Décision
 
 L'index `run_attempts_finished_queue` est supprimé :
-
 - le verifier et ses contrôles annexes ciblent toujours la clé primaire `id` ;
 - aucun worker applicatif ne dépile les lignes par `finished_at` ;
 - la base liée montre 0 scan sur 28 jours sans reset récent, contre 5 569 scans

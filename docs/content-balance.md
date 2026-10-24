@@ -52,11 +52,11 @@ La première passe v18 a été pilotée par cette même matrice, via
 La passe A ne modifie que le pool, la pression de nœud et le renfort Top ; le budget
 de formation v17 reste `1.00` / `1.55` / `2.00` dans tous les biomes :
 
-| Passe | Runs gagnées (Easy / Normal / Hard) | Premiers combats gagnés | Morts Top, 3 premiers combats | Morts terminales Top totales |
-| --- | ---: | ---: | ---: | ---: |
-| v17 | 0 / 0 / 0 sur 300 | 290 / 244 / 74 | 279 / 287 / 297 | 279 / 291 / 297 |
-| A — Top uniquement | 0 / 0 / 0 sur 300 | 300 / 300 / 300 | 4 / 7 / 60 | 14 / 23 / 107 |
-| B — budget formation versionné sur toute la run | 84 / 50 / 15 sur 300 | 300 / 300 / 300 | 4 / 7 / 60 | 14 / 23 / 107 |
+| Passe                                           | Runs gagnées (Easy / Normal / Hard) | Premiers combats gagnés | Morts Top, 3 premiers combats | Morts terminales Top totales |
+| ----------------------------------------------- | ----------------------------------: | ----------------------: | ----------------------------: | ---------------------------: |
+| v17                                             |                   0 / 0 / 0 sur 300 |          290 / 244 / 74 |               279 / 287 / 297 |              279 / 291 / 297 |
+| A — Top uniquement                              |                   0 / 0 / 0 sur 300 |         300 / 300 / 300 |                    4 / 7 / 60 |                14 / 23 / 107 |
+| B — budget formation versionné sur toute la run |                84 / 50 / 15 sur 300 |         300 / 300 / 300 |                    4 / 7 / 60 |                14 / 23 / 107 |
 
 La génération répétée est byte-identique (SHA-256
 `441b333b0f5b1d63b003a7b4f55100e7eb9189d2f4b72c35b427bed89307e36d`). Elle prouve
@@ -83,10 +83,10 @@ pondérées des mêmes 300 runs par difficulté ; les flèches indiquent `v17 �
 visites abordables couvrent le shop observé par la fixture complète :
 
 | Difficulté | PV après premier combat | MP après premier combat | Or gagné par run | Visites avec offre abordable |
-| --- | ---: | ---: | ---: | ---: |
-| Easy | 52,80 % → 96,31 % | 6,42 % → 44,35 % | 65,32 → 691,99 | 17/56 → 152/258 |
-| Normal | 32,04 % → 95,03 % | 4,39 % → 35,46 % | 37,99 → 535,42 | 4/34 → 103/205 |
-| Hard | 3,78 % → 82,14 % | 3,39 % → 25,68 % | 11,97 → 324,86 | 1/10 → 66/141 |
+| ---------- | ----------------------: | ----------------------: | ---------------: | ---------------------------: |
+| Easy       |       52,80 % → 96,31 % |        6,42 % → 44,35 % |   65,32 → 691,99 |              17/56 → 152/258 |
+| Normal     |       32,04 % → 95,03 % |        4,39 % → 35,46 % |   37,99 → 535,42 |               4/34 → 103/205 |
+| Hard       |        3,78 % → 82,14 % |        3,39 % → 25,68 % |   11,97 → 324,86 |                1/10 → 66/141 |
 
 Cette table est une preuve de conservation avant/après, pas une cible causale. La
 mesure Top-only ci-dessous reste la référence pour décider si l'économie early doit
@@ -106,10 +106,10 @@ après la passe B. Les flèches indiquent `v17 → passe B` ; les victoires de r
 un contexte, pas une attribution causale à l'économie.
 
 | Difficulté | Victoires | Or de combats Top moyen | Visites de shop Top | Or moyen à l'entrée | Offres abordables | Achats / recrues Top |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Easy | 0 → 84 | 24,76 → 79,21 | 38 → 60 | 29,58 → 33,50 | 0/172 → 0/280 | 0/0 → 0/0 |
-| Normal | 0 → 50 | 20,36 → 85,82 | 29 → 60 | 31,24 → 36,83 | 0/129 → 0/280 | 0/0 → 0/0 |
-| Hard | 0 → 15 | 6,28 → 83,55 | 9 → 58 | 24,33 → 41,72 | 0/39 → 9/270 | 0/0 → 9/0 |
+| ---------- | --------: | ----------------------: | ------------------: | ------------------: | ----------------: | -------------------: |
+| Easy       |    0 → 84 |           24,76 → 79,21 |             38 → 60 |       29,58 → 33,50 |     0/172 → 0/280 |            0/0 → 0/0 |
+| Normal     |    0 → 50 |           20,36 → 85,82 |             29 → 60 |       31,24 → 36,83 |     0/129 → 0/280 |            0/0 → 0/0 |
+| Hard       |    0 → 15 |            6,28 → 83,55 |              9 → 58 |       24,33 → 41,72 |      0/39 → 9/270 |            0/0 → 9/0 |
 
 Dans le snapshot authority actuel, une offre `legal` inclut déjà `gold >= cost` en
 plus des contraintes d'inventaire ou d'équipe ; les compteurs `legal` et `affordable`
@@ -136,18 +136,18 @@ La même cohorte de la passe B est agrégée par starter avec la notation
 `victoires de run / premiers combats gagnés / morts dans les trois premiers combats
 Top`. Chaque cellule contient 30 seeds ; le total contient donc 90 runs par starter.
 
-| Starter | Easy | Normal | Hard | Total |
-| --- | ---: | ---: | ---: | ---: |
-| Annie | 4 / 30 / 2 | 1 / 30 / 3 | 0 / 30 / 19 | 5 / 90 / 24 |
-| Ashe | 14 / 30 / 0 | 5 / 30 / 0 | 2 / 30 / 0 | 21 / 90 / 0 |
-| Darius | 2 / 30 / 2 | 2 / 30 / 2 | 1 / 30 / 17 | 5 / 90 / 21 |
-| Garen | 4 / 30 / 0 | 3 / 30 / 2 | 1 / 30 / 7 | 8 / 90 / 9 |
-| Jinx | 12 / 30 / 0 | 10 / 30 / 0 | 3 / 30 / 3 | 25 / 90 / 3 |
-| Leona | 10 / 30 / 0 | 5 / 30 / 0 | 2 / 30 / 0 | 17 / 90 / 0 |
-| Lux | 10 / 30 / 0 | 6 / 30 / 0 | 2 / 30 / 2 | 18 / 90 / 2 |
-| Malphite | 14 / 30 / 0 | 10 / 30 / 0 | 2 / 30 / 0 | 26 / 90 / 0 |
-| Soraka | 7 / 30 / 0 | 3 / 30 / 0 | 1 / 30 / 11 | 11 / 90 / 11 |
-| Warwick | 7 / 30 / 0 | 5 / 30 / 0 | 1 / 30 / 1 | 13 / 90 / 1 |
+| Starter  |        Easy |      Normal |        Hard |        Total |
+| -------- | ----------: | ----------: | ----------: | -----------: |
+| Annie    |  4 / 30 / 2 |  1 / 30 / 3 | 0 / 30 / 19 |  5 / 90 / 24 |
+| Ashe     | 14 / 30 / 0 |  5 / 30 / 0 |  2 / 30 / 0 |  21 / 90 / 0 |
+| Darius   |  2 / 30 / 2 |  2 / 30 / 2 | 1 / 30 / 17 |  5 / 90 / 21 |
+| Garen    |  4 / 30 / 0 |  3 / 30 / 2 |  1 / 30 / 7 |   8 / 90 / 9 |
+| Jinx     | 12 / 30 / 0 | 10 / 30 / 0 |  3 / 30 / 3 |  25 / 90 / 3 |
+| Leona    | 10 / 30 / 0 |  5 / 30 / 0 |  2 / 30 / 0 |  17 / 90 / 0 |
+| Lux      | 10 / 30 / 0 |  6 / 30 / 0 |  2 / 30 / 2 |  18 / 90 / 2 |
+| Malphite | 14 / 30 / 0 | 10 / 30 / 0 |  2 / 30 / 0 |  26 / 90 / 0 |
+| Soraka   |  7 / 30 / 0 |  3 / 30 / 0 | 1 / 30 / 11 | 11 / 90 / 11 |
+| Warwick  |  7 / 30 / 0 |  5 / 30 / 0 |  1 / 30 / 1 |  13 / 90 / 1 |
 
 Ashe gagne 21 runs sur 90, remporte ses 90 premiers combats et ne subit aucune
 mort early Top : elle n'est pas faible dans cette cohorte. Garen gagne 8/90, mais ce
@@ -248,18 +248,18 @@ entre parenthèses sont les deltas candidat − baseline. Le bundle v18 ne publi
 le mana dans `action_select` : sa variation est donc notée `n/d` plutôt que transformée
 artificiellement en zéro.
 
-| Champion | Victoires (Δ pp) | Dégâts PV/round (Δ) | Soins/round (Δ) | Shield absorbé/round (Δ) | Mana/round (Δ) | Actions CC/combat (Δ) |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Garen | 33,17 % (-9,78 pp) | 35,60 (-41,52) | 1,07 (+1,02) | 7,08 (+5,75) | 0,00 (n/d) | 0,00 (0,00) |
-| Annie | 43,36 % (-1,20 pp) | 28,27 (-103,29) | 0,00 (0,00) | 4,89 (+4,27) | 13,11 (n/d) | 0,28 (+0,28) |
-| Ashe | 47,35 % (+1,42 pp) | 46,23 (-111,49) | 0,00 (0,00) | 0,00 (0,00) | 18,12 (n/d) | 1,96 (+1,33) |
-| Darius | 52,35 % (+9,40 pp) | 83,33 (+6,43) | 2,00 (+1,92) | 0,00 (0,00) | 17,29 (n/d) | 0,00 (0,00) |
-| Lux | 42,06 % (-3,58 pp) | 28,57 (-213,83) | 0,00 (0,00) | 5,25 (+5,04) | 14,65 (n/d) | 0,00 (0,00) |
-| Soraka | 63,17 % (+17,24 pp) | 29,42 (+5,21) | 74,20 (+65,83) | 0,00 (0,00) | 24,53 (n/d) | 0,00 (0,00) |
-| Jinx | 46,16 % (+0,22 pp) | 54,70 (-140,92) | 0,00 (0,00) | 0,00 (0,00) | 18,06 (n/d) | 0,00 (0,00) |
-| Leona | 71,19 % (+26,57 pp) | 90,84 (-63,49) | 0,00 (0,00) | 5,67 (+5,28) | 24,62 (n/d) | 4,54 (+3,52) |
-| Malphite | 61,98 % (-36,52 pp) | 77,95 (-333,86) | 0,00 (0,00) | 7,49 (-0,32) | 22,44 (n/d) | 1,79 (-0,26) |
-| Warwick | 39,18 % (-3,77 pp) | 37,63 (-2,48) | 11,18 (+6,09) | 0,00 (0,00) | 20,54 (n/d) | 1,89 (+1,03) |
+| Champion |    Victoires (Δ pp) | Dégâts PV/round (Δ) | Soins/round (Δ) | Shield absorbé/round (Δ) | Mana/round (Δ) | Actions CC/combat (Δ) |
+| -------- | ------------------: | ------------------: | --------------: | -----------------------: | -------------: | --------------------: |
+| Garen    |  33,17 % (-9,78 pp) |      35,60 (-41,52) |    1,07 (+1,02) |             7,08 (+5,75) |     0,00 (n/d) |           0,00 (0,00) |
+| Annie    |  43,36 % (-1,20 pp) |     28,27 (-103,29) |     0,00 (0,00) |             4,89 (+4,27) |    13,11 (n/d) |          0,28 (+0,28) |
+| Ashe     |  47,35 % (+1,42 pp) |     46,23 (-111,49) |     0,00 (0,00) |              0,00 (0,00) |    18,12 (n/d) |          1,96 (+1,33) |
+| Darius   |  52,35 % (+9,40 pp) |       83,33 (+6,43) |    2,00 (+1,92) |              0,00 (0,00) |    17,29 (n/d) |           0,00 (0,00) |
+| Lux      |  42,06 % (-3,58 pp) |     28,57 (-213,83) |     0,00 (0,00) |             5,25 (+5,04) |    14,65 (n/d) |           0,00 (0,00) |
+| Soraka   | 63,17 % (+17,24 pp) |       29,42 (+5,21) |  74,20 (+65,83) |              0,00 (0,00) |    24,53 (n/d) |           0,00 (0,00) |
+| Jinx     |  46,16 % (+0,22 pp) |     54,70 (-140,92) |     0,00 (0,00) |              0,00 (0,00) |    18,06 (n/d) |           0,00 (0,00) |
+| Leona    | 71,19 % (+26,57 pp) |      90,84 (-63,49) |     0,00 (0,00) |             5,67 (+5,28) |    24,62 (n/d) |          4,54 (+3,52) |
+| Malphite | 61,98 % (-36,52 pp) |     77,95 (-333,86) |     0,00 (0,00) |             7,49 (-0,32) |    22,44 (n/d) |          1,79 (-0,26) |
+| Warwick  |  39,18 % (-3,77 pp) |       37,63 (-2,48) |   11,18 (+6,09) |              0,00 (0,00) |    20,54 (n/d) |          1,89 (+1,03) |
 
 Les dix champions ont des victoires et des défaites décisives : le gate minimal de
 P1-BAL-01 passe sans retuning supplémentaire. Ce résultat ne valide pas les seuils
@@ -351,24 +351,23 @@ avant/après toute modification de contenu.
 
 ## Roster maintenu
 
-| Champion | Rôle produit | Forces | Faiblesses | Synergies conseillées |
-| --- | --- | --- | --- | --- |
-| Garen | frontline autonome / exécution | durabilité, zone, finition | courte portée, peu de contrôle | Lux, Soraka, Ashe |
-| Annie | burst / contrôle | magie, stun, zone | fragile, mana, faible sustain DPS | Leona, Malphite, Warwick |
-| Ashe | carry distance / contrôle | ralentissement, portée, engage | fragile, peu mobile | Leona, Soraka, Garen |
-| Darius | bruiser cumulatif | duel long, soin, exécution | courte portée, stacks | Leona, Lux, Soraka |
-| Lux | mage utilitaire | portée, bouclier, contrôle | fragile, cooldowns | Garen, Jinx, Malphite |
-| Soraka | support sustain | soins, silence, stabilité | fragile, faible pression seule | Darius, Warwick, Jinx |
-| Jinx | hypercarry à resets | DPS, zone, accélération | fragile, démarrage lent | Leona, Lux, Soraka |
-| Leona | tank engage | contrôles, initiation, résistances | dégâts seuls faibles | Ashe, Jinx, Annie |
-| Malphite | tank anti-physique | armure, engage de zone | mana, moins fort contre magie | Annie, Lux, Jinx |
-| Warwick | bruiser sustain | soin, poursuite, contrôle cible | portée, sensible au burst | Lux, Soraka, Ashe |
+| Champion | Rôle produit                   | Forces                             | Faiblesses                        | Synergies conseillées    |
+| -------- | ------------------------------ | ---------------------------------- | --------------------------------- | ------------------------ |
+| Garen    | frontline autonome / exécution | durabilité, zone, finition         | courte portée, peu de contrôle    | Lux, Soraka, Ashe        |
+| Annie    | burst / contrôle               | magie, stun, zone                  | fragile, mana, faible sustain DPS | Leona, Malphite, Warwick |
+| Ashe     | carry distance / contrôle      | ralentissement, portée, engage     | fragile, peu mobile               | Leona, Soraka, Garen     |
+| Darius   | bruiser cumulatif              | duel long, soin, exécution         | courte portée, stacks             | Leona, Lux, Soraka       |
+| Lux      | mage utilitaire                | portée, bouclier, contrôle         | fragile, cooldowns                | Garen, Jinx, Malphite    |
+| Soraka   | support sustain                | soins, silence, stabilité          | fragile, faible pression seule    | Darius, Warwick, Jinx    |
+| Jinx     | hypercarry à resets            | DPS, zone, accélération            | fragile, démarrage lent           | Leona, Lux, Soraka       |
+| Leona    | tank engage                    | contrôles, initiation, résistances | dégâts seuls faibles              | Ashe, Jinx, Annie        |
+| Malphite | tank anti-physique             | armure, engage de zone             | mana, moins fort contre magie     | Annie, Lux, Jinx         |
+| Warwick  | bruiser sustain                | soin, poursuite, contrôle cible    | portée, sensible au burst         | Lux, Soraka, Ashe        |
 
 ## Identité des biomes
 
 Les mécaniques actuelles sont des choix de carte réellement générés, pas des effets
 de combat annoncés sans handler :
-
 - **Top Lane — duels d'attrition :** difficulté initiale et branches modérées ;
 - **Jungle — exploration ramifiée :** carte la plus longue, davantage de branches,
   événements, trésors et recrutements ;

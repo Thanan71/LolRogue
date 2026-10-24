@@ -8,13 +8,13 @@ des workflows ; ils ne sont jamais stockés dans ce module.
 
 ## Environnement, branche et projet
 
-| Contexte de build | Branche effective | Projet Supabase | Provenance de la configuration cliente |
-| --- | --- | --- | --- |
-| Local, hors Vercel | Locale, sans cible distante autorisée par ce seul build | Facultatif ; stack locale ou configuration publique choisie | Fichiers chargés par Vite pour le mode, puis variables du processus |
-| Preview Vercel | `dev` | LolRogueDev | Paire publique de `.env.development` |
-| Preview Vercel d'une PR | Branche Git valide autre que `main` | LolRogueDev | Paire publique de `.env.development` |
-| Production Vercel | `main` | LolRogue | Variables publiques explicites du processus Vercel Production |
-| Preview Vercel de `main` | `main` | LolRogue | Variables publiques explicites du processus ; comportement historique conservé |
+| Contexte de build        | Branche effective                                       | Projet Supabase                                             | Provenance de la configuration cliente                                         |
+| ------------------------ | ------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Local, hors Vercel       | Locale, sans cible distante autorisée par ce seul build | Facultatif ; stack locale ou configuration publique choisie | Fichiers chargés par Vite pour le mode, puis variables du processus            |
+| Preview Vercel           | `dev`                                                   | LolRogueDev                                                 | Paire publique de `.env.development`                                           |
+| Preview Vercel d'une PR  | Branche Git valide autre que `main`                     | LolRogueDev                                                 | Paire publique de `.env.development`                                           |
+| Production Vercel        | `main`                                                  | LolRogue                                                    | Variables publiques explicites du processus Vercel Production                  |
+| Preview Vercel de `main` | `main`                                                  | LolRogue                                                    | Variables publiques explicites du processus ; comportement historique conservé |
 
 Une preview `dev` ou de PR utilise LolRogueDev même si les variables Preview
 globales ou les fichiers du mode contiennent les valeurs publiques de production.
@@ -42,13 +42,13 @@ Les variables ajoutées par Vercel, dont `VITE_VERCEL_GIT_COMMIT_SHA`, et toute
 autre variable hors liste restent exclues du code navigateur, même avec un
 préfixe `VITE_`. Les champs privés sans ce préfixe restent également exclus.
 
-| Variable | Valeurs et responsabilité |
-| --- | --- |
-| `VITE_PUBLIC_SUPABASE_URL` | Origine HTTPS du projet ; une origine HTTP locale est autorisée hors Vercel. Aucun identifiant, chemin, query ou fragment dans l'URL. |
+| Variable                        | Valeurs et responsabilité                                                                                                                                              |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_PUBLIC_SUPABASE_URL`      | Origine HTTPS du projet ; une origine HTTP locale est autorisée hors Vercel. Aucun identifiant, chemin, query ou fragment dans l'URL.                                  |
 | `VITE_PUBLIC_SUPABASE_ANON_KEY` | JWT public avec rôle `anon` ou clé `sb_publishable_`. Les JWT distants doivent déclarer la même ref que l'URL. Les rôles privés et les clés `sb_secret_` sont refusés. |
-| `VITE_ENABLE_DB_LOGGING` | `true` ou `false` ; journalisation technique publique avec opt-in. |
-| `VITE_DB_LOG_LEVEL` | `debug`, `info`, `warn` ou `error`. |
-| `VITE_E2E_VICTORY_RUNE` | `0` ou `1` ; conserve le mécanisme utilisé par les parcours Playwright locaux. |
+| `VITE_ENABLE_DB_LOGGING`        | `true` ou `false` ; journalisation technique publique avec opt-in.                                                                                                     |
+| `VITE_DB_LOG_LEVEL`             | `debug`, `info`, `warn` ou `error`.                                                                                                                                    |
+| `VITE_E2E_VICTORY_RUNE`         | `0` ou `1` ; conserve le mécanisme utilisé par les parcours Playwright locaux.                                                                                         |
 
 Les clés `sb_publishable_` sont opaques : leur format public est vérifié, tandis
 que leur association au projet reste vérifiée par Supabase lors des requêtes.
@@ -100,14 +100,14 @@ pour fournir le SHA. Le déploiement backend transmet `LOLROGUE_DEPLOY_BRANCH`
 après validation de la branche réelle. Aucun secret Vercel n'est lu ou modifié
 par la configuration commune.
 
-| Module | Entrées et préconditions | Responsabilité |
-| --- | --- | --- |
-| `environment-config.mjs` | Snapshot processus, champs publics des fichiers, branche/SHA valides | Cibles approuvées, sélection publique et validation sans mutation |
-| `vite.config.ts` | Mode Vite et configuration résolue | Injecter uniquement les cinq champs publics et composer les plugins |
-| Plugins `tooling/vite/plugins/` | Racine du dépôt et SHA validé | Catalogue client, identité HTML, fichiers PWA et assets Riot contrôlés |
-| `vitest.config.ts` / `testPolicy.ts` | Suites et politique de couverture existantes | Exécuter les tests sans politique de déploiement |
-| `remote-operation.mjs` | Branche Git réelle, ref explicite, lien local et confirmation | Refuser toute cible distante non approuvée avant exécution |
-| `deploy-backend.mjs` | Branche/ref/confirmation vérifiées, CLI épinglés accessibles | Prévisualiser puis publier Edge/frontend, migrer et contrôler avant promotion |
+| Module                               | Entrées et préconditions                                             | Responsabilité                                                                |
+| ------------------------------------ | -------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `environment-config.mjs`             | Snapshot processus, champs publics des fichiers, branche/SHA valides | Cibles approuvées, sélection publique et validation sans mutation             |
+| `vite.config.ts`                     | Mode Vite et configuration résolue                                   | Injecter uniquement les cinq champs publics et composer les plugins           |
+| Plugins `tooling/vite/plugins/`      | Racine du dépôt et SHA validé                                        | Catalogue client, identité HTML, fichiers PWA et assets Riot contrôlés        |
+| `vitest.config.ts` / `testPolicy.ts` | Suites et politique de couverture existantes                         | Exécuter les tests sans politique de déploiement                              |
+| `remote-operation.mjs`               | Branche Git réelle, ref explicite, lien local et confirmation        | Refuser toute cible distante non approuvée avant exécution                    |
+| `deploy-backend.mjs`                 | Branche/ref/confirmation vérifiées, CLI épinglés accessibles         | Prévisualiser puis publier Edge/frontend, migrer et contrôler avant promotion |
 
 La [documentation Vercel](https://vercel.com/docs/environment-variables) décrit
 les scopes et la priorité des variables de branche. La

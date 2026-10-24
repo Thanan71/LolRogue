@@ -17,7 +17,6 @@ premières lignes chargées. Le
 expose formule, source, unité, période, population et politique de vérification.
 
 Les notations de la table ci-dessous sont :
-
 - **P** : profils encore présents dans `public.players`, une ligne par compte.
   Administrateurs et comptes de test sont inclus ; aucun filtre bots/tests n'est
   appliqué. Les invités uniquement locaux, sans profil persistant, sont exclus.
@@ -41,23 +40,23 @@ Dans cette table, « zéro » désigne une valeur SQL connue, y compris une popu
 vide. Une clé absente, un `NULL`, une réponse invalide ou une requête en échec ne
 doivent jamais être remplacés par zéro.
 
-| Clé | Source et formule | Unité | Population | Fenêtre / vérification | Valeur inconnue |
-| --- | --- | --- | --- | --- | --- |
-| `total_players` | `COUNT(*)` de `players` | comptes | P | Instant courant ; aucun filtre d'activité | Zéro si P vide ; absence/erreur indisponible |
-| `active_today` | `COUNT(*)` de `players` dont `last_login_at` appartient au jour UTC | comptes | P, une fois par compte | `[00:00 UTC, 00:00 UTC suivant)` ; connexion enregistrée par le serveur | Zéro pour une journée vide ; clé absente indisponible |
-| `total_runs` | `COUNT(*)` de `runs` | parties sauvegardées | R | Toutes dates ; aucun filtre `progression_source = 'verified'` | Zéro si R vide |
-| `total_daily_runs` | `COUNT(*)` de `daily_runs` | résultats Daily | D | Toutes dates ; aucun filtre verified, validité du score ou état de fin ajouté par cette vue | Zéro si D vide |
-| `total_wins` | `COALESCE(SUM(players.total_wins), 0)` | victoires | P | Compteurs persistés ; aucun filtre verified ni recalcul sur R | Zéro si P vide |
-| `total_candies_balance` | `COALESCE(SUM(players.total_candies), 0)` | Candies | P | Solde dépensable actuel, pas un gain cumulé | Zéro si P vide |
-| `total_candies_earned` | E, seulement si historique complet et réconcilié | Candies gagnés | L(P) | À vie des comptes présents ; crédits de runs vérifiées | `NULL` si un compte est incomplet, absent du ledger ou non réconcilié |
-| `total_candies_spent` | S, avec la même condition de complétude | Candies dépensés | L(P) | À vie ; achats canoniques d'améliorations | Même condition de `NULL` |
-| `total_candies_refunded` | F, avec la même condition de complétude | Candies remboursés | L(P) | À vie ; événements internes autorisés de remboursement | Même condition de `NULL` |
-| `candies_earned_since_ledger` | E | Candies gagnés | L(P) | Depuis l'installation du ledger ; crédit final vérifié uniquement | Zéro si aucun crédit classifié ; marqueur ledger absent/invalide : UI indisponible |
-| `candies_spent_since_ledger` | S | Candies dépensés | L(P) | Depuis l'installation ; achats canoniques | Zéro si aucun débit classifié ; même garde UI |
-| `candies_refunded_since_ledger` | F | Candies remboursés | L(P) | Depuis l'installation ; remboursements internes | Zéro si aucun remboursement ; même garde UI |
-| `candies_history_incomplete_accounts` | Nombre de P sans `candy_accounts`, ou avec `history_complete = false` | comptes | P | État actuel ; ne dépend pas d'un filtre verified | Zéro signifie historique complet pour tous les comptes présents |
-| `candies_unreconciled_accounts` | Nombre de P sans compte ledger, ou dont le solde diffère de l'ouverture + somme des événements | comptes | P | État actuel ; comparaison serveur | Zéro signifie réconciliation, pas complétude historique |
-| `candies_ledger_started_at` | `candy_ledger_settings.started_at`, ligne singleton | horodatage UTC | Installation du ledger | Date fixe de la migration, sérialisée en ISO UTC | Absence, `NULL` ou date invalide : indisponible |
+| Clé                                   | Source et formule                                                                              | Unité                | Population             | Fenêtre / vérification                                                                      | Valeur inconnue                                                                    |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------- | -------------------- | ---------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `total_players`                       | `COUNT(*)` de `players`                                                                        | comptes              | P                      | Instant courant ; aucun filtre d'activité                                                   | Zéro si P vide ; absence/erreur indisponible                                       |
+| `active_today`                        | `COUNT(*)` de `players` dont `last_login_at` appartient au jour UTC                            | comptes              | P, une fois par compte | `[00:00 UTC, 00:00 UTC suivant)` ; connexion enregistrée par le serveur                     | Zéro pour une journée vide ; clé absente indisponible                              |
+| `total_runs`                          | `COUNT(*)` de `runs`                                                                           | parties sauvegardées | R                      | Toutes dates ; aucun filtre `progression_source = 'verified'`                               | Zéro si R vide                                                                     |
+| `total_daily_runs`                    | `COUNT(*)` de `daily_runs`                                                                     | résultats Daily      | D                      | Toutes dates ; aucun filtre verified, validité du score ou état de fin ajouté par cette vue | Zéro si D vide                                                                     |
+| `total_wins`                          | `COALESCE(SUM(players.total_wins), 0)`                                                         | victoires            | P                      | Compteurs persistés ; aucun filtre verified ni recalcul sur R                               | Zéro si P vide                                                                     |
+| `total_candies_balance`               | `COALESCE(SUM(players.total_candies), 0)`                                                      | Candies              | P                      | Solde dépensable actuel, pas un gain cumulé                                                 | Zéro si P vide                                                                     |
+| `total_candies_earned`                | E, seulement si historique complet et réconcilié                                               | Candies gagnés       | L(P)                   | À vie des comptes présents ; crédits de runs vérifiées                                      | `NULL` si un compte est incomplet, absent du ledger ou non réconcilié              |
+| `total_candies_spent`                 | S, avec la même condition de complétude                                                        | Candies dépensés     | L(P)                   | À vie ; achats canoniques d'améliorations                                                   | Même condition de `NULL`                                                           |
+| `total_candies_refunded`              | F, avec la même condition de complétude                                                        | Candies remboursés   | L(P)                   | À vie ; événements internes autorisés de remboursement                                      | Même condition de `NULL`                                                           |
+| `candies_earned_since_ledger`         | E                                                                                              | Candies gagnés       | L(P)                   | Depuis l'installation du ledger ; crédit final vérifié uniquement                           | Zéro si aucun crédit classifié ; marqueur ledger absent/invalide : UI indisponible |
+| `candies_spent_since_ledger`          | S                                                                                              | Candies dépensés     | L(P)                   | Depuis l'installation ; achats canoniques                                                   | Zéro si aucun débit classifié ; même garde UI                                      |
+| `candies_refunded_since_ledger`       | F                                                                                              | Candies remboursés   | L(P)                   | Depuis l'installation ; remboursements internes                                             | Zéro si aucun remboursement ; même garde UI                                        |
+| `candies_history_incomplete_accounts` | Nombre de P sans `candy_accounts`, ou avec `history_complete = false`                          | comptes              | P                      | État actuel ; ne dépend pas d'un filtre verified                                            | Zéro signifie historique complet pour tous les comptes présents                    |
+| `candies_unreconciled_accounts`       | Nombre de P sans compte ledger, ou dont le solde diffère de l'ouverture + somme des événements | comptes              | P                      | État actuel ; comparaison serveur                                                           | Zéro signifie réconciliation, pas complétude historique                            |
+| `candies_ledger_started_at`           | `candy_ledger_settings.started_at`, ligne singleton                                            | horodatage UTC       | Installation du ledger | Date fixe de la migration, sérialisée en ISO UTC                                            | Absence, `NULL` ou date invalide : indisponible                                    |
 
 `active_today` mesure les **connexions enregistrées**, pas toutes les actions
 effectuées dans une session persistante. Sa source est `last_login_at`, alimentée
@@ -137,12 +136,12 @@ L'autorité est `players.is_admin`, lue par `is_current_user_admin()` pour le
 `auth.uid()` courant. Des metadata JWT fournies par le client ne donnent aucun
 privilège. Le garde React est une protection de navigation, pas la barrière SQL.
 
-| Rôle effectif | `admin_stats` / `admin_player_stats`, lignes et counts | Tables Candies, lignes et counts | Écriture directe des métriques / ledger |
-| --- | --- | --- | --- |
-| `anon` | Refus, aucune donnée ni total | Refus | Refus |
-| `authenticated` non-admin | Résultat vide, count zéro | Résultat vide, count zéro, même pour son propre compte | Refus |
-| `authenticated` admin | Lecture autorisée de la population complète | Lecture autorisée par RLS | Refus ; les opérations métier restent celles des RPC existantes |
-| `service_role` sans session utilisateur | Pas d'identité admin implicite ; lecture des vues refusée | SELECT explicitement autorisé | Refus sur les tables ledger et la vue ; rôle réservé au serveur |
+| Rôle effectif                           | `admin_stats` / `admin_player_stats`, lignes et counts    | Tables Candies, lignes et counts                       | Écriture directe des métriques / ledger                         |
+| --------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------- |
+| `anon`                                  | Refus, aucune donnée ni total                             | Refus                                                  | Refus                                                           |
+| `authenticated` non-admin               | Résultat vide, count zéro                                 | Résultat vide, count zéro, même pour son propre compte | Refus                                                           |
+| `authenticated` admin                   | Lecture autorisée de la population complète               | Lecture autorisée par RLS                              | Refus ; les opérations métier restent celles des RPC existantes |
+| `service_role` sans session utilisateur | Pas d'identité admin implicite ; lecture des vues refusée | SELECT explicitement autorisé                          | Refus sur les tables ledger et la vue ; rôle réservé au serveur |
 
 Les vues appliquent `security_invoker` et la condition admin ; `admin_stats`
 ajoute `security_barrier`. Les tables activent RLS et leurs policies SELECT sont
@@ -207,7 +206,6 @@ frontières de code suivent désormais le [contrat ADM-S7](admin-interface.md).
 Les durées et compteurs des suites S1 ci-dessous conservent leur référence du
 17 octobre. La [validation S7](admin-s7-validation-2026-10-21.md) documente la
 campagne globale actuelle et la séparation entre preuve locale et livraison.
-
 - [`adminVolume.database.test.ts`](../tests/adminVolume.database.test.ts) vérifie
   les volumes 0/100/101/1 000/1 001 en parcourant toutes les pages, sans doublon,
   avec métrique globale concordante. Les

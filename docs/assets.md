@@ -17,13 +17,11 @@ jamais être nécessaires au build.
 ## Source de vérité et intégrité
 
 Les versions sont épinglées dans `scripts/ddragon-version.json` :
-
 - Data Dragon : `16.6.1` ;
 - Community Dragon : `16.6`.
 
 L'allowlist se trouve dans `scripts/riot-asset-catalog.mjs`. Le manifest
 `src/data/generated/riot-assets-manifest.json` enregistre :
-
 - les versions et la locale ;
 - les 172 champions livrés, les 10 actuellement jouables et les 15 objets ;
 - l'URL source, la taille et le SHA-256 de chaque PNG ;

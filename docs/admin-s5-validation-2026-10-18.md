@@ -6,13 +6,13 @@ FR/EN publication **16**. PR destinée à `dev`, sans fusion ni déploiement man
 
 ## Périmètre
 
-| Tâche | Résultat |
-| --- | --- |
-| ADM-22 | File serveur complète, statuts en attente/traité/rejeté, ordre ancien d’abord, filtres UTC/UUID, totaux et curseurs exacts, historique conservé |
-| ADM-23 | Préparation puis confirmation UUID/date/raison/portée, verrouillage serveur, une décision par dossier ouvert, demande figée et réessai exact |
-| ADM-24 | Événement canonique acteur/date/cible/action/motif ; import fidèle des anciennes invalidations ; aucune réécriture des runs et résultats autoritaires |
+| Tâche  | Résultat                                                                                                                                                                 |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ADM-22 | File serveur complète, statuts en attente/traité/rejeté, ordre ancien d’abord, filtres UTC/UUID, totaux et curseurs exacts, historique conservé                          |
+| ADM-23 | Préparation puis confirmation UUID/date/raison/portée, verrouillage serveur, une décision par dossier ouvert, demande figée et réessai exact                             |
+| ADM-24 | Événement canonique acteur/date/cible/action/motif ; import fidèle des anciennes invalidations ; aucune réécriture des runs et résultats autoritaires                    |
 | ADM-25 | Identité Auth réelle non anonyme et rôle admin courant en PostgreSQL, révocation avec même JWT, anciennes écritures/lectures directes révoquées, aucun rôle `dev` ajouté |
-| ADM-26 | Quotas acteur, rejets audités sans rollback involontaire, motifs assainis, traces minimales, suppression physique quotidienne et anonymisation des acteurs |
+| ADM-26 | Quotas acteur, rejets audités sans rollback involontaire, motifs assainis, traces minimales, suppression physique quotidienne et anonymisation des acteurs               |
 
 Le [contrat](admin-moderation.md) distingue les commandes admises idempotentes des
 refus d’accès/quota agrégés par fenêtre. Un rejet non admis peut être réessayé
@@ -55,35 +55,35 @@ suppression physique lors de la prochaine exécution quotidienne.
 
 ## Cas vérifiés
 
-| Frontière | Preuve |
-| --- | --- |
-| File complète | Dossier ancien, 101e dossier, égalité de dates à la microseconde, filtres et compteurs calculés avant limite |
-| Décision sûre | Mauvaise cible/date/portée, raison hors bornes, dossier déjà fermé, score non terminé/invalide, rejet d’un ancien signalement sur score déjà invalidé |
-| Concurrence | Double commande et double clic : une seule décision ; clé réutilisée avec autre contenu refusée |
-| Réseau | Réponse perdue : résultat inconnu, même UUID/contenu, reçu rejoué sans second effet |
-| Suppression | Suppression du déclarant entre commit et réessai : reçu réconciliable ; acteur supprimé anonymisé ; historique préservé selon ses liens de confidentialité |
-| Intégrité | Une faute d’audit annule toute la décision ; les données de run, commandes, résultats et score d’origine restent inchangées |
-| Rôles | ACL anon/service, joueur, métadonnées forgées, Auth anonyme, admin révoqué, tentative de promotion et anciens accès directs refusés |
-| Abus | Signalements invalides HTTP 400 et limites HTTP 429 conservent compteurs et événement minimal ; aucun signalement créé ; doublon sans réouverture |
-| Limites | Réessai admis hors quota sans consommation supplémentaire ; rejet avant admission puis admission après fenêtre, suivi d’un reçu rejoué |
-| Rétention | Purge réelle aux frontières 30/365 jours, dossiers ouverts conservés, raisons expirées neutralisées sans rétablir le score, seconde purge idempotente |
-| UI | Lecture périmée sans action, filtres/pages/tab conservés, compte A→B→A, réponses tardives, purge globale sur `42501` et reçu 200 refusé |
+| Frontière     | Preuve                                                                                                                                                     |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| File complète | Dossier ancien, 101e dossier, égalité de dates à la microseconde, filtres et compteurs calculés avant limite                                               |
+| Décision sûre | Mauvaise cible/date/portée, raison hors bornes, dossier déjà fermé, score non terminé/invalide, rejet d’un ancien signalement sur score déjà invalidé      |
+| Concurrence   | Double commande et double clic : une seule décision ; clé réutilisée avec autre contenu refusée                                                            |
+| Réseau        | Réponse perdue : résultat inconnu, même UUID/contenu, reçu rejoué sans second effet                                                                        |
+| Suppression   | Suppression du déclarant entre commit et réessai : reçu réconciliable ; acteur supprimé anonymisé ; historique préservé selon ses liens de confidentialité |
+| Intégrité     | Une faute d’audit annule toute la décision ; les données de run, commandes, résultats et score d’origine restent inchangées                                |
+| Rôles         | ACL anon/service, joueur, métadonnées forgées, Auth anonyme, admin révoqué, tentative de promotion et anciens accès directs refusés                        |
+| Abus          | Signalements invalides HTTP 400 et limites HTTP 429 conservent compteurs et événement minimal ; aucun signalement créé ; doublon sans réouverture          |
+| Limites       | Réessai admis hors quota sans consommation supplémentaire ; rejet avant admission puis admission après fenêtre, suivi d’un reçu rejoué                     |
+| Rétention     | Purge réelle aux frontières 30/365 jours, dossiers ouverts conservés, raisons expirées neutralisées sans rétablir le score, seconde purge idempotente      |
+| UI            | Lecture périmée sans action, filtres/pages/tab conservés, compte A→B→A, réponses tardives, purge globale sur `42501` et reçu 200 refusé                    |
 
 ## Preuves locales
 
-| Contrôle | Résultat |
-| --- | --- |
-| Validation complète sur base fraîche | **295/295 tests**, 27 fichiers, zéro skip, **59,96 s** ; lint `results:[]`, permissions/advisors, index, 72 migrations et types concordants |
-| Frontières des tables après clarification du manifest | **33/33**, 4,60 s ; absence de grant navigateur et refus RLS exact, aucune nouvelle exception de sécurité |
-| Contrat advisors après clarification du manifest | **22/22**, 0,275 s |
-| Traductions, copie source et page confidentialité | **70/70**, 2,70 s |
-| Parseurs stricts | **97/97** |
-| UI et asynchronisme | **30/30**, 4,45 s ; client RPC **8/8** |
-| Navigateurs FR/EN | **4/4**, **14,7 s**, sans retry ; ancien/101e dossier, 320 px, clavier, axe, réponse perdue et reçu refusé |
-| Parcours connecté final | **1/1**, **13,4 s**, sans retry |
-| Ancienne application sur nouveau schéma | **10/10**, **1,38 s**, checkpoint inchangé |
-| Assets | Reconstruction propre réussie, 1 036 fichiers |
-| Sécurité/strict | Aucun high/critical npm ; quatre diagnostics upstream exactement autorisés, aucune extension |
+| Contrôle                                              | Résultat                                                                                                                                    |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Validation complète sur base fraîche                  | **295/295 tests**, 27 fichiers, zéro skip, **59,96 s** ; lint `results:[]`, permissions/advisors, index, 72 migrations et types concordants |
+| Frontières des tables après clarification du manifest | **33/33**, 4,60 s ; absence de grant navigateur et refus RLS exact, aucune nouvelle exception de sécurité                                   |
+| Contrat advisors après clarification du manifest      | **22/22**, 0,275 s                                                                                                                          |
+| Traductions, copie source et page confidentialité     | **70/70**, 2,70 s                                                                                                                           |
+| Parseurs stricts                                      | **97/97**                                                                                                                                   |
+| UI et asynchronisme                                   | **30/30**, 4,45 s ; client RPC **8/8**                                                                                                      |
+| Navigateurs FR/EN                                     | **4/4**, **14,7 s**, sans retry ; ancien/101e dossier, 320 px, clavier, axe, réponse perdue et reçu refusé                                  |
+| Parcours connecté final                               | **1/1**, **13,4 s**, sans retry                                                                                                             |
+| Ancienne application sur nouveau schéma               | **10/10**, **1,38 s**, checkpoint inchangé                                                                                                  |
+| Assets                                                | Reconstruction propre réussie, 1 036 fichiers                                                                                               |
+| Sécurité/strict                                       | Aucun high/critical npm ; quatre diagnostics upstream exactement autorisés, aucune extension                                                |
 
 Le parcours connecté réalise une vraie inscription navigateur, un signalement par
 RPC, une décision sur PostgreSQL, le reçu dans le parseur/UI de production et un

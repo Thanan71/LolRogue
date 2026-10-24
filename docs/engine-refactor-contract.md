@@ -4,11 +4,11 @@ Le pilote UI n’ajoute aucune règle dans React. `BattleManager` et `AuthorityR
 
 ## Responsabilités et ordre d’appel
 
-| Unité | Entrées et préconditions | Responsabilité et effets observables |
-| --- | --- | --- |
-| `BattleActionExecutor` | Combatant et action validée par `BattleActionValidator`, callbacks du moteur | Passifs avant action ; attaque puis passifs après attaque, ou validation de disponibilité du sort, cooldown, débit MP, `ability_cast`, effets dans l’ordre du catalogue, passifs après sort. Le manager garde le contexte `_activeActionType` pendant toute cette séquence. |
-| `BattleRuleEffectResolver` | Effet immédiat et callbacks du moteur, source/cible résolues par leur identité | Ignore source/cible absente et quantité non positive ; applique heal/damage/mana/shield/DoT/slow/snare sans changer les événements ni leur ordre. Les dégâts de règle gardent les trois flags à `false` pour éviter une redispatch récursive. Le manager conserve le rafraîchissement HP avant/après la liste d’effets. |
-| `DeterministicCombatReplay` | JSON compact ou `auto`, index de commande, battle et callback de capture des ressources | Décode avant construction du battle ; installe le lecteur manuel sans consommer d’entrée fictive pour un tour sans action ; démarre puis capture joueurs/ennemis ; avance jusqu’au résultat ou à 100 000 tours ; vérifie le préfixe exact et n’accepte qu’un suffixe automatique inoffensif. |
+| Unité                       | Entrées et préconditions                                                                | Responsabilité et effets observables                                                                                                                                                                                                                                                                                    |
+| --------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BattleActionExecutor`      | Combatant et action validée par `BattleActionValidator`, callbacks du moteur            | Passifs avant action ; attaque puis passifs après attaque, ou validation de disponibilité du sort, cooldown, débit MP, `ability_cast`, effets dans l’ordre du catalogue, passifs après sort. Le manager garde le contexte `_activeActionType` pendant toute cette séquence.                                             |
+| `BattleRuleEffectResolver`  | Effet immédiat et callbacks du moteur, source/cible résolues par leur identité          | Ignore source/cible absente et quantité non positive ; applique heal/damage/mana/shield/DoT/slow/snare sans changer les événements ni leur ordre. Les dégâts de règle gardent les trois flags à `false` pour éviter une redispatch récursive. Le manager conserve le rafraîchissement HP avant/après la liste d’effets. |
+| `DeterministicCombatReplay` | JSON compact ou `auto`, index de commande, battle et callback de capture des ressources | Décode avant construction du battle ; installe le lecteur manuel sans consommer d’entrée fictive pour un tour sans action ; démarre puis capture joueurs/ennemis ; avance jusqu’au résultat ou à 100 000 tours ; vérifie le préfixe exact et n’accepte qu’un suffixe automatique inoffensif.                            |
 
 L’initiative, l’IA, les effets de sorts, les dégâts, les récompenses, les règles de recrutement, les snapshots et la sérialisation des commandes gardent leurs propriétaires existants. Aucun module extrait ne crée son propre RNG, ne dépend de React/Zustand, n’accède au réseau ou ne modifie le journal sérialisé. Les callbacks restent synchrones : aucun `await`, timer ou concurrence nouvelle n’entre dans le cœur déterministe. Chaque replay possède son propre lecteur ; une erreur invalide la session conformément au contrat existant.
 
@@ -17,7 +17,6 @@ Les erreurs restent `invalid_combat_action_trace`, `combat_limit` et `invalid_co
 ## Preuve avant/après
 
 La baseline a été capturée au commit `e313c6f657d2662c9c327875463f16b40ddada20`, avant extraction, depuis `run-engine-0.2.0` (`c74af7632acfb7e4a2ff45140d62d0a96bbd6b063994b3f4b43d0f72fa785e16`). [La fixture](../tests/fixtures/engine-refactor-contract.json) contient les longueurs et SHA-256 des octets JSON originaux, sans tri des propriétés, conversion de nombres ou suppression de champs facultatifs :
-
 - six cas : Normal et Daily, seeds `424240`, `2116951237`, `2654435761`, avec Garen, Warwick et Garen/Veigar ;
 - ordre et nombre des tirages RNG, événements réellement reçus via `on('event', callback)`, résultat et ressources finales ;
 - commandes, trace compacte des actions, snapshots et résumés de combat en auto et avec trace manuelle ; seule l’identité du moteur au niveau de la réponse est comparée séparément ;
@@ -26,7 +25,6 @@ La baseline a été capturée au commit `e313c6f657d2662c9c327875463f16b40ddada2
 [Le test de non-régression](../tests/engineRefactorContract.test.ts) vérifie ces 75 cas sans mode de mise à jour automatique. Il retrouve les bundles par identité dans le registre, ce qui permet de préserver la baseline courante lorsqu’elle devient historique. Les événements abonnés ont aussi été recapturés avec le `BattleManager` embarqué dans le bundle original, et tous les autres digests de cette capture comparés à la baseline initiale.
 
 Les campagnes complémentaires restent plus larges que les fixtures unitaires :
-
 - la matrice compare 7 560 combats par runtime, avec parité exacte entre le moteur figé 0.2.0, le nouveau bundle 0.2.5 et les sources courantes ;
 - les 180 runs Veigar/Annie/Lux et leurs probes de sécurité reproduisent intégralement le rapport 0.2.0 après normalisation de l’identité dans les commandes de reproduction ;
 - tous les résultats de routes et d’économie du rapport à seeds fixes sont identiques hors identité de publication ;
@@ -38,12 +36,12 @@ Les classes de façade passent de 1 668 à 1 561 lignes (`BattleManager`) et de 
 
 Le hash est calculé sur les octets ESM compilés, pas seulement sur les règles. L’extraction change donc le hash structurel même lorsque tous les résultats restent identiques. Le garde-fou a effectivement refusé le refactor avec l’identité 0.2.0 ; il reste actif.
 
-| Dimension | Moteur précédent | Nouveau moteur |
-| --- | --- | --- |
-| Engine/code public | `run-engine-0.2.0` / `0.2.0` | `run-engine-0.2.5` / `0.2.5` |
-| Clé gameplay DB | 23 | 24 |
-| Hash | `c74af7632acfb7e4a2ff45140d62d0a96bbd6b063994b3f4b43d0f72fa785e16` | `9009950fe0b1c6944a26486e65b0bb0f1379129b42d7499f2bf1c0a8ce3391fa` |
-| Score Daily / progression / commandes / catalogue champion | 15 / 3 / 2 / 2 | 15 / 3 / 2 / 2 |
+| Dimension                                                  | Moteur précédent                                                   | Nouveau moteur                                                     |
+| ---------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| Engine/code public                                         | `run-engine-0.2.0` / `0.2.0`                                       | `run-engine-0.2.5` / `0.2.5`                                       |
+| Clé gameplay DB                                            | 23                                                                 | 24                                                                 |
+| Hash                                                       | `c74af7632acfb7e4a2ff45140d62d0a96bbd6b063994b3f4b43d0f72fa785e16` | `9009950fe0b1c6944a26486e65b0bb0f1379129b42d7499f2bf1c0a8ce3391fa` |
+| Score Daily / progression / commandes / catalogue champion | 15 / 3 / 2 / 2                                                     | 15 / 3 / 2 / 2                                                     |
 
 Le bundle précédent est copié octet pour octet vers `run-authority-0.2.0.bundle.js` et devient `replay-only`. Tous les autres statuts et bundles historiques sont conservés. Le [registre source](../config/authority-versions.json) est l’unique source des résolveurs générés. Les artefacts de balance 0.2.0 gardent leurs octets ; de nouveaux fichiers 0.2.5 portent les identités actuelles.
 

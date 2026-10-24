@@ -37,13 +37,13 @@ sortie complète atomiquement le nœud, passe au biome et au niveau de run suiva
 et bloque la nouvelle carte derrière un choix d'augment :
 
 | Biome jouable | Niveau de run | Choix requis avant son premier nœud |
-| --- | ---: | --- |
-| Top Lane | 1 | aucun |
-| Jungle | 2 | sortie de Top Lane |
-| Mid Lane | 3 | sortie de Jungle |
-| Bot Lane | 4 | sortie de Mid Lane |
-| River | 5 | sortie de Bot Lane |
-| Enemy Base | 6 | sortie de River |
+| ------------- | ------------: | ----------------------------------- |
+| Top Lane      |             1 | aucun                               |
+| Jungle        |             2 | sortie de Top Lane                  |
+| Mid Lane      |             3 | sortie de Jungle                    |
+| Bot Lane      |             4 | sortie de Mid Lane                  |
+| River         |             5 | sortie de Bot Lane                  |
+| Enemy Base    |             6 | sortie de River                     |
 
 Le boss d'Enemy Base termine la run et ne génère aucun choix après la victoire.
 Chaque offre contient jusqu'à trois augments légaux, sans doublon dans l'offre.
@@ -54,7 +54,6 @@ sont 60 pour Argent, 30 pour Or et 10 pour Prismatique.
 ## Combat
 
 Le moteur est un combat au tour par tour, jusqu'à cinq contre cinq :
-
 - l'ordre de tour dépend de la vitesse avec un bruit aléatoire maximal de `0,5` ;
 - les actions disponibles sont l'attaque de base et les sorts Q/W/E/R prêts, dont
   le coût en mana est payable ;
@@ -119,14 +118,14 @@ Le niveau maximum est 18.
 
 XP nécessaire pour chaque passage de niveau :
 
-| Passage | XP | Passage | XP | Passage | XP |
-| --- | ---: | --- | ---: | --- | ---: |
-| 1 → 2 | 100 | 7 → 8 | 490 | 13 → 14 | 1240 |
-| 2 → 3 | 140 | 8 → 9 | 590 | 14 → 15 | 1400 |
-| 3 → 4 | 190 | 9 → 10 | 700 | 15 → 16 | 1570 |
-| 4 → 5 | 250 | 10 → 11 | 820 | 16 → 17 | 1750 |
-| 5 → 6 | 320 | 11 → 12 | 950 | 17 → 18 | 1940 |
-| 6 → 7 | 400 | 12 → 13 | 1090 |  |  |
+| Passage |  XP | Passage |   XP | Passage |   XP |
+| ------- | --: | ------- | ---: | ------- | ---: |
+| 1 → 2   | 100 | 7 → 8   |  490 | 13 → 14 | 1240 |
+| 2 → 3   | 140 | 8 → 9   |  590 | 14 → 15 | 1400 |
+| 3 → 4   | 190 | 9 → 10  |  700 | 15 → 16 | 1570 |
+| 4 → 5   | 250 | 10 → 11 |  820 | 16 → 17 | 1750 |
+| 5 → 6   | 320 | 11 → 12 |  950 | 17 → 18 | 1940 |
+| 6 → 7   | 400 | 12 → 13 | 1090 |         |      |
 
 Chaque niveau gagné peut ajouter un choix de sort à la file du champion. Si un
 gain d'XP traverse plusieurs niveaux, tous les choix actuellement utilisables
@@ -201,12 +200,12 @@ base + vagues × candiesParVague + biomes × candiesParBiome
 
 Cette formule ne s'applique qu'après au moins une vague terminée :
 
-| Fin de run | Vague terminée requise | Bonus victoire |
-| --- | --- | --- |
-| abandon immédiat | oui, donc 0 candy | non |
-| abandon après progression | oui | non |
-| défaite | oui | non |
-| victoire | oui | oui |
+| Fin de run                | Vague terminée requise | Bonus victoire |
+| ------------------------- | ---------------------- | -------------- |
+| abandon immédiat          | oui, donc 0 candy      | non            |
+| abandon après progression | oui                    | non            |
+| défaite                   | oui                    | non            |
+| victoire                  | oui                    | oui            |
 
 Le pool est un budget de compte fixe : il n'est plus divisé uniformément selon la
 taille finale de l'équipe. Le progression ruleset v3 le répartit exactement entre les
@@ -228,7 +227,6 @@ son niveau de maîtrise, ses prérequis et son rang maximal, tous définis dans
 ## Probabilités
 
 Les probabilités ne doivent pas être recopiées dans les composants :
-
 - types de nœuds : `BIOME_MAP_CONFIGS` dans `src/game/map/types.ts` ;
 - événements et poids de leurs issues : `generateEventEncounter` ;
 - repos : 20 % de soin complet, sinon 25 à 75 % ; le prix ajoute respectivement
@@ -247,7 +245,6 @@ comportement attendu, ce document.
 
 Le catalogue n'est pas une promesse implicite. Une capacité est jouable uniquement
 si ses données passent `combatContentSupport` et si son type possède un handler :
-
 - sorts : dégâts, soin, bouclier, exécution, contrôle, buff, debuff, dégâts ou
   soins périodiques et résurrection, avec les paramètres requis ;
 - passifs : uniquement ceux des dix champions maintenus (`Annie`, `Ashe`,

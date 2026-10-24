@@ -11,14 +11,14 @@ vérification humaine et livraison distante.
 
 ## Navigation et contexte
 
-| Groupe | Paramètre `group` | Vues `view` |
-| --- | --- | --- |
-| Vue globale | `overview` | `dashboard`, `analytics` |
-| Joueurs | `players` | `list` |
-| Runs | `runs` | `list` |
-| Équilibrage | `balance` | `reports`, `calibration` |
-| Modération | `moderation` | `queue` |
-| Surveillance | `monitoring` | `logs`, `authority`, `service` |
+| Groupe       | Paramètre `group` | Vues `view`                    |
+| ------------ | ----------------- | ------------------------------ |
+| Vue globale  | `overview`        | `dashboard`, `analytics`       |
+| Joueurs      | `players`         | `list`                         |
+| Runs         | `runs`            | `list`                         |
+| Équilibrage  | `balance`         | `reports`, `calibration`       |
+| Modération   | `moderation`      | `queue`                        |
+| Surveillance | `monitoring`      | `logs`, `authority`, `service` |
 
 L’URL est la source du contexte appliqué. Un accès direct tel que
 `/admin?group=monitoring&view=logs`, un rafraîchissement et Précédent/Suivant
@@ -79,7 +79,6 @@ revendiquée. La matrice complète du jeu
 Sur le SHA candidat de la PR, utiliser un compte administrateur existant dans
 l’environnement de test et consigner appareil, versions du navigateur/lecteur,
 langue et résultat. Aucun rôle n’est accordé par ce parcours.
-
 1. Avec VoiceOver/Safari puis NVDA/Firefox, parcourir les six groupes au clavier ;
    vérifier le nom des onglets, la sélection annoncée et l’accès aux sous-vues.
 2. Dans Joueurs puis Runs, appliquer une recherche, changer de page, ouvrir une
@@ -103,12 +102,12 @@ le retour positif de l’utilisateur pour ADM-34 figure dans le rapport S7.
 nécessaires aux consommateurs externes. Les 97 modules historiques ont rejoint
 un seul module, selon quatre couches :
 
-| Couche | Responsabilité |
-| --- | --- |
-| `domain` | Types, contrats, validation, projections et statistiques |
-| `infrastructure` | Clients RPC, queries et effets de téléchargement |
-| `hooks` | État des ressources, contexte URL, requêtes et annulation |
-| `ui` | Écran, tableaux, fiches et panneaux |
+| Couche           | Responsabilité                                            |
+| ---------------- | --------------------------------------------------------- |
+| `domain`         | Types, contrats, validation, projections et statistiques  |
+| `infrastructure` | Clients RPC, queries et effets de téléchargement          |
+| `hooks`          | État des ressources, contexte URL, requêtes et annulation |
+| `ui`             | Écran, tableaux, fiches et panneaux                       |
 
 Les sous-espaces Équilibrage, Modération et Surveillance restent chargés par
 imports différés. La garde `node scripts/check-business-boundaries.mjs` vérifie

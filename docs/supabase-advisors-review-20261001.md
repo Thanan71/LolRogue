@@ -18,11 +18,11 @@ Cette revue ne modifie ni le schéma, ni les index, ni les droits de la base dis
 
 ## Sécurité : trois tables volontairement internes
 
-| Table | Contrat vérifié | Preuve migrée |
-| --- | --- | --- |
-| `daily_challenge_rulesets` | catalogue serveur lu par les RPC autoritaires ; aucune lecture Data API client | `20260726090000_authoritative_daily_leaderboard.sql` : RLS activée et droits `PUBLIC`, `anon`, `authenticated` révoqués ; `service_role` en lecture |
-| `progression_commands` | journal idempotent des achats d'amélioration, écrit par `unlock_champion_enhancement` ; aucun accès table client | `20260723090000_server_authoritative_progression.sql` : RLS, révocations et clé `(user_id, command_id)` ; `20260809120000_harden_security_definer_privileges.sql` : droits RPC bornés |
-| `progression_enhancement_security_baselines` | archive interne de quarantaine/audit des anciens rangs, alimentée par migration, sans consommation runtime actuelle | `20260724190000_harden_verified_attempt_contract.sql` : RLS, révocations et alimentation de l'archive |
+| Table                                        | Contrat vérifié                                                                                                     | Preuve migrée                                                                                                                                                                         |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `daily_challenge_rulesets`                   | catalogue serveur lu par les RPC autoritaires ; aucune lecture Data API client                                      | `20260726090000_authoritative_daily_leaderboard.sql` : RLS activée et droits `PUBLIC`, `anon`, `authenticated` révoqués ; `service_role` en lecture                                   |
+| `progression_commands`                       | journal idempotent des achats d'amélioration, écrit par `unlock_champion_enhancement` ; aucun accès table client    | `20260723090000_server_authoritative_progression.sql` : RLS, révocations et clé `(user_id, command_id)` ; `20260809120000_harden_security_definer_privileges.sql` : droits RPC bornés |
+| `progression_enhancement_security_baselines` | archive interne de quarantaine/audit des anciens rangs, alimentée par migration, sans consommation runtime actuelle | `20260724190000_harden_verified_attempt_contract.sql` : RLS, révocations et alimentation de l'archive                                                                                 |
 
 Les deux dernières justifications ont été corrigées : le journal d'achat n'est
 pas écrit exclusivement par `complete_run_verification`, et l'archive de baseline

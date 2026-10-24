@@ -9,7 +9,6 @@ historiques ci-dessous sont datés et doivent être recalculés avec `npm audit`
 ## Versions résolues dans le lockfile
 
 La mise à jour groupée de l'outillage a porté la base sur :
-
 - Node `24.x` pour l'exécution du projet et la compatibilité Vercel ;
 - React/React DOM `19.3.0`, React Router DOM `7.18.4` et Zustand `5.0.15` ;
 - Vite `8.3.2`, `@vitejs/plugin-react` `6.1.1` et TypeScript `7.0.2` ;
@@ -43,18 +42,18 @@ précède les nouveaux fichiers d'ARCH-S5. Il est complété par les configurati
 commandes et tests : l'absence d'un import explicite ne prouve pas l'inutilité d'un
 plugin, d'un binaire, d'un environnement de test ou d'un paquet de types.
 
-| Dépendances | Consommateurs vérifiés | Décision |
-| --- | --- | --- |
-| Supabase JS | Client/transport, repositories, scripts de restauration, tests connectés | Conserver le pin exact et le patch Auth associé |
-| React, React DOM, Router, Zustand | Application, routes, stores et tests UI | Conserver |
-| Analytics, Speed Insights | `src/main.tsx`, contrats de configuration et de typage | Conserver |
-| Tailwind, plugin PostCSS, PostCSS, Autoprefixer | `postcss.config.js`, `tailwind.config.ts`, CSS/build Vite | Conserver ; le plugin déclaré dans `dependencies` intervient au build |
-| Babel parser | Checker de frontières métier et tests de contrats AST | Conserver |
-| Testing Library, jest-dom, user-event | Tests UI ; user-event vérifie combat, clavier et tooltips | Conserver les interactions réelles |
-| Playwright, axe | Parcours navigateur et contrôles d'accessibilité | Conserver |
-| Biome, TypeScript, types Node/React | CLI/checks et compilation ; types Node sur la majeure 24 | Conserver |
-| Vite/plugin React, Vitest/coverage, jsdom | Configurations, commandes de tests, provider coverage et environnement jsdom | Conserver |
-| Supabase CLI, esbuild authority | CLI locale épinglée et reproductibilité authority/balance | Conserver les versions exactes |
+| Dépendances                                     | Consommateurs vérifiés                                                       | Décision                                                              |
+| ----------------------------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Supabase JS                                     | Client/transport, repositories, scripts de restauration, tests connectés     | Conserver le pin exact et le patch Auth associé                       |
+| React, React DOM, Router, Zustand               | Application, routes, stores et tests UI                                      | Conserver                                                             |
+| Analytics, Speed Insights                       | `src/main.tsx`, contrats de configuration et de typage                       | Conserver                                                             |
+| Tailwind, plugin PostCSS, PostCSS, Autoprefixer | `postcss.config.js`, `tailwind.config.ts`, CSS/build Vite                    | Conserver ; le plugin déclaré dans `dependencies` intervient au build |
+| Babel parser                                    | Checker de frontières métier et tests de contrats AST                        | Conserver                                                             |
+| Testing Library, jest-dom, user-event           | Tests UI ; user-event vérifie combat, clavier et tooltips                    | Conserver les interactions réelles                                    |
+| Playwright, axe                                 | Parcours navigateur et contrôles d'accessibilité                             | Conserver                                                             |
+| Biome, TypeScript, types Node/React             | CLI/checks et compilation ; types Node sur la majeure 24                     | Conserver                                                             |
+| Vite/plugin React, Vitest/coverage, jsdom       | Configurations, commandes de tests, provider coverage et environnement jsdom | Conserver                                                             |
+| Supabase CLI, esbuild authority                 | CLI locale épinglée et reproductibilité authority/balance                    | Conserver les versions exactes                                        |
 
 Les 29 dépendances directes restent toutes justifiées : huit déclarées dans
 `dependencies` et 21 dans `devDependencies`. Seize déclarations utilisent une plage
@@ -83,15 +82,15 @@ et `test:watch` n'ont pas d'appelant recensé : ils restent des utilitaires inte
 existants. Le retrait des 72 anciens alias npm appartient à ARCH-S1 et n'est pas
 compté comme un gain d'ARCH-18.
 
-| Mesure | Avant ARCH-18 | Après le garde ARCH-18 |
-| --- | --- | --- |
-| Dépendances directes / entrées lock / noms distincts | 29 / 284 / 267 | 29 / 284 / 267 |
-| Entrées npm publiques / fichiers d'entrée scripts | 40 / 59 | 40 / 59 |
-| Alertes npm audit | 0 | 0 |
-| Rapport d'erreur registre JSON, sortie 1 | Succès annoncé | Échec |
-| Rapport absent `{}`, sortie 2 | Succès annoncé | Échec |
-| Alertes hautes/critiques | Bloquées | Bloquées |
-| Alertes basses/modérées dans un rapport valide | Acceptées | Acceptées |
+| Mesure                                               | Avant ARCH-18  | Après le garde ARCH-18 |
+| ---------------------------------------------------- | -------------- | ---------------------- |
+| Dépendances directes / entrées lock / noms distincts | 29 / 284 / 267 | 29 / 284 / 267         |
+| Entrées npm publiques / fichiers d'entrée scripts    | 40 / 59        | 40 / 59                |
+| Alertes npm audit                                    | 0              | 0                      |
+| Rapport d'erreur registre JSON, sortie 1             | Succès annoncé | Échec                  |
+| Rapport absent `{}`, sortie 2                        | Succès annoncé | Échec                  |
+| Alertes hautes/critiques                             | Bloquées       | Bloquées               |
+| Alertes basses/modérées dans un rapport valide       | Acceptées      | Acceptées              |
 
 La baseline CI du commit candidat `e517370b`, workflow `38437033958`, mesure les
 jobs complets : security 19 s, build/assets 77 s, static 27 s, unit/coverage 538 s,
@@ -122,19 +121,18 @@ sans réseau ni modification de l'installation du projet.
 
 ## Dette résiduelle suivie
 
-| Sujet | Responsable | Condition de réexamen |
-| --- | --- | --- |
-| Patch Auth `2.117.2` | Mainteneurs authentication/outillage | Vérifier un correctif amont sur les vrais SDK ESM/CJS avec Web Storage bloqué, puis les parcours Auth, avant montée de version ou retrait du postinstall |
-| esbuild authority `0.25.0` | Mainteneurs authority/balance | Refaire les checks de sources, hashes et toutes les reproductions historiques avant toute migration de l'outil ; conserver les anciens octets |
-| SCC historique des six stores | Mainteneurs architecture | Tranche métier dédiée avec tests de cycle de vie ; aucune rupture de store dans cet audit |
-| `format` / `test:watch` sans appelant automatique | Mainteneurs outillage | Vérifier l'usage interactif et une migration autorisée avant retrait |
-| Évolution du format npm audit et alertes futures | Mainteneurs outillage | Adapter le garde avec preuves ; corriger les versions sur justification, sans `--force` ni dérogation haute/critique |
+| Sujet                                             | Responsable                          | Condition de réexamen                                                                                                                                    |
+| ------------------------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Patch Auth `2.117.2`                              | Mainteneurs authentication/outillage | Vérifier un correctif amont sur les vrais SDK ESM/CJS avec Web Storage bloqué, puis les parcours Auth, avant montée de version ou retrait du postinstall |
+| esbuild authority `0.25.0`                        | Mainteneurs authority/balance        | Refaire les checks de sources, hashes et toutes les reproductions historiques avant toute migration de l'outil ; conserver les anciens octets            |
+| SCC historique des six stores                     | Mainteneurs architecture             | Tranche métier dédiée avec tests de cycle de vie ; aucune rupture de store dans cet audit                                                                |
+| `format` / `test:watch` sans appelant automatique | Mainteneurs outillage                | Vérifier l'usage interactif et une migration autorisée avant retrait                                                                                     |
+| Évolution du format npm audit et alertes futures  | Mainteneurs outillage                | Adapter le garde avec preuves ; corriger les versions sur justification, sans `--force` ni dérogation haute/critique                                     |
 
 ## Régressions corrigées
 
 La mise à jour groupée avait introduit trois entrées hautes correspondant à deux
 causes :
-
 1. `nanoid@3.3.16`, transitif via PostCSS, concerné par
    `GHSA-2v37-7h3g-55p8` ; le lockfile utilise maintenant `3.3.18` ;
 2. `react-router@7.18.1` et son effet direct `react-router-dom`, concernés par
@@ -177,7 +175,6 @@ sur `source-map-js@1.2.1`. Le lockfile résout désormais cette dépendance tran
 en `1.2.2`, version corrigée compatible avec les plages déclarées. Aucun override
 ni exception d'audit n'est ajouté. Le contrôle `npm run testing -- security` et le build
 doivent passer sur cette nouvelle résolution.
-
 - `npm ci`, TypeScript, Biome et le build Vite/Rolldown ;
 - `npm run testing -- security` sans exception haute ou critique ;
 - Vitest avec couverture et tests Supabase live ;
