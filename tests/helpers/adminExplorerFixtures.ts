@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
@@ -13,13 +13,170 @@ const auth = { autoRefreshToken: false, persistSession: false };
 export function explorerClient(role: 'anon' | 'service' = 'anon') {
   return createClient(adminExplorerCredentials.url!, adminExplorerCredentials[role]!, { auth });
 }
-export function explorerSql(query: string) {
+function logBalanceSqlPlans(stderr: string) {
+  const numericKeys = [
+    'Startup Cost',
+    'Total Cost',
+    'Plan Rows',
+    'Plan Width',
+    'Actual Rows',
+    'Actual Loops',
+    'Actual Startup Time',
+    'Actual Total Time',
+    'Shared Hit Blocks',
+    'Shared Read Blocks',
+    'Shared Dirtied Blocks',
+    'Shared Written Blocks',
+    'Local Hit Blocks',
+    'Local Read Blocks',
+    'Local Dirtied Blocks',
+    'Local Written Blocks',
+    'Temp Read Blocks',
+    'Temp Written Blocks',
+    'I/O Read Time',
+    'I/O Write Time',
+    'Temp I/O Read Time',
+    'Temp I/O Write Time',
+    'Peak Memory Usage',
+    'Disk Usage',
+    'Sort Space Used',
+    'Hash Batches',
+    'Original Hash Batches',
+  ];
+  const numbers = (value: Record<string, unknown>, keys: string[]) =>
+    Object.fromEntries(
+      keys
+        .filter((key) => typeof value[key] === 'number' && Number.isFinite(value[key]))
+        .map((key) => [key, value[key]]),
+    );
+  const plans: object[] = [];
+  let invalidPlans = 0;
+  let plansTruncated = false;
+  const expression = /duration: ([\d.]+) ms\s+plan:\s*(\{[\s\S]*?\n\})/g;
+  for (const match of stderr.matchAll(expression)) {
+    if (plans.length === 20) {
+      plansTruncated = true;
+      break;
+    }
+    try {
+      const statement = JSON.parse(match[2]) as Record<string, unknown>;
+      const nodes: object[] = [];
+      let nodesTruncated = false;
+      const visit = (node: Record<string, unknown>, path: number[]) => {
+        if (nodes.length === 60) {
+          nodesTruncated = true;
+          return;
+        }
+        const type = node['Node Type'];
+        nodes.push({
+          path,
+          type: typeof type === 'string' && /^[a-z ]{1,40}$/i.test(type) ? type : 'unknown',
+          ...numbers(node, numericKeys),
+        });
+        if (Array.isArray(node.Plans))
+          node.Plans.forEach((child, index) => visit(child, [...path, index]));
+      };
+      if (statement.Plan && typeof statement.Plan === 'object')
+        visit(statement.Plan as Record<string, unknown>, []);
+      const jit = statement.JIT as Record<string, unknown> | undefined;
+      plans.push({
+        durationMs: Number(match[1]),
+        nodes,
+        nodesTruncated,
+        jit: jit
+          ? {
+              ...numbers(jit, ['Functions']),
+              timing:
+                jit.Timing && typeof jit.Timing === 'object'
+                  ? {
+                      ...numbers(jit.Timing as Record<string, unknown>, [
+                        'Generation',
+                        'Inlining',
+                        'Optimization',
+                        'Emission',
+                        'Total',
+                      ]),
+                      ...((jit.Timing as Record<string, unknown>).Generation &&
+                      typeof (jit.Timing as Record<string, unknown>).Generation === 'object'
+                        ? {
+                            generation: numbers(
+                              (jit.Timing as Record<string, unknown>).Generation as Record<
+                                string,
+                                unknown
+                              >,
+                              ['Deform', 'Total'],
+                            ),
+                          }
+                        : {}),
+                    }
+                  : {},
+              options:
+                jit.Options && typeof jit.Options === 'object'
+                  ? Object.fromEntries(
+                      ['Inlining', 'Optimization', 'Expressions', 'Deforming']
+                        .filter(
+                          (key) =>
+                            typeof (jit.Options as Record<string, unknown>)[key] === 'boolean',
+                        )
+                        .map((key) => [key, (jit.Options as Record<string, unknown>)[key]]),
+                    )
+                  : {},
+            }
+          : null,
+      });
+    } catch {
+      invalidPlans += 1;
+    }
+  }
+  console.info(
+    '[adminBalance SQL plan diagnostic]',
+    JSON.stringify({ plans, invalidPlans, plansTruncated }),
+  );
+}
+
+export function explorerSql(query: string, options: { balancePlanDiagnostics?: boolean } = {}) {
   for (const input of [adminExplorerCredentials.url, adminExplorerCredentials.database]) {
     if (!input || !['localhost', '127.0.0.1', '[::1]'].includes(new URL(input).hostname)) {
       throw new Error('Admin explorer fixtures require a disposable loopback database.');
     }
   }
   const connection = new URL(adminExplorerCredentials.database!);
+  // Temporary, session-only profiling of the 1005-run balance regression scenario.
+  // The caller resets session/current user to postgres before any fixture statement.
+  if (options.balancePlanDiagnostics) {
+    const result = spawnSync(
+      'psql',
+      [
+        '--no-psqlrc',
+        '--no-password',
+        '--quiet',
+        '--tuples-only',
+        '--no-align',
+        '--set',
+        'ON_ERROR_STOP=1',
+      ],
+      {
+        encoding: 'utf8',
+        input: query,
+        stdio: ['pipe', 'pipe', 'pipe'],
+        maxBuffer: 4 * 1024 * 1024,
+        env: {
+          ...process.env,
+          PGHOST: connection.hostname,
+          PGPORT: connection.port,
+          PGDATABASE: connection.pathname.slice(1),
+          PGUSER: 'supabase_admin',
+          PGPASSWORD: decodeURIComponent(connection.password),
+        },
+      },
+    );
+    logBalanceSqlPlans(result.stderr ?? '');
+    if (result.error || result.status !== 0)
+      throw new Error(
+        `Admin balance SQL plan diagnostics failed (exit ${result.status ?? 'unavailable'}).`,
+      );
+    return result.stdout.trim();
+  }
   return execFileSync(
     'psql',
     [
