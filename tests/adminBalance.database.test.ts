@@ -245,6 +245,7 @@ describeDatabase('read-only verified balance populations', () => {
       [a],
       setup,
       balanceRpc('champions', { ...balanceFilters, championId: 'Garen' }),
+      { diagnostics: true },
     );
     expect(value.population).toEqual({ verifiedRuns: 1005, uniquePlayers: 1 });
     expect(value.selections.population).toEqual({
