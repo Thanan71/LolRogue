@@ -2,11 +2,11 @@
 
 ## Séparation des environnements
 
-| Environnement | Vercel | Supabase | Données | Administration |
-| --- | --- | --- | --- | --- |
-| Development | local uniquement | stack locale CLI | synthétiques, réinitialisables | promotion SQL locale |
-| Preview | déploiement de branche | projet Supabase preview dédié | synthétiques uniquement | comptes de test séparés |
-| Production | branche `main`, domaine public | projet Supabase production dédié | joueurs réels | accès nominatif minimal |
+| Environnement | Vercel                         | Supabase                         | Données                        | Administration          |
+| ------------- | ------------------------------ | -------------------------------- | ------------------------------ | ----------------------- |
+| Development   | local uniquement               | stack locale CLI                 | synthétiques, réinitialisables | promotion SQL locale    |
+| Preview       | déploiement de branche         | projet Supabase preview dédié    | synthétiques uniquement        | comptes de test séparés |
+| Production    | branche `main`, domaine public | projet Supabase production dédié | joueurs réels                  | accès nominatif minimal |
 
 Aucune preview ne cible la production. Les deux variables `VITE_PUBLIC_*` sont
 affectées séparément dans Vercel ; service-role, mot de passe DB et token CLI ne
@@ -41,29 +41,29 @@ l'opérateur rollback et l'heure UTC.
 - [ ] `npm run release -- preflight --project-ref <project-ref>` conclut `READY` sur le SHA exact à promouvoir.
 - [ ] Branche à jour, CI verte, diff sans secret et dépendances auditées.
 - [ ] `npm ci`, `npm run check`, `npm run test:e2e`, `npm run test:e2e:production`,
-      `npm run database -- validate --yes`, `npm run test:db` et `npm run assets -- deployed verify`
-      réussissent sous Node 24.
+  `npm run database -- validate --yes`, `npm run test:db` et `npm run assets -- deployed verify`
+  réussissent sous Node 24.
 - [ ] `npm run database -- migrations check --linked --project-ref <project-ref>` confirme que la dernière migration du
-      projet Supabase lié correspond à celle du commit candidat ; consigner les
-      versions ordonnées, la dernière version et l'heure du relevé dans la fiche.
+  projet Supabase lié correspond à celle du commit candidat ; consigner les
+  versions ordonnées, la dernière version et l'heure du relevé dans la fiche.
 - [ ] Le contrôle de drift reste strictement en lecture seule : il exécute seulement
-      `npm run database -- migrations check --linked --project-ref <project-ref>`, jamais `push`, `up`, `repair` ou `fetch`.
+  `npm run database -- migrations check --linked --project-ref <project-ref>`, jamais `push`, `up`, `repair` ou `fetch`.
 - [ ] `node scripts/check-supabase-advisors.mjs --linked --project-ref <project-ref>` valide les advisors sécurité
-      et performance contre l'allowlist exacte, sans alerte inconnue ni exception
-      expirée ; consigner l'URL et la date de preuve dans la fiche.
+  et performance contre l'allowlist exacte, sans alerte inconnue ni exception
+  expirée ; consigner l'URL et la date de preuve dans la fiche.
 - [ ] Migrations nouvelles uniquement, types DB à jour et fonction autoritaire
-      bundlée ; sauvegarde récente et exercice de restauration trimestriel valides.
+  bundlée ; sauvegarde récente et exercice de restauration trimestriel valides.
 - [ ] Variables Preview pointent vers Preview ; smoke test Preview réussi.
 - [ ] Sur la preview, parcourir combat, carte, Event et Rest puis consigner les
-      violations `Content-Security-Policy-Report-Only` liées aux neuf custom properties ;
-      aucune violation de la CSP appliquée ni style visuellement cassé n'est accepté.
+  violations `Content-Security-Policy-Report-Only` liées aux neuf custom properties ;
+  aucune violation de la CSP appliquée ni style visuellement cassé n'est accepté.
 - [ ] Rollback compatible identifié. Si le schéma n'est pas rétrocompatible, le
-      plan de correction avant migration est écrit et les nouveaux départs peuvent
-      être suspendus.
+  plan de correction avant migration est écrit et les nouveaux départs peuvent
+  être suspendus.
 - [ ] `node scripts/run-local-db-tests.mjs --rollback` exécute le probe repositories
-      du SHA de rollback versionné contre la DB locale déjà migrée, après contrôle
-      que son historique est identique au schéma courant ou en constitue un préfixe
-      append-only. Le probe exige aussi que ce client reconnaisse le moteur authority actif.
+  du SHA de rollback versionné contre la DB locale déjà migrée, après contrôle
+  que son historique est identique au schéma courant ou en constitue un préfixe
+  append-only. Le probe exige aussi que ce client reconnaisse le moteur authority actif.
 
 ### Ordre de promotion
 

@@ -6,12 +6,12 @@ fermeture de `P2-BAL-01`.
 
 ## État des preuves
 
-| Source | État | Usage autorisé |
-| --- | --- | --- |
-| Cohortes authority | disponible | hypothèse reproductible, stratifiée par politique |
-| Runs vérifiées du service | disponible après seuil | signal terrain agrégé, jamais causal à lui seul |
-| Playtests humains | **bloqué / non réalisé** | requis avant de fixer les bandes Easy/Normal/Hard |
-| Télémétrie comportementale optionnelle | **désactivée** | aucune collecte avant opt-in livré et audité |
+| Source                                 | État                     | Usage autorisé                                    |
+| -------------------------------------- | ------------------------ | ------------------------------------------------- |
+| Cohortes authority                     | disponible               | hypothèse reproductible, stratifiée par politique |
+| Runs vérifiées du service              | disponible après seuil   | signal terrain agrégé, jamais causal à lui seul   |
+| Playtests humains                      | **bloqué / non réalisé** | requis avant de fixer les bandes Easy/Normal/Hard |
+| Télémétrie comportementale optionnelle | **désactivée**           | aucune collecte avant opt-in livré et audité      |
 
 La baseline `authority-field-calibration-baseline-v1.json` rejoue 30 seeds appariées
 pour chaque difficulté et pour `safety-first@1` et `economy-first@1`. Elle reste liée
@@ -30,7 +30,6 @@ postérieur doit publier une V2 liée à sa nouvelle autorité, jamais réécrir
 Une run peut entrer dans le signal terrain uniquement si son attempt porte le statut
 `verified`, référence la run persistée par le vérificateur et partage son ruleset.
 Les agrégats sont séparés par :
-
 - date UTC, ruleset gameplay, version moteur et hash de contenu ;
 - difficulté et mode ;
 - taille initiale, hash SHA-256 de la composition initiale triée et niveau de
@@ -66,7 +65,6 @@ des événements comportementaux.
 Les mesures non nécessaires — offre vue/refusée ou raison structurée d'abandon —
 restent interdites tant que les quatre conditions suivantes ne sont pas toutes
 livrées et testées :
-
 1. opt-in distinct, préalable, libre et désactivé par défaut ;
 2. écran indiquant finalité, liste exacte des événements et durée ;
 3. refus et retrait aussi accessibles que l'acceptation, sans dégrader le jeu ;
@@ -99,7 +97,6 @@ taille d'échantillon, l'intervalle et la date, pas les sessions individuelles.
 ## Décision de tuning
 
 Une décision volontaire de dérive référence obligatoirement :
-
 - la clé exacte d'une baseline authority et sa politique ;
 - une cellule terrain ou playtest compatible, avec `n` et intervalle affichés ;
 - les dimensions identiques et les écarts victoire, biome de mort et économie ;

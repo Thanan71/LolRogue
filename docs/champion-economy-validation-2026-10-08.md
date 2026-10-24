@@ -16,26 +16,26 @@ preuves humaines et externes ; cette tâche ne les clôture pas.
 
 ## Contrôles terminés
 
-| Contrôle | Résultat | Portée |
-| --- | --- | --- |
-| `npm run check` | PASS | Format, lint, CSP, types app/scripts/E2E, Node 24, documentation de readiness, contenu, couverture, audit, assets propres et build |
-| Suite complète avec couverture | 241 fichiers, 2 268 tests PASS ; 9 fichiers / 80 tests DB ignorés hors runner dédié | Aucun seuil réduit |
-| Couverture | statements 85,29 %, branches 76,84 %, functions 89,47 %, lines 87,48 % | Seuils globaux et par module respectés |
-| Base réelle locale | 17 fichiers / 124 tests PASS, dont 18 économie | RLS A/B, 399/400/401, concurrence, rollback, idempotence, reward verified, bonus, flag OFF, maîtrise 183 |
-| Schéma et exploitation locale | 63 migrations, dernière `20261008171535`, lint 0, grants/advisors/indexes PASS | Les exceptions documentées sont bornées ; types Supabase générés dans la branche |
-| Assets | Clean build PASS ; 227 assets locaux vérifiés | Aucun téléchargement Riot nécessaire pendant le build |
-| Dépendances | Aucun finding high/critical | Lockfile courant, Node 24 |
-| Régressions ciblées | Changement A→B pendant last-login/hydratation, refresh tardif après achat, timeout 15 s et retry UUID, Daily sans catalogue | Aucune balance/propriété de l'ancien compte ne remplace le compte actif |
-| UI | 16 tests, 2 parcours mobiles FR/EN au clavier, Axe sans violation dans les dialogues | Confirmation de prix capturé, montant manquant, bouton pending, filtres et focus |
-| Parcours connecté source | PASS, 30,4 s | Auth réelle, combat UI, RPC et Edge local réels ; aucun résultat verified injecté |
-| Upgrade après restauration | PASS | [Preuve anonyme](restore-drills/champion-economy-2026-10-08-local.json) : schémas public/private/Auth/history, propriétaires et deux comptes restaurés, maîtrise 183 inchangée, 10 legacy chacun, wallets 0, seconde activation sans doublon |
-| Kill-switch et nouvelle identité | PASS | Après activation : 0 achat, 3 gratuits +5 rotation ; arrêt conserve les données et la coupure initiale |
-| Réconciliation locale | PASS | `economy:audit -- --local` : consistent=true, 0 divergence, 0 gain suspect, aucun changement de données |
-| Ancienne application sur nouveau schéma | 8 tests PASS | SHA historique `85fc6bc1f9ea17b62103d0a85a2bdfe6b5bacd45`, sans reset du schéma lors du probe |
-| Suite générale | 61 scénarios PASS sur deux profils locaux | 59 sur profil sans Supabase, 2 fixtures de synchronisation sur profil public local ; la passe CI complète utilise le public local, flag OFF |
-| Production locale connectée | PASS, 34 s au SHA `848886afaaf28e3c3644afb1152ac6266cdea72a` | Identité de build contrôlée ; vraie auth, RPC/Edge, 10 portraits, mobile/clavier et deux transitions de période |
-| Matrice production | 6/6 PASS, 29,5 s sur le même build | Chromium, Firefox et WebKit, desktop/mobile ; flag OFF public déterministe |
-| Web Vitals laboratoire | PASS, p75 sur 5 échantillons | Pixel 5, CPU ×4, 150 ms / 1,6 Mbit/s : LCP 1 612 ms, CLS 0,0812, INP 88 ms ; budgets 2 500 / 0,1 / 300 |
+| Contrôle                                | Résultat                                                                                                                    | Portée                                                                                                                                                                                                                                       |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run check`                         | PASS                                                                                                                        | Format, lint, CSP, types app/scripts/E2E, Node 24, documentation de readiness, contenu, couverture, audit, assets propres et build                                                                                                           |
+| Suite complète avec couverture          | 241 fichiers, 2 268 tests PASS ; 9 fichiers / 80 tests DB ignorés hors runner dédié                                         | Aucun seuil réduit                                                                                                                                                                                                                           |
+| Couverture                              | statements 85,29 %, branches 76,84 %, functions 89,47 %, lines 87,48 %                                                      | Seuils globaux et par module respectés                                                                                                                                                                                                       |
+| Base réelle locale                      | 17 fichiers / 124 tests PASS, dont 18 économie                                                                              | RLS A/B, 399/400/401, concurrence, rollback, idempotence, reward verified, bonus, flag OFF, maîtrise 183                                                                                                                                     |
+| Schéma et exploitation locale           | 63 migrations, dernière `20261008171535`, lint 0, grants/advisors/indexes PASS                                              | Les exceptions documentées sont bornées ; types Supabase générés dans la branche                                                                                                                                                             |
+| Assets                                  | Clean build PASS ; 227 assets locaux vérifiés                                                                               | Aucun téléchargement Riot nécessaire pendant le build                                                                                                                                                                                        |
+| Dépendances                             | Aucun finding high/critical                                                                                                 | Lockfile courant, Node 24                                                                                                                                                                                                                    |
+| Régressions ciblées                     | Changement A→B pendant last-login/hydratation, refresh tardif après achat, timeout 15 s et retry UUID, Daily sans catalogue | Aucune balance/propriété de l'ancien compte ne remplace le compte actif                                                                                                                                                                      |
+| UI                                      | 16 tests, 2 parcours mobiles FR/EN au clavier, Axe sans violation dans les dialogues                                        | Confirmation de prix capturé, montant manquant, bouton pending, filtres et focus                                                                                                                                                             |
+| Parcours connecté source                | PASS, 30,4 s                                                                                                                | Auth réelle, combat UI, RPC et Edge local réels ; aucun résultat verified injecté                                                                                                                                                            |
+| Upgrade après restauration              | PASS                                                                                                                        | [Preuve anonyme](restore-drills/champion-economy-2026-10-08-local.json) : schémas public/private/Auth/history, propriétaires et deux comptes restaurés, maîtrise 183 inchangée, 10 legacy chacun, wallets 0, seconde activation sans doublon |
+| Kill-switch et nouvelle identité        | PASS                                                                                                                        | Après activation : 0 achat, 3 gratuits +5 rotation ; arrêt conserve les données et la coupure initiale                                                                                                                                       |
+| Réconciliation locale                   | PASS                                                                                                                        | `economy:audit -- --local` : consistent=true, 0 divergence, 0 gain suspect, aucun changement de données                                                                                                                                      |
+| Ancienne application sur nouveau schéma | 8 tests PASS                                                                                                                | SHA historique `85fc6bc1f9ea17b62103d0a85a2bdfe6b5bacd45`, sans reset du schéma lors du probe                                                                                                                                                |
+| Suite générale                          | 61 scénarios PASS sur deux profils locaux                                                                                   | 59 sur profil sans Supabase, 2 fixtures de synchronisation sur profil public local ; la passe CI complète utilise le public local, flag OFF                                                                                                  |
+| Production locale connectée             | PASS, 34 s au SHA `848886afaaf28e3c3644afb1152ac6266cdea72a`                                                                | Identité de build contrôlée ; vraie auth, RPC/Edge, 10 portraits, mobile/clavier et deux transitions de période                                                                                                                              |
+| Matrice production                      | 6/6 PASS, 29,5 s sur le même build                                                                                          | Chromium, Firefox et WebKit, desktop/mobile ; flag OFF public déterministe                                                                                                                                                                   |
+| Web Vitals laboratoire                  | PASS, p75 sur 5 échantillons                                                                                                | Pixel 5, CPU ×4, 150 ms / 1,6 Mbit/s : LCP 1 612 ms, CLS 0,0812, INP 88 ms ; budgets 2 500 / 0,1 / 300                                                                                                                                       |
 
 Le parcours connecté joue Darius en rotation et Garen, gagne une vague puis
 abandonne. Le serveur rejoue cette attempt et retourne une vague gagnée, zéro
@@ -60,12 +60,12 @@ jamais injectés dans le navigateur.
 
 Mesure du passage complet local :
 
-| Mesure | Octets | Plafond |
-| --- | ---: | ---: |
-| JavaScript total gzip | 597 273 | 670 000, avec 10 % de marge obligatoire |
-| Chargement initial gzip | 216 557 | 220 000 |
-| Route Auth gzip | 220 603 | 225 000 |
-| Plus gros chunk brut | 463 747 | 560 000 |
+| Mesure                  |  Octets |                                 Plafond |
+| ----------------------- | ------: | --------------------------------------: |
+| JavaScript total gzip   | 597 273 | 670 000, avec 10 % de marge obligatoire |
+| Chargement initial gzip | 216 557 |                                 220 000 |
+| Route Auth gzip         | 220 603 |                                 225 000 |
+| Plus gros chunk brut    | 463 747 |                                 560 000 |
 
 La marge globale vaut 10,85 %. L'autorisation utilisateur augmente seulement
 le plafond total de 660 000 à 670 000 ; les limites initial/Auth, par chunk,

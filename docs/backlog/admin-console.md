@@ -17,6 +17,7 @@
 **Implémenté dans l'application 0.2.7.** [Contrat des quinze métriques](../admin-metrics.md) et [validation](../admin-s1-validation-2026-10-17.md). Les preuves locales, la CI et l'application distante de la migration restent distinctes. Les refunds internes sont testés ; le parcours public TREE-07 reste à réaliser.
 
 ### ADM-01 — Corriger « joueurs actifs aujourd'hui »
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Examiner la définition de `active_today` dans les vues SQL, l'actualisation et la lecture `admin_stats` ; distinguer métrique absente, valeur nulle et zéro légitime.
   - [x] Choisir activité vérifiable (dernière activité ou action validée) avec fenêtre UTC/date métier explicite, déduplication de comptes et exclusion bots/tests si applicable.
@@ -33,8 +34,9 @@
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-02 — Distinguer Candies en circulation/gagnés/dépensés
+
 - [x] **Définir les données, permissions et comportements attendus.**
-  - [x] Définir clairement *gagnés à vie*, *dépensés*, *remboursés* et *solde en circulation*, avec conservation des montants ; distinguer la maîtrise des Candies.
+  - [x] Définir clairement _gagnés à vie_, _dépensés_, _remboursés_ et _solde en circulation_, avec conservation des montants ; distinguer la maîtrise des Candies.
   - [x] Auditer tables de progression, achats et ledger actuellement disponibles ; si nécessaire ajouter une migration **append-only** avec événements atomiques/idempotents (pas d'inférence fragile depuis le solde).
   - [x] Spécifier un ledger Candies avec earned/spent/refunded/balance et réconciliation, distinct des Éclats.
   - [x] Spécifier rôles autorisés, périmètre et source de vérité des valeurs pour éviter tout total trompeur.
@@ -49,6 +51,7 @@
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-03 — Définir le dictionnaire des indicateurs
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Pour chaque carte, écrire formule, source, période, timezone, population incluse/exclue, filtre `verified` et stratégie d'agrégation.
   - [x] Garder les mesures « runs » / « attempts » / « Daily » / « comptes » distinctes ; pas de comparaisons trompeuses.
@@ -64,6 +67,7 @@
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-04 — Distinguer totaux réels et lignes affichées
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Utiliser requêtes `count: exact`/agrégats serveur pour total joueurs/runs/victoires ; ne jamais sommer les 100/1000 premières lignes.
   - [x] Indiquer nombre affiché, total correspondant aux filtres, chargement/erreur et période ; éviter statistiques calculées depuis un échantillon tronqué.
@@ -79,6 +83,7 @@
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-05 — Vérifier les accès aux nouvelles métriques
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Tester toutes les nouvelles vues et RPC en `anon`, `authenticated` non-admin, admin et service role dans un environnement isolé.
   - [x] Garder `security_invoker`/RLS réels, aucune fuite de PII, désactivation du write client sur les colonnes admin.
@@ -94,6 +99,7 @@
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-06 — États de chargement et erreurs fiables
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Vérifier états indépendants stats/joueurs/runs/logs/authority/modération ; aucune panne d'une section ne doit faire disparaître les autres.
   - [x] Ajouter retry par onglet, données périmées indiquées, annulation des requêtes obsolètes, état vide et messages FR/EN.
@@ -107,11 +113,12 @@
   - [x] Tester déconnexion pendant chargement, deux filtres successifs, timeout et retry.
   - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
-**Gate ADM-S1 :** les chiffres affichés ont une définition et une source testées ; clé absente ≠ zéro ; aucune fuite RLS.
+    **Gate ADM-S1 :** les chiffres affichés ont une définition et une source testées ; clé absente ≠ zéro ; aucune fuite RLS.
 
 ## ADM-S2 — Fiches joueurs et historiques de runs (P1/P2 ; ADM-07..11)
 
 ### ADM-07 — Pagination réelle côté serveur
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Remplacer `.limit(100)` joueurs et limite bornée des runs par une pagination serveur par curseur ou `range` + count.
   - [x] Garantir ordre stable (date + ID), filtres/sort persistants et récupération des membres d'équipe par pages.
@@ -127,6 +134,7 @@
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-08 — Recherche et filtres joueurs
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Rechercher par identifiant/nom/pseudo selon permissions ; filtres inscription, activité, runs vérifiées et état du compte.
   - [x] Faire rechercher côté serveur, protéger chaînes utilisateur, valider limites et prévoir debounce contrôlé.
@@ -142,6 +150,7 @@
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-09 — Fiche joueur opérationnelle
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Afficher profil minimal utile, dates, activité, statistiques vérifiées, maîtrise, arbres et soldes Candies/Éclats séparés.
   - [x] Rendre visible provenance des données, valeurs absentes, historique d'achats et raisons des écarts de ledger.
@@ -157,6 +166,7 @@
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-10 — Explorateur de runs
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Étendre filtres existants : joueur, date, difficulté, mode, résultat, biome, longueur, champion et moteur/versions.
   - [x] Utiliser filtrage/count serveur ; distinguer `runs` persistées et `attempts` authority non finalisés.
@@ -172,6 +182,7 @@
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-11 — Détail run et exports exacts
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Afficher timeline et journal sûr : composition, builds, actions, progression, gains vérifiés, codes de rejet et version de moteur.
   - [x] Conserver les exports CSV existants et leur anti-injection formule ; proposer export **de tous les résultats filtrés** par pagination serveur ou export borné annoncé.
@@ -185,7 +196,7 @@
   - [x] Tester export >100 lignes, caractères CSV dangereux, UTF-8, consentement et autorisations.
   - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
-**Gate ADM-S2 :** au-delà de 100 joueurs/1000 runs les comptes et exports restent exacts ; chaque fiche est accessible uniquement selon permissions.
+    **Gate ADM-S2 :** au-delà de 100 joueurs/1000 runs les comptes et exports restent exacts ; chaque fiche est accessible uniquement selon permissions.
 
 
 Contrat : [fiches et explorateur](../admin-explorer.md). Preuves locales et limites :
@@ -195,6 +206,7 @@ et déploiement sont des étapes distinctes de cette clôture code.
 ## ADM-S3 — Analytics temporels et rétention (P2 ; ADM-12..16)
 
 ### ADM-12 — Courbes temporelles
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Ajouter acquisitions, activité, démarrages, fins vérifiées, victoires et Daily par jour/semaine sur plage choisie.
   - [x] Définir granulation jour/semaine, bornes inclusives, UTC et traitement des périodes vides.
@@ -209,6 +221,7 @@ et déploiement sont des étapes distinctes de cette clôture code.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-13 — Rétention
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Définir D1/D7/D30 et dénominateurs de cohorte de création, sans confondre connexion, action de jeu et victoire.
   - [x] Définir cohorte D1/D7/D30 et exclusion des cohortes dont la période est incomplète.
@@ -223,6 +236,7 @@ et déploiement sont des étapes distinctes de cette clôture code.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-14 — Funnel de jeu
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Instrumenter, à partir d'événements autorisés, inscription → début run → premier combat → fin run → retour.
   - [x] Documenter les événements utiles du parcours sans instrumentation invasive ni double comptage.
@@ -237,6 +251,7 @@ et déploiement sont des étapes distinctes de cette clôture code.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-15 — Filtres comparables
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Segmenter difficulté, mode, période, appareil si mesure autorisée, jeu nouveau/ancien et version de moteur.
   - [x] Fixer segments autorisés et comparabilité d'un même engine/ruleset et d'un même mode.
@@ -251,6 +266,7 @@ et déploiement sont des étapes distinctes de cette clôture code.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-16 — Qualité statistique
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Afficher tailles d'échantillon, taux et intervalles (Wilson si pertinent) ; état « données insuffisantes ».
   - [x] Définir seuils d'effectif et intervalle statistique selon numérateur/dénominateur.
@@ -263,7 +279,7 @@ et déploiement sont des étapes distinctes de cette clôture code.
   - [x] Tester N=0, N=1, 100 % de succès, cohortes partielles et variance élevée.
   - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
-**Gate ADM-S3 :** aucun chiffre analytique déduit du seul ensemble des lignes chargées ; cohortes et périodes explicites.
+    **Gate ADM-S3 :** aucun chiffre analytique déduit du seul ensemble des lignes chargées ; cohortes et périodes explicites.
 
 
 Contrat : [analytics temporels](../admin-analytics.md). Preuves et limites :
@@ -277,6 +293,7 @@ fusion et déploiement restent distincts de cette clôture code.
 **Application 0.2.10 : ADM-17, 18, 19 et 21 implémentés ; 0.3.0 : ADM-20 complété par TREE-10.** [Contrat des populations et limites](../admin-balance.md) · [validation initiale S4](../admin-s4-validation-2026-10-18.md) · [preuves ADM-20](../admin-20-validation-0.3.0.md). La PR #242 remplace le panneau d’attente par les agrégats des achats, resets, disponibilités et builds figés, sans second ledger. Les picks utilisent tous les départs ; les performances finales ont une population distincte et les métriques non collectées restent indisponibles.
 
 ### ADM-17 — Espace « Équilibrage »
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Séparer écrans d'équilibrage et monitoring technique, tout en réutilisant `AdminFieldCalibrationPanel` et métriques existantes.
   - [x] Lister panneaux et séries FieldCalibration déjà disponibles, leurs responsables et données sources.
@@ -291,6 +308,7 @@ fusion et déploiement restent distincts de cette clôture code.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-18 — Performance par champion
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Afficher pick-rate, survivabilité, DPS/heal/CC réellement supportés, win-rate et incertitudes par difficulté/version.
   - [x] Définir les indicateurs champion mesurables, avec population comparable et version d'autorité.
@@ -305,6 +323,7 @@ fusion et déploiement restent distincts de cette clôture code.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-19 — Builds, items, runes et augments
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Explorer combinaisons et effets majeurs avec métriques de fréquence et performance ; éviter biais d'exposition des items.
   - [x] Définir identité de build item/rune/augment et biais de disponibilité par run.
@@ -319,6 +338,7 @@ fusion et déploiement restent distincts de cette clôture code.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-20 — Arbres Candies et spécialisations
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Réutiliser **TREE-10** comme source des événements/agrégats : achats, nœuds bloqués, spécialisations et victoire par build. La disponibilité est celle du catalogue courant ; les blocages individuels et expositions ne sont pas collectés.
   - [x] Consommer une seule source d'événements et agrégats des arbres issue de TREE-10.
@@ -335,6 +355,7 @@ fusion et déploiement restent distincts de cette clôture code.
 **Clôture code ADM-20 — 0.3.0 :** [PR #242](https://github.com/Thanan71/LolRogue/pull/242), fusionnée vers `dev` le 22 octobre. [Contrat](../admin-balance.md#arbres-candies-et-spécialisations--adm-20--tree-10) · [requêtes et preuves dédiées](../admin-20-validation-0.3.0.md). Les seuils de présentation, la couverture du registre et les limites de cardinalité sont explicites. La gate d’achat des spécialisations reste fermée jusqu’aux playtests humains ; cette clôture ne prouve aucun déploiement distant.
 
 ### ADM-21 — Politique de calibration et flags
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Afficher statut des versions et flags avec autorisation **lecture** par défaut ; aucune mutation de règles d'authority depuis le navigateur.
   - [x] Définir les états lisibles des flags/version et réserver toute écriture aux procédures autorisées.
@@ -347,11 +368,12 @@ fusion et déploiement restent distincts de cette clôture code.
   - [x] Tester URL d'administration forgée, flag absent et tentative de mutation directe.
   - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
-**Gate ADM-S4 :** analyses balisées par version, N et preuve ; aucune édition silencieuse des paramètres de production.
+    **Gate ADM-S4 :** analyses balisées par version, N et preuve ; aucune édition silencieuse des paramètres de production.
 
 ## ADM-S5 — Modération auditée (P1/P2 ; ADM-22..26)
 
 ### ADM-22 — File de modération complète
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Étendre `AdminModerationPanel` et `daily_score_reports` : pagination réelle, motifs, date, statut et historique.
   - [x] Formaliser statuts open/resolved/dismissed, motifs et ordre stable de la file de modération.
@@ -366,6 +388,7 @@ fusion et déploiement restent distincts de cette clôture code.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-23 — Flux d'action sûr
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Confirmer motif, portée, conséquences et action définitive avant l’invalidation (ancien `invalidate_daily_score` remplacé par `admin_moderation_decide`).
   - [x] Définir confirmation de l'identifiant cible, motif, portée et conséquence d'une invalidation.
@@ -380,6 +403,7 @@ fusion et déploiement restent distincts de cette clôture code.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-24 — Traçabilité des décisions
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Définir audit append-only de `qui/quand/quoi/pourquoi`, action idempotente et intégrité des preuves.
   - [x] Définir événement d'audit immuable lié à acteur, action, cible, motif et date.
@@ -394,6 +418,7 @@ fusion et déploiement restent distincts de cette clôture code.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-25 — Permissions et séparation des rôles
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Contrôler permissions admin réelles dans PostgreSQL ; tout ajout éventuel de rôle supérieur `dev` suit une initiative **distincte** et une migration auditable.
   - [x] Documenter permissions serveur admin/dev futur sans auto-promotion, role claim client ou second canal parallèle.
@@ -408,6 +433,7 @@ fusion et déploiement restent distincts de cette clôture code.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-26 — Anti-abus et limites
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Limiter les opérations sensibles et auditer rejet/abus, sans exposer de données privées inutiles.
   - [x] Fixer règles de limitation, secrets masqués et délai de conservation par type d'événement.
@@ -420,13 +446,14 @@ fusion et déploiement restent distincts de cette clôture code.
   - [x] Tester requêtes répétées, rejet correct, suppression et absence de données privées dans l'export.
   - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
-**Gate ADM-S5 :** chaque action a une justification, une trace et une vérification d'autorisation serveur.
+    **Gate ADM-S5 :** chaque action a une justification, une trace et une vérification d'autorisation serveur.
 
 **Clôture code ADM-S5 — 18 octobre 2026 :** ADM-22 à 26 implémentés. [Contrat](../admin-moderation.md) et [preuves](../admin-s5-validation-2026-10-18.md). Migration `20261018082740`, fusion et opérations distantes distinctes ; aucun rôle supérieur `dev` ni action de production ajouté.
 
 ## ADM-S6 — Surveillance technique et diagnostics (P2 ; ADM-27..31)
 
 ### ADM-27 — Explorer les logs utiles
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Ajouter recherche/filtres d'opération, niveau, période, correlation ID et curseur serveur ; pas de recherche uniquement dans un échantillon chargé.
   - [x] Définir filtres serveur exacts pour opérations, sévérité, plage, corrélation et page.
@@ -441,6 +468,7 @@ fusion et déploiement restent distincts de cette clôture code.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-28 — Rejets authority exploitables
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Réutiliser `AdminAuthorityPanel`/`authority_attempt_aggregates`, statut started/verified/rejected/expired, code de rejet, versions et période.
   - [x] Distinguer rejected/expired/pending/verified et erreur technique sans conclure à un abus joueur.
@@ -455,6 +483,7 @@ fusion et déploiement restent distincts de cette clôture code.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-29 — Indicateurs de service
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Définir taux d'erreur, latences et disponibilité des flux de sauvegarde/vérification selon télémétrie réellement existante.
   - [x] Choisir des SLI réellement instrumentés plutôt que déduire disponibilité d'une courbe vide.
@@ -469,6 +498,7 @@ fusion et déploiement restent distincts de cette clôture code.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-30 — Corrélations de diagnostic
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Lier des événements d'une même tentative avec identifiants de corrélation et contrôle des permissions.
   - [x] Spécifier correlation IDs et minimisation des informations dans chaque log/requête.
@@ -483,6 +513,7 @@ fusion et déploiement restent distincts de cette clôture code.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
 
 ### ADM-31 — Alertes et incidents
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Réutiliser seuils `AUTHORITY_REJECTION_ALERT_POLICY`, anti-bruit, périodes et niveau de sévérité.
   - [x] Définir déclencheur, fenêtre, silence/retour normal et priorité depuis la politique authority existante.
@@ -495,7 +526,7 @@ fusion et déploiement restent distincts de cette clôture code.
   - [x] Tester pic de rejets, faux positif, alerte répétée et retour à l'état stable.
   - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
   - [x] Documenter requêtes, jeux de données, résultat attendu et preuve de la PR sans activer de nouvelles actions en production.
-**Gate ADM-S6 :** une panne est diagnostiquable sans surveillance indiscriminée ni fausse précision statistique.
+    **Gate ADM-S6 :** une panne est diagnostiquable sans surveillance indiscriminée ni fausse précision statistique.
 
 **Clôture code ADM-S6 — 18 octobre 2026 :** ADM-27 à 31 implémentés dans 0.2.12. [Contrat](../admin-diagnostics.md) et [preuves](../admin-s6-validation-2026-10-18.md). Migration `20261018100541`, application distante et déploiement distincts ; logging DB toujours OFF par défaut, aucune notification automatique.
 
@@ -510,6 +541,7 @@ checks CI/Preview et le SHA livré sont à joindre à la PR vers `dev`. Aucune f
 notification n’est implicite. ADM-20, alors en attente, est complété en 0.3.0 par TREE-10 ; voir sa preuve dédiée ci-dessus.
 
 ### ADM-32 — Isoler le domaine administration
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Migrer les 97 modules historiques vers `src/features/administration` selon `ARCH-12`, sans refaire en parallèle un deuxième refactor.
   - [x] Définir frontière entre UI admin, hooks, DTO et repositories selon ARCH-12 sans deuxième système DI.
@@ -524,6 +556,7 @@ notification n’est implicite. ADM-20, alors en attente, est complété en 0.3.
   - [x] Documenter requêtes, jeux de données, résultats locaux et modèle de preuve à joindre à la PR, sans activer de nouvelles actions en production.
 
 ### ADM-33 — Navigation et expériences
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Prévoir sous-onglets « Vue globale / Joueurs / Runs / Équilibrage / Modération / Surveillance », filtres visibles et états de chargement individuels.
   - [x] Concevoir navigation par URL/onglet, conservation de filtres et retour depuis fiche run.
@@ -538,6 +571,7 @@ notification n’est implicite. ADM-20, alors en attente, est complété en 0.3.
   - [x] Documenter requêtes, jeux de données, résultats locaux et modèle de preuve à joindre à la PR, sans activer de nouvelles actions en production.
 
 ### ADM-34 — Responsive et accessibilité
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Tester tables larges mobile, colonnes essentielles, vues détails et pagination à 320 px / zoom 200–400 %.
   - [x] Définir table responsive à colonnes essentielles, légendes, focus et alternatives aux icônes couleur.
@@ -553,6 +587,7 @@ notification n’est implicite. ADM-20, alors en attente, est complété en 0.3.
   - [x] Documenter requêtes, jeux de données, résultats locaux et modèle de preuve à joindre à la PR, sans activer de nouvelles actions en production.
 
 ### ADM-35 — Couverture de tests et non-régression
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Contrats SQL/permissions, 0/100/101/1000/1001 lignes, imports de données incomplètes, agrégations, filtres, exports et actions de modération.
   - [x] Tests composants et Playwright connecté : rôle non-admin interdit, admin autorisé, refresh, pagination, erreurs et mobile.
@@ -568,6 +603,7 @@ notification n’est implicite. ADM-20, alors en attente, est complété en 0.3.
   - [x] Documenter requêtes, jeux de données, résultats locaux et modèle de preuve à joindre à la PR, sans activer de nouvelles actions en production.
 
 ### ADM-36 — Documentation et livraison progressive
+
 - [x] **Définir les données, permissions et comportements attendus.**
   - [x] Mettre à jour `docs/administration.md`, dictionnaire métriques, modèles de rôles, runbooks incidents et release notes.
   - [x] Fixer modèle de preuves de PR, dictionnaire KPI, instructions de restauration et plan d'archivage.
@@ -580,7 +616,7 @@ notification n’est implicite. ADM-20, alors en attente, est complété en 0.3.
   - [x] Documenter commandes CI, publication 18 FR/EN, liens des contrats et preuves ; garder CI/Preview finale et déploiement distincts de la validation locale.
   - [x] Tester les permissions `anon`/utilisateur/admin en base migrée dès qu'une donnée sensible est concernée.
   - [x] Documenter requêtes, jeux de données, résultats locaux et modèle de preuve à joindre à la PR, sans activer de nouvelles actions en production.
-**Gate générale :** tous les indicateurs ont une définition et une population, nombres globaux indépendants des plafonds de pagination, sécurité PostgreSQL/RLS prouvée, aucun faux 0, aucune action administrative non auditée.
+    **Gate générale :** tous les indicateurs ont une définition et une population, nombres globaux indépendants des plafonds de pagination, sécurité PostgreSQL/RLS prouvée, aucun faux 0, aucune action administrative non auditée.
 
 ## Doublons délibérément évités
 

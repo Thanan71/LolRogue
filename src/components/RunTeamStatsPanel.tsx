@@ -272,20 +272,9 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
               const roundedCurrentHp = Math.min(roundedMaxHp, Math.round(sheet.currentHp));
               const xpText = sheet.xpDisplay;
               return (
-                <button
+                <div
                   key={sheet.member.championId}
-                  type="button"
                   className={`run-team-stats__member${isSelected ? ' run-team-stats__member--selected' : ''}`}
-                  aria-pressed={isSelected}
-                  aria-controls={`${panelId}-details`}
-                  aria-label={fr.run.selectChampionSummary(
-                    sheet.name,
-                    sheet.level,
-                    roundedCurrentHp,
-                    roundedMaxHp,
-                    xpText,
-                  )}
-                  onClick={() => setRequestedChampionId(sheet.member.championId)}
                 >
                   <span className="run-team-stats__portrait" aria-hidden="true">
                     <span className="run-team-stats__portrait-fallback" aria-hidden="true">
@@ -324,7 +313,21 @@ export function RunTeamStatsPanel({ team, inventory }: RunTeamStatsPanelProps) {
                       <span>{sheet.level >= 18 ? fr.run.maximumLevelShort : sheet.xpDisplay}</span>
                     </span>
                   </span>
-                </button>
+                  <button
+                    type="button"
+                    className="run-team-stats__member-action"
+                    aria-pressed={isSelected}
+                    aria-controls={`${panelId}-details`}
+                    aria-label={fr.run.selectChampionSummary(
+                      sheet.name,
+                      sheet.level,
+                      roundedCurrentHp,
+                      roundedMaxHp,
+                      xpText,
+                    )}
+                    onClick={() => setRequestedChampionId(sheet.member.championId)}
+                  />
+                </div>
               );
             })}
           </div>

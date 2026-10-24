@@ -10,12 +10,12 @@ Aucune récompense rétroactive n'est attribuée sans preuve serveur suffisante.
 Un screenshot, un état local, une déclaration du joueur ou une simulation après
 correction ne prouvent pas le résultat de l'attempt d'origine.
 
-| État serveur | Traitement support |
-| --- | --- |
-| `verified`, réponse perdue côté client | Relire le résultat canonique de la même attempt par le parcours de récupération existant. Aucun second crédit. |
-| `started` / `finished`, erreur temporaire | Conserver l'identifiant et les commandes ; réessayer le parcours normal avec les mêmes identifiants. Ne pas reconstruire le journal. |
-| `rejected` / `expired` | Expliquer le caractère terminal et l'absence de récompenses. Un retry ne modifie pas ce résultat. Ouvrir un dossier d'incident si le bug est confirmé. |
-| Données absentes ou versions non supportées | Conserver le dossier comme non démontré. Ne pas déduire victoire, score, maîtrise ou candies du client. |
+| État serveur                                | Traitement support                                                                                                                                     |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `verified`, réponse perdue côté client      | Relire le résultat canonique de la même attempt par le parcours de récupération existant. Aucun second crédit.                                         |
+| `started` / `finished`, erreur temporaire   | Conserver l'identifiant et les commandes ; réessayer le parcours normal avec les mêmes identifiants. Ne pas reconstruire le journal.                   |
+| `rejected` / `expired`                      | Expliquer le caractère terminal et l'absence de récompenses. Un retry ne modifie pas ce résultat. Ouvrir un dossier d'incident si le bug est confirmé. |
+| Données absentes ou versions non supportées | Conserver le dossier comme non démontré. Ne pas déduire victoire, score, maîtrise ou candies du client.                                                |
 
 La preuve suffisante est le résultat canonique déjà validé et persisté par le
 serveur. Pour une attempt encore admissible, seul le vérificateur normal de sa

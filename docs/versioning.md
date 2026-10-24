@@ -13,13 +13,13 @@ contenu.
 
 ## Publication 0.2.0
 
-| Élément | Identifiant public |
-| --- | --- |
-| Jeu et package | `0.2.0` |
-| Note de mise à jour | `0.2.0`, date distincte `2026-10-11` |
-| Moteur autoritaire | `run-engine-0.2.0` |
-| Code des règles de gameplay | `0.2.0` |
-| Défi quotidien | `daily-0.2.0` |
+| Élément                     | Identifiant public                   |
+| --------------------------- | ------------------------------------ |
+| Jeu et package              | `0.2.0`                              |
+| Note de mise à jour         | `0.2.0`, date distincte `2026-10-11` |
+| Moteur autoritaire          | `run-engine-0.2.0`                   |
+| Code des règles de gameplay | `0.2.0`                              |
+| Défi quotidien              | `daily-0.2.0`                        |
 
 La version 0.2.0 ajoute les points du passif de Veigar sur les assistances
 attribuées. Le numéro affiché dans le menu provient de la version du build.

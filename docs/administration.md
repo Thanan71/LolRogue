@@ -55,7 +55,6 @@ clé anonyme, et jamais depuis les métadonnées Auth. Elle nécessite un opéra
 ayant accès au SQL Editor Supabase ou une connexion PostgreSQL privilégiée. Le dépôt maintient
 explicitement `REVOKE UPDATE (is_admin)` pour les rôles web ; `handle_new_user`
 ignore également tout champ `is_admin` ou `role` fourni lors de l'inscription.
-
 1. Faire confirmer l'adresse ou l'identifiant exact du compte à promouvoir.
 2. Retrouver son UUID dans Authentication → Users.
 3. Vérifier la cible avant toute écriture :
@@ -203,7 +202,6 @@ et le même JWT dans les [preuves S6](admin-s6-validation-2026-10-18.md).
 ## Intervention courante
 
 Avant une action sur les données :
-
 1. identifier précisément le projet Supabase et l'environnement ;
 2. sauvegarder ou vérifier le point de restauration ;
 3. faire une lecture ciblée de la ligne ;

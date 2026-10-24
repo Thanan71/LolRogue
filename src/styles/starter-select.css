@@ -155,7 +155,7 @@
     border-color var(--transition-fast),
     box-shadow var(--transition-fast);
 }
-.champion-card:not(:disabled):hover {
+.champion-card[data-disabled="false"]:hover {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 1px var(--color-primary);
 }
@@ -177,11 +177,29 @@
   color: var(--color-on-primary);
   font-weight: 800;
 }
-.champion-card:disabled {
+.champion-card[data-disabled="true"] {
+  opacity: var(--control-disabled-opacity);
   cursor: default;
 }
-.champion-card:disabled:not(.champion-card--selected) .champion-card__splash {
+.champion-card[data-disabled="true"]:not(.champion-card--selected) .champion-card__splash {
   filter: saturate(0.5);
+}
+.champion-card__action {
+  position: absolute;
+  z-index: 2;
+  inset: -1px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: inherit;
+}
+.champion-card__action:disabled {
+  opacity: 1;
+  cursor: inherit;
+}
+.champion-card:has(> .champion-card__action:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
 }
 .champion-card__splash-wrapper {
   position: relative;

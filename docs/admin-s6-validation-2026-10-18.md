@@ -13,12 +13,12 @@ conservent leur référence historique.
 
 ## Périmètre livré
 
-| Tâche | Résultat |
-| --- | --- |
-| ADM-27 | Journaux conservés parcourables avec filtres et compteurs serveur, curseurs à la microseconde, collecte facultative OFF par défaut, lecture bornée à 14 jours |
-| ADM-28 | Tentatives paginées, statuts et codes distincts, versions séparées, rejets techniques/contrat/non classés, aucune accusation déduite d’un rejet |
-| ADM-29 | SLI et p95 seal → terminal sur sources serveur existantes, buckets UTC vides explicites, disponibilité HTTP/taux d’erreur/latence de requêtes non instrumentés |
-| ADM-30 | Liens de tentative validés avec le propriétaire du log, projection minimale des données héritées, isolation des buffers et corrélations entre identités |
+| Tâche  | Résultat                                                                                                                                                                  |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ADM-27 | Journaux conservés parcourables avec filtres et compteurs serveur, curseurs à la microseconde, collecte facultative OFF par défaut, lecture bornée à 14 jours             |
+| ADM-28 | Tentatives paginées, statuts et codes distincts, versions séparées, rejets techniques/contrat/non classés, aucune accusation déduite d’un rejet                           |
+| ADM-29 | SLI et p95 seal → terminal sur sources serveur existantes, buckets UTC vides explicites, disponibilité HTTP/taux d’erreur/latence de requêtes non instrumentés            |
+| ADM-30 | Liens de tentative validés avec le propriétaire du log, projection minimale des données héritées, isolation des buffers et corrélations entre identités                   |
 | ADM-31 | Politique authority réutilisée, quinze minutes UTC closes, observations dédupliquées, escalade et rétablissement prudents, runbook et absence de notification automatique |
 
 Le [contrat](admin-diagnostics.md) précise les périmètres distincts de la liste,
@@ -48,18 +48,18 @@ INFO `unused_index` nommées, mesurées ci-dessous et expirant le **31 octobre**
 
 ## Cas et preuves locales
 
-| Contrôle | Résultat |
-| --- | --- |
-| Base fraîche complète | **330/330**, 28 fichiers, zéro skip, 80,31 s ; lint, ACL/RLS, advisors, index, migrations et types concordants |
-| Diagnostics SQL finaux | **34/34**, 7,87 s ; chaque réponse réelle passe le parseur de production, dont les méthodes Auth sûres |
-| Contrats/client/incidents | **96/96**, 0,42 s ; types stricts, horodatages exacts, partitions, secrets, annulation et transitions d’incident |
-| UI et régressions avant complément de libellé | **48/48**, 3,13 s ; A→B→A, requêtes tardives, état périmé, refus global et maintien des ressources |
-| Libellé nonterminal/backlog et catalogue | **92/92**, 3,05 s ; started=1/pending=1 n’est pas présenté comme un seal bloqué |
-| Catalogue bilingue et copies source | **103/103**, 13,82 s ; module enregistré sans exclusion |
-| Source navigateur | **4/4**, 20,1 s, sans retry ; EN 320 px, clavier, axe sans violation et aucun débordement horizontal |
-| Connecté réel | **1/1**, 12,3 s, sans retry ; Auth et start réels, RPC/projection/UI, corrélation et retrait admin sur le même JWT |
-| Anciennes frontières de logs | **4/4**, 1,58 s ; inspection physique de sanitation/purge côté serveur, lecture owner/other/admin navigateur explicitement refusée |
-| Sécurité npm | Aucun high/critical |
+| Contrôle                                      | Résultat                                                                                                                           |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Base fraîche complète                         | **330/330**, 28 fichiers, zéro skip, 80,31 s ; lint, ACL/RLS, advisors, index, migrations et types concordants                     |
+| Diagnostics SQL finaux                        | **34/34**, 7,87 s ; chaque réponse réelle passe le parseur de production, dont les méthodes Auth sûres                             |
+| Contrats/client/incidents                     | **96/96**, 0,42 s ; types stricts, horodatages exacts, partitions, secrets, annulation et transitions d’incident                   |
+| UI et régressions avant complément de libellé | **48/48**, 3,13 s ; A→B→A, requêtes tardives, état périmé, refus global et maintien des ressources                                 |
+| Libellé nonterminal/backlog et catalogue      | **92/92**, 3,05 s ; started=1/pending=1 n’est pas présenté comme un seal bloqué                                                    |
+| Catalogue bilingue et copies source           | **103/103**, 13,82 s ; module enregistré sans exclusion                                                                            |
+| Source navigateur                             | **4/4**, 20,1 s, sans retry ; EN 320 px, clavier, axe sans violation et aucun débordement horizontal                               |
+| Connecté réel                                 | **1/1**, 12,3 s, sans retry ; Auth et start réels, RPC/projection/UI, corrélation et retrait admin sur le même JWT                 |
+| Anciennes frontières de logs                  | **4/4**, 1,58 s ; inspection physique de sanitation/purge côté serveur, lecture owner/other/admin navigateur explicitement refusée |
+| Sécurité npm                                  | Aucun high/critical                                                                                                                |
 
 Le connecté crée les comptes depuis le navigateur et démarre une tentative par
 le vrai RPC. Son log de diagnostic est une fixture SQL Node explicite ; il ne
@@ -90,13 +90,13 @@ contrats Auth/corrélation/lifecycle et des migrations passe **103/103**, 2,34 s
 Fixtures locales de **20 000 logs et 20 000 tentatives**, annulées après mesure,
 sans forcer le planner. Ce sont des mesures locales, pas des latences de production.
 
-| Lecture | Temps d’exécution | Plan |
-| --- | ---: | --- |
-| Première page | 0,025 ms | `logs_diagnostic_order` |
-| Session diagnostic | 0,388 ms | `logs_diagnostic_session_order` |
-| Tentative et propriétaire | 0,193 ms | `logs_diagnostic_attempt_order` + clé primaire attempt |
-| Vue d’alertes | 42,718 ms | agrégation, aucun bloc temporaire |
-| Service 31 jours/heure | 62,837 ms | 744 buckets ; agrégations groupées, aucun scan par bucket ni bloc temporaire |
+| Lecture                   | Temps d’exécution | Plan                                                                         |
+| ------------------------- | ----------------: | ---------------------------------------------------------------------------- |
+| Première page             |          0,025 ms | `logs_diagnostic_order`                                                      |
+| Session diagnostic        |          0,388 ms | `logs_diagnostic_session_order`                                              |
+| Tentative et propriétaire |          0,193 ms | `logs_diagnostic_attempt_order` + clé primaire attempt                       |
+| Vue d’alertes             |         42,718 ms | agrégation, aucun bloc temporaire                                            |
+| Service 31 jours/heure    |         62,837 ms | 744 buckets ; agrégations groupées, aucun scan par bucket ni bloc temporaire |
 
 Les starts et les seals sont agrégés séparément avant la jointure aux tranches.
 Une comparaison JSON avec la référence par bucket confirme le même résultat,

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { normalizeMarkdownTableSpacing } from './helpers/markdownTableSpacing';
 
 const root = resolve(import.meta.dirname, '..');
 const read = (path: string) => readFileSync(resolve(root, path), 'utf8');
@@ -170,7 +171,7 @@ describe('documentation maintenue', () => {
   });
 
   it('relie le statut produit à des preuves existantes sans recycler les constats initiaux', () => {
-    const matrix = read('docs/feature-status.md');
+    const matrix = normalizeMarkdownTableSpacing(read('docs/feature-status.md'));
     const todo = read('TODO.md');
 
     expect(matrix).toContain('Fonctionnalité | Implémentation de référence | Preuves principales');

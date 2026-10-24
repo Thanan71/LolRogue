@@ -7,14 +7,14 @@ Les six branches de tâche sont réunies par des merges sans squash dans
 `feat/sprint-g-integration`. Les corrections transversales de contrats, types,
 rollback et performance sont des commits distincts sur l'intégration.
 
-| Tâche | Branche depuis dev | Commits de sous-tâches | Dernier commit |
-| --- | --- | ---: | --- |
-| P2-CI-02 | `feat/sprint-g-ci-gates` | 5 | `075eb7f` |
-| P3-PROD-01 | `feat/sprint-g-run-history` | 5 | `65638ee` |
-| P0-I18N-01, preuve automatique | `feat/sprint-g-i18n` | 1 | `194b711` |
-| P3-PROD-03 | `feat/sprint-g-pwa` | 4 | `48c9f2c` |
-| P3-PROD-04 | `feat/sprint-g-content-gate` | 6 | `dab2c7c` |
-| P3-PROD-05 | `feat/sprint-g-patch-notes` | 9 | `8cbf68d` |
+| Tâche                          | Branche depuis dev           | Commits de sous-tâches | Dernier commit |
+| ------------------------------ | ---------------------------- | ---------------------: | -------------- |
+| P2-CI-02                       | `feat/sprint-g-ci-gates`     |                      5 | `075eb7f`      |
+| P3-PROD-01                     | `feat/sprint-g-run-history`  |                      5 | `65638ee`      |
+| P0-I18N-01, preuve automatique | `feat/sprint-g-i18n`         |                      1 | `194b711`      |
+| P3-PROD-03                     | `feat/sprint-g-pwa`          |                      4 | `48c9f2c`      |
+| P3-PROD-04                     | `feat/sprint-g-content-gate` |                      6 | `dab2c7c`      |
+| P3-PROD-05                     | `feat/sprint-g-patch-notes`  |                      9 | `8cbf68d`      |
 
 Le sixième commit de contenu sérialise les simulations lourdes pour éviter les
 faux timeouts dus à la contention CPU. Les seuils restent inchangés.
@@ -46,7 +46,6 @@ faux timeouts dus à la contention CPU. Les seuils restent inchangés.
 Environnement Node 24 et dépendances du lockfile. Détails complémentaires :
 `docs/ci-gates-validation-2026-10-07.md`, `docs/run-history-cursor-index.md`,
 `docs/content-admission.md` et `docs/sprint-g-i18n.md`.
-
 - `npm run balance:check` : artefacts v15–v21, Early Top, matrice de combat,
   économie sur 1 000 seeds et calibration reproduits ; 141 tests/31 fichiers passent.
 - `db:reset` local puis lint/security/advisors/indexes/migrations/types : passent ;
@@ -100,7 +99,6 @@ la preview du SHA candidat est requis. Les tests automatisés ne ferment pas ce 
 La bêta reste bloquée selon `release:readiness:check` et les autres gates déjà ouvertes.
 
 Les trois migrations nouvelles ont été appliquées uniquement à la base locale :
-
 - `20261007170143_run_history_rejection_details.sql`
 - `20261007170158_player_patch_note_read_state.sql`
 - `20261007170953_run_history_cursor_index.sql`

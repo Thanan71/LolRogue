@@ -8,14 +8,14 @@ n’est créée. Les fiches individuelles restent dans l’explorateur ADM-S2.
 
 ## Populations et horloges
 
-| Mesure | Source et unité |
-| --- | --- |
-| Acquisition | Création du profil connecté, `players.created_at` ; compte conservé |
-| Activité | Joueur distinct ayant démarré une tentative autoritaire ; ce n’est pas une connexion |
-| Départ | `run_attempts.started_at`, une tentative serveur ; les retries ne créent pas un second événement pour la même tentative |
-| Fin vérifiée | Tentative liée à une run persistée avec `progression_source='verified'`, horloge de vérification serveur |
-| Victoire | Sous-ensemble des fins vérifiées dont la run porte `won=true` |
-| Daily | Départs et fins vérifiées du mode `daily` ; le jour d’événement diffère du jour du défi `daily_date` |
+| Mesure       | Source et unité                                                                                                         |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| Acquisition  | Création du profil connecté, `players.created_at` ; compte conservé                                                     |
+| Activité     | Joueur distinct ayant démarré une tentative autoritaire ; ce n’est pas une connexion                                    |
+| Départ       | `run_attempts.started_at`, une tentative serveur ; les retries ne créent pas un second événement pour la même tentative |
+| Fin vérifiée | Tentative liée à une run persistée avec `progression_source='verified'`, horloge de vérification serveur                |
+| Victoire     | Sous-ensemble des fins vérifiées dont la run porte `won=true`                                                           |
+| Daily        | Départs et fins vérifiées du mode `daily` ; le jour d’événement diffère du jour du défi `daily_date`                    |
 
 `last_login_at` est une valeur écrasée, pas un journal de connexions. Elle ne sert
 ni aux courbes ni à la rétention. Une commande `resolve_combat` acceptée est une

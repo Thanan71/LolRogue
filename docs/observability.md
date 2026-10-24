@@ -14,20 +14,20 @@ Un dépassement de la capacité du buffer rend aussi l'évaluation inconnue jusq
 l'expiration des échantillons perdus. Une erreur de réhydratation alerte dès sa
 première observation, sauf si le buffer a débordé.
 
-| SLI | Calcul | Cible et seuil d'alerte |
-| --- | --- | --- |
-| Start réussi | réponses RPC start valides / appels start terminés | cible >= 99 % ; alerte si erreurs >= 5 % |
-| Seal réussi | réponses RPC seal valides / appels seal terminés | cible >= 99 % ; alerte si erreurs >= 5 % |
-| Auth | erreurs HTTP ou réseau / requêtes Auth, par endpoint | cible >= 99 % ; alerte si erreurs >= 5 % |
-| Profil | erreurs HTTP ou réseau / requêtes PostgREST `players` | cible >= 99 % ; alerte si erreurs >= 5 % |
-| PostgREST | erreurs HTTP ou réseau / requêtes, par endpoint | cible >= 99 % ; alerte si erreurs >= 5 % |
-| Finalisation répétée | appels `endRun` avec snapshot déjà gelé / appels de finalisation | cible < 10 % ; alerte si retries >= 10 % |
-| Assets cassés | résultats placeholder ou exceptions / résolutions ImageLoader | cible < 1 % ; alerte si erreurs >= 1 % |
-| Réhydratation | quarantaines, stockage trop volumineux ou temporairement illisible | cible 0 ; alerte dès une erreur |
-| Verification `verified/rejected/expired` | nombre dans chaque état / starts des 30 derniers jours, par moteur/ruleset | répartition diagnostique ; les attempts encore en cours restent au dénominateur |
-| Délai start → verified | p95 de `verified_at - started_at`, pour starts vérifiés des 30 derniers jours | descriptif : comprend la durée de jeu, aucun seuil universel de disponibilité |
-| Seal → terminal | seals atteignant `verified` ou `rejected` sous 120 s / tous seals éligibles | SLO >= 99 % sur 30 jours ; alerte en dessous |
-| Backlog serveur | attempts `finished` ou `verifying` scellées depuis plus de 5 min | cible 0 ; alerte dès une attempt |
+| SLI                                      | Calcul                                                                        | Cible et seuil d'alerte                                                         |
+| ---------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Start réussi                             | réponses RPC start valides / appels start terminés                            | cible >= 99 % ; alerte si erreurs >= 5 %                                        |
+| Seal réussi                              | réponses RPC seal valides / appels seal terminés                              | cible >= 99 % ; alerte si erreurs >= 5 %                                        |
+| Auth                                     | erreurs HTTP ou réseau / requêtes Auth, par endpoint                          | cible >= 99 % ; alerte si erreurs >= 5 %                                        |
+| Profil                                   | erreurs HTTP ou réseau / requêtes PostgREST `players`                         | cible >= 99 % ; alerte si erreurs >= 5 %                                        |
+| PostgREST                                | erreurs HTTP ou réseau / requêtes, par endpoint                               | cible >= 99 % ; alerte si erreurs >= 5 %                                        |
+| Finalisation répétée                     | appels `endRun` avec snapshot déjà gelé / appels de finalisation              | cible < 10 % ; alerte si retries >= 10 %                                        |
+| Assets cassés                            | résultats placeholder ou exceptions / résolutions ImageLoader                 | cible < 1 % ; alerte si erreurs >= 1 %                                          |
+| Réhydratation                            | quarantaines, stockage trop volumineux ou temporairement illisible            | cible 0 ; alerte dès une erreur                                                 |
+| Verification `verified/rejected/expired` | nombre dans chaque état / starts des 30 derniers jours, par moteur/ruleset    | répartition diagnostique ; les attempts encore en cours restent au dénominateur |
+| Délai start → verified                   | p95 de `verified_at - started_at`, pour starts vérifiés des 30 derniers jours | descriptif : comprend la durée de jeu, aucun seuil universel de disponibilité   |
+| Seal → terminal                          | seals atteignant `verified` ou `rejected` sous 120 s / tous seals éligibles   | SLO >= 99 % sur 30 jours ; alerte en dessous                                    |
+| Backlog serveur                          | attempts `finished` ou `verifying` scellées depuis plus de 5 min              | cible 0 ; alerte dès une attempt                                                |
 
 Start/seal mesure la réussite de l'opération technique : une réponse seal terminale
 valide, y compris rejetée ou expirée, est une réponse RPC réussie. Le statut de
@@ -87,7 +87,7 @@ Pour une session de support avec le build diagnostic activé, la console de
 l'onglet expose une copie des compteurs et évaluations :
 
 ```js
-window.lolrogueTechnicalMetrics()
+window.lolrogueTechnicalMetrics();
 ```
 
 Cette fonction est disponible seulement avec `VITE_ENABLE_DB_LOGGING=true`. Elle
@@ -103,13 +103,13 @@ identifiants, seeds, équipes et commandes ne sont jamais retenus. Le wrapper fe
 préserve le Request, les options, le signal, la réponse et l'erreur d'origine ; il
 ne lit ni ne clone le body et ignore le transport des logs pour éviter une boucle.
 
-| Données | Rétention | Accès |
-| --- | --- | --- |
-| Compteurs et nombre d'échantillons perdus | 15 tranches minute ; purge à chaque écriture/lecture ; max. 1 024 séries ; mémoire effacée au rechargement/à la fermeture | code de l'onglet ; export console du build diagnostic |
-| Rapport SLO serveur | résultat calculé sur 30 jours, aucune copie persistée par le rapport | connexion PostgreSQL opérateur autorisée |
-| Données source authority | politique gameplay existante : vie du compte, suppression avec le compte | frontières authority et RLS existantes |
-| Événements client nettoyés | max. 200 en mémoire, 20/type/min ; buffer d'envoi max. 100, deux retries ; logs DB exclus de la lecture après 14 jours et purgés par le job existant | session pour l'envoi ; administrateurs via projection minimale `admin_diagnostics` |
-| Export manuel de diagnostic/SLO | au plus 14 jours, suppression manuelle par l'opérateur ; joindre seulement les agrégats utiles à un incident | espace opérateur privé, accès limité aux intervenants |
+| Données                                   | Rétention                                                                                                                                            | Accès                                                                              |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Compteurs et nombre d'échantillons perdus | 15 tranches minute ; purge à chaque écriture/lecture ; max. 1 024 séries ; mémoire effacée au rechargement/à la fermeture                            | code de l'onglet ; export console du build diagnostic                              |
+| Rapport SLO serveur                       | résultat calculé sur 30 jours, aucune copie persistée par le rapport                                                                                 | connexion PostgreSQL opérateur autorisée                                           |
+| Données source authority                  | politique gameplay existante : vie du compte, suppression avec le compte                                                                             | frontières authority et RLS existantes                                             |
+| Événements client nettoyés                | max. 200 en mémoire, 20/type/min ; buffer d'envoi max. 100, deux retries ; logs DB exclus de la lecture après 14 jours et purgés par le job existant | session pour l'envoi ; administrateurs via projection minimale `admin_diagnostics` |
+| Export manuel de diagnostic/SLO           | au plus 14 jours, suppression manuelle par l'opérateur ; joindre seulement les agrégats utiles à un incident                                         | espace opérateur privé, accès limité aux intervenants                              |
 
 Les événements client acceptent `runId`, `commandId` nettoyés et un `attemptId` UUID
 optionnel pour la corrélation ; un lien serveur exige le même propriétaire.

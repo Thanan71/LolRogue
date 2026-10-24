@@ -9,17 +9,17 @@ jamais une preuve de release.
 
 ## État du candidat
 
-| Gate objective | État actuel | Preuve exigée par le preflight |
-| --- | --- | --- |
-| P0 formalisés | **Bloqué : P0-I18N-01 ouvert** | Tous les P0 du backlog doivent figurer dans la fiche, sans doublon, avec statut `verified` et commandes de contrôle. La revue humaine FR/EN et sa preview restent à prouver. |
-| Identité du candidat | **Bloqué** | SHA Git complet de 40 caractères, identique à `HEAD`. |
-| Trois CI complètes post-P0 | **Bloqué** | Trois runs du SHA candidat, créés après le merge du dernier P0, avec `static`, `unit`, `security`, `build/assets`, `DB`, `browser` et `clean-room` réussis. |
-| Preview exacte | **Bloqué** | URL HTTPS du candidat et validation de tous les assets par `npm run assets -- deployed verify`. |
-| Migrations live | **Bloqué** | Version live égale à la dernière migration du dépôt et absence de drift via `npm run database -- migrations check --linked --project-ref <project-ref>`. |
-| Tests DB et sécurité views/grants | **Bloqué** | Job `DB` réussi sur chacune des trois CI ; il exécute `npm run database -- validate --yes` et `npm run database -- security`. |
-| E2E | **Bloqué** | Job `browser` réussi sur chacune des trois CI du candidat. |
-| Advisors Supabase | **Bloqué** | Politique liée sécurité + performance conforme, résultat `passed`, URL de preuve et date postérieure au dernier correctif P0. |
-| Validations externes | **Bloqué** | Preuves datées pour accessibilité humaine, droit/RGPD, canal de support et autorisation Riot. |
+| Gate objective                    | État actuel                    | Preuve exigée par le preflight                                                                                                                                               |
+| --------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P0 formalisés                     | **Bloqué : P0-I18N-01 ouvert** | Tous les P0 du backlog doivent figurer dans la fiche, sans doublon, avec statut `verified` et commandes de contrôle. La revue humaine FR/EN et sa preview restent à prouver. |
+| Identité du candidat              | **Bloqué**                     | SHA Git complet de 40 caractères, identique à `HEAD`.                                                                                                                        |
+| Trois CI complètes post-P0        | **Bloqué**                     | Trois runs du SHA candidat, créés après le merge du dernier P0, avec `static`, `unit`, `security`, `build/assets`, `DB`, `browser` et `clean-room` réussis.                  |
+| Preview exacte                    | **Bloqué**                     | URL HTTPS du candidat et validation de tous les assets par `npm run assets -- deployed verify`.                                                                              |
+| Migrations live                   | **Bloqué**                     | Version live égale à la dernière migration du dépôt et absence de drift via `npm run database -- migrations check --linked --project-ref <project-ref>`.                     |
+| Tests DB et sécurité views/grants | **Bloqué**                     | Job `DB` réussi sur chacune des trois CI ; il exécute `npm run database -- validate --yes` et `npm run database -- security`.                                                |
+| E2E                               | **Bloqué**                     | Job `browser` réussi sur chacune des trois CI du candidat.                                                                                                                   |
+| Advisors Supabase                 | **Bloqué**                     | Politique liée sécurité + performance conforme, résultat `passed`, URL de preuve et date postérieure au dernier correctif P0.                                                |
+| Validations externes              | **Bloqué**                     | Preuves datées pour accessibilité humaine, droit/RGPD, canal de support et autorisation Riot.                                                                                |
 
 Ce tableau décrit la fiche versionnée actuelle ; il n'est pas une validation
 manuelle. `npm run release -- readiness check` échoue si le statut déclaré ou cette
@@ -46,7 +46,6 @@ Les trois CI candidates, la preview exacte et les preuves live restent ici
 ## Fiche de release obligatoire
 
 Avant toute décision de bêta, renseigner dans `config/beta-release.json` :
-
 - le SHA complet du dernier correctif P0 et sa date de merge ;
 - le SHA exact du candidat testé, sans alias de branche ;
 - l'URL de preview construite depuis ce SHA ;

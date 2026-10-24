@@ -6,14 +6,14 @@ Les améliorations utilisent les **Candies du compte**. La maîtrise conserve s�
 
 Les coûts ne sont pas modifiés. Chaque rang coûte le prix déclaré du nœud ; chaque parent historique exige le rang 1. Le rapport d’audit détaille le coût minimal des ancêtres partagés et du rang cible maximal. Il distingue le total théorique, qui inclut des effets désactivés, de la somme des rangs supportés.
 
-| Rôle | Tous les rangs du catalogue historique | Rangs supportés et atteignables |
-| --- | ---: | ---: |
-| Assassin | 930 | 650 |
-| Combattant | 930 | 650 |
-| Mage | 930 | 780 |
-| Tireur | 930 | 780 |
-| Support | 980 | 500 |
-| Tank | 1 080 | 750 |
+| Rôle       | Tous les rangs du catalogue historique | Rangs supportés et atteignables |
+| ---------- | -------------------------------------: | ------------------------------: |
+| Assassin   |                                    930 |                             650 |
+| Combattant |                                    930 |                             650 |
+| Mage       |                                    930 |                             780 |
+| Tireur     |                                    930 |                             780 |
+| Support    |                                    980 |                             500 |
+| Tank       |                                  1 080 |                             750 |
 
 Une somme théorique ne promet pas un parcours légal. Un chemin indisponible reste explicitement censuré, sans durée inventée. Les spécialisations sont ajoutées comme choix exclusifs ciblés, sans prix remplacé sur les nœuds déjà possédés ; elles restent soumises à leur validation de balance avant activation.
 

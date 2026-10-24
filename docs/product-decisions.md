@@ -67,7 +67,6 @@ et maîtrise. Le rollout et les preuves sont décrits dans `champion-economy.md`
 ## Inventaire plein
 
 La capacité reste une contrainte dure :
-
 - un achat en boutique est refusé avant la dépense ;
 - un objet gratuit de combat, trésor ou événement est laissé sur place ;
 - l'interface doit toujours annoncer explicitement que l'objet n'a pas été ajouté.

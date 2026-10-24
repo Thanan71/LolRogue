@@ -6,7 +6,6 @@ et `clean-room`. Les contrats de release suivent ces noms ; les required checks
 pour fusionner les tâches restent différés selon la décision du backlog.
 
 Validations effectuées sur la branche `feat/sprint-g-ci-gates` avec Node 24 :
-
 - Dix suites de régression liées aux workflows, types, assets, release et
   transfert signé : **55 tests réussis**. Elles couvrent notamment SHA/run/dépôt
   incorrects, contenu altéré/ajouté/supprimé, manifeste falsifié, substitution

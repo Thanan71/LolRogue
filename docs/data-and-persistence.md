@@ -11,13 +11,13 @@ exécute les tests `*.database.test.ts` découverts automatiquement. Lancer
 `npm run testing -- database --list` pour contrôler la liste. Ces preuves ne remplacent pas la
 comparaison des migrations et les smoke tests sur le SHA effectivement déployé.
 
-| Frontière | Preuve réelle | Invariants couverts |
-| --- | --- | --- |
-| Repositories → PostgREST | `repositoryIntegration.database.test.ts` | Sessions réelles, profil et `null`, historique avec jointures FK/versions/pagination, classements anonymes, maîtrise/améliorations, lectures admin, RPC de logs, erreurs PostgreSQL/PostgREST. |
-| Client → autorité | `verifiedRunAttempts.database.test.ts`, `openRunAttemptRead.database.test.ts` | Propriétaire de l'attempt, journal immuable, récupération, finalisation idempotente, refus de trace et absence de crédit. |
-| Ledger → progression | `mapEconomyProgression.database.test.ts`, `authoritativeDaily.database.test.ts` | Progression recalculée côté serveur, absence de double crédit et parité Daily. |
-| Rôles → tables/fonctions | `serverOnlyTables.database.test.ts`, `securityDefinerPrivileges.database.test.ts`, `adminPrivileges.database.test.ts` | Inventaire exhaustif, absence de privilèges clients sur tables internes, RPC explicites, permissions admin. |
-| Données → rétention/diagnostics | `legalPrivacy.database.test.ts`, `logSecurity.database.test.ts` | Bornes temporelles, cron, accès maintenance et sanitation/quota des logs. |
+| Frontière                       | Preuve réelle                                                                                                         | Invariants couverts                                                                                                                                                                            |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Repositories → PostgREST        | `repositoryIntegration.database.test.ts`                                                                              | Sessions réelles, profil et `null`, historique avec jointures FK/versions/pagination, classements anonymes, maîtrise/améliorations, lectures admin, RPC de logs, erreurs PostgreSQL/PostgREST. |
+| Client → autorité               | `verifiedRunAttempts.database.test.ts`, `openRunAttemptRead.database.test.ts`                                         | Propriétaire de l'attempt, journal immuable, récupération, finalisation idempotente, refus de trace et absence de crédit.                                                                      |
+| Ledger → progression            | `mapEconomyProgression.database.test.ts`, `authoritativeDaily.database.test.ts`                                       | Progression recalculée côté serveur, absence de double crédit et parité Daily.                                                                                                                 |
+| Rôles → tables/fonctions        | `serverOnlyTables.database.test.ts`, `securityDefinerPrivileges.database.test.ts`, `adminPrivileges.database.test.ts` | Inventaire exhaustif, absence de privilèges clients sur tables internes, RPC explicites, permissions admin.                                                                                    |
+| Données → rétention/diagnostics | `legalPrivacy.database.test.ts`, `logSecurity.database.test.ts`                                                       | Bornes temporelles, cron, accès maintenance et sanitation/quota des logs.                                                                                                                      |
 
 `supabaseRepositories.test.ts` couvre les mappings et erreurs avec des doubles de
 test ; il ne prouve pas qu'une colonne, relation ou RPC existe. Sans credentials
@@ -31,22 +31,22 @@ sans grants clients est détaillée dans `server-only-tables.md` et vérifiée d
 
 ## Matrice des responsabilités
 
-| Domaine | Pendant l'exécution | Source durable connectée | Mode invité | Écriture |
-| --- | --- | --- | --- | --- |
-| Session Auth | `authStore` et Supabase Auth | `auth.users` | indicateur `lolrogue-guest-mode` dans `localStorage` | dépôts Auth |
-| Profil joueur | `authStore.player` | `public.players` | profil temporaire client | `SupabasePlayerRepository` |
-| Partie en cours | `runStore` + journal local | `run_attempts` et `run_attempt_commands` | `lolrogue-run-storage` | RPC d'attempt étroites |
-| Résultat de partie | replay du moteur autoritaire | `runs` et `run_team_members` | local uniquement | Edge Function `verify-run` puis RPC service-role |
-| Maîtrise | cache `masteryStore` associé à l'identité active | `champion_mastery.unlocked_ids` | snapshot `guestSnapshot` dans `lolrogue-mastery-storage` | crédit atomique d'une run vérifiée |
-| Éclats et propriété | cache mémoire `championEconomyStore` associé à l'identité active | `account_wallets`, ledger append-only `shard_transactions`, `account_champion_unlocks` | aucune wallet ni propriété durable | `purchase_champion` authentifiée et finalisation vérifiée atomique |
-| Rotation gratuite | snapshot daté du serveur | `champion_rotations`, `champion_rotation_entries`, catalogue/config versionnés | lecture publique de l'offre serveur | matérialisation privée, activation réservée à la maintenance |
-| Améliorations | `enhancementStore` | `champion_enhancements`; solde dans `players.total_candies` | indisponible sans compte | RPC `unlock_champion_enhancement` |
-| Daily run en cours | `runStore`; `dailyRunStore` ne garde que date/seed/expiration/complétion | attempt serveur avec seed UTC | état de run dans `lolrogue-run-storage`, métadonnées dans `lolrogue-daily-run` | même journal vérifié qu'une run normale |
-| Classement daily | store après lecture | vue sanitisée `daily_leaderboard` issue des runs vérifiées | `lolrogue-daily-leaderboard` | trigger serveur après replay autoritaire |
-| Leaderboard normal | écran après lecture | vue `leaderboard` dérivée de `runs` | lecture éventuelle seulement | aucune écriture directe |
-| Diagnostics client | buffer mémoire borné | `logs`, 14 jours maximum | désactivés | RPC `submit_client_logs` authentifiée |
-| Réglages audio/UI | stores dédiés | aucune | `localStorage` | stores client |
-| Catalogue de jeu | imports TypeScript/JSON | fichiers versionnés dans `src/data/generated` et paquet minimal `public/assets/riot` | identique | scripts d'assets ou code |
+| Domaine             | Pendant l'exécution                                                      | Source durable connectée                                                               | Mode invité                                                                    | Écriture                                                           |
+| ------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| Session Auth        | `authStore` et Supabase Auth                                             | `auth.users`                                                                           | indicateur `lolrogue-guest-mode` dans `localStorage`                           | dépôts Auth                                                        |
+| Profil joueur       | `authStore.player`                                                       | `public.players`                                                                       | profil temporaire client                                                       | `SupabasePlayerRepository`                                         |
+| Partie en cours     | `runStore` + journal local                                               | `run_attempts` et `run_attempt_commands`                                               | `lolrogue-run-storage`                                                         | RPC d'attempt étroites                                             |
+| Résultat de partie  | replay du moteur autoritaire                                             | `runs` et `run_team_members`                                                           | local uniquement                                                               | Edge Function `verify-run` puis RPC service-role                   |
+| Maîtrise            | cache `masteryStore` associé à l'identité active                         | `champion_mastery.unlocked_ids`                                                        | snapshot `guestSnapshot` dans `lolrogue-mastery-storage`                       | crédit atomique d'une run vérifiée                                 |
+| Éclats et propriété | cache mémoire `championEconomyStore` associé à l'identité active         | `account_wallets`, ledger append-only `shard_transactions`, `account_champion_unlocks` | aucune wallet ni propriété durable                                             | `purchase_champion` authentifiée et finalisation vérifiée atomique |
+| Rotation gratuite   | snapshot daté du serveur                                                 | `champion_rotations`, `champion_rotation_entries`, catalogue/config versionnés         | lecture publique de l'offre serveur                                            | matérialisation privée, activation réservée à la maintenance       |
+| Améliorations       | `enhancementStore`                                                       | `champion_enhancements`; solde dans `players.total_candies`                            | indisponible sans compte                                                       | RPC `unlock_champion_enhancement`                                  |
+| Daily run en cours  | `runStore`; `dailyRunStore` ne garde que date/seed/expiration/complétion | attempt serveur avec seed UTC                                                          | état de run dans `lolrogue-run-storage`, métadonnées dans `lolrogue-daily-run` | même journal vérifié qu'une run normale                            |
+| Classement daily    | store après lecture                                                      | vue sanitisée `daily_leaderboard` issue des runs vérifiées                             | `lolrogue-daily-leaderboard`                                                   | trigger serveur après replay autoritaire                           |
+| Leaderboard normal  | écran après lecture                                                      | vue `leaderboard` dérivée de `runs`                                                    | lecture éventuelle seulement                                                   | aucune écriture directe                                            |
+| Diagnostics client  | buffer mémoire borné                                                     | `logs`, 14 jours maximum                                                               | désactivés                                                                     | RPC `submit_client_logs` authentifiée                              |
+| Réglages audio/UI   | stores dédiés                                                            | aucune                                                                                 | `localStorage`                                                                 | stores client                                                      |
+| Catalogue de jeu    | imports TypeScript/JSON                                                  | fichiers versionnés dans `src/data/generated` et paquet minimal `public/assets/riot`   | identique                                                                      | scripts d'assets ou code                                           |
 
 ## Propriétaires et commandes de mutation
 
@@ -54,14 +54,14 @@ Une donnée de run n'a qu'un propriétaire observable. Les pages lisent ce
 propriétaire et déclenchent ses commandes ; elles ne maintiennent pas de miroir
 modifiable.
 
-| Donnée | Propriétaire | Mutation autorisée | Règle canonique appelée |
-| --- | --- | --- | --- |
-| équipe, carte, encounter, or et niveau | `runStore` | commandes publiques du `runStore` | modules purs de `game/run` et `game/map` |
-| inventaire et équipement | `runStore.inventory` | achats, équipement et revente du `runStore` | `inventoryRules` |
-| runes et actions de combat | checkpoint du `runStore`, runtime de combat éphémère | commandes de combat journalisées | `CombatRuleRuntime` et `RuneManager` |
-| effets temporaires de combat | `BattleManager` | résolution d'une action | `EffectManager` |
-| augments acquis | `runStore.augmentIds` | choix d'augment du `runStore` | `createRunAugmentManager` / `AugmentManager` |
-| métadonnées Daily et classement invité | `dailyRunStore` | synchronisation du challenge et enregistrement du résultat figé | score Daily pur |
+| Donnée                                 | Propriétaire                                         | Mutation autorisée                                              | Règle canonique appelée                      |
+| -------------------------------------- | ---------------------------------------------------- | --------------------------------------------------------------- | -------------------------------------------- |
+| équipe, carte, encounter, or et niveau | `runStore`                                           | commandes publiques du `runStore`                               | modules purs de `game/run` et `game/map`     |
+| inventaire et équipement               | `runStore.inventory`                                 | achats, équipement et revente du `runStore`                     | `inventoryRules`                             |
+| runes et actions de combat             | checkpoint du `runStore`, runtime de combat éphémère | commandes de combat journalisées                                | `CombatRuleRuntime` et `RuneManager`         |
+| effets temporaires de combat           | `BattleManager`                                      | résolution d'une action                                         | `EffectManager`                              |
+| augments acquis                        | `runStore.augmentIds`                                | choix d'augment du `runStore`                                   | `createRunAugmentManager` / `AugmentManager` |
+| métadonnées Daily et classement invité | `dailyRunStore`                                      | synchronisation du challenge et enregistrement du résultat figé | score Daily pur                              |
 
 `EncounterManager` a été supprimé : les événements utilisent directement les
 règles sans état de `eventOutcome`. L'ancien `InventoryManager` est déprécié et
@@ -91,7 +91,6 @@ Le journal ne contient que des intentions sémantiques séquencées : déplaceme
 résolution d'une rencontre, achat, recrutement, équipement, choix d'augment,
 amélioration de sort ou abandon. Le client ne fournit ni seed, ni résultat de
 combat, ni récompense. À la fin :
-
 1. `append_run_attempt_commands` valide les identifiants, la séquence, les limites
    et la chaîne de hash, puis ajoute les commandes de façon immuable ;
 2. `seal_run_attempt` fige la dernière séquence attendue ;
@@ -252,15 +251,15 @@ réessayable, jamais comme promesse encore active.
 `src/utils/storagePolicy.ts` centralise les lectures/écritures protégées, y compris
 le getter de `localStorage`. Le registre limite la taille **avant** `JSON.parse` :
 
-| Stockage | Limite en unités UTF-16 | Schéma |
-|---|---:|---|
-| Run | 2 097 152 | 7, migrations 0–6 conservées |
-| Settings / audio / métadonnées daily | 16 384 chacun | 3 / 2 / 4 |
-| Maîtrise invitée | 524 288 | 3 |
-| Leaderboard invité du jour | 262 144, 100 entrées | 1 + objet legacy |
-| Mode invité | 4 096 | 1 + ancien booléen `true` |
-| Tutoriels carte / combat | 4 096 chacun | clés `:v2`, migration `:v1 = done` |
-| Quarantaine | 16 384 | 1, expiration après 7 jours |
+| Stockage                             | Limite en unités UTF-16 | Schéma                             |
+| ------------------------------------ | ----------------------: | ---------------------------------- |
+| Run                                  |               2 097 152 | 7, migrations 0–6 conservées       |
+| Settings / audio / métadonnées daily |           16 384 chacun | 3 / 2 / 4                          |
+| Maîtrise invitée                     |                 524 288 | 3                                  |
+| Leaderboard invité du jour           |    262 144, 100 entrées | 1 + objet legacy                   |
+| Mode invité                          |                   4 096 | 1 + ancien booléen `true`          |
+| Tutoriels carte / combat             |            4 096 chacun | clés `:v2`, migration `:v1 = done` |
+| Quarantaine                          |                  16 384 | 1, expiration après 7 jours        |
 
 Une traversée itérative borne ensuite profondeur (48), nœuds (150 000) et tableaux
 (20 000), rejette les nombres non finis et les clés de pollution de prototype.
@@ -491,7 +490,6 @@ navigateur.
 
 Les contrôles d'interface ne sont pas des contrôles de sécurité. Toutes les tables
 publiques ont la RLS activée :
-
 - un joueur lit les lignes qui lui appartiennent, mais ne peut pas écrire les
   compteurs dérivés, runs, membres, maîtrise, unlocks ou attempts directement ;
 - les mutations autorisées passent par des RPC `SECURITY DEFINER` à surface

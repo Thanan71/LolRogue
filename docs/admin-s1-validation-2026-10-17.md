@@ -22,14 +22,14 @@ La migration distante, le déploiement et la fusion ne sont pas effectués ici.
 
 ## Contrats et preuves ciblées
 
-| Tranche | Résultat attendu | Preuve |
-| --- | --- | --- |
-| ADM-01 | Connexions enregistrées du jour UTC ; absent/NULL/erreur distinct de zéro | Vue SQL, frontières UTC et composant FR/EN |
-| ADM-02 | Solde d'ouverture + gains − dépenses + remboursements + ajustements = solde ; historique inconnu explicite | Écritures atomiques, concurrence, retries, rollback, refus de run et récompense nulle |
-| ADM-03 | Quinze définitions visibles : formule, source, unité, période, population et verified | Contrat SQL/UI et dictionnaire FR/EN |
-| ADM-04 | Count exact avec les mêmes filtres ; page et export explicitement bornés | 0/100/101/1 000/1 001, compteurs invalides, pagination des équipes |
-| ADM-05 | Aucun privilège client supplémentaire ; RLS effective | Quatre rôles, metadata forgées, révocation avec le même JWT et mutations refusées |
-| ADM-06 | Sections indépendantes ; données périmées signalées ; réponses obsolètes ignorées | Timeout, retry, filtres, logout et changements de compte |
+| Tranche | Résultat attendu                                                                                           | Preuve                                                                                |
+| ------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| ADM-01  | Connexions enregistrées du jour UTC ; absent/NULL/erreur distinct de zéro                                  | Vue SQL, frontières UTC et composant FR/EN                                            |
+| ADM-02  | Solde d'ouverture + gains − dépenses + remboursements + ajustements = solde ; historique inconnu explicite | Écritures atomiques, concurrence, retries, rollback, refus de run et récompense nulle |
+| ADM-03  | Quinze définitions visibles : formule, source, unité, période, population et verified                      | Contrat SQL/UI et dictionnaire FR/EN                                                  |
+| ADM-04  | Count exact avec les mêmes filtres ; page et export explicitement bornés                                   | 0/100/101/1 000/1 001, compteurs invalides, pagination des équipes                    |
+| ADM-05  | Aucun privilège client supplémentaire ; RLS effective                                                      | Quatre rôles, metadata forgées, révocation avec le même JWT et mutations refusées     |
+| ADM-06  | Sections indépendantes ; données périmées signalées ; réponses obsolètes ignorées                          | Timeout, retry, filtres, logout et changements de compte                              |
 
 Avant d'appliquer la migration locale, deux comptes avec soldes 137 et 0 ont été
 créés. Après migration, leurs ouvertures restent 137 et 0, les deux historiques
@@ -49,14 +49,14 @@ Cette dernière vient des tests contre PostgreSQL/PostgREST locaux.
 Un clone indépendant du parent, sans environnement privé et avec son propre
 cache npm, passe `npm ci` et `npm run check:build` sous Node 24.19.0/npm 11.17.0.
 
-| Mesure | Parent `53f63629` | Premier build ADM-S1 |
-| --- | ---: | ---: |
-| JavaScript gzip | 621 519 octets | 626 457 octets |
-| Plus gros chunk JavaScript brut | 466 265 octets | 466 265 octets |
-| Chargement initial gzip | 220 434 octets | 220 794 octets |
-| Route Auth gzip | 225 215 octets | 225 578 octets |
-| Assets déployables | 7 994 061 octets | 8 009 358 octets |
-| Entrées npm publiques | 40 | 40 |
+| Mesure                          | Parent `53f63629` | Premier build ADM-S1 |
+| ------------------------------- | ----------------: | -------------------: |
+| JavaScript gzip                 |    621 519 octets |       626 457 octets |
+| Plus gros chunk JavaScript brut |    466 265 octets |       466 265 octets |
+| Chargement initial gzip         |    220 434 octets |       220 794 octets |
+| Route Auth gzip                 |    225 215 octets |       225 578 octets |
+| Assets déployables              |  7 994 061 octets |     8 009 358 octets |
+| Entrées npm publiques           |                40 |                   40 |
 
 Ces builds utilisent `commitSha: local`. Un SHA complet ajoute 70 octets aux
 métadonnées de déploiement. Les mesures sont locales, pas un benchmark statistique.
@@ -81,19 +81,19 @@ La clôture documentaire suit ce candidat sans changer son code applicatif.
 
 ## Gates complètes
 
-| Gate | Résultat local |
-| --- | --- |
-| Base recréée, ACL, RLS, advisors, index, types et manifeste | PASS ; 68 migrations, dernière `20261017042727` ; 152 tests / 19 fichiers, aucun skip, phase Vitest 80,52 s |
-| Rollback applicatif explicite | PASS ; 10/10 tests en 3,93 s, checkpoint `968c0b3a` sur la migration courante `20261017042727` |
-| Contrôles ciblés UI et requêtes | PASS ; 41 tests Admin / 4 fichiers, 29 tests de requêtes ; TypeScript app et E2E verts |
-| Nouveaux parcours Admin | PASS ; 2/2 sans retry, desktop FR et mobile EN 320 px ; captures hors dépôt |
-| Suite navigateur source | PASS ; 74/74, un worker, zéro retry, 11,6 min |
-| Statique final et build principal | PASS ; inventaire, frontières, format, lint, CSS, types, contenu, bundle et budgets |
-| TypeScript strict | PASS ; quatre diagnostics upstream précisément autorisés, inchangés |
-| Artefacts | PASS ; 17 familles, 303 fichiers et 24 versions authority ; aucune écriture par le checker |
-| Graphify | Rafraîchissement code-only incrémental effectué, sorties ignorées par Git |
-| Clone indépendant | PASS sur `8a82b89` ; installation, artefacts, build, invariants et Git propre |
-| Preview du candidat code | HTTP 200 pour HTML, module d'entrée et identité `8a82b89` ; hostname du backend public vérifié contre la cible Dev approuvée |
+| Gate                                                        | Résultat local                                                                                                               |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Base recréée, ACL, RLS, advisors, index, types et manifeste | PASS ; 68 migrations, dernière `20261017042727` ; 152 tests / 19 fichiers, aucun skip, phase Vitest 80,52 s                  |
+| Rollback applicatif explicite                               | PASS ; 10/10 tests en 3,93 s, checkpoint `968c0b3a` sur la migration courante `20261017042727`                               |
+| Contrôles ciblés UI et requêtes                             | PASS ; 41 tests Admin / 4 fichiers, 29 tests de requêtes ; TypeScript app et E2E verts                                       |
+| Nouveaux parcours Admin                                     | PASS ; 2/2 sans retry, desktop FR et mobile EN 320 px ; captures hors dépôt                                                  |
+| Suite navigateur source                                     | PASS ; 74/74, un worker, zéro retry, 11,6 min                                                                                |
+| Statique final et build principal                           | PASS ; inventaire, frontières, format, lint, CSS, types, contenu, bundle et budgets                                          |
+| TypeScript strict                                           | PASS ; quatre diagnostics upstream précisément autorisés, inchangés                                                          |
+| Artefacts                                                   | PASS ; 17 familles, 303 fichiers et 24 versions authority ; aucune écriture par le checker                                   |
+| Graphify                                                    | Rafraîchissement code-only incrémental effectué, sorties ignorées par Git                                                    |
+| Clone indépendant                                           | PASS sur `8a82b89` ; installation, artefacts, build, invariants et Git propre                                                |
+| Preview du candidat code                                    | HTTP 200 pour HTML, module d'entrée et identité `8a82b89` ; hostname du backend public vérifié contre la cible Dev approuvée |
 
 Les suites complètes (couverture, cohortes, navigateurs source et connectés,
 six projets production), leurs éventuelles limitations locales, les durées des

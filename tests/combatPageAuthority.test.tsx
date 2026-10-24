@@ -317,7 +317,9 @@ describe('CombatPage authority finalization', () => {
     useRunStore.setState({ authorityAttempt: null });
 
     const view = render(<CombatPage />);
-    const autoToggle = view.getByRole('button', { name: 'Activer le mode automatique' });
+    const autoToggle = view.getByRole('button', {
+      name: 'Auto : DÉSACTIVÉ, Activer le mode automatique',
+    });
 
     expect(autoToggle).toHaveTextContent('Auto : DÉSACTIVÉ');
     expect(combatMocks.autoPlay).toBe(false);
@@ -326,7 +328,19 @@ describe('CombatPage authority finalization', () => {
     await user.keyboard(' ');
 
     expect(autoToggle).toHaveTextContent('Auto : ACTIVÉ');
+    expect(autoToggle).toHaveAccessibleName('Auto : ACTIVÉ, Désactiver le mode automatique');
     expect(combatMocks.autoPlay).toBe(true);
+  });
+
+  it('includes the visible server auto status in the disabled action name', () => {
+    useRunStore.setState({ combatRecoveryRequired: true });
+    const view = render(<CombatPage />);
+    const autoToggle = view.getByRole('button', {
+      name: 'Auto serveur, Mode automatique serveur activé',
+    });
+    expect(autoToggle).toHaveTextContent('Auto serveur');
+    expect(autoToggle).toBeDisabled();
+    expect(autoToggle).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('passes persisted mana to the visible engine with resource clamping', () => {
@@ -372,7 +386,9 @@ describe('CombatPage authority finalization', () => {
       useRunStore.setState({ authorityAttempt: attempt(engineVersion) });
       const view = render(<CombatPage />);
 
-      const autoToggle = view.getByRole('button', { name: 'Activer le mode automatique' });
+      const autoToggle = view.getByRole('button', {
+        name: 'Auto : DÉSACTIVÉ, Activer le mode automatique',
+      });
       expect(autoToggle).toBeEnabled();
       expect(autoToggle).toHaveTextContent('Auto : DÉSACTIVÉ');
       expect(combatMocks.autoPlay).toBe(false);
@@ -402,7 +418,9 @@ describe('CombatPage authority finalization', () => {
     const user = userEvent.setup();
     useRunStore.setState({ authorityAttempt: attempt('run-engine-v11') });
     const view = render(<CombatPage />);
-    const autoToggle = view.getByRole('button', { name: 'Activer le mode automatique' });
+    const autoToggle = view.getByRole('button', {
+      name: 'Auto : DÉSACTIVÉ, Activer le mode automatique',
+    });
 
     expect(autoToggle).toBeEnabled();
     expect(autoToggle).toHaveTextContent('Auto : DÉSACTIVÉ');
@@ -411,7 +429,7 @@ describe('CombatPage authority finalization', () => {
     await user.click(autoToggle);
 
     expect(autoToggle).toHaveTextContent('Auto : ACTIVÉ');
-    expect(autoToggle).toHaveAccessibleName('Désactiver le mode automatique');
+    expect(autoToggle).toHaveAccessibleName('Auto : ACTIVÉ, Désactiver le mode automatique');
     expect(combatMocks.autoPlay).toBe(true);
   });
 

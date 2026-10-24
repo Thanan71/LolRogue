@@ -73,6 +73,14 @@ export function CombatView({
   toggleAutoPlay,
 }: CombatViewProps) {
   if (!isActive) return null;
+  const autoLabel = requiresServerAutoPlay
+    ? fr.combat.serverAuto
+    : `${fr.combat.auto} : ${autoPlay ? fr.combat.on : fr.combat.off}`;
+  const autoActionLabel = requiresServerAutoPlay
+    ? fr.combat.serverAutoEnabled
+    : autoPlay
+      ? fr.combat.disableAuto
+      : fr.combat.enableAuto;
 
   return (
     <main className="combat-page">
@@ -112,20 +120,12 @@ export function CombatView({
             toggleAutoPlay();
           }}
           className="combat-auto-toggle"
-          aria-label={
-            requiresServerAutoPlay
-              ? fr.combat.serverAutoEnabled
-              : autoPlay
-                ? fr.combat.disableAuto
-                : fr.combat.enableAuto
-          }
+          aria-label={`${autoLabel}, ${autoActionLabel}`}
           aria-pressed={requiresServerAutoPlay || autoPlay}
           aria-describedby="combat-auto-status"
           title={requiresServerAutoPlay ? fr.combat.serverAutoRequired : fr.combat.autoHelp}
         >
-          {requiresServerAutoPlay
-            ? fr.combat.serverAuto
-            : `${fr.combat.auto} : ${autoPlay ? fr.combat.on : fr.combat.off}`}
+          {autoLabel}
         </button>
       </header>
 

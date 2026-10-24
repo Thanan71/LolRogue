@@ -6,18 +6,18 @@ Le point de composition de l’application est `src/services/container/applicati
 
 ## Interfaces et identifiants
 
-| Entrée du conteneur | Interface | Entrées et contrat serveur |
-| --- | --- | --- |
-| `auth` | `IAuthRepository` | Session et opérations Auth du client existant ; la session sert à authentifier les requêtes suivantes. |
-| `player` | `IPlayerRepository` | Les lectures de profil reçoivent l’UUID `auth.users.id` et filtrent `players.user_id`. Les mises à jour restent limitées aux champs de profil éditables. |
-| `run` | `IRunRepository` | Les lectures de l’historique reçoivent le `players.id` public, avec filtres, curseurs ou pagination existants. Les colonnes et relations de runs restent inchangées. |
-| `runStats` | `IRunStatsRepository` | Agrégats par `players.id` et détails par identifiant de run en base. |
-| `mastery` | `IMasteryRepository` | `getChampionMastery` résout l’UUID Auth vers `players.id` ; `getChampionMasteryByChampion` reçoit directement le `players.id` public. |
-| `playerUnlock` | `IPlayerUnlockRepository` | Déblocages par `players.id` public. |
-| `dailyRun` | `IDailyRunRepository` | Challenge, classement, préférences et signalements via les méthodes existantes ; date, droits et disponibilité restent validés par le serveur. |
-| `leaderboard` | `ILeaderboardRepository` | Classements publics et rang du compte selon les politiques existantes. |
-| `enhancement` | `IEnhancementRepository` | UUID Auth pour les états et commandes. Le serveur conserve rang attendu, coût, solde final et idempotence de `commandId`. |
-| `championEconomy` | `IChampionEconomyRepository` | Aucun identifiant de propriétaire ni solde envoyé par le navigateur. Les RPC existants déterminent le compte depuis la session ; la commande d’achat fournit champion, prix/catalogue confirmés et identifiant idempotent. |
+| Entrée du conteneur | Interface                    | Entrées et contrat serveur                                                                                                                                                                                                 |
+| ------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `auth`              | `IAuthRepository`            | Session et opérations Auth du client existant ; la session sert à authentifier les requêtes suivantes.                                                                                                                     |
+| `player`            | `IPlayerRepository`          | Les lectures de profil reçoivent l’UUID `auth.users.id` et filtrent `players.user_id`. Les mises à jour restent limitées aux champs de profil éditables.                                                                   |
+| `run`               | `IRunRepository`             | Les lectures de l’historique reçoivent le `players.id` public, avec filtres, curseurs ou pagination existants. Les colonnes et relations de runs restent inchangées.                                                       |
+| `runStats`          | `IRunStatsRepository`        | Agrégats par `players.id` et détails par identifiant de run en base.                                                                                                                                                       |
+| `mastery`           | `IMasteryRepository`         | `getChampionMastery` résout l’UUID Auth vers `players.id` ; `getChampionMasteryByChampion` reçoit directement le `players.id` public.                                                                                      |
+| `playerUnlock`      | `IPlayerUnlockRepository`    | Déblocages par `players.id` public.                                                                                                                                                                                        |
+| `dailyRun`          | `IDailyRunRepository`        | Challenge, classement, préférences et signalements via les méthodes existantes ; date, droits et disponibilité restent validés par le serveur.                                                                             |
+| `leaderboard`       | `ILeaderboardRepository`     | Classements publics et rang du compte selon les politiques existantes.                                                                                                                                                     |
+| `enhancement`       | `IEnhancementRepository`     | UUID Auth pour les états et commandes. Le serveur conserve rang attendu, coût, solde final et idempotence de `commandId`.                                                                                                  |
+| `championEconomy`   | `IChampionEconomyRepository` | Aucun identifiant de propriétaire ni solde envoyé par le navigateur. Les RPC existants déterminent le compte depuis la session ; la commande d’achat fournit champion, prix/catalogue confirmés et identifiant idempotent. |
 
 Les interfaces de repositories réutilisent les modèles métiers existants. Le repository économie rend un payload `unknown` et une erreur serveur ; `championEconomyService` vérifie son schéma et transforme les refus en codes métiers avant toute entrée dans l’état UI. La durée limite de quinze secondes, l’annulation et les arguments RPC restent inchangés. Aucun SQL, modèle de table, règles RLS ou format de sauvegarde n’est modifié.
 

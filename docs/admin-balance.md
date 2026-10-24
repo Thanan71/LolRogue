@@ -12,16 +12,16 @@ un solde ou un résultat. La clé service-role reste hors du navigateur.
 
 ## Sources et populations
 
-| Analyse | Source de vérité | Limites |
-| --- | --- | --- |
-| Sélections initiales | Équipe initiale des tentatives autoritaires, horloge `started_at`, tous statuts | Mesure les départs des comptes conservés, y compris les tentatives abandonnées ou rejetées, pas une intention locale avant démarrage |
-| Champions | Runs vérifiées liées à leur tentative autoritaire et membres d’équipe persistés par le vérificateur | Les runs abandonnées, non enregistrées, historiques non vérifiées et effacées ne sont pas reconstruites |
-| Compositions et chargements | Identité initiale figée dans la tentative | Une composition initiale n’est pas une composition finale ; les recrutements restent distincts |
-| Objets | Ensemble distinct des objets ayant été équipés pendant la run | Aucun ordre, simultanéité, offre de boutique ou exposition n’est attesté par cette projection |
-| Runes et augments | Identifiants conservés avec le résultat vérifié ; multiplicité des augments préservée | Une sélection n’indique pas les choix proposés ou refusés |
-| Calibration terrain | Agrégats FieldCalibration existants et baselines versionnées du moteur de balance | Une simulation ne constitue pas un playtest humain ; une version incompatible n’est pas comparée |
-| Versions et flags | Configuration lue sur la base interrogée | Un flag absent est inconnu ; le code local ne prouve pas son activation distante |
-| Arbres Candies | Contrat TREE-10 : commandes et reçus de progression, registre Candies existant et snapshots des tentatives vérifiées | Achats et remboursements attestés ; disponibilité courante distincte des builds historiques ; exposition au catalogue non collectée |
+| Analyse                     | Source de vérité                                                                                                     | Limites                                                                                                                              |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Sélections initiales        | Équipe initiale des tentatives autoritaires, horloge `started_at`, tous statuts                                      | Mesure les départs des comptes conservés, y compris les tentatives abandonnées ou rejetées, pas une intention locale avant démarrage |
+| Champions                   | Runs vérifiées liées à leur tentative autoritaire et membres d’équipe persistés par le vérificateur                  | Les runs abandonnées, non enregistrées, historiques non vérifiées et effacées ne sont pas reconstruites                              |
+| Compositions et chargements | Identité initiale figée dans la tentative                                                                            | Une composition initiale n’est pas une composition finale ; les recrutements restent distincts                                       |
+| Objets                      | Ensemble distinct des objets ayant été équipés pendant la run                                                        | Aucun ordre, simultanéité, offre de boutique ou exposition n’est attesté par cette projection                                        |
+| Runes et augments           | Identifiants conservés avec le résultat vérifié ; multiplicité des augments préservée                                | Une sélection n’indique pas les choix proposés ou refusés                                                                            |
+| Calibration terrain         | Agrégats FieldCalibration existants et baselines versionnées du moteur de balance                                    | Une simulation ne constitue pas un playtest humain ; une version incompatible n’est pas comparée                                     |
+| Versions et flags           | Configuration lue sur la base interrogée                                                                             | Un flag absent est inconnu ; le code local ne prouve pas son activation distante                                                     |
+| Arbres Candies              | Contrat TREE-10 : commandes et reçus de progression, registre Candies existant et snapshots des tentatives vérifiées | Achats et remboursements attestés ; disponibilité courante distincte des builds historiques ; exposition au catalogue non collectée  |
 
 Les comptes supprimés entraînent les suppressions prévues par la politique de
 confidentialité. Les résultats décrivent les données conservées, pas toute

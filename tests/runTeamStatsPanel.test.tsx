@@ -60,7 +60,15 @@ describe('RunTeamStatsPanel', () => {
       ),
     );
     expect(within(garen).queryByRole('progressbar')).not.toBeInTheDocument();
-    expect(garen.querySelectorAll('.run-team-stats__progress[aria-hidden="true"]')).toHaveLength(2);
+    const garenCard = garen.parentElement;
+    if (!garenCard) throw new Error('The champion action requires its visual card.');
+    expect(within(garenCard).queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(
+      garenCard.querySelectorAll('.run-team-stats__progress[aria-hidden="true"]'),
+    ).toHaveLength(2);
+    expect(garenCard).toHaveClass('run-team-stats__member');
+    expect(garenCard).toHaveTextContent('Garen');
+    expect(garen).not.toContainElement(garenCard.querySelector('strong'));
     expect(screen.getByRole('heading', { name: 'Garen' })).toBeVisible();
 
     fireEvent.click(lux);

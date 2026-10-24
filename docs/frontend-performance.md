@@ -68,14 +68,14 @@ mesure initiale atteint **398 321 octets**, soit un dépassement de 321 octets e
 aucune marge exploitable. La cible de travail est fixée à au moins 10 % sous ce
 plafond, donc **358 200 octets gzip maximum**, sans modification de l'interface.
 
-| Périmètre | Gzip | Part du total |
-| --- | ---: | ---: |
-| données champions complètes | 101,52 kB | 25,5 % |
-| React 19, React DOM, Router et Zustand | 73,59 kB | 18,5 % |
-| client Supabase | 53,90 kB | 13,5 % |
-| entrée applicative | 45,99 kB | 11,5 % |
-| page Admin | 8,23 kB | 2,1 % |
-| page légale | 2,59 kB | 0,7 % |
+| Périmètre                              |      Gzip | Part du total |
+| -------------------------------------- | --------: | ------------: |
+| données champions complètes            | 101,52 kB |        25,5 % |
+| React 19, React DOM, Router et Zustand |  73,59 kB |        18,5 % |
+| client Supabase                        |  53,90 kB |        13,5 % |
+| entrée applicative                     |  45,99 kB |        11,5 % |
+| page Admin                             |   8,23 kB |         2,1 % |
+| page légale                            |   2,59 kB |         0,7 % |
 
 La route initiale mesure 172 445 octets gzip et `/auth` 176 826 octets. React et
 Supabase sont donc des coûts initiaux structurants. Admin et légal sont déjà des
@@ -90,7 +90,6 @@ tableaux de cooldown/coût/portée et effets de tous les champions, alors que le
 n'en supporte actuellement que dix.
 
 La segmentation retenue doit préserver :
-
 - les noms, titres, rôles, ressources, statistiques et icônes de tous les champions ;
 - les noms et le statut de disponibilité des sorts affichés dans Database ;
 - les données complètes des dix champions jouables ;
@@ -110,13 +109,13 @@ La mesure finale locale atteint **349 961 octets gzip**, soit **12,07 % de marge
 le plafond alors inchangé de 398 000 octets. Les cinq chunks les plus lourds possèdent aussi
 un plafond individuel :
 
-| Chunk | Mesure gzip | Budget |
-| --- | ---: | ---: |
-| React | 72 751 octets | 76 000 octets |
-| Supabase | 53 495 octets | 56 000 octets |
-| champion-data | 52 915 octets | 55 000 octets |
+| Chunk              |   Mesure gzip |        Budget |
+| ------------------ | ------------: | ------------: |
+| React              | 72 751 octets | 76 000 octets |
+| Supabase           | 53 495 octets | 56 000 octets |
+| champion-data      | 52 915 octets | 55 000 octets |
 | entrée applicative | 45 806 octets | 48 000 octets |
-| runStore | 29 774 octets | 32 000 octets |
+| runStore           | 29 774 octets | 32 000 octets |
 
 Le rapport exhaustif par chunk est généré dans
 `performance-report/bundle-report.json`. Le build conserve toutes les pages en imports
@@ -177,16 +176,16 @@ modifié. Les données d'autorité v21 restent identiques.
 Cette projection économise **37 124 octets gzip** et **306 886 octets bruts** au
 build. La mesure finale est :
 
-| Périmètre | Mesure | Plafond |
-| --- | ---: | ---: |
-| JavaScript total gzip | 573 016 octets | 640 000 octets |
-| Plus gros chunk brut (`content`) | 463 750 octets | 560 000 octets, inchangé |
-| Chargement initial gzip | 212 114 octets | 215 000 octets, inchangé |
-| Route `/auth` gzip | 216 171 octets | 225 000 octets, inchangé |
-| Assets déployables | 7 667 822 octets | 8 000 000 octets |
-| Chunk `content` gzip | 129 722 octets | 135 000 octets, nouveau contrôle |
-| Chunk `index` gzip | 75 021 octets | 78 000 octets |
-| Chunk `runStore` gzip | 32 800 octets | 34 000 octets |
+| Périmètre                        |           Mesure |                          Plafond |
+| -------------------------------- | ---------------: | -------------------------------: |
+| JavaScript total gzip            |   573 016 octets |                   640 000 octets |
+| Plus gros chunk brut (`content`) |   463 750 octets |         560 000 octets, inchangé |
+| Chargement initial gzip          |   212 114 octets |         215 000 octets, inchangé |
+| Route `/auth` gzip               |   216 171 octets |         225 000 octets, inchangé |
+| Assets déployables               | 7 667 822 octets |                 8 000 000 octets |
+| Chunk&#32;`content` gzip         |   129 722 octets | 135 000 octets, nouveau contrôle |
+| Chunk&#32;`index` gzip           |    75 021 octets |                    78 000 octets |
+| Chunk&#32;`runStore` gzip        |    32 800 octets |                    34 000 octets |
 
 Le plafond global passe de 480 000 à **640 000 octets gzip**, avec **10,47 % de
 marge** et la règle minimale de 10 % conservée. Les plafonds React, Supabase,
@@ -221,7 +220,6 @@ approcher INP sur son projet `mobile-chromium-production`. Elle compare ces vale
 techniquement bloquant.
 
 Ce contrôle ne constitue toutefois pas encore une gate de laboratoire stable :
-
 - il ne produit aucun rapport Web Vitals archivable ;
 - il repose sur un seul chargement non bridé du runner ;
 - il accepte `INP = 0` lorsqu'aucune entrée d'interaction n'est observée ;
@@ -241,11 +239,11 @@ passage en invité et calcule le p75 des cinq échantillons.
 
 Mesure locale du **13 août 2026** :
 
-| Vital | p75 | Budget laboratoire |
-| --- | ---: | ---: |
-| LCP | 1 396 ms | 2 500 ms |
-| CLS | 0 | 0,1 |
-| INP | 104 ms | 300 ms |
+| Vital |      p75 | Budget laboratoire |
+| ----- | -------: | -----------------: |
+| LCP   | 1 396 ms |           2 500 ms |
+| CLS   |        0 |                0,1 |
+| INP   |   104 ms |             300 ms |
 
 Le rapport `performance-report/web-vitals-report.json` conserve le warm-up, chaque
 échantillon, le profil, les budgets et le SHA. Le job CI `build/assets` exécute la gate

@@ -3,7 +3,6 @@
 `config/authority-versions.json` est l'unique source de vérité des contrats de replay.
 Chaque entrée relie la version moteur aux versions gameplay, progression et commande,
 au hash de contenu, au bundle immuable, à la migration SQL, aux capacités et à son statut :
-
 - `current` démarre les nouveaux attempts ; une seule entrée peut avoir ce statut ;
 - `replay-only` reste déployée dans `verify-run` pour terminer les attempts en vol ;
 - `unsupported` conserve un bundle auditable, mais n'est plus chargé par la fonction Edge.
@@ -43,7 +42,6 @@ des outils d'audit, puis exécuter `npm run release -- authority generate` et
 ## Publier la version suivante
 
 Pour passer, par exemple, de v17 à v18 :
-
 1. archiver le bundle courant sous un nom versionné et décider s'il reste
    `replay-only` ou devient `unsupported` ;
 2. ajouter une seule entrée v18 dans `config/authority-versions.json`, avec les

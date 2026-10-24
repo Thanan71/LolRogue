@@ -8,11 +8,11 @@ de contact sont renseignés dans la fiche de release privée avant promotion.
 
 ### Sévérité et objectifs
 
-| Niveau | Exemple | Prise en charge | Mise à jour |
-| --- | --- | --- | --- |
-| SEV-1 | perte/corruption de données, fuite de secret, progression frauduleuse globale | 15 min | toutes les 30 min |
-| SEV-2 | Supabase indisponible, vérification de runs ou Auth largement bloquée | 30 min | toutes les 60 min |
-| SEV-3 | fonction dégradée avec contournement, incident individuel | 1 jour ouvré | à chaque changement d'état |
+| Niveau | Exemple                                                                       | Prise en charge | Mise à jour                |
+| ------ | ----------------------------------------------------------------------------- | --------------- | -------------------------- |
+| SEV-1  | perte/corruption de données, fuite de secret, progression frauduleuse globale | 15 min          | toutes les 30 min          |
+| SEV-2  | Supabase indisponible, vérification de runs ou Auth largement bloquée         | 30 min          | toutes les 60 min          |
+| SEV-3  | fonction dégradée avec contournement, incident individuel                     | 1 jour ouvré    | à chaque changement d'état |
 
 Le rôle Incident Commander décide, le rôle Opérateur exécute, et le rôle
 Communication publie les mises à jour. Une même personne peut cumuler les rôles,

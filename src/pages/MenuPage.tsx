@@ -236,89 +236,97 @@ export function MenuPage() {
           </div>
 
           <div className="main-menu__nav-grid">
-            <button
-              type="button"
-              className="main-menu__nav-card"
-              aria-label={fr.menu.database}
-              onClick={() => {
-                playUIClick();
-                navigate(ROUTES.DATABASE);
-              }}
-            >
+            <div className="main-menu__nav-card">
               <span className="main-menu__nav-icon" aria-hidden="true">
                 ◇
               </span>
               <span className="main-menu__nav-copy">
-                <strong>{fr.menu.database}</strong>
-                <small>{fr.menu.catalogAndMastery}</small>
+                <strong id="menu-database-title">{fr.menu.database}</strong>
+                <small id="menu-database-description">{fr.menu.catalogAndMastery}</small>
               </span>
               <span className="main-menu__nav-arrow" aria-hidden="true">
                 →
               </span>
-            </button>
+              <button
+                type="button"
+                className="main-menu__nav-action"
+                aria-labelledby="menu-database-title"
+                aria-describedby="menu-database-description"
+                onClick={() => {
+                  playUIClick();
+                  navigate(ROUTES.DATABASE);
+                }}
+              />
+            </div>
 
-            <button
-              type="button"
-              className="main-menu__nav-card"
-              aria-label={fr.rules.title}
-              onClick={() => {
-                playUIClick();
-                navigate(ROUTES.RULES);
-              }}
-            >
+            <div className="main-menu__nav-card">
               <span className="main-menu__nav-icon" aria-hidden="true">
                 ⌁
               </span>
               <span className="main-menu__nav-copy">
-                <strong>{fr.rules.title}</strong>
-                <small>{fr.menu.mechanics}</small>
+                <strong id="menu-rules-title">{fr.rules.title}</strong>
+                <small id="menu-rules-description">{fr.menu.mechanics}</small>
               </span>
               <span className="main-menu__nav-arrow" aria-hidden="true">
                 →
               </span>
-            </button>
+              <button
+                type="button"
+                className="main-menu__nav-action"
+                aria-labelledby="menu-rules-title"
+                aria-describedby="menu-rules-description"
+                onClick={() => {
+                  playUIClick();
+                  navigate(ROUTES.RULES);
+                }}
+              />
+            </div>
 
-            <button
-              type="button"
-              className="main-menu__nav-card"
-              aria-label={fr.menu.profile}
-              onClick={() => {
-                playUIClick();
-                navigate(ROUTES.PROFILE);
-              }}
-            >
+            <div className="main-menu__nav-card">
               <span className="main-menu__nav-icon" aria-hidden="true">
                 ◎
               </span>
               <span className="main-menu__nav-copy">
-                <strong>{fr.menu.profile}</strong>
-                <small>{fr.menu.resultsAndProgress}</small>
+                <strong id="menu-profile-title">{fr.menu.profile}</strong>
+                <small id="menu-profile-description">{fr.menu.resultsAndProgress}</small>
               </span>
               <span className="main-menu__nav-arrow" aria-hidden="true">
                 →
               </span>
-            </button>
+              <button
+                type="button"
+                className="main-menu__nav-action"
+                aria-labelledby="menu-profile-title"
+                aria-describedby="menu-profile-description"
+                onClick={() => {
+                  playUIClick();
+                  navigate(ROUTES.PROFILE);
+                }}
+              />
+            </div>
 
-            <button
-              type="button"
-              className="main-menu__nav-card"
-              aria-label={fr.menu.settings}
-              onClick={() => {
-                playUIClick();
-                navigate(ROUTES.SETTINGS);
-              }}
-            >
+            <div className="main-menu__nav-card">
               <span className="main-menu__nav-icon" aria-hidden="true">
                 ⊹
               </span>
               <span className="main-menu__nav-copy">
-                <strong>{fr.menu.settings}</strong>
-                <small>{fr.menu.audioComfortDisplay}</small>
+                <strong id="menu-settings-title">{fr.menu.settings}</strong>
+                <small id="menu-settings-description">{fr.menu.audioComfortDisplay}</small>
               </span>
               <span className="main-menu__nav-arrow" aria-hidden="true">
                 →
               </span>
-            </button>
+              <button
+                type="button"
+                className="main-menu__nav-action"
+                aria-labelledby="menu-settings-title"
+                aria-describedby="menu-settings-description"
+                onClick={() => {
+                  playUIClick();
+                  navigate(ROUTES.SETTINGS);
+                }}
+              />
+            </div>
           </div>
         </nav>
 

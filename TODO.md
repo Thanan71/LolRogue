@@ -25,7 +25,6 @@ Le nettoyage historique du **7 octobre 2026** est conservé dans le [snapshot](d
 ### Granularité obligatoire des tâches
 
 Toute **tâche à réaliser** (contrairement aux cases « critères d'acceptation ») doit suivre le modèle de `P3-CHAMP-02 / J.1` :
-
 - **au moins deux actions principales cochables** : spécification/contrat puis implémentation/intégration ; une troisième consacrée aux preuves est recommandée ;
 - **des sous-tâches cochables concrètes** pour chaque action : modèle ou fichier concerné, règles exactes, cas limites, impact UI/DB/Edge, compatibilité et erreurs pertinentes ;
 - **une validation explicite** : tests nominaux/négatifs, sérialisation/replay/déploiement si concernés, et preuve sur le SHA candidat ;
@@ -36,7 +35,6 @@ Les plans détaillés `ARCH`, `TREE`, `AI` et `ADM` adoptent tous ce format. Les
 ### Définition de Done obligatoire
 
 Une tâche n'est terminée que lorsque :
-
 - le comportement réel est corrigé, pas uniquement le mock ;
 - la migration est append-only si la base est concernée ;
 - les permissions finales sont testées avec les rôles concernés ;
@@ -49,22 +47,22 @@ Une tâche n'est terminée que lorsque :
 
 ## Vue d'ensemble — où trouver chaque chantier ?
 
-| Chantier | Statut | Priorité de départ | Détail et critères |
-| --- | --- | --- | --- |
-| **Validation bêta, sécurité, cohérence** | Ouvert selon cases ci-dessous | P0/P1/P2 | `P0-I18N-01`, `P1-SEC-01`, `P2-BAL-01`, `P2-CI-01`, `P2-OPS-01`, `P3-A11Y-01`, `P3-LEGAL-01` et gate de bêta |
-| **Nettoyage technique / scripts npm** | ARCH-S1 à S5 implémentés ; validation et livraison distinctes | P2, déploiement P1 | [ARCH — 18 tâches / 5 sprints](docs/backlog/architecture-maintenance.md) |
-| **Arbres Candies** | TREE-01..10 implémentés en code ; 8 voies gated, preuves humaines et livraison globale ouvertes | P1 puis P2/P3 | [TREE — 10 lots très détaillés](docs/backlog/champion-enhancement-trees.md) |
-| **Bot tactique selon champion/équipe** | À concevoir derrière flag ; legacy conservé | P1 puis P2 | [AI — 49 tâches / 9 sprints](docs/backlog/tactical-bot.md) |
-| **Administration** | ADM-S1 à S7 implémentés en code ; [ADM-20 validé](docs/admin-20-validation-0.3.0.md), intégré par TREE-10 dans la PR #242 fusionnée vers dev ; validation humaine ADM-34 antérieure, distincte de la nouvelle UI TREE | P1 puis P2 | [ADM — 36 tâches / 7 sprints](docs/backlog/admin-console.md) |
-| **Économie des champions** | Code livré, flag OFF, rollout distant distinct | P3 | `P3-ECO-01` + [procédure](docs/champion-economy.md) |
-| **Nouveaux champions** | Veigar réalisé en code ; cinq sprints en attente | P3 | `P3-CHAMP-01..06` ci-dessous ; [archive Veigar](docs/archive/p3-champ-01-veigar-completed-2026-10-10.md) |
+| Chantier                                 | Statut                                                                                                                                                                                                                | Priorité de départ | Détail et critères                                                                                           |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------ |
+| **Validation bêta, sécurité, cohérence** | Ouvert selon cases ci-dessous                                                                                                                                                                                         | P0/P1/P2           | `P0-I18N-01`, `P1-SEC-01`, `P2-BAL-01`, `P2-CI-01`, `P2-OPS-01`, `P3-A11Y-01`, `P3-LEGAL-01` et gate de bêta |
+| **Nettoyage technique / scripts npm**    | ARCH-S1 à S5 implémentés ; validation et livraison distinctes                                                                                                                                                         | P2, déploiement P1 | [ARCH — 18 tâches / 5 sprints](docs/backlog/architecture-maintenance.md)                                     |
+| **Arbres Candies**                       | TREE-01..10 implémentés en code ; 8 voies gated, preuves humaines et livraison globale ouvertes                                                                                                                       | P1 puis P2/P3      | [TREE — 10 lots très détaillés](docs/backlog/champion-enhancement-trees.md)                                  |
+| **Bot tactique selon champion/équipe**   | À concevoir derrière flag ; legacy conservé                                                                                                                                                                           | P1 puis P2         | [AI — 49 tâches / 9 sprints](docs/backlog/tactical-bot.md)                                                   |
+| **Administration**                       | ADM-S1 à S7 implémentés en code ; [ADM-20 validé](docs/admin-20-validation-0.3.0.md), intégré par TREE-10 dans la PR #242 fusionnée vers dev ; validation humaine ADM-34 antérieure, distincte de la nouvelle UI TREE | P1 puis P2         | [ADM — 36 tâches / 7 sprints](docs/backlog/admin-console.md)                                                 |
+| **Économie des champions**               | Code livré, flag OFF, rollout distant distinct                                                                                                                                                                        | P3                 | `P3-ECO-01` + [procédure](docs/champion-economy.md)                                                          |
+| **Nouveaux champions**                   | Veigar réalisé en code ; cinq sprints en attente                                                                                                                                                                      | P3                 | `P3-CHAMP-01..06` ci-dessous ; [archive Veigar](docs/archive/p3-champ-01-veigar-completed-2026-10-10.md)     |
 
-**Mode de lecture :** conserver ici les *identifiants historiques* `P0-*`, `P1-*`, `P2-*`, `P3-*` ; les séries `ARCH-*`, `TREE-*`, `AI-*` et `ADM-*` décrivent les tâches nouvelles dans des dossiers. Les **décisions encore proposées**, dont les futures pondérations du bot, gardent leurs cases de validation. TREE-07/09 retient les resets gratuits avec remboursement attesté et les prix inchangés ; la validation humaine des spécialisations reste ouverte.
+**Mode de lecture :** conserver ici les _identifiants historiques_ `P0-*`, `P1-*`, `P2-*`, `P3-*` ; les séries `ARCH-*`, `TREE-*`, `AI-*` et `ADM-*` décrivent les tâches nouvelles dans des dossiers. Les **décisions encore proposées**, dont les futures pondérations du bot, gardent leurs cases de validation. TREE-07/09 retient les resets gratuits avec remboursement attesté et les prix inchangés ; la validation humaine des spécialisations reste ouverte.
 
 ### Dépendances et incompatibilités évitées
 
 1. **Candies ≠ Éclats.** `TREE` améliore les nœuds et l'économie des améliorations ; `P3-ECO-01` garde achats/rotation champions à 400 Éclats. `ADM-02/20` ne créent pas de seconde monnaie ou de deuxième ledger.
-2. **Version authority.** TREE publie le code `run-engine-0.3.0` (gameplay 25, progression 4) ; les bundles historiques restent figés, dont `0.2.0` et `0.2.5`. La publication distante reste une opération séparée. `AI-038` prévoit une nouvelle version *uniquement* si la politique autoritaire change ; `ARCH` ne réécrit aucun ancien hash. `P0-RUN-01` (registre de versions) reste livré, pas rouvert en doublon.
+2. **Version authority.** TREE publie le code `run-engine-0.3.0` (gameplay 25, progression 4) ; les bundles historiques restent figés, dont `0.2.0` et `0.2.5`. La publication distante reste une opération séparée. `AI-038` prévoit une nouvelle version _uniquement_ si la politique autoritaire change ; `ARCH` ne réécrit aucun ancien hash. `P0-RUN-01` (registre de versions) reste livré, pas rouvert en doublon.
 3. **Arbre Assassin / Katarina.** TREE-01..04 conserve les IDs, désactive les mécaniques absentes et teste les effets supportés. Aucun kit maintenu n’a Assassin en premier rôle : les fixtures isolées ne prouvent pas un parcours public Assassin. `P3-CHAMP-03 / K.1..6` conserve le kit Katarina, ses resets/actions bonus et leurs playtests ; réutiliser le contrat et les tests TREE.
 4. **UX/architecture.** `ARCH-12..15` fournit la structure partagée ; `ADM-32` et `AI-036` réutilisent leurs composants/hook et ne lancent pas de deuxième refonte transversale.
 5. **Mesure et équilibrage.** `P2-BAL-01` conserve la validation par **playtests humains** ; `AI-042/047`, `TREE-09/10` et `ADM-17..21` fournissent simulations/affichage/analyses sans cocher le playtest à sa place.
@@ -93,7 +91,6 @@ Une tâche n'est terminée que lorsque :
 
 La couverture doit porter sur **tout contenu visible ou annoncé à l'utilisateur**, pas
 seulement les pages et boutons React :
-
 - interface complète : navigation, menus, formulaires, paramètres, admin, erreurs,
   notifications, tutoriels, ARIA, titres de page et textes de chargement ;
 - champions : titres, rôles, descriptions, textes de présentation, maîtrise,
@@ -116,7 +113,7 @@ anglaise.
 
 - [ ] **Cadrer Audit humain i18n.**
   - [ ] Auditer manuellement desktop/mobile + lecteur d'écran pour les textes que le scan
-      statique ne peut pas garantir.
+    statique ne peut pas garantir.
   - [ ] Établir une matrice pages, dialogues, messages d'erreur, ARIA, tooltip, contenu dynamique et écran mobile par locale.
   - [ ] Tester une run complète FR puis EN avec un lecteur d'écran réel et navigation clavier sans recours à une simple capture.
 - [ ] **Exécuter les opérations et traiter les cas limites.**
@@ -154,7 +151,6 @@ navigateur ne constituent pas un audit humain de lecteur d'écran.
 
 **Différé par décision de coût :** ne pas activer cette option payante tant qu'elle
 n'est pas souhaitée.
-
 - [ ] **Cadrer Politique de mot de passe Supabase.**
   - [ ] Activer **Leaked Password Protection** dans Supabase Auth.
   - [ ] Vérifier la politique minimale de longueur/complexité et les messages UI.
@@ -178,11 +174,10 @@ n'est pas souhaitée.
 ## P2-BAL-01 — Confronter les cohortes autoritaires aux playtests et au terrain
 
 **Taille : M/L**
-
 - [ ] **Cadrer Protocole de playtests.**
   - [ ] Organiser des playtests humains par difficulté, taille d'équipe et expérience ;
-      fixer ensuite les bandes de victoire Easy/Normal/Hard au lieu de les déduire de
-      l'autoplay seul.
+    fixer ensuite les bandes de victoire Easy/Normal/Hard au lieu de les déduire de
+    l'autoplay seul.
   - [ ] Recruter des profils débutant/intermédiaire/expérimenté et définir consentement, jeu testé et taille d'échantillon avant mesure.
   - [ ] Attribuer seeds, difficulté, tailles d'équipe et version d'engine afin de comparer des parties dans les mêmes conditions.
 - [ ] **Exécuter les opérations et traiter les cas limites.**
@@ -219,14 +214,13 @@ leurs mises à jour sont proposées par Dependabot. Preuve :
 [PR #197](https://github.com/Thanan71/LolRogue/pull/197), checks verts et état `CLEAN`.
 
 Il reste à consigner le scénario négatif et à gérer les runs concurrents :
-
 - [ ] **Cadrer Protection effective des merges.**
   - [ ] Interdire le merge avec check annulé/neutralisé.
   - [ ] Identifier les quatre checks requis et les jobs agrégateurs `validate`, `e2e`, `database`, `clean-room` sans changer leur nom.
   - [ ] Sur PR de contrôle, simuler un job annulé et un job neutralisé, puis constater l'interdiction effective du merge.
 - [ ] **Exécuter les opérations et traiter les cas limites.**
   - [ ] Ajouter `concurrency` pour annuler les anciens runs d'une même PR sans annuler
-      une release en cours.
+    une release en cours.
   - [ ] Définir `concurrency.group` par PR/ref et `cancel-in-progress` approprié sans interrompre les releases en cours.
   - [ ] Vérifier que les alias `needs: ...` sont évalués sur success seulement, y compris skipped/cancelled.
 - [ ] **Tester et justifier la clôture.**
@@ -244,10 +238,9 @@ d'annulation ou de neutralisation sur une PR de contrôle reste à documenter.
 **Taille : L**
 
 Le dépôt documente les procédures, mais la preuve distante reste requise.
-
 - [ ] **Cadrer Restauration distante isolée.**
   - [ ] Restaurer un backup sur un projet Supabase isolé distant. La répétition locale
-      jetable est réussie ; la cible hébergée dédiée reste à fournir.
+    jetable est réussie ; la cible hébergée dédiée reste à fournir.
   - [ ] Préparer une cible Supabase hébergée jetable et confirmer qu'elle n'est ni LolRogue ni LolRogueDev.
   - [ ] Identifier le backup chiffré/versionné, les migrations et variables nécessaires sans recopier de secrets dans la PR.
 - [ ] **Exécuter les opérations et traiter les cas limites.**
@@ -265,7 +258,6 @@ elle ne clôture pas la restauration distante.
 
 ---
 
-
 ## P3-ECO-01 — Économie des champions livrée derrière flag OFF
 
 Implémentation et validation locales terminées : trois gratuits permanents,
@@ -280,7 +272,6 @@ Aucune production active ni fermeture des blockers bêta n’est annoncée.
 
 ---
 
-
 ## P3-CHAMP-01 — Sprint I : Veigar — **livré en code, archivé**
 
 - [x] Kit Veigar, états intra-run, stacking autoritaire, tests de parité et preuves de balance v22 livrés en code ; **pas de preuve d'activation distante**.
@@ -289,7 +280,6 @@ Aucune production active ni fermeture des blockers bêta n’est annoncée.
 - [x] Version `0.2.0` : gains de pouvoir sur les assistances attribuées à Veigar (+1 / +3 / +10, plafond +200), avec reprise des anciennes runs v22 selon leurs règles figées. Nouvelle campagne dans `config/veigar-run-progression-balance-0.2.0.json` ; publication distante à suivre séparément.
 
 ---
-
 
 ## P3-CHAMP-02 — Sprint J : Renekton — moteur de ressources Fury/Energy/etc.
 
@@ -921,7 +911,6 @@ le moteur.
 ## P3-A11Y-01 — Validation humaine avant bêta
 
 **Taille : M**
-
 - [ ] **Cadrer Parcours accessibilité réel.**
   - [ ] NVDA + Firefox : parcours Auth → Starter → Map → Combat → Game Over.
   - [ ] VoiceOver + Safari macOS.
@@ -931,7 +920,7 @@ le moteur.
 - [ ] **Exécuter les opérations et traiter les cas limites.**
   - [ ] Zoom 200/400 % et navigation clavier réelle.
   - [ ] Consigner les défauts dans des issues dédiées et bloquer la release sur tout
-      défaut empêchant le parcours.
+    défaut empêchant le parcours.
   - [ ] Vérifier navigation clavier complète, focus après dialogues, annonces dynamiques et sortie de modale.
   - [ ] Tester 320 px, zoom 200/400 %, contrastes, réduction d'animation et textes FR/EN.
 - [ ] **Tester et justifier la clôture.**
@@ -944,7 +933,6 @@ le moteur.
 ## P3-LEGAL-01 — Fermer les blockers externes de diffusion
 
 **Taille : externe / non estimable**
-
 - [ ] **Cadrer Conformité diffusion publique.**
   - [ ] Compléter identité/adresse éditeur et directeur de publication.
   - [ ] Publier/tester un canal privé pour les demandes de droits.
@@ -1045,7 +1033,6 @@ Le chantier `P3-ECO-01` est livré derrière un flag OFF ; son rollout distant s
 # 3. Nouvelle gate de bêta proposée
 
 La bêta technique ne redevient candidate que lorsque :
-
 - [ ] aucun `P0-*` n'est ouvert ;
 - [ ] internationalisation FR/EN à 100 %, y compris champions, compétences et contenus dynamiques ;
 - [ ] advisors sécurité live : aucune `ERROR` non acceptée ;

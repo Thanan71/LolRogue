@@ -177,7 +177,6 @@ l’exécution du job distant.
 
 La restauration est destructive et rend le projet temporairement indisponible.
 Elle exige Incident Commander, Opérateur et seconde validation :
-
 1. annoncer maintenance, arrêter promotions et limiter les nouvelles mutations ;
 2. fixer en UTC l'instant juste avant l'incident et estimer la perte selon le RPO ;
 3. vérifier qu'une restauration isolée comparable a réussi ;

@@ -23,12 +23,12 @@ sur la DB locale migrée ; il ne désigne pas un déploiement de production sain
 
 ## Contrats et preuves
 
-| Tranche | Contrat | Preuves principales |
-| --- | --- | --- |
-| ARCH-12 | [feature-module-contract](feature-module-contract.md) | Port Daily injecté, réponses obsolètes, comptes A → B → A, rejets, filtres, signalements concurrents, StrictMode et démontage ; checker AST et composition unique |
-| ARCH-13 | [feature-combat-contract](feature-combat-contract.md) | 28 tests de contrôleur, validation canonique des cibles, clavier, auto et vitesses ×1/×2/×3, timer annulé, completion/save et guard de navigation ; six parcours combat/carte réels |
-| ARCH-14 | [feature-starter-contract](feature-starter-contract.md) | Préparation pure, catalogue filtré, accès/runes, Daily connecté/invité, retry, double clic et réponses obsolètes ; parcours FR/EN desktop/mobile |
-| ARCH-15 | [engine-refactor-contract](engine-refactor-contract.md) | 75 fixtures avant extraction, 46 replays sérialisés et 23 digests historiques ; matrice 7 560 combats/runtime, cohortes 45 × 30, économie 1 000 seeds et Veigar 180 runs |
+| Tranche | Contrat                                                 | Preuves principales                                                                                                                                                                 |
+| ------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ARCH-12 | [feature-module-contract](feature-module-contract.md)   | Port Daily injecté, réponses obsolètes, comptes A → B → A, rejets, filtres, signalements concurrents, StrictMode et démontage ; checker AST et composition unique                   |
+| ARCH-13 | [feature-combat-contract](feature-combat-contract.md)   | 28 tests de contrôleur, validation canonique des cibles, clavier, auto et vitesses ×1/×2/×3, timer annulé, completion/save et guard de navigation ; six parcours combat/carte réels |
+| ARCH-14 | [feature-starter-contract](feature-starter-contract.md) | Préparation pure, catalogue filtré, accès/runes, Daily connecté/invité, retry, double clic et réponses obsolètes ; parcours FR/EN desktop/mobile                                    |
+| ARCH-15 | [engine-refactor-contract](engine-refactor-contract.md) | 75 fixtures avant extraction, 46 replays sérialisés et 23 digests historiques ; matrice 7 560 combats/runtime, cohortes 45 × 30, économie 1 000 seeds et Veigar 180 runs            |
 
 Les générateurs de cohortes acceptent l'identité semver et chargent son moteur figé.
 Les anciens artefacts 0.2.0 restent reproductibles et immuables. Les contrôles CLI
@@ -36,19 +36,19 @@ sont détaillés dans [architecture-s4-cohort-cli-validation](architecture-s4-co
 
 ## Vérification finale
 
-| Gate | Résultat local |
-| --- | --- |
-| Static, format, lint, TypeScript, inventaire et contrats | PASS ; 133 tests de contenu |
-| TypeScript strict | PASS, quatre diagnostics historiques inchangés |
-| Sécurité dépendances | PASS, aucune vulnérabilité haute ou critique |
-| DB locale migrée | PASS, 130 tests dans 17 fichiers, aucun skip |
-| Rollback applicatif | PASS, 10 tests du checkout historique sur le schéma courant |
-| Couverture unitaire finale | PASS, 3 097 tests dans 275 fichiers ; 86,35 % instructions, 78,68 % branches, 91,06 % fonctions, 88,40 % lignes |
-| Navigateurs source | Les 69 scénarios sont couverts par la suite et les reprises ciblées ; anglais/storage 11/11, sauvegarde/rechargement 3/3, runs complètes 2/2 au premier essai |
-| Navigateurs connectés | PASS, 3/3 sans retry, Daily/Sprint G/économie sur les services locaux réels |
-| Matrice production locale | Chromium et WebKit desktop/mobile PASS ; Firefox ne démarre pas dans l'environnement macOS local, même après réinstallation du binaire |
-| Performance mobile contrôlée | PASS, cinq échantillons Pixel 5, CPU ×4 et réseau 1,6 Mbit/s : P75 LCP 1 648 ms, CLS 0, INP 80 ms |
-| CI et preview de la PR | Résultats distants du SHA final suivis dans les Checks de la PR |
+| Gate                                                     | Résultat local                                                                                                                                                |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Static, format, lint, TypeScript, inventaire et contrats | PASS ; 133 tests de contenu                                                                                                                                   |
+| TypeScript strict                                        | PASS, quatre diagnostics historiques inchangés                                                                                                                |
+| Sécurité dépendances                                     | PASS, aucune vulnérabilité haute ou critique                                                                                                                  |
+| DB locale migrée                                         | PASS, 130 tests dans 17 fichiers, aucun skip                                                                                                                  |
+| Rollback applicatif                                      | PASS, 10 tests du checkout historique sur le schéma courant                                                                                                   |
+| Couverture unitaire finale                               | PASS, 3 097 tests dans 275 fichiers ; 86,35 % instructions, 78,68 % branches, 91,06 % fonctions, 88,40 % lignes                                               |
+| Navigateurs source                                       | Les 69 scénarios sont couverts par la suite et les reprises ciblées ; anglais/storage 11/11, sauvegarde/rechargement 3/3, runs complètes 2/2 au premier essai |
+| Navigateurs connectés                                    | PASS, 3/3 sans retry, Daily/Sprint G/économie sur les services locaux réels                                                                                   |
+| Matrice production locale                                | Chromium et WebKit desktop/mobile PASS ; Firefox ne démarre pas dans l'environnement macOS local, même après réinstallation du binaire                        |
+| Performance mobile contrôlée                             | PASS, cinq échantillons Pixel 5, CPU ×4 et réseau 1,6 Mbit/s : P75 LCP 1 648 ms, CLS 0, INP 80 ms                                                             |
+| CI et preview de la PR                                   | Résultats distants du SHA final suivis dans les Checks de la PR                                                                                               |
 
 Les fixtures navigateur restent aux frontières HTTP. Le catalogue public valide
 est simulé dans les scénarios isolés ; la run complète sélectionne Warwick dans

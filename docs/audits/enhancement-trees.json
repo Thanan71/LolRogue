@@ -36688,11 +36688,11 @@
   ],
   "provenance": {
     "algorithm": "sha256",
-    "inputsSha256": "194b26c5ea7b16dd3b5ec214223c6d603e4541ad33b6e370b8536ea581713d5b",
+    "inputsSha256": "0fdb2bc1391489729911cacb00fa5d17095252fad2fdd08546904be357742008",
     "inputs": [
       {
         "path": "biome.json",
-        "sha256": "f000830e4118cadc4646a8314a08f2e69bef37408b5796da7eae746e6f8d496b"
+        "sha256": "cb8cdf3d0e119687c0827da8d6584a10fdfdf824b05f04d9adc63a9aedb9a4bd"
       },
       {
         "path": "config/authority-versions.json",
@@ -36700,15 +36700,15 @@
       },
       {
         "path": "package-lock.json",
-        "sha256": "1572ed6029c0e1e4d54edbc4ee42c02e7efc7dcd035861378ff468e4146b4ac7"
+        "sha256": "c7e4ecd1669dc386d47bc16d956e78b104debbe8d4ec8cae31faec346a4d7c8f"
       },
       {
         "path": "package.json",
-        "sha256": "bf6644c6792d6bc4b1776f1c19909dfcb35c3d991e1e99821aa734fd1f283039"
+        "sha256": "631eec3d9eddffce0a49a1209ffae778e979da62e0610778405e4c7ab59498c8"
       },
       {
         "path": "scripts/audit-enhancement-trees.mjs",
-        "sha256": "15414693b4a0f52878b5c6f86abcb17bdd70b1e0e0cbceb99a91234ca54af394"
+        "sha256": "c4a0d387c9d4d62e92f556619e81151f076fcc2a143f9cd8015fcc77b6329d53"
       },
       {
         "path": "scripts/lib/artifact-snapshot.mjs",
@@ -36717,6 +36717,10 @@
       {
         "path": "scripts/lib/critical-command.mjs",
         "sha256": "4be3b35191a0fa015de15d3b3ab788ba62fbc405453d152de8258e1df1f83c1b"
+      },
+      {
+        "path": "scripts/lib/pinned-biome-format.mjs",
+        "sha256": "916f52a279cb028308189ff85ea733f2f041235ad61ca8a28e9c796a869100e0"
       },
       {
         "path": "src/components/EnhancementTree.tsx",
