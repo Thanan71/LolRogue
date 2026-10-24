@@ -20,54 +20,15 @@ export function balanceScenario(
     : null;
   const marker = (phase: string) =>
     diagnostic ? `\\echo BALANCE_DIAGNOSTIC_${phase.toUpperCase()}\n` : '';
-  const profile = diagnostic
-    ? `
-    LOAD 'auto_explain';
-    SET LOCAL auto_explain.log_min_duration='50ms';
-    SET LOCAL auto_explain.log_nested_statements=true;
-    SET LOCAL auto_explain.log_analyze=true;
-    SET LOCAL auto_explain.log_buffers=true;
-    SET LOCAL auto_explain.log_timing=true;
-    SET LOCAL auto_explain.log_format='json';
-    SET LOCAL auto_explain.log_level='notice';
-    SET LOCAL track_io_timing=true;
-    SET LOCAL SESSION AUTHORIZATION postgres;
-    DO $$BEGIN IF session_user <> 'postgres' OR current_user <> 'postgres' THEN RAISE EXCEPTION 'Balance fixture role mismatch'; END IF; END$$;
-  `
-    : '';
-  const environment = diagnostic
-    ? `
-    SELECT 'BALANCE_SQL_ENVIRONMENT ' || jsonb_build_object(
-      'workMemBytes',pg_size_bytes(current_setting('work_mem')),
-      'jit',current_setting('jit')::boolean,
-      'jitAvailable',pg_jit_available(),
-      'serverVersionNum',current_setting('server_version_num')::integer,
-      'jitAboveCost',current_setting('jit_above_cost')::numeric,
-      'jitInlineAboveCost',current_setting('jit_inline_above_cost')::numeric,
-      'jitOptimizeAboveCost',current_setting('jit_optimize_above_cost')::numeric,
-      'randomPageCost',current_setting('random_page_cost')::numeric,
-      'seqPageCost',current_setting('seq_page_cost')::numeric,
-      'effectiveCacheBytes',pg_size_bytes(current_setting('effective_cache_size')),
-      'sharedBuffersBytes',pg_size_bytes(current_setting('shared_buffers')),
-      'tables',(SELECT jsonb_agg(jsonb_build_object('slot',CASE c.relname WHEN 'run_attempts' THEN 0 WHEN 'run_team_members' THEN 1 ELSE 2 END,'estimatedRows',c.reltuples,'pages',c.relpages,'liveRows',s.n_live_tup,'deadRows',s.n_dead_tup,'inserts',s.n_tup_ins,'analyzeAgeSeconds',extract(epoch FROM now()-s.last_analyze),'autoAnalyzeAgeSeconds',extract(epoch FROM now()-s.last_autoanalyze),'autoVacuumAgeSeconds',extract(epoch FROM now()-s.last_autovacuum)) ORDER BY c.relname) FROM pg_class c JOIN pg_stat_user_tables s ON s.relid=c.oid WHERE c.oid IN('public.run_attempts'::regclass,'public.runs'::regclass,'public.run_team_members'::regclass))
-    )::text;
-  `
-    : '';
-  const result = explorerSql(
-    `${diagnostic ? '\\timing on\n' : ''}${marker('setup')}BEGIN;
-    ${profile}
+  const result = explorerSql(`${diagnostic ? '\\timing on\n' : ''}${marker('setup')}BEGIN;
     SET LOCAL session_replication_role='replica';
     UPDATE public.players SET created_at='2024-01-01' WHERE id IN(${accounts.map((a) => `'${a.playerId}'`).join(',')});
     ${setup}
-    ${environment}
     ${marker('auth')}SET LOCAL session_replication_role='origin';
     SELECT set_config('request.jwt.claims','{"sub":"${admin.userId}","role":"authenticated"}',TRUE);
     SET LOCAL ROLE authenticated;
-    ${diagnostic ? "DO $$BEGIN IF session_user <> 'postgres' OR current_user <> 'authenticated' THEN RAISE EXCEPTION 'Balance RPC role mismatch'; END IF; END$$;" : ''}
     ${marker('rpc')}SELECT ${query};
-    ${marker('rollback')}ROLLBACK;`,
-    { balancePlanDiagnostics: Boolean(diagnostic) },
-  );
+    ${marker('rollback')}ROLLBACK;`);
   const value = JSON.parse(
     result
       .split('\n')
@@ -105,12 +66,6 @@ export function balanceScenario(
         },
         psqlMs: Object.fromEntries(Object.entries(psqlMs).map(([key, ms]) => [key, round(ms)])),
         setupStatementsMs,
-        sqlEnvironment: JSON.parse(
-          result
-            .split('\n')
-            .find((line) => line.startsWith('BALANCE_SQL_ENVIRONMENT '))
-            ?.slice('BALANCE_SQL_ENVIRONMENT '.length) ?? 'null',
-        ),
       }),
     );
   }
