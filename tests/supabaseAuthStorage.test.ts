@@ -246,6 +246,59 @@ describe('connected Supabase SDK storage integration', () => {
     expect(network).toHaveBeenCalledOnce();
   });
 
+  it('refreshes an expired session, restores it in a new client and authenticates RPC requests', async () => {
+    const expired = { ...session(), expires_at: Math.floor(Date.now() / 1_000) - 60 };
+    const refreshed = {
+      ...session(),
+      access_token: 'refreshed-access-token',
+      refresh_token: 'rotated-refresh-token',
+    };
+    values.set(key, JSON.stringify(expired));
+    const network = vi.fn<typeof fetch>(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith('/auth/v1/token?grant_type=refresh_token')) {
+        expect(JSON.parse(String(init?.body))).toEqual({ refresh_token: expired.refresh_token });
+        return new Response(JSON.stringify(refreshed), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      if (url.endsWith('/rest/v1/rpc/session_regression')) {
+        expect(new Headers(init?.headers).get('Authorization')).toBe(
+          `Bearer ${refreshed.access_token}`,
+        );
+        return new Response('[]', {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      throw new Error(`Unexpected SDK request: ${url}`);
+    });
+    const createTestClient = () =>
+      createClient('https://storage-regression.supabase.co', 'test-anon-key', {
+        auth: {
+          storage: createSupabaseAuthStorage(),
+          storageKey: key,
+          persistSession: true,
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
+        },
+        global: { fetch: network },
+      });
+    const first = createTestClient();
+    const result = await first.auth.getSession();
+    expect(result.error).toBeNull();
+    expect(result.data.session?.access_token).toBe(refreshed.access_token);
+    expect(result.data.session?.refresh_token).toBe(refreshed.refresh_token);
+    const restored = createTestClient();
+    expect((await restored.auth.getSession()).data.session?.access_token).toBe(
+      refreshed.access_token,
+    );
+    expect(network).toHaveBeenCalledOnce();
+    expect(await restored.rpc('session_regression')).toMatchObject({ data: [], error: null });
+    expect(network).toHaveBeenCalledTimes(2);
+  });
+
   it.each(['getItem', 'setItem', 'removeItem', 'getter', 'missing'] as const)(
     'initializes and reads/signs out without a rejected promise on %s failure',
     async (mode) => {

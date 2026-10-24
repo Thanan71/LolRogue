@@ -3,7 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { applyDependencyTypePatches } from './lib/dependency-type-patches.mjs';
 
-const authVersion = '2.117.2';
+// Reviewed against the published 2.118.0 CJS/ESM locks; upstream still reads Web Storage unguarded.
+const authVersion = '2.118.0';
 const authPath = 'node_modules/@supabase/auth-js';
 const targets = ['dist/main/lib/locks.js', 'dist/module/lib/locks.js'];
 

@@ -7,7 +7,7 @@ import path from 'node:path';
 export const dependencyTypePatches = [
   {
     package: '@supabase/auth-js',
-    version: '2.117.2',
+    version: '2.118.0',
     targets: ['dist/main/lib/webauthn.dom.d.ts', 'dist/module/lib/webauthn.dom.d.ts'],
     before:
       'export interface PublicKeyCredentialFuture<T extends PublicKeyCredentialJSON = PublicKeyCredentialJSON> extends PublicKeyCredential {',
