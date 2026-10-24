@@ -127,7 +127,7 @@ async function startNormalGuestRun(page: Page, assuredVictory: boolean) {
   }
   while (selectedCount < 2) {
     const fallback = page
-      .locator('button.champion-card[aria-pressed="false"]:not(:disabled)')
+      .locator('button.champion-card__action[aria-pressed="false"]:not(:disabled)')
       .first();
     await expect(fallback).toBeVisible();
     await fallback.click();

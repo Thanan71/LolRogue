@@ -237,7 +237,8 @@ export function ChampionPurchaseAction({
       if (!returnFocusId) return;
       const target = document.getElementById(returnFocusId);
       (
-        target?.querySelector<HTMLButtonElement>('button.champion-card:not(:disabled)') ?? target
+        target?.querySelector<HTMLButtonElement>('button.champion-card__action:not(:disabled)') ??
+        target
       )?.focus({ preventScroll: true });
     });
   }

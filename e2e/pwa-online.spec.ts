@@ -51,7 +51,10 @@ test('manifest changes leave the current guest run active', async ({ page }) => 
   await page.getByRole('button', { name: 'Jouer en invité' }).click();
   await page.getByRole('button', { name: 'Jouer', exact: true }).click();
   for (let index = 0; index < 2; index++) {
-    await page.locator('button.champion-card[aria-pressed="false"]:not(:disabled)').first().click();
+    await page
+      .locator('button.champion-card__action[aria-pressed="false"]:not(:disabled)')
+      .first()
+      .click();
   }
   await page.getByRole('button', { name: 'Confirmer le choix' }).click();
   await expect(page).toHaveURL('/run');

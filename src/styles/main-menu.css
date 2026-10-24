@@ -599,6 +599,7 @@
 }
 
 .main-menu__nav-card {
+  position: relative;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   min-width: 0;
@@ -615,6 +616,15 @@
     transform var(--transition-fast),
     background var(--transition-fast),
     border-color var(--transition-fast);
+}
+
+.main-menu__nav-action {
+  position: absolute;
+  inset: -1px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: inherit;
 }
 
 .main-menu__nav-card:hover {

@@ -92,6 +92,7 @@
 }
 
 .run-team-stats__member {
+  position: relative;
   min-width: 0;
   min-height: 4.5rem;
   display: grid;
@@ -110,12 +111,22 @@
     transform var(--transition-fast);
 }
 
+.run-team-stats__member-action {
+  position: absolute;
+  z-index: 2;
+  inset: -1px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: inherit;
+}
+
 .run-team-stats__member:hover {
   background: var(--color-surface-raised);
   border-color: var(--color-border-strong);
 }
 
-.run-team-stats__member:focus-visible {
+.run-team-stats__member-action:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }

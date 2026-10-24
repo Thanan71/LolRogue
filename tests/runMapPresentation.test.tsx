@@ -104,4 +104,23 @@ describe('run map presentation', () => {
     );
     expect(view.container.querySelector('.run-map-map')).toHaveClass('run-map-map--reduced-motion');
   });
+
+  it('includes the visible choice and current-position badges in complete node names', () => {
+    const view = render(
+      <RunMapCanvas
+        map={map}
+        currentNodeId="fight"
+        frontierNodeIds={['shop']}
+        hasPendingChoice={false}
+        reducedMotion
+        onNodeClick={vi.fn()}
+      />,
+    );
+    expect(
+      view.getByRole('button', { name: /^CHOIX Boutique, colonne 3, ligne 1, accessible/ }),
+    ).toHaveTextContent('CHOIX');
+    expect(
+      view.getByRole('img', { name: /^ICI Combat, colonne 2, ligne 1, position actuelle/ }),
+    ).toHaveTextContent('ICI');
+  });
 });

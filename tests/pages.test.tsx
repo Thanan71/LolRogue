@@ -226,6 +226,23 @@ describe('P2 page smoke tests', () => {
     expect(screen.getByText(/Mode invité/)).toBeInTheDocument();
   });
 
+  it('names menu actions separately from their visible descriptions', () => {
+    renderAt(<MenuPage />);
+    for (const [name, description] of [
+      ['Champions', 'Catalogue et maîtrises'],
+      ['Guide et règles', 'Mécaniques de la Faille'],
+      ['Profil et historique', 'Résultats et progression'],
+      ['Réglages', 'Audio, confort et affichage'],
+    ]) {
+      const button = screen.getByRole('button', { name });
+      const caption = screen.getByText(description);
+      expect(button).toHaveAccessibleDescription(description);
+      expect(button).not.toContainElement(caption);
+      expect(button.parentElement).toContainElement(caption);
+      expect(button.parentElement).toContainElement(screen.getByText(name));
+    }
+  });
+
   it('localizes the active run biome and level', () => {
     useRunStore.setState({
       isActive: true,

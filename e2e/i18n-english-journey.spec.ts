@@ -342,17 +342,16 @@ for (const viewport of [
 
     for (let selected = 0; selected < 2; selected += 1) {
       await page
-        .locator('button.champion-card[aria-pressed="false"]:not(:disabled)')
+        .locator('button.champion-card__action[aria-pressed="false"]:not(:disabled)')
         .first()
         .click();
     }
     const confirmSelection = page.getByRole('button', { name: 'Confirm selection' });
     await expect(confirmSelection).toBeEnabled();
     await expectEnglishSurface(page, 'selected starter badges', confirmSelection);
-    await expect(page.locator('button.champion-card[aria-pressed="true"]').first()).toHaveAttribute(
-      'data-selected-label',
-      'On the team',
-    );
+    await expect(
+      page.locator('button.champion-card__action[aria-pressed="true"]').first(),
+    ).toHaveAttribute('data-selected-label', 'On the team');
     await confirmSelection.click();
     await expect(page).toHaveURL('/run');
 

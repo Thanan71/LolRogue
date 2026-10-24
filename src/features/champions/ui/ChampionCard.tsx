@@ -33,15 +33,9 @@ export function ChampionCard({
   ];
 
   return (
-    <button
-      type="button"
-      id={`starter-choice-${champion.id}`}
+    <div
       className={`champion-card${selected ? ' champion-card--selected' : ''}`}
-      onClick={onSelect}
-      disabled={disabled}
-      aria-pressed={selected}
-      aria-label={starterCopy.chooseChampion(localizedChampion.name)}
-      data-selected-label={selected ? starterCopy.selectedChampionBadge : undefined}
+      data-disabled={disabled}
     >
       <div className="champion-card__splash-wrapper">
         <picture>
@@ -62,7 +56,7 @@ export function ChampionCard({
         <div className="champion-card__splash-overlay" />
       </div>
 
-      <div className="champion-card__info">
+      <div id={`starter-info-${champion.id}`} className="champion-card__info">
         <div className="champion-card__name">{localizedChampion.name}</div>
         <div className="champion-card__title-text">{localizedChampion.title}</div>
 
@@ -83,6 +77,17 @@ export function ChampionCard({
           ))}
         </div>
       </div>
-    </button>
+      <button
+        type="button"
+        id={`starter-choice-${champion.id}`}
+        className="champion-card__action"
+        onClick={onSelect}
+        disabled={disabled}
+        aria-pressed={selected}
+        aria-label={starterCopy.chooseChampion(localizedChampion.name)}
+        aria-describedby={`starter-info-${champion.id}`}
+        data-selected-label={selected ? starterCopy.selectedChampionBadge : undefined}
+      />
+    </div>
   );
 }

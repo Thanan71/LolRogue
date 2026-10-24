@@ -23,6 +23,37 @@ vi.mock('@/data/champion', async (original) => {
 
 afterEach(cleanup);
 
+it('keeps champion card actions named, described and natively disabled across selection', async () => {
+  const [{ ChampionCard }, { championDB }] = await Promise.all([
+    import('@/features/champions/ui/ChampionCard'),
+    import('@/data/championDatabase'),
+  ]);
+  const champion = championDB.getById('Annie');
+  if (!champion) throw new Error('Annie is required by this test.');
+  const onSelect = vi.fn();
+  const view = render(
+    <ChampionCard champion={champion} selected={false} disabled={false} onSelect={onSelect} />,
+  );
+  const action = screen.getByRole('button', { name: 'Choisir Annie' });
+  const description = document.getElementById('starter-info-Annie');
+  expect(action).toHaveAttribute('id', 'starter-choice-Annie');
+  expect(action).toHaveAttribute('aria-pressed', 'false');
+  expect(action).toHaveAccessibleDescription(expect.stringContaining('Annie'));
+  expect(action).not.toContainElement(description);
+  expect(action.parentElement).toContainElement(description);
+  expect(action.parentElement).toHaveAttribute('data-disabled', 'false');
+  fireEvent.click(action);
+  expect(onSelect).toHaveBeenCalledOnce();
+
+  view.rerender(<ChampionCard champion={champion} selected disabled onSelect={onSelect} />);
+  expect(action).toBeDisabled();
+  expect(action).toHaveAttribute('aria-pressed', 'true');
+  expect(action.parentElement).toHaveClass('champion-card--selected');
+  expect(action.parentElement).toHaveAttribute('data-disabled', 'true');
+  fireEvent.click(action);
+  expect(onSelect).toHaveBeenCalledOnce();
+});
+
 it('bounds a large catalogue, clamps expired pages and searches accents consistently', () => {
   const entries = Array.from({ length: 180 }, (_, index) => index);
   expect(starterCatalogPage(entries, 1).champions).toHaveLength(STARTER_PAGE_SIZE);

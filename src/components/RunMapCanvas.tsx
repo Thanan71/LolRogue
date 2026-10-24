@@ -261,6 +261,7 @@ export function RunMapCanvas({
                 isAccessible,
                 isAbandoned: abandoned,
               });
+              const badgeLabel = isCurrent ? fr.run.here : isAccessible ? fr.run.choice : '';
               return (
                 <g
                   key={node.id}
@@ -276,15 +277,20 @@ export function RunMapCanvas({
                   role={isSelectable ? 'button' : 'img'}
                   tabIndex={isSelectable ? 0 : undefined}
                   aria-current={isCurrent ? 'step' : undefined}
-                  aria-label={fr.run.mapNodeLabel(
-                    typeName,
-                    node.column + 1,
-                    node.row + 1,
-                    stateName,
-                    isEntry,
-                    isSelectable,
-                    hasPendingChoice && isAccessible,
-                  )}
+                  aria-label={[
+                    badgeLabel,
+                    fr.run.mapNodeLabel(
+                      typeName,
+                      node.column + 1,
+                      node.row + 1,
+                      stateName,
+                      isEntry,
+                      isSelectable,
+                      hasPendingChoice && isAccessible,
+                    ),
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
                 >
                   <circle
                     className="run-map-node__hit-area"
@@ -311,10 +317,10 @@ export function RunMapCanvas({
                     <g className="run-map-node__badge">
                       <rect x={position.x - 23} y={position.y - 43} width="46" height="16" rx="8" />
                       <text x={position.x} y={position.y - 32} textAnchor="middle">
-                        {isCurrent ? fr.run.here : fr.run.choice}
+                        {badgeLabel}
                       </text>
                     </g>
-                  )}
+                  )}{' '}
                   <text
                     x={position.x}
                     y={position.y + 43}
