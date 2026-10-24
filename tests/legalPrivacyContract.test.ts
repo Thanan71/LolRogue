@@ -5,6 +5,7 @@ import {
   PRODUCTION_LEGAL_GATE,
   RIOT_FAN_PROJECT_NOTICE,
 } from '@/legal/legalContract';
+import { normalizeMarkdownTableSpacing } from './helpers/markdownTableSpacing';
 
 const migration = readFileSync(
   new URL('../supabase/migrations/20260808180000_legal_privacy_retention.sql', import.meta.url),
@@ -49,7 +50,9 @@ describe('legal and privacy contract', () => {
 
   it('caps any future optional field-calibration collection before activation', () => {
     expect(PRIVACY_RETENTION.optionalFieldCalibrationDays).toBe(30);
-    const protocol = readFileSync(new URL('../docs/field-calibration.md', import.meta.url), 'utf8');
+    const protocol = normalizeMarkdownTableSpacing(
+      readFileSync(new URL('../docs/field-calibration.md', import.meta.url), 'utf8'),
+    );
     expect(protocol).toContain('**désactivée**');
     expect(protocol).toContain('opt-in distinct, préalable, libre et désactivé par défaut');
     expect(protocol).toContain('au plus tard 30 jours');

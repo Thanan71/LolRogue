@@ -1244,6 +1244,7 @@
     "tests/helpers/enhancementSpecializationComparison.ts",
     "tests/helpers/historicalCombatFixture.ts",
     "tests/helpers/instrumentedAuthorityCombatRuntime.ts",
+    "tests/helpers/markdownTableSpacing.ts",
     "tests/helpers/starterChallengeFixture.ts",
     "tests/helpers/userCopyScanner.test.ts",
     "tests/helpers/userCopyScanner.ts",
@@ -1274,6 +1275,7 @@
     "tests/mapEconomyRuleset.test.ts",
     "tests/mapGeneration.test.ts",
     "tests/mapProgression.test.ts",
+    "tests/markdownTableSpacing.test.ts",
     "tests/mastery.test.ts",
     "tests/math.test.ts",
     "tests/naturalAbilityPower.test.ts",
@@ -3000,7 +3002,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -27198,7 +27200,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -27471,7 +27473,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -27847,7 +27849,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -28470,7 +28472,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -29137,7 +29139,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -29653,7 +29655,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -30172,7 +30174,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -34805,7 +34807,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -35365,7 +35367,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -35961,7 +35963,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -36678,7 +36680,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -38226,7 +38228,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -38953,7 +38955,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 96,
+          "line": 97,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(backup).toContain('npm run release -- restore-drill');",
@@ -39514,7 +39516,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 96,
+          "line": 97,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(backup).toContain('npm run release -- restore-drill');",
@@ -40051,7 +40053,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -40916,7 +40918,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -41907,7 +41909,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -44007,7 +44009,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 179,
+          "line": 180,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(matrix).toContain('npm run testing -- security');",
@@ -44518,7 +44520,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 179,
+          "line": 180,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(matrix).toContain('npm run testing -- security');",
@@ -45083,7 +45085,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -45702,7 +45704,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -46309,7 +46311,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -46975,7 +46977,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
@@ -47609,7 +47611,7 @@
         },
         {
           "file": "tests/documentation.test.ts",
-          "line": 194,
+          "line": 195,
           "kind": "npm-run",
           "source": "test",
           "excerpt": "expect(todo).not.toContain('Validation locale : `npm run check` avec **820 tests**');",
