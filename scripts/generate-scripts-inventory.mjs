@@ -2,8 +2,10 @@ import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { isDirectExecution } from './lib/critical-command.mjs';
+import { formatWithPinnedBiome } from './lib/pinned-biome-format.mjs';
 import {
   checkScriptInventory,
+  EQUIVALENCE_PATH,
   generateScriptInventory,
   writeScriptInventory,
 } from './lib/script-inventory.mjs';
@@ -28,6 +30,12 @@ export async function runScriptInventory({
       ? (await import(pathToFileURL(catalogPath).href)).commandCatalog
       : [];
     const { inventory, outputs, fingerprint } = generateScriptInventory(root, { catalog });
+    outputs[EQUIVALENCE_PATH] = await formatWithPinnedBiome({
+      root: resolve(import.meta.dirname, '..'),
+      source: outputs[EQUIVALENCE_PATH],
+      stdinFilePath: EQUIVALENCE_PATH,
+      label: 'Script inventory',
+    });
     const stale = checkScriptInventory(root, outputs);
     if (args.includes('--check')) {
       if (stale.length) {

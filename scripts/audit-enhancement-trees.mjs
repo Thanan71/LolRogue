@@ -1,9 +1,9 @@
-import { spawn } from 'node:child_process';
 import { copyFile, mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { build } from 'esbuild-authority';
 import { artifactPath, createArtifactSnapshot, sha256 } from './lib/artifact-snapshot.mjs';
 import { isDirectExecution } from './lib/critical-command.mjs';
+import { formatWithPinnedBiome } from './lib/pinned-biome-format.mjs';
 
 const repositoryRoot = path.resolve(import.meta.dirname, '..');
 export const ENHANCEMENT_AUDIT_OUTPUTS = [
@@ -14,6 +14,7 @@ const staticInputs = [
   'scripts/audit-enhancement-trees.mjs',
   'scripts/lib/artifact-snapshot.mjs',
   'scripts/lib/critical-command.mjs',
+  'scripts/lib/pinned-biome-format.mjs',
   'src/components/EnhancementTree.tsx',
   'src/game/enhancements/bonuses.ts',
   'tests/helpers/enhancementSpecializationComparison.ts',
@@ -45,61 +46,6 @@ export function parseEnhancementAuditArgs(argv) {
     throw new Error('Enhancement audit: --help cannot be combined with other options.');
   }
   return { check: seen.has('--check'), help: seen.has('--help') };
-}
-
-async function formatJson(root, source) {
-  // The tracked output is excluded from broad scans; this virtual included path
-  // keeps its dedicated formatting check active without creating another file.
-  const maxInputBytes = 2 * 1024 * 1024;
-  if (Buffer.byteLength(source, 'utf8') > maxInputBytes) {
-    throw new Error('Enhancement audit: JSON exceeds the dedicated 2 MiB formatting limit.');
-  }
-  return new Promise((resolve, reject) => {
-    const formatter = spawn(
-      process.execPath,
-      [
-        path.join(root, 'node_modules/@biomejs/biome/bin/biome'),
-        'format',
-        '--stdin-file-path=tooling/enhancements/audit-output.json',
-        `--files-max-size=${maxInputBytes}`,
-      ],
-      { cwd: root, stdio: ['pipe', 'pipe', 'pipe'] },
-    );
-    const output = [];
-    const errors = [];
-    let outputBytes = 0;
-    const timeout = setTimeout(() => {
-      formatter.kill('SIGKILL');
-      reject(new Error('Enhancement audit: pinned Biome formatting timed out.'));
-    }, 30_000);
-    formatter.stdout.on('data', (bytes) => {
-      outputBytes += bytes.length;
-      if (outputBytes > 16 * 1024 * 1024) {
-        formatter.kill('SIGKILL');
-        reject(new Error('Enhancement audit: formatted JSON exceeds the output limit.'));
-      } else output.push(bytes);
-    });
-    formatter.stderr.on('data', (bytes) => errors.push(bytes));
-    formatter.on('error', (error) => {
-      clearTimeout(timeout);
-      reject(new Error(`Enhancement audit: pinned Biome could not start (${error.message}).`));
-    });
-    formatter.on('close', (code) => {
-      clearTimeout(timeout);
-      const formatted = Buffer.concat(output).toString('utf8');
-      const diagnostic = Buffer.concat(errors).toString('utf8').trim();
-      // Biome can return zero while ignoring a path or a size-limited input.
-      if (code !== 0 || !formatted.trim() || diagnostic) {
-        reject(
-          new Error(`Enhancement audit: pinned Biome formatting failed (${diagnostic || code}).`),
-        );
-      } else resolve(formatted);
-    });
-    formatter.stdin.on('error', (error) => {
-      if (!('code' in error) || error.code !== 'EPIPE') reject(error);
-    });
-    formatter.stdin.end(source);
-  });
 }
 
 /** All compiler inputs and physically cited effect consumers are read from one snapshot. */
@@ -199,8 +145,20 @@ export async function generateEnhancementAudit({
     ...report,
     provenance: { algorithm: 'sha256', inputsSha256, inputs: sourceHashes, migrations },
   };
-  const json = await formatJson(root, `${JSON.stringify(withProvenance, null, 2)}\n`);
-  const markdown = `${generator.renderEnhancementAuditMarkdown(report).trimEnd()}\n\n## Provenance reproductible\n\nSHA-256 des ${sourceHashes.length} entrées et de la liste des ${migrations.length} migrations : \`${inputsSha256}\`. Les chemins et empreintes individuels figurent dans le JSON voisin. Aucun horodatage ni SHA de commit auto-référencé.\n`;
+  const json = await formatWithPinnedBiome({
+    root,
+    source: `${JSON.stringify(withProvenance, null, 2)}\n`,
+    // The tracked JSON is excluded from broad scans; keep its dedicated check active.
+    stdinFilePath: 'tooling/enhancements/audit-output.json',
+    label: 'Enhancement audit',
+  });
+  const markdownSource = `${generator.renderEnhancementAuditMarkdown(report).trimEnd()}\n\n## Provenance reproductible\n\nSHA-256 des ${sourceHashes.length} entrées et de la liste des ${migrations.length} migrations : \`${inputsSha256}\`. Les chemins et empreintes individuels figurent dans le JSON voisin. Aucun horodatage ni SHA de commit auto-référencé.\n`;
+  const markdown = await formatWithPinnedBiome({
+    root,
+    source: markdownSource,
+    stdinFilePath: ENHANCEMENT_AUDIT_OUTPUTS[1],
+    label: 'Enhancement audit',
+  });
   await snapshot.assertUnchanged();
   return {
     json,
