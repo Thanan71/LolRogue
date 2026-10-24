@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { performance } from 'node:perf_hooks';
 import type { ExplorerAccount } from './adminExplorerFixtures';
 import { explorerSql } from './adminExplorerFixtures';
 
@@ -12,22 +13,63 @@ export function balanceScenario(
   accounts: ExplorerAccount[],
   setup: string,
   query: string,
+  options: { diagnostics?: boolean } = {},
 ) {
-  const result = explorerSql(`BEGIN;
+  const diagnostic = options.diagnostics
+    ? { started: performance.now(), cpu: process.cpuUsage(), memory: process.memoryUsage() }
+    : null;
+  const marker = (phase: string) =>
+    diagnostic ? `\\echo BALANCE_DIAGNOSTIC_${phase.toUpperCase()}\n` : '';
+  const result = explorerSql(`${diagnostic ? '\\timing on\n' : ''}${marker('setup')}BEGIN;
     SET LOCAL session_replication_role='replica';
     UPDATE public.players SET created_at='2024-01-01' WHERE id IN(${accounts.map((a) => `'${a.playerId}'`).join(',')});
     ${setup}
-    SET LOCAL session_replication_role='origin';
+    ${marker('auth')}SET LOCAL session_replication_role='origin';
     SELECT set_config('request.jwt.claims','{"sub":"${admin.userId}","role":"authenticated"}',TRUE);
     SET LOCAL ROLE authenticated;
-    SELECT ${query};
-    ROLLBACK;`);
-  return JSON.parse(
+    ${marker('rpc')}SELECT ${query};
+    ${marker('rollback')}ROLLBACK;`);
+  const value = JSON.parse(
     result
       .split('\n')
       .reverse()
       .find((line) => line.startsWith('{') || line.startsWith('['))!,
   );
+  if (diagnostic) {
+    const wallMs = performance.now() - diagnostic.started;
+    const cpu = process.cpuUsage(diagnostic.cpu);
+    const memory = process.memoryUsage();
+    const psqlMs = { setup: 0, auth: 0, rpc: 0, rollback: 0 };
+    const setupStatementsMs: number[] = [];
+    let phase: keyof typeof psqlMs = 'setup';
+    for (const line of result.split('\n')) {
+      if (line === 'BALANCE_DIAGNOSTIC_AUTH') phase = 'auth';
+      else if (line === 'BALANCE_DIAGNOSTIC_RPC') phase = 'rpc';
+      else if (line === 'BALANCE_DIAGNOSTIC_ROLLBACK') phase = 'rollback';
+      const timing = /^Time: ([\d.]+) ms(?:\s|$)/.exec(line);
+      if (!timing) continue;
+      const milliseconds = Number(timing[1]);
+      psqlMs[phase] += milliseconds;
+      if (phase === 'setup') setupStatementsMs.push(milliseconds);
+    }
+    const round = (number: number) => Math.round(number * 100) / 100;
+    console.info(
+      '[adminBalance population diagnostic]',
+      JSON.stringify({
+        nodeWallMs: round(wallMs),
+        nodeCpuMs: { user: round(cpu.user / 1000), system: round(cpu.system / 1000) },
+        memoryMiB: {
+          rssBefore: round(diagnostic.memory.rss / 1024 ** 2),
+          rssAfter: round(memory.rss / 1024 ** 2),
+          heapBefore: round(diagnostic.memory.heapUsed / 1024 ** 2),
+          heapAfter: round(memory.heapUsed / 1024 ** 2),
+        },
+        psqlMs: Object.fromEntries(Object.entries(psqlMs).map(([key, ms]) => [key, round(ms)])),
+        setupStatementsMs,
+      }),
+    );
+  }
+  return value;
 }
 export function balanceFinish(
   attemptId: string,
