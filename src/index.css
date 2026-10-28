@@ -635,6 +635,12 @@
     forced-color-adjust: auto;
   }
 
+  .main-menu__nav-action,
+  .run-team-stats__member-action,
+  .champion-card__action {
+    background: transparent !important;
+  }
+
   :where([aria-current="true"], [aria-selected="true"], [aria-pressed="true"]) {
     outline: var(--focus-ring-width) solid Highlight !important;
     outline-offset: 2px;

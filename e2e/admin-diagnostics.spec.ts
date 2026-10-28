@@ -6,16 +6,19 @@ import type {
 } from '../src/features/administration/domain/diagnostics/adminDiagnosticsTypes';
 import { validateDiagnosticsFilters } from '../src/features/administration/domain/diagnostics/adminDiagnosticsValidation';
 import {
+  DIAGNOSTICS_TEST_SNAPSHOT,
+  DIAGNOSTICS_TEST_UUID,
   diagnosticsAggregate,
   diagnosticsAttempt,
   diagnosticsLog,
   diagnosticsResponse,
-  DIAGNOSTICS_TEST_UUID,
 } from '../tests/helpers/adminDiagnosticsUiFixtures';
 import { enterAdminExplorer } from './helpers/admin-explorer';
 
 // Controlled responses prove browser interactions; the connected gate proves real Auth/PostgreSQL.
 async function diagnosticsBackend(page: Page) {
+  // Keep rolling date filters aligned with the fixed diagnostics snapshot.
+  await page.clock.setFixedTime(new Date(DIAGNOSTICS_TEST_SNAPSHOT));
   const logs = Array.from({ length: 101 }, (_, index) =>
     diagnosticsLog({
       id: `30000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
