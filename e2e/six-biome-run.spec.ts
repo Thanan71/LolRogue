@@ -359,6 +359,18 @@ async function playRun(page: Page, testInfo: TestInfo, strategy: 'risky' | 'surv
   const visited = new Set<string>();
   try {
     await startNormalGuestRun(page, strategy === 'survival');
+    if (strategy === 'risky') {
+      const fixture = await page.evaluate(async () => {
+        const { useRunStore } = await import('/src/stores/runStore.ts');
+        const { seed, team, runeIds } = useRunStore.getState();
+        return { seed, team: team.map((member) => member.championId), runeIds };
+      });
+      console.info('Guest defeat fixture:', JSON.stringify(fixture));
+      await testInfo.attach('ui-run-fixture.json', {
+        body: JSON.stringify(fixture),
+        contentType: 'application/json',
+      });
+    }
 
     for (let step = 0; step < 80; step += 1) {
       if (new URL(page.url()).pathname === '/game-over') break;
@@ -423,6 +435,8 @@ async function playRun(page: Page, testInfo: TestInfo, strategy: 'risky' | 'surv
 
 test('a guest run reaches a real defeat through the UI', async ({ page }, testInfo) => {
   test.setTimeout(180_000);
+  // Fix the normal-run selection seed as well as the economy fixture's server time.
+  await page.clock.setFixedTime(new Date('2026-02-02T14:00:00.000Z'));
   const result = await playRun(page, testInfo, 'risky');
   expect(result.outcome).toBe('Défaite');
 });
