@@ -112,3 +112,53 @@ test('le mode Windows High Contrast conserve contrôles, état et focus', async 
   await expect(page).toHaveURL('/');
   await expect(page.getByRole('heading', { name: 'LoL Rogue' })).toBeVisible();
 });
+
+test('les cartes restent lisibles sous leurs actions en contraste forcé', async ({ page }) => {
+  const transparentColor = /^rgba\(\d+,\s*\d+,\s*\d+,\s*0\)$/;
+  await page.emulateMedia({ forcedColors: 'active', reducedMotion: 'reduce' });
+  await page.goto('/auth');
+  await expect(page.getByRole('button', { name: 'Jouer en invité' })).not.toHaveCSS(
+    'background-color',
+    transparentColor,
+  );
+  await enterGuest(page);
+
+  async function expectUncoveredCardActions(selector: string) {
+    const actions = page.locator(selector);
+    await expect(actions.first()).toBeVisible();
+    const count = await actions.count();
+    expect(count).toBeGreaterThan(0);
+    for (let index = 0; index < count; index += 1) {
+      await expect(actions.nth(index)).toHaveCSS('background-color', transparentColor);
+      await expect(actions.nth(index)).not.toHaveCSS('border-style', 'none');
+    }
+  }
+
+  await expect(page.locator('.main-menu__nav-action')).toHaveCount(4);
+  await expectUncoveredCardActions('.main-menu__nav-action');
+  for (const name of ['Champions', 'Guide et règles', 'Profil et historique', 'Réglages']) {
+    await expect(page.getByRole('button', { name, exact: true })).toBeVisible();
+    await expect(page.getByText(name, { exact: true }).first()).toBeVisible();
+  }
+
+  await page.getByRole('button', { name: 'Jouer', exact: true }).click();
+  await expect(page).toHaveURL('/starter-select');
+  await expectUncoveredCardActions('.champion-card__action');
+
+  await page.evaluate(async () => {
+    const { useRunStore } = await import('/src/stores/runStore.ts');
+    const started = await useRunStore.getState().startRun(['Annie', 'Ashe'], { seed: 20260801 });
+    if (!started.success) throw new Error(`Unable to start high-contrast run: ${started.code}`);
+  });
+  await page.goto('/run');
+  await page.getByRole('button', { name: 'Fermer le tutoriel', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.locator('.run-team-stats__member-action')).toHaveCount(2);
+  await expectUncoveredCardActions('.run-team-stats__member-action');
+  await page.locator('.run-team-stats__member-action').first().focus();
+  await page.keyboard.press('Tab');
+  const focused = page.locator('.run-team-stats__member-action').nth(1);
+  await expect(focused).toBeFocused();
+  await expect(focused).toHaveCSS('outline-style', 'solid');
+  expect(await focused.evaluate((element) => element.matches(':focus-visible'))).toBe(true);
+});
